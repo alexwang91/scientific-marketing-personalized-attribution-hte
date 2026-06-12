@@ -352,6 +352,35 @@ _CSS = """
   footer{max-width:1080px;margin:0 auto;padding:18px 24px 40px;color:var(--muted);font-size:12px}
   @media(max-width:760px){.memo-grid,.cards{grid-template-columns:1fr}}
   @media print{body{background:#fff}section{break-inside:avoid}a{color:#000}}
+  /* heatmap grid */
+  .heatmap{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;font-size:12px}
+  .hm-header{background:#edf1f4;font-weight:700;padding:8px 10px;text-align:center}
+  .hm-label{background:#edf1f4;font-weight:600;padding:8px 10px}
+  .hm-cell{padding:7px 10px;text-align:center;font-weight:700}
+  .hm-high{background:#145c3b;color:#fff}
+  .hm-test{background:#805d00;color:#fff}
+  .hm-small{background:#edf1f4;color:#4c5965}
+  .hm-none{background:#f6f7f8;color:#9aa4ad}
+  .hm-avoid{background:#84211b;color:#fff}
+  /* dimension table */
+  .score-bar{display:inline-flex;gap:2px}
+  .score-dot{width:10px;height:10px;border-radius:50%}
+  .score-dot.pass{background:#145c3b}.score-dot.fail{background:#d9dee3}
+  /* KOL card */
+  .kol-card{border:1px solid var(--line);border-radius:8px;padding:14px;background:#fbfcfd;margin:8px 0}
+  /* checklist */
+  .checklist{list-style:none;padding:0;margin:0}
+  .checklist li{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .checklist li:last-child{border-bottom:0}
+  .chk-pending{color:#805d00;font-weight:700;min-width:20px}
+  .chk-done{color:#145c3b;font-weight:700;min-width:20px}
+  .chk-blocked{color:#84211b;font-weight:700;min-width:20px}
+  /* tag pills for evidence labels (v1 compatibility) */
+  .tag{display:inline-block;padding:1px 7px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
+  .tag.evidence{background:#dff3e8;color:#145c3b}
+  .tag.assumption{background:#fff1bf;color:#6b4e00}
+  .tag.hypothesis{background:#e8edf5;color:#245d7c}
+  .tag.needs-test{background:#f8d2cf;color:#84211b}
 """
 
 
@@ -550,6 +579,332 @@ def s_evidence(cfg: dict, numbers: dict) -> str:
 </section>"""
 
 
+def s_product_facts(cfg: dict) -> str:
+    """Section 3 — Product & market facts."""
+    features = cfg.get("product_facts", [])
+    mfacts = cfg.get("market_facts", [])
+    feat_rows = "".join(
+        f"<tr><td>{esc(f['label'])}</td><td>{esc(f['detail'])}</td>"
+        f"<td><span class='tag {esc(f.get(\"tag\",\"evidence\"))}'>{esc(f.get('tag','Evidence').title())}</span></td></tr>"
+        for f in features
+    )
+    mfact_rows = "".join(
+        f"<tr><td>{esc(m['fact'])}</td>"
+        f"<td><span class='tag {esc(m.get(\"tag\",\"evidence\"))}'>{esc(m.get('tag','Evidence').title())}</span></td></tr>"
+        for m in mfacts
+    )
+    feat_table = f"""<h3>Product features relevant to targeting</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>Feature</th><th>Targeting relevance</th><th>Status</th></tr></thead>
+  <tbody>{feat_rows}</tbody></table></div>""" if feat_rows else ""
+    mfact_table = f"""<h3>Market facts</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>Fact</th><th>Status</th></tr></thead>
+  <tbody>{mfact_rows}</tbody></table></div>""" if mfact_rows else ""
+    return f"""<section>
+  <h2>3 · Product &amp; Market Facts</h2>
+  {feat_table}
+  {mfact_table}
+</section>"""
+
+
+def s_channel_map(cfg: dict, numbers: dict) -> str:
+    """Section 5 — Local channel map."""
+    channels = cfg.get("channels", [])
+    rows = ""
+    for ch in channels:
+        v = ch.get("verdict", "undetermined")
+        cac_est = fmt_value(ch["cac_estimate"], numbers) if ch.get("cac_estimate") and ch["cac_estimate"] in numbers else "—"
+        rows += (f"<tr><td><strong>{esc(ch['name'])}</strong></td>"
+                 f"<td>{esc(ch.get('task','—'))}</td>"
+                 f"<td>{esc(ch.get('proxy_quality','—'))}</td>"
+                 f"<td><span class='pill pill-{esc(v)}'>{esc(v)}</span></td>"
+                 f"<td>{cac_est}</td>"
+                 f"<td>{esc(ch.get('note',''))}</td></tr>")
+    return f"""<section>
+  <h2>5 · Local Channel Map</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Channel</th><th>Task</th><th>Proxy quality</th><th>Verdict</th><th>CAC estimate</th><th>Note</th></tr></thead>
+    <tbody>{rows}</tbody></table></div>
+  <p style="font-size:13px;color:var(--muted)">Benchmarks may prove <em>not-viable</em> (best case still fails ceiling) but never <em>viable</em>. <em>undetermined</em> = interval spans ceiling; data acquisition required.</p>
+</section>"""
+
+
+def _score_dots(score_str: str) -> str:
+    """Render '4/5' as filled/empty dots."""
+    try:
+        filled, total = map(int, score_str.split("/"))
+    except Exception:
+        return esc(score_str)
+    dots = "".join(
+        f'<span class="score-dot {"pass" if i < filled else "fail"}"></span>'
+        for i in range(total)
+    )
+    return f'<span class="score-bar">{dots}</span> {esc(score_str)}'
+
+
+def s_dimensions(cfg: dict) -> str:
+    """Section 6 — D dimension table + Causal Activation Reviewer."""
+    dims = cfg.get("dimensions", [])
+    rows = ""
+    for d in dims:
+        status = d.get("resolution_status", "open")
+        v = d.get("verdict", "Retain")
+        rows += (f"<tr><td><strong>{esc(d['id'])}</strong> {esc(d['name'])}</td>"
+                 f"<td style='font-size:12px'>{esc(d['mechanism'])}</td>"
+                 f"<td style='font-size:12px'>{esc(d['proxy'])}</td>"
+                 f"<td>{_score_dots(d.get('entry_score','—'))}</td>"
+                 f"<td>{esc(v)}</td>"
+                 f"<td><span class='pill pill-{esc(status)}'>{esc(status)}</span></td></tr>")
+    reviewer_rows = "".join(
+        f"<tr><td>{esc(r['dimension'])}</td><td>{esc(r['challenge'])}</td>"
+        f"<td>{esc(r['handling'])}</td><td>{esc(r.get('evidence_needed',''))}</td></tr>"
+        for r in cfg.get("reviewer_table", [])
+    )
+    reviewer = f"""<h3>Causal Activation Reviewer — dimension challenges</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>Dimension</th><th>Challenge raised</th><th>Current handling</th><th>Evidence needed</th></tr></thead>
+  <tbody>{reviewer_rows}</tbody></table></div>
+<div class="callout">D dimensions are candidate operational variables for trial design. Before entering primary budget, each must pass: deployable proxy, testable incrementality, stated mechanism, no compliance or margin risk.</div>""" if reviewer_rows else ""
+    return f"""<section>
+  <h2>6 · D Dimension Table &amp; Causal Activation Reviewer</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Dimension</th><th>Mechanism</th><th>Platform proxy</th><th>Score</th><th>Verdict</th><th>Status</th></tr></thead>
+    <tbody>{rows}</tbody></table></div>
+  <p style="font-size:13px;color:var(--muted)">Verdicts: Retain = H or T in heatmap · Retain (test) = T or S · Demote S = S only · Suppression = exclude not target · Delete = remove.</p>
+  {reviewer}
+</section>"""
+
+
+def s_heatmap(cfg: dict) -> str:
+    """Section 7 — Semantic heatmap (channel × dimension)."""
+    hm = cfg.get("heatmap")
+    if not hm:
+        return ""
+    channels = hm["channels"]
+    dims = hm["dimensions"]
+    scores = hm["scores"]
+    label_map = hm.get("dim_labels", {})
+    score_labels = {"H": "H — Primary", "T": "T — Test", "S": "S — Small", "N": "N — None", "A": "A — Avoid"}
+    n_cols = len(dims) + 1
+    col_def = f"repeat({n_cols}, 1fr)"
+    header = '<div class="hm-header">Channel \\ Dimension</div>' + "".join(
+        f'<div class="hm-header">{esc(label_map.get(d, d))}</div>' for d in dims
+    )
+    rows = ""
+    for ch in channels:
+        rows += f'<div class="hm-label">{esc(ch)}</div>'
+        for d in dims:
+            sc = scores.get(ch, {}).get(d, "N")
+            rows += f'<div class="hm-cell hm-{esc(sc.lower())}">{esc(sc)}</div>'
+    legend = " · ".join(f'<span class="hm-cell hm-{s.lower()}" style="display:inline-block;padding:2px 8px;border-radius:4px">{s}</span> {lbl.split("—")[1].strip()}' for s, lbl in score_labels.items())
+    return f"""<section>
+  <h2>7 · Semantic Heatmap (channel × dimension)</h2>
+  <p style="font-size:13px">Only channels that survived the viability screen appear. H = primary investment target; A = actively suppress.</p>
+  <div class="heatmap" style="grid-template-columns:{esc(col_def)};margin:12px 0">
+    {header}{rows}
+  </div>
+  <p style="font-size:12px;color:var(--muted);margin-top:8px">Legend: {legend}</p>
+</section>"""
+
+
+def s_h_main(cfg: dict) -> str:
+    """Section 8 — H-main breakdown."""
+    h_cells = cfg.get("h_main_breakdown", [])
+    rows = "".join(
+        f"<tr><td><strong>{esc(h['channel_dim'])}</strong></td>"
+        f"<td style='font-size:12px'>{esc(h['hypothesis'])}</td>"
+        f"<td>{esc(h.get('t_card','—'))}</td>"
+        f"<td style='font-size:12px'>{esc(h.get('notes',''))}</td></tr>"
+        for h in h_cells
+    )
+    return f"""<section>
+  <h2>8 · H-Main Breakdown</h2>
+  <p>These are the cells where HTE is expected to be positive. Each maps to a Treatment Card in Section 9. Priority order: top to bottom.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Channel × Dimension</th><th>HTE hypothesis</th><th>Treatment Card</th><th>Notes</th></tr></thead>
+    <tbody>{rows}</tbody></table></div>
+</section>"""
+
+
+def s_execution_gates(cfg: dict, numbers: dict, challenges_by_id: dict) -> str:
+    """Section 9 — Execution gates + Treatment Cards (full T-card format)."""
+    gates = cfg.get("execution_gates", [])
+    gate_rows = "".join(
+        f"<tr><td><strong>{esc(g['gate'])}</strong></td>"
+        f"<td>{esc(g.get('input_needed',''))}</td>"
+        f"<td><span class='pill pill-{esc(g[\"status\"])}'>{esc(g['status'])}</span></td>"
+        f"<td>{esc(g.get('note',''))}</td></tr>"
+        for g in gates
+    )
+    gate_html = f"""<div class="table-wrap"><table>
+  <thead><tr><th>Gate</th><th>Input needed</th><th>Status</th><th>Note</th></tr></thead>
+  <tbody>{gate_rows}</tbody></table></div>""" if gate_rows else ""
+
+    cards = ""
+    for a in cfg.get("actions", []):
+        blockers = _blocked_by(a, challenges_by_id)
+        stamp = "".join(f'<span class="blocked-stamp">&#8856; BLOCKED by {esc(b)}</span>' for b in blockers)
+        audience = f"<dt>Audience</dt><dd>{esc(a['audience'])}</dd>" if a.get("audience") else ""
+        baseline = f"<dt>Baseline</dt><dd>{esc(a['baseline'])}</dd>" if a.get("baseline") else ""
+        budget = (f"<dt>Budget envelope</dt><dd>{fmt_value(a['budget'], numbers)}</dd>"
+                  if a.get("budget") and a["budget"] in numbers else "")
+        cards += f"""<div class="card{' blocked' if blockers else ''}">
+  <h3>{esc(a['id'])} · {esc(a['action'])} {stamp}</h3>
+  <dl>
+    {audience}
+    {baseline}
+    <dt>Mechanism</dt><dd>{esc(a['mechanism'])}</dd>
+    <dt>Guardrail</dt><dd>{esc(a['guardrail'])}</dd>
+    <dt>Measurement</dt><dd>{esc(a['measurement'])}</dd>
+    {budget}
+  </dl>
+</div>"""
+    maturity = cfg.get("measurement_plan", {}).get("maturity", "L0")
+    return f"""<section>
+  <h2>9 · Execution Gates &amp; Treatment Cards</h2>
+  <p><strong>Maturity: {esc(maturity)}</strong> — this analysis supports trial design and channel screening, not CATE claims or policy optimization.</p>
+  {gate_html}
+  {power_bridge(cfg)}
+  <h3>Treatment Cards (H-main cells only)</h3>
+  <div class="cards">{cards}</div>
+</section>"""
+
+
+def s_budget(cfg: dict, numbers: dict) -> str:
+    """Section 10 — Budget allocation."""
+    rows = cfg.get("budget_rows", [])
+    if not rows:
+        return ""
+    row_html = "".join(
+        f"<tr><td>{esc(r['phase'])}</td><td>{esc(r['item'])}</td>"
+        f"<td>{fmt_value(r['budget_id'], numbers) if r.get('budget_id') and r['budget_id'] in numbers else esc(r.get('budget_display','—'))}</td>"
+        f"<td>{esc(r.get('condition',''))}</td></tr>"
+        for r in rows
+    )
+    note = cfg.get("budget_note", "")
+    return f"""<section>
+  <h2>10 · Budget Allocation</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Phase</th><th>Item</th><th>Budget</th><th>Condition</th></tr></thead>
+    <tbody>{row_html}</tbody></table></div>
+  {f'<p class="callout">{esc(note)}</p>' if note else ""}
+</section>"""
+
+
+def s_priority_plays(cfg: dict, numbers: dict) -> str:
+    """Section 11 — Priority plays."""
+    plays = cfg.get("priority_plays", [])
+    cards = "".join(
+        f"""<div class="card">
+  <h3>{esc(p['play'])} — {esc(p['action'])}</h3>
+  <dl>
+    <dt>Why now</dt><dd>{esc(p['why_now'])}</dd>
+    <dt>Expected incremental CAC</dt><dd><span class="tag needs-test">Needs test</span> {esc(p.get('expected_cac','undetermined'))}</dd>
+    <dt>Kill line</dt><dd>{esc(p.get('kill_line',''))}</dd>
+  </dl>
+</div>"""
+        for p in plays
+    )
+    auuc_note = cfg.get("auuc_note", "No uplift model scores available yet — AUUC gate will be applied when model predictions are generated after pilot data collection.")
+    return f"""<section>
+  <h2>11 · Priority Plays &amp; ROI Scenarios</h2>
+  <div class="callout">{esc(auuc_note)}</div>
+  <div class="cards">{cards}</div>
+</section>"""
+
+
+def s_kol(cfg: dict, numbers: dict) -> str:
+    """Section 12 — KOL / Creator sourcing."""
+    kol = cfg.get("kol")
+    if not kol or not kol.get("enabled"):
+        return ""
+    creators = kol.get("creators", [])
+    creator_html = ""
+    for c in creators:
+        fee = fmt_value(c["fee_id"], numbers) if c.get("fee_id") and c["fee_id"] in numbers else "—"
+        creator_html += f"""<div class="kol-card">
+  <strong>{esc(c['profile'])}</strong>
+  <dl style="margin:6px 0 0;font-size:13px">
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase">Format</dt>
+    <dd>{esc(c['format'])}</dd>
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">Fee estimate</dt>
+    <dd><span class="tag assumption">Assumption</span> {fee} — pending direct quote</dd>
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">Attribution</dt>
+    <dd>{esc(c['attribution'])}</dd>
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">Incrementality</dt>
+    <dd><span class="tag needs-test">Needs test</span> {esc(c['incrementality_note'])}</dd>
+  </dl>
+</div>"""
+    rule = kol.get("roi_rule", "KOL ROI is never Evidence without a holdout or credible identification strategy. All creator attribution is tagged Hypothesis until a holdout arm is designed.")
+    return f"""<section>
+  <h2>12 · KOL / Creator Sourcing</h2>
+  <div class="callout">{esc(rule)}</div>
+  {creator_html}
+</section>"""
+
+
+def s_measurement(cfg: dict) -> str:
+    """Section 13 — Measurement plan."""
+    mp = cfg.get("measurement_plan", {})
+    if not mp:
+        return ""
+    maturity = mp.get("maturity", "L0")
+    primary = mp.get("primary_metric", "")
+    secondary = mp.get("secondary_metrics", [])
+    scale_up = mp.get("scale_up_rule", "")
+    pause_rule = mp.get("pause_rule", "")
+    gcg = mp.get("gcg_design", "")
+    hte_note = mp.get("hte_note", "")
+    sec = mp.get("secondary_metrics", [])
+    sec_items = "".join(f"<li>{esc(m)}</li>" for m in sec)
+    return f"""<section>
+  <h2>13 · Measurement Plan</h2>
+  <p><strong>Maturity: {esc(maturity)}</strong></p>
+  <p><strong>Primary metric:</strong> {esc(primary)}</p>
+  {"<p><strong>Secondary metrics:</strong></p><ul>" + sec_items + "</ul>" if sec_items else ""}
+  {"<h3>Scale-up rule</h3><p>" + esc(scale_up) + "</p>" if scale_up else ""}
+  {"<h3>Pause rule</h3><p>" + esc(pause_rule) + "</p>" if pause_rule else ""}
+  {"<h3>GCG design</h3><p>" + esc(gcg) + "</p>" if gcg else ""}
+  {"<div class='callout'>" + esc(hte_note) + "</div>" if hte_note else ""}
+</section>"""
+
+
+def s_suppression(cfg: dict) -> str:
+    """Section 14 — Suppression & risk rules."""
+    rules = cfg.get("suppression_rules", [])
+    if not rules:
+        return ""
+    rows = "".join(
+        f"<tr><td>{esc(r['rule'])}</td><td>{esc(r['dimension'])}</td><td>{esc(r['reason'])}</td></tr>"
+        for r in rules
+    )
+    ope_note = cfg.get("ope_note", "OPE support check (ope_estimators.py) will run once propensity log P(t|x) is available. Gate: support check must pass before any scaled deployment.")
+    return f"""<section>
+  <h2>14 · Suppression &amp; Risk Rules</h2>
+  <div class="callout">{esc(ope_note)}</div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Rule</th><th>Dimension</th><th>Reason</th></tr></thead>
+    <tbody>{rows}</tbody></table></div>
+</section>"""
+
+
+def s_checklist(cfg: dict) -> str:
+    """Section 15 — Sources + Verification checklist."""
+    items = cfg.get("checklist", [])
+    status_icons = {"done": "✓", "pending": "○", "blocked": "⊘", "na": "—"}
+    status_cls = {"done": "chk-done", "pending": "chk-pending", "blocked": "chk-blocked", "na": "chk-pending"}
+    list_items = "".join(
+        f'<li><span class="{esc(status_cls.get(i["status"],"chk-pending"))}">'
+        f'{esc(status_icons.get(i["status"],"○"))}</span> {esc(i["item"])}</li>'
+        for i in items
+    )
+    return f"""<section>
+  <h2>15 · Sources &amp; Verification Checklist</h2>
+  <ul class="checklist">{list_items}</ul>
+</section>"""
+
+
 def s_termination(cfg: dict) -> str:
     term = cfg.get("termination")
     if not term:
@@ -578,14 +933,28 @@ def generate_html(cfg: dict) -> str:
 
     parts = [s_memo(cfg), s_termination(cfg), s_math(cfg, numbers)]
     if not short_mode:
-        parts += [s_actions(cfg, numbers, challenges_by_id),
-                  s_challenges(cfg),
-                  s_test_plan(cfg)]
+        parts += [
+            s_product_facts(cfg),          # Section 3
+            s_channel_map(cfg, numbers),    # Section 5 (was part of math)
+            s_dimensions(cfg),             # Section 6
+            s_heatmap(cfg),                # Section 7
+            s_h_main(cfg),                 # Section 8
+            s_execution_gates(cfg, numbers, challenges_by_id),  # Section 9
+            s_budget(cfg, numbers),        # Section 10
+            s_priority_plays(cfg, numbers),# Section 11
+            s_kol(cfg, numbers),           # Section 12
+            s_measurement(cfg),            # Section 13
+            s_suppression(cfg),            # Section 14
+            s_actions(cfg, numbers, challenges_by_id),   # kept for compatibility
+            s_challenges(cfg),             # Adversarial review (separate)
+            s_test_plan(cfg),              # Test plan
+            s_checklist(cfg),              # Section 15
+        ]
     parts.append(s_evidence(cfg, numbers))
 
-    title = f'{meta.get("product", "")} {meta.get("market", "")} — Decision Memo'
+    title = f'{meta.get("product", "")} — {meta.get("market", "")} Decision Memo'
     return f"""<!doctype html>
-<html lang="{esc(meta.get("lang", "en"))}">
+<html lang="{esc(meta.get("lang", "hu"))}">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(title)}</title>
