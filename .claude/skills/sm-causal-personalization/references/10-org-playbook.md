@@ -1,111 +1,151 @@
-# 10 · 组织落地手册（营销侧 + 销售侧）
+# 10 · Organizational Rollout Playbook (Marketing + Sales)
 
-## 什么时候用
+## When to Use
 
-方法论要落进真实组织的时候；被问"营销/销售团队怎么配合"的时候；
-KPI 冲突的时候；推进路线规划的时候。
-
----
-
-## A. 营销侧 Playbook（toC：发券 / CRM / 生命周期）
-
-### 基础设施三件套
-
-1. **GCG 制度**（03）：1–5% 常驻全局对照 + 全局频控系统强制执行。
-   没有频控，GCG 是纸面制度。
-2. **CDP / Journey 编排平台**（Braze / Iterable / 自建）是 NBT 策略的
-   部署载体：policy 输出 π(x) → 编排平台执行触达 → 事件回流数据仓库。
-   倾向性日志要在编排层埋，不是事后补。
-3. **触发式 > 批量**：触发式 campaign（加购未付款、流失前兆）的 treatment
-   定义天然清晰（02），先在触发式场景落地 uplift，再碰大盘批量发送。
-
-### 与创意团队的协作
-
-Treatment library（02）由数据 + 创意共建：创意供变体和卖点结构化，
-数据供测量带宽和结论。AI 生成变体进同一条"预筛→实验"流水线，
-创意团队的角色从"产能"转向"策略与品牌守门"。
-
-### KPI 改造（组织阻力的根源）
-
-- 渠道团队 KPI 是"转化量"→ 永远反对扣除 sure things。
-  改成"经 GCG 校准的增量转化/增量利润"
-- 季度"CRM 整体增量报告"（treated vs GCG）作为部门级唯一可信口径
-- 反直觉沟通话术（配 05 的 Ascarza 一页）：
-  "我们不是少投了 20% 的高意向用户，是把白送给他们的券预算
-  挪给了能被改变的人——总转化不变，毛利多了 X 元"
+When methodology needs to land in a real organization; when asked "how do the
+marketing / sales teams work with this?"; when KPIs are in conflict; when
+planning the rollout roadmap.
 
 ---
 
-## B. 销售侧 Playbook（toB：线索 / 折扣 / ABM）
+## A. Marketing Playbook (toC: coupons / CRM / lifecycle)
 
-### Uplift lead scoring ≠ 传统 lead scoring
+### Three Foundational Infrastructure Pieces
 
-传统 lead scoring 是 propensity（谁可能成单）。因果版问：
-**哪些线索是"因为"销售跟进才成单的**。高分线索里藏着大量
-sure things（自来水客户，不跟也签）和 lost causes（怎么跟都不签）。
+1. **GCG institution** (ref 03): 1–5% permanent global control group +
+   global frequency-control system enforcing it. Without frequency control, GCG
+   is a document policy, not a real one.
 
-- 实验设计：对中低分线索随机化"SDR 跟进 vs 仅自动化培育"，
-  估 τ(x) = 跟进的增量赢单率
-- **约束是 SDR/AE 时间不是预算**：06 的 λ* 解法直接套用，
-  c_t = 跟进时长，λ* = 一小时销售时间的最低增量产出
+2. **CDP / journey orchestration platform** (Braze / Iterable / custom):
+   this is the deployment layer for NBT policy. π(x) output → orchestration
+   platform executes the touch → events flow back to the data warehouse.
+   Propensity logs must be instrumented at the orchestration layer, not
+   retrofitted.
 
-### 折扣审批（最大的毛利泄漏点）
+3. **Triggered > batch**: triggered campaigns (add-to-cart abandonment, pre-
+   churn signals) have naturally well-defined treatments (ref 02). Start uplift
+   in triggered scenarios before touching large-batch sends.
 
-经典场景：销售为保险起见给每单都申请折扣。因果问法：
-**这个折扣改变赢单概率吗，还是这单本来就会签？**
+### Collaboration with Creative Teams
 
-- 实验：折扣审批阈值随机化（边际单随机批/不批），估折扣的 τ(deal)
-- 落地：审批系统内嵌 τ̂——预测"无折扣也大概率签"的单子，
-  审批加一道质询；预测"折扣翻盘"的单子快速放行
-- 这是 sure things 问题的销售版，通常是 toB 里 ROI 最高的单点应用
+The treatment library (ref 02) is co-owned by data and creative: creative
+supplies variant structure and messaging frameworks; data supplies measurement
+bandwidth and conclusions. AI-generated variants enter the same
+"pre-screen → experiment" pipeline. Creative's role shifts from "production
+capacity" to "strategy and brand gatekeeping."
 
-### ABM 的实验纪律
+### KPI Restructuring (the root of organizational resistance)
 
-- 账户级 treatment（高管晚宴、定制内容、专属 POC）→ **账户级整群随机化**
-  （03），同账户内个人会互相说话，个人随机必污染
-- 账户样本天然少 → 配对随机（按行业×规模配对）+ 连续结果变量
-  （pipeline 金额而非赢单二元）拉功效
-- Sleeping dogs 销售版：被 SDR 高频骚扰而拉黑品牌的潜客——
-  外呼/邮件频率要进护栏
-
-### CRM 数据卫生（销售侧的数据工程依赖）
-
-活动记录（谁在何时被跟进过）不全 → treatment 日志就不全 → 一切白搭。
-落地顺序上，**CRM 活动记录自动化（通话/邮件自动落库）先于任何建模**。
+- Channel teams KPI'd on "conversion volume" will always resist excluding
+  sure-things. Change to: **GCG-calibrated incremental conversions / incremental profit**.
+- Quarterly "CRM total incrementality report" (all treated vs GCG) becomes the
+  only credible department-level metric.
+- Counter-intuitive messaging guide (pair with the Ascarza one-pager, ref 05):
+  *"We didn't skip 20% of high-intent users — we redirected the coupons we
+  were giving away to them (they would have bought anyway) to users who are
+  actually persuadable. Total conversions unchanged; gross margin up by X."*
 
 ---
 
-## C. 推进路线（防跳级，对应 L1→L2→L3）
+## B. Sales Playbook (toB: leads / discounts / ABM)
+
+### Uplift Lead Scoring ≠ Traditional Lead Scoring
+
+Traditional lead scoring is propensity (who is likely to close). The causal
+version asks: **which leads actually close because of sales rep follow-up?**
+High-score leads contain many sure-things (self-service customers who would
+sign without rep involvement) and lost causes (no amount of effort closes them).
+
+- **Experiment design**: randomize medium-low-score leads to "SDR follow-up vs
+  automated nurture only"; estimate τ(x) = incremental win rate from follow-up.
+- **The constraint is SDR / AE time, not budget**: the ref 06 λ* solution
+  applies directly — replace c_t with rep time cost; λ* = minimum incremental
+  output per hour of sales time.
+
+### Discount Approval (the biggest margin leak)
+
+Classic scenario: reps request discounts as insurance on every deal.
+The causal question: **does this discount change the win probability, or would
+this deal close anyway?**
+
+- **Experiment**: randomize discount approval thresholds on marginal deals
+  (approve / deny for deals near the boundary); estimate discount's τ(deal).
+- **Live system**: embed τ̂ into the approval workflow — deals where "high
+  probability of closing without discount" get an extra friction question;
+  deals where "discount is a genuine swing factor" get fast-tracked.
+- This is the sure-things problem in a B2B jacket. Typically the highest ROI
+  single-point application in B2B causal personalization.
+
+### ABM Experiment Discipline
+
+- Account-level treatments (executive dinners, custom content, dedicated POC)
+  → **account-level cluster randomization** (ref 03). Contacts within an
+  account communicate with each other; individual randomization guarantees
+  contamination.
+- Account samples are small by nature → paired randomization (match on
+  industry × size) + continuous outcome variable (pipeline value, not binary
+  won/lost) to maximize power.
+- Sleeping dogs, B2B version: prospects who disengage or blacklist the brand
+  after high-frequency SDR outreach. Outbound call / email frequency must be a
+  guardrail.
+
+### CRM Data Hygiene (the data-engineering prerequisite on the sales side)
+
+Activity records (who was contacted, when, by which channel) are almost never
+complete without systematic instrumentation. Missing activity records → missing
+treatment logs → everything downstream fails. **Automate CRM activity capture
+(call / email logging) before any modeling work.**
+
+---
+
+## C. Rollout Roadmap (anti-skip; maps to L1→L2→L3)
 
 ```
-阶段0（1–2月）：日志补齐 + 倾向性埋点 + GCG 上线 + 治理预审（09）
-阶段1（L1，3–6月）：触发式场景做第一个 uplift 分析，产出第一份
-  "现行策略浪费在 sure things 上的预算比例"报告 → 用这个数字要资源
-阶段2（L2，6–18月）：离线 policy + OPE + 双对照上线流程，扩到 3–5 个场景
-阶段3（L3，确有需要才进）：07 的四项检查全勾再上 bandit
+Phase 0 (months 1–2): Log instrumentation + propensity logging + GCG launch
+                       + governance pre-check (ref 09)
+
+Phase 1 (L1, months 3–6): First uplift analysis on one triggered-campaign
+  scenario. Deliver "share of current spend landing on sure-things" report.
+  Use this number to secure resources for Phase 2.
+
+Phase 2 (L2, months 6–18): Offline policy + OPE + dual-holdout launch process.
+  Scale to 3–5 scenarios.
+
+Phase 3 (L3, enter only if all four ref-07 criteria are met)
 ```
 
-**组织条件**：阶段 1 起需要一名懂因果的分析师常驻业务团队（不是借调）；
-阶段 2 起需要数据工程把倾向性日志和实验平台产品化；
-高管层用季度增量报告对齐，否则 KPI 冲突会在阶段 2 杀死项目。
+**Organizational prerequisites**: from Phase 1, one causally literate analyst
+permanently embedded in the business team (not borrowed). From Phase 2, data
+engineering productizes propensity logging and the experiment platform.
+Leadership aligned via quarterly incrementality reports; otherwise KPI conflict
+kills the project in Phase 2.
 
-## 常见死法
+## Common Failure Modes
 
-- **先建模后修日志**：模型做完发现 treatment 记录缺失 40%，返工
-- **KPI 不改就推 uplift**：渠道团队用脚投票，policy 输出被人工覆盖
-- **借调式支持**：分析师不懂业务上下文，业务不信黑盒分数，互相消耗
-- **跳过阶段 1 直接做 NBT**：没有那份"浪费比例"报告，没人给你阶段 2 的资源
+- **Model first, logs second**: modeling is done; 40% of treatment records are
+  found missing; rebuild from scratch.
+- **Pushing uplift without changing KPIs**: channel team overrides policy
+  output by hand; votes with their feet.
+- **Borrowed analyst support**: analyst doesn't know the business context;
+  business team doesn't trust the black-box scores; mutual attrition.
+- **Skipping Phase 1**: no "waste percentage" report → no resource for Phase 2
+  → project dies in planning.
 
-## 验收清单
+## Acceptance Checklist
 
-- [ ] GCG + 频控 + 倾向性日志先于建模上线
-- [ ] KPI 含增量口径，季度增量报告制度化
-- [ ] 销售侧：CRM 活动自动记录就绪，折扣审批接了 τ̂ 质询
-- [ ] ABM 实验用账户级整群随机
-- [ ] 推进处于哪个阶段、下一阶段的进入条件，全员对齐
+- [ ] GCG + frequency control + propensity log live before any modeling
+- [ ] KPI includes incremental metric; quarterly incrementality report
+      institutionalized
+- [ ] Sales side: CRM activity auto-logging complete; discount approval
+      integrates τ̂ friction question
+- [ ] ABM experiments use account-level cluster randomization
+- [ ] Current rollout phase documented; next-phase entry criteria team-aligned
 
-## 文献指针
+## Literature
 
-- Ascarza (2018, JMR) — 给高管讲"风险≠可挽回"的那一页
-- Hitsch & Misra (2018) "Heterogeneous Treatment Effects and Optimal Targeting" — 定向的利润视角
-- 各 CDP/编排厂商的 holdout 功能文档（Braze Global Control Group 等）— 落地参考
+- Ascarza (2018, JMR) — the one-pager for executives on "risk ≠ rescuable"
+  (ref 05)
+- Hitsch & Misra (2018) "Heterogeneous Treatment Effects and Optimal Targeting
+  Policy Evaluation" — profit-lens targeting
+- Braze Global Control Group documentation and similar CDP vendor holdout
+  guides — operational reference

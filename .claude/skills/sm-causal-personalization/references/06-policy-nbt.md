@@ -1,94 +1,121 @@
-# 06 · 策略学习与 Next Best Treatment
+# 06 · Policy Learning & Next Best Treatment
 
-## 什么时候用
+## When to Use
 
-从"该不该投"升级到"给这个人哪个动作最划算"的时候；预算/容量不够分的时候；
-新策略上线前要评估的时候（OPE）。
+When upgrading from "should we contact this person?" to "which action gives
+the best return for this person?"; when budget or capacity is constrained;
+when you need to evaluate a new policy before launching (OPE).
 
-## 目标量
+## Target Quantity
 
-策略 π: x → treatment。评价一个策略看**策略价值**：
-
-```
-V(π) = E[Y(π(X))]          绝对值
-ΔV = V(π_new) − V(π_current)   相对现行策略的增量（真正该汇报的数）
-```
-
-## 无约束情形：逐人 argmax
+Policy π: x → treatment. Evaluate by **policy value**:
 
 ```
-π(x) = argmax_t [ τ̂_t(x) × 单位毛利 − c_t ]     （含 t = 不动作，成本 0）
+V(π)  = E[Y(π(X))]                     (absolute value)
+ΔV    = V(π_new) − V(π_current)        (incremental vs current policy —
+                                          the number that should be reported)
 ```
 
-c_t 来自 02 的 treatment card。注意 τ̂ 必须校准过（04），
-排序对但量级错，argmax 就会系统性选错动作。
-
-## 预算/容量约束情形（实际情况几乎总是这个）
-
-预算 B 投不完所有正增量人群时，这是个 knapsack：
+## Unconstrained Case: Per-User Argmax
 
 ```
-max Σᵢ [τ̂_{t_i}(xᵢ)·毛利 − c_{t_i}]   s.t.  Σᵢ c_{t_i} ≤ B
+π(x) = argmax_t [ τ̂_t(x) × unit_margin − c_t ]
 ```
 
-**实用解法（拉格朗日/对偶定价）**：按"增量利润 / 成本"（ROI）从高到低
-排序投放，直到预算耗尽。等价于找一个影子价格 λ*，规则变成：
+where c_t comes from the treatment card (ref 02), and t = no-action (cost 0)
+is always a valid option.
+
+**Note**: τ̂ must be well-calibrated (ref 04). Correct rank ordering but
+wrong magnitude → argmax systematically selects the wrong action.
+
+## Budget / Capacity Constrained Case (almost always the real situation)
+
+When budget B is insufficient to reach all users with positive incremental
+return, this is a knapsack problem:
 
 ```
-投放条件：τ̂_t(x)·毛利 − c_t ≥ λ*·c_t
+max Σᵢ [τ̂_{t_i}(xᵢ) × margin − c_{t_i}]   s.t.  Σᵢ c_{t_i} ≤ B
 ```
 
-λ* 就是"这个组织里 1 元营销预算应该换回的最低增量"，是比任何
-单点 ROI 都有用的管理数字。多个 treatment 共享预算、销售容量约束
-（10 中 SDR 时间）同理——把 c_t 换成时间成本即可。
-
-## OPE：新策略上线前的离线评估（L2 的核心能力）
-
-不要上线赌。用历史日志（含倾向性 p(t|x)，见 03）离线估 V(π_new)：
+**Practical solution (Lagrangian / dual pricing)**: sort by "incremental profit
+/ cost" (ROI) descending and allocate until budget exhausted. Equivalently,
+find a shadow price λ* such that the decision rule becomes:
 
 ```
-IPS（逆倾向加权）:   V̂ = (1/n) Σ  𝟙[π(xᵢ)=tᵢ] / p(tᵢ|xᵢ) · yᵢ
-SNIPS（自归一化）:   IPS 除以权重和——方差更小，默认选这个
-DR（双稳健）:        模型外推 + IPS 修正残差——支持不足时更稳
+Allocate if:  τ̂_t(x) × margin − c_t ≥ λ* × c_t
 ```
 
-实现见 `scripts/ope_estimators.py`。
+λ* is "the minimum incremental return per ¥1 of marketing spend in this
+organization" — a more useful management number than any single-point ROI.
+Multiple treatments sharing a budget, or sales capacity constraints (ref 10:
+SDR time), follow the exact same formulation — replace c_t with time cost.
 
-**Support 检查（先于一切）**：π_new 推荐的 (x,t) 组合必须在历史日志中
-以非零概率出现过。新动作没人记录过 → IPS/DR 都救不了 → 只能小流量实验。
-检查方法：统计 π_new 的选择中倾向性 < 阈值（如 0.01）的比例，
-超过 5% 就别信 OPE 结果。
+## OPE: Offline Evaluation Before Launch (the core L2 capability)
 
-## 上线流程（固定动作顺序）
+Don't launch and gamble. Use historical logs (containing propensity p(t|x),
+→ ref 03) to estimate V(π_new) offline:
 
 ```
-1. 离线 OPE：ΔV̂ > 0 且置信区间不跨零
-2. 小流量实验（5–10%）：验证 OPE 估计，校准量级
-3. 全量上线，但保留两个常驻对照：
-   a. GCG（不接受任何动作）→ 测整体增量
-   b. 现行策略组（按老策略跑）→ 测新策略相对增量
-4. 护栏监控（01 定义的）破线自动回滚
+IPS (inverse propensity weighting):
+  V̂ = (1/n) Σ  𝟙[π(xᵢ)=tᵢ] / p(tᵢ|xᵢ) × yᵢ
+
+SNIPS (self-normalized IPS):
+  V̂ = IPS numerator / sum of weights  — lower variance; use this by default
+
+DR (doubly robust):
+  V̂ = model extrapolation + IPS correction on residuals
+    — more stable when support is insufficient
 ```
 
-## 常见死法
+Full implementation in `scripts/ope_estimators.py`.
 
-- **没有倾向性日志**：OPE 第一步就死。回 03，这是数据工程债，越早还越便宜
-- **Support 缺失硬算**：新策略爱选的动作历史上没人发过，IPS 权重爆炸，估出来的 ΔV 是幻觉
-- **直接 argmax 不管预算**：模型说 40% 用户值得发券，预算只够 10%——没有 λ*，先到先得，把预算花在 ROI 平庸的人身上
-- **拿 V(π) 绝对值汇报**：业务要的是相对现行策略多赚多少（ΔV），不是策略价值绝对值
-- **上线后撤掉对照组**："已经验证过了"——环境会漂移，常驻对照是续命的（07/08）
+**Support check (must run before anything else)**: the (x, t) pairs recommended
+by π_new must appear in the historical log with non-zero probability. A new
+action that was never deployed → IPS/DR cannot save you → small-traffic
+experiment only. Check: compute the share of π_new's selections where the
+historical propensity < threshold (e.g., 0.01); if > 5%, do not trust the OPE
+result.
 
-## 验收清单
+## Launch Sequence (fixed order)
 
-- [ ] 每个动作有校准过的 τ̂_t(x) 和成本 c_t
-- [ ] 预算约束显式建模，λ* 算出来了
-- [ ] OPE 之前过了 support 检查
-- [ ] 上线走完"OPE → 小流量 → 带双对照全量"三步
-- [ ] 护栏与自动回滚接好
+```
+1. Offline OPE: ΔV̂ > 0 and CI does not cross zero
+2. Small-traffic experiment (5–10%): validate OPE estimate, calibrate magnitude
+3. Full launch, retaining two permanent controls:
+   a. GCG (receives no action) → measures total incremental lift
+   b. Current-policy holdout → measures new policy's incremental gain
+4. Guardrail monitoring (defined in ref 01); breach triggers auto-rollback
+```
 
-## 文献指针
+## Common Failure Modes
 
-- Dudík, Langford & Li (2011) "Doubly Robust Policy Evaluation and Learning" — DR-OPE
-- Athey & Wager (2021, Econometrica) "Policy Learning with Observational Data" — 策略学习理论
-- Swaminathan & Joachims (2015) "The Self-Normalized Estimator for Counterfactual Learning" — SNIPS
-- Hitsch, Misra & Sanders (2024, QME) — 定向策略评估在营销中的完整框架
+- **No propensity log**: OPE fails at step one. Ref 03: this is a data
+  engineering debt; the earlier it's paid, the cheaper it is.
+- **Support gap ignored**: the new policy loves actions the historical log
+  rarely deployed; IPS weights explode; ΔV̂ is an illusion.
+- **Argmax without budget constraint**: model says 40% of users deserve a
+  coupon; budget covers only 10% — without λ*, first-come-first-served
+  wastes budget on mediocre-ROI users.
+- **Reporting absolute V(π) instead of ΔV**: the business wants "how much more
+  did we earn vs current policy", not the absolute policy value.
+- **Removing the holdout after launch**: "we've already validated it" —
+  environment drifts; the permanent holdout is what keeps you honest
+  (also critical for ref 07 and ref 08).
+
+## Acceptance Checklist
+
+- [ ] Calibrated τ̂_t(x) and cost c_t available for every action
+- [ ] Budget constraint explicitly modeled; λ* computed
+- [ ] Support check passed before OPE
+- [ ] Launch sequence followed: OPE → small traffic → full launch with
+      dual holdouts
+- [ ] Guardrails and auto-rollback wired up
+
+## Literature
+
+- Dudík, Langford & Li (2011) "Doubly Robust Policy Evaluation and Learning"
+- Athey & Wager (2021, *Econometrica*) "Policy Learning with Observational Data"
+- Swaminathan & Joachims (2015) "The Self-Normalized Estimator for
+  Counterfactual Learning" — SNIPS
+- Hitsch, Misra & Sanders (2024, QME) — comprehensive policy evaluation
+  framework for marketing

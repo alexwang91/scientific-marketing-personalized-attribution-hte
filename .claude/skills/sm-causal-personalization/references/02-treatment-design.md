@@ -1,88 +1,115 @@
-# 02 · Treatment 设计与动作库
+# 02 · Treatment Design & Action Library
 
-## 什么时候用
+## When to Use
 
-设计营销动作/创意/券的时候；AI 生成的变体太多不知道怎么测的时候；
-模型学不到东西怀疑是动作定义问题的时候。
+When designing marketing actions, creatives, or coupons; when AI-generated
+variants outpace your ability to test them; when a model "isn't learning
+anything" and you suspect the action definition is the problem.
 
-## 核心原则
+## Core Principle
 
-**Treatment 不清楚，模型就学不到东西。** "发营销消息"太粗，
-"7折券 + 情绪话术 + 微信渠道 + 48小时窗口"才是可学习的动作。
+**Poorly defined treatments produce unlearnable models.**
+"Send a marketing message" is too coarse.
+"30%-off coupon + urgency framing + WeChat service account + 48-hour window"
+is a learnable action.
 
-## Treatment Card 模板（动作库中每个动作一张卡）
+## Treatment Card Template (one card per action in the library)
 
 ```yaml
-treatment_id: T-2026-031          # 版本化，改了任何维度就是新 ID
-渠道: 微信服务号                   # push / 短信 / email / 微信 / 外呼 / 广告
-激励: 7折券，面额上限30元，48h有效  # 无 / 券 / 赠品 / 权益 / 免邮
-内容: 情绪话术-错过焦虑型          # 卖点框架、语气、长度
-时机: 加购未付款后2小时            # 触发条件或发送时间
-频率约束: 7天内同类动作≤2次
-成本: 渠道成本0.05元 + 期望核销成本 = 面额×预估核销率
-目标人群约束: 排除30天内投诉用户
-状态: 在线 / 实验中 / 下线
+treatment_id: T-2026-031          # versioned; any dimension change = new ID
+channel: WeChat service account   # push / SMS / email / WeChat / outbound call / ad
+incentive: 30%-off, cap ¥30, valid 48h
+content: urgency-framing copy     # messaging frame, tone, length
+timing: 2h after add-to-cart without checkout
+frequency_cap: ≤2 same-type actions within 7 days
+cost: channel_cost(¥0.05) + coupon_value × expected_redemption_rate
+audience_constraint: exclude users with complaint in last 30 days
+status: live / in-experiment / retired
 ```
 
-## 决策树
+## Decision Tree
 
 ```
-动作怎么定粒度？
-├─ 维度组合少（<20个动作）→ 每个动作独立测，标准多臂实验
-├─ 维度组合爆炸（渠道×券×话术×时机）
-│   ├─ 维度间疑似有交互 → factorial design（析因实验）测主效应+关键交互
-│   └─ 变体主要来自创意/文案 → treatment 特征化（见下）
-└─ LLM 持续生成新变体 → 必须 treatment 特征化 + 限制在线臂数
+How granular should actions be?
+├─ Few combinations (<20 arms) → test each arm independently (standard multi-arm)
+├─ Exploding combinations (channel × coupon × copy × timing)
+│   ├─ Interactions likely between dimensions → factorial design
+│   └─ Variants mainly differ in creative / copy → treatment featurization (see below)
+└─ LLM continuously generating new variants → treatment featurization + arm count cap
 ```
 
-## LLM 时代的 treatment 空间爆炸
+## The LLM-Era Treatment Space Explosion
 
-创意生成成本趋近零之后，**瓶颈从"做创意"变成"测量带宽"**。
-每个变体独立测的样本需求是线性增长的，撑不住。应对：
+When creative production cost approaches zero, **the bottleneck shifts from
+"making creatives" to "measurement bandwidth."** Testing each variant
+independently requires linearly growing sample. Solutions:
 
-1. **Treatment 特征化**：把效果建模为动作属性的函数
-   τ(x, z)，z = (折扣深度, 渠道, 话术类型, 紧迫感强度, …)。
-   新变体不用从零测，沿属性空间外推 + 小流量验证。
-2. **层次模型借力**：相似动作共享统计强度（partial pooling），
-   单个变体样本少也能得到可用估计。
-3. **限制同时在线臂数**：动作库可以很大，同时在实验中的臂要设上限
-   （经验值：每个臂保证能在 2–4 周内达到功效所需样本，见 03 脚本）。
-4. **LLM-as-judge 只做预筛**：用 LLM 过滤明显劣质/违规变体可以，
-   但 LLM 评分不是效果证据，上线必须过实验（红线，见 09）。
+1. **Treatment featurization**: model effect as a function of action attributes,
+   τ(x, z) where z = (discount_depth, channel, copy_type, urgency_level, …).
+   New variants don't need to be tested from scratch — interpolate in attribute
+   space and validate with small traffic.
 
-## 控制组定义（最容易出错的细节）
+2. **Hierarchical models / partial pooling**: similar actions share statistical
+   strength, giving usable estimates even with small per-variant samples.
 
-- **"不发" vs "发占位内容"是两个不同的控制组**：前者测整个动作的效果
-  （含触达本身），后者只测内容差异。按问题选，不要混用。
-- 控制组用户必须**可被触达但被随机扣住**——把"没有手机号的用户"
-  当控制组是经典混杂。
-- 控制组要免疫所有同类动作，不只是这个 campaign（否则被其他活动污染）。
+3. **Cap concurrent live arms**: the action library can be large; the number of
+   arms simultaneously in experiment should be bounded (heuristic: each arm
+   should reach the power-required sample within 2–4 weeks — run
+   `scripts/power_analysis.py`).
 
-## 操作步骤
+4. **LLM-as-judge for pre-screening only**: LLM can filter obviously inferior
+   or policy-violating variants. LLM scores are not evidence of causal effect.
+   All variants must pass through experiment before launch. (Red line → ref 09.)
 
-1. 把现有动作全部写成 treatment card，入库、版本化
-2. AI 生成变体 → 自动填卡（属性结构化）→ LLM 预筛 → 进入待测队列
-3. 按决策树选实验结构（独立臂 / factorial / 特征化）
-4. 每个动作标注成本，供 06 的策略优化使用
+## Defining the Control Group (the most error-prone detail)
 
-## 常见死法
+- **"No action" vs "placeholder content" are two different controls**: the
+  former measures the full effect of the action (including the act of reaching
+  out); the latter measures only content differences. Choose deliberately.
+- Control group users must be **reachable but randomly withheld** — using
+  "users with no phone number" as control is classic confounding.
+- Controls must be immune to **all similar actions**, not just this campaign
+  (cross-campaign contamination is a persistent problem without global
+  frequency control → ref 03 GCG).
 
-- **动作定义漂移**：实验中途改了话术/面额，前后数据不可比，整个实验作废
-- **没有版本化**：分析时说不清用户到底收到了什么
-- **控制组污染**：控制组用户被另一个团队的 campaign 触达了（需要全局频控配合，见 03 的 GCG）
-- **AI 宣布有效**："LLM 评估这个文案更好" 当成上线依据——LLM 判断的是文本质量，不是因果效应
-- **维度纠缠**：换渠道的同时换了话术，效果归因不清
+## Step-by-Step
 
-## 验收清单
+1. Write all existing actions as treatment cards; version and register them.
+2. AI generates variants → auto-populate card fields (structured attributes) →
+   LLM pre-screen → enter testing queue.
+3. Select experiment structure per decision tree
+   (independent arms / factorial / featurized).
+4. Tag each action with cost; feeds into policy optimization (ref 06).
 
-- [ ] 每个动作有 treatment card，含成本和版本号
-- [ ] 控制组定义明确（不发 vs 占位），且免疫同类动作
-- [ ] 同时在线臂数 ≤ 测量带宽（power_analysis.py 验证过）
-- [ ] LLM 生成的变体都走"预筛→实验"流程，没有直接上线
-- [ ] 维度正交：一次只变一个维度，或显式用 factorial design
+## Common Failure Modes
 
-## 文献指针
+- **Treatment definition drift**: copy or coupon value changed mid-experiment —
+  pre/post data is incomparable; the entire experiment is void
+- **No versioning**: at analysis time you can't reconstruct what users actually
+  received
+- **Control group contamination**: control users touched by another team's
+  campaign (requires global frequency control — see ref 03 GCG)
+- **AI declares effective**: "LLM rates this copy better" used as launch
+  justification — LLM judges text quality, not causal effect
+- **Confounded dimensions**: changed channel and copy simultaneously —
+  effect attribution is impossible
 
-- Box, Hunter & Hunter, *Statistics for Experimenters* — factorial design 经典
-- Gelman & Hill — 层次模型 / partial pooling
-- Amazon Science: causal contextual bandits 系列 — treatment 特征化在工业界的用法
+## Acceptance Checklist
+
+- [ ] Every action has a treatment card with cost and version number
+- [ ] Control group definition explicit (no-action vs placeholder); immune to
+      similar actions
+- [ ] Concurrent live arms ≤ measurement bandwidth
+      (validated via `power_analysis.py`)
+- [ ] LLM-generated variants go through "pre-screen → experiment" queue,
+      not directly to launch
+- [ ] Dimensions orthogonal: one dimension changed at a time, or explicit
+      factorial design
+
+## Literature
+
+- Box, Hunter & Hunter, *Statistics for Experimenters* — factorial design
+- Gelman & Hill, *Data Analysis Using Regression and Multilevel/Hierarchical
+  Models* — partial pooling
+- Amazon Science: causal contextual bandits series — treatment featurization
+  in industry

@@ -1,108 +1,145 @@
-# 03 · 实验设计与识别策略
+# 03 · Experiment Design & Identification Strategy
 
-## 什么时候用
+## When to Use
 
-设计任何实验之前；没有实验数据被问"能不能用历史数据估"的时候；
-算样本量的时候；选随机化单元的时候。
+Before designing any experiment; when asked "can we use historical data to
+estimate this?"; when calculating required sample size; when choosing the
+randomization unit.
 
-## 识别阶梯（从上往下降级，每降一级假设变强、可信度变弱）
-
-```
-1. RCT / 全局对照组（GCG）        ← 默认要求，个体随机
-2. Geo-lift（地域随机/合成控制）   ← 个体随机不可行时（品牌广告、线下、电视）
-3. Switchback（时间片轮换）        ← 干扰强的场景（定价、供需平台）
-4. 准实验：DiD / IV / RDD          ← 政策性变更、自然实验，必须论证假设
-5. 观察性 + unconfoundedness       ← 最后手段，强制写出识别假设并做敏感性分析
-```
-
-**硬规则：营销日志数据天然混杂——谁被触达是老定向策略决定的。
-没有随机化就先建 GCG，不要拿观察性数据硬估 CATE。**
-如果只能用观察性数据（5 级），必须：写出识别假设（哪些混杂被 X 覆盖了、
-哪些没有）、做负控制检验（negative control）、做敏感性分析
-（E-value / Rosenbaum bounds），并在结论里标注"观察性估计"。
-
-## 全局对照组（GCG）制度——L1 的核心基础设施
-
-- 常驻保留 **1–5%** 用户，不接受**任何** CRM/生命周期营销触达
-- 这是"每次单独开实验"的制度化替代：一次建好，所有 campaign 共用基线
-- **轮换 vs 固定**：固定 GCG 测长期累积效应（推荐保留一个小的永久组），
-  轮换 GCG（季度轮换）保证公平、减少长期收入损失，两者可以并存
-- GCG 需要全局频控系统配合执行，否则形同虚设（见 02 控制组污染）
-- 每季度出一份 "CRM 整体增量报告"：treated 全体 vs GCG，这是向管理层
-  证明营销部门价值的唯一可信口径
-
-## 功效计算：HTE 比 ATE 贵得多
-
-普通 A/B 检测 ATE：两比例 z 检验，标准公式。
-检测**两个子群的 uplift 差异**（HTE 的最小问题）是"差异的差异"，
-方差是四个组的方差之和：
+## Identification Ladder (descend only when the level above is infeasible)
 
 ```
-Var(τ̂_A − τ̂_B) = Var(Ȳ_A1) + Var(Ȳ_A0) + Var(Ȳ_B1) + Var(Ȳ_B0)
+1. RCT / Global Control Group (GCG)         ← default; individual randomization
+2. Geo-lift (geographic randomization / synthetic control)
+     ← when individual randomization is impossible (brand ads, offline, TV)
+3. Switchback (time-slot rotation)
+     ← high-interference settings (pricing, supply-demand platforms)
+4. Quasi-experiments: DiD / IV / RDD
+     ← policy changes, natural experiments; identification assumption must be argued
+5. Observational + unconfoundedness
+     ← last resort; mandatory to write identification assumptions + sensitivity analysis
 ```
 
-**经验法则：同样的最小可检测效应（MDE），检测 uplift 差异需要
-约 4 倍于普通 A/B 的样本。** 这就是"分得太细全是噪声"的数学原因。
-分群数翻倍，每群样本减半，可检测的 MDE 涨 √2 倍——先跑
-`scripts/power_analysis.py` 再决定分几群。
+**Hard rule: Marketing log data is confoundeed by design — who gets targeted
+is determined by the existing targeting policy. Without randomization, build a
+GCG first. Do not estimate CATE from observational logs.**
 
-降低样本需求的手段：CUPED（用实验前协变量做方差缩减，常见缩减 30–50%）、
-配对/分层随机化、把 Y 从二元换成连续（金额比转化敏感）。
+If you must use observational data (level 5), you must:
+- Write explicit identification assumptions (which confounders are covered by X;
+  which are not)
+- Run a negative control test
+- Run sensitivity analysis (E-value / Rosenbaum bounds)
+- Label all conclusions "observational estimate"
 
-## 倾向性日志（最容易漏、漏了无法补救的一条）
+## Global Control Group (GCG) — The Core Infrastructure for L1
 
-**每次动作决策时，记录 P(action | x)——当时这个动作被选中的概率。**
+- Reserve **1–5%** of users who receive **no** CRM / lifecycle marketing touches
+- This is the institutionalized alternative to "running a new experiment each
+  time": build once, all campaigns share the same baseline
+- **Rotating vs permanent**: a permanent GCG (e.g., 1%) measures long-term
+  cumulative effects; a rotating GCG (e.g., quarterly rotation) ensures
+  fairness and reduces income loss. Both can coexist.
+- GCG requires a **global frequency-control system** to enforce — without it,
+  the GCG is a policy on paper only (ref 02 control-group contamination)
+- Produce a quarterly "CRM total incrementality report": all treated users vs
+  GCG. This is the only credible metric for proving the marketing team's value
+  to leadership.
 
-- 均匀随机：log 1/K
-- 分层随机：log 各层概率
-- 上线后的 policy / bandit：log 策略给出的选择概率
+## Power Calculation: HTE Is Much More Expensive Than ATE
 
-没有它：OPE（06）做不了、观察性去偏做不了、bandit 的日志不能复用。
-有了它：所有历史日志变成可重复利用的评估资产。这一条的优先级
-高于任何模型工作。
+Standard A/B (detecting ATE): two-proportion z-test, standard formula.
 
-## 随机化单元选择
+Detecting **the difference in uplift between two subgroups** (the minimal HTE
+question) is a "difference-in-differences": its variance is the sum of all
+four cells:
 
 ```
-├─ toC 个人触达 → 用户级随机
-├─ toB / ABM → 账户级整群随机（同账户内联系人互相说话，个人随机必污染）
-├─ 干扰强（社交、市场供需、共享预算）→ geo 级或 switchback
-└─ 线下/无法定向 → geo-lift（GeoLift 类工具，合成控制做反事实）
+Var(τ̂_A − τ̂_B) = Var(Ȳ_{A1}) + Var(Ȳ_{A0}) + Var(Ȳ_{B1}) + Var(Ȳ_{B0})
 ```
 
-干扰/溢出（SUTVA 违反）的信号：推荐 A 品类蚕食 B 品类、
-发券用户和未发券用户共享库存、转介绍机制。有这些就升级随机化单元。
+**Rule of thumb: to detect the same MDE, detecting an uplift difference
+requires ~4× the sample of a standard A/B test.** Doubling the number of
+segments halves the per-segment sample, and inflates the detectable MDE by √2.
+Run `scripts/power_analysis.py` before deciding how many segments to use.
 
-## 操作步骤
+Variance-reduction techniques: CUPED (use pre-experiment covariates; typical
+30–50% variance reduction), paired / stratified randomization, continuous Y
+(revenue is more sensitive than binary conversion).
 
-1. 按识别阶梯选定层级，1–2 级以外的要写假设论证
-2. 跑 `power_analysis.py`：给定基线率、MDE、α=0.05、power=0.8，得出样本量与实验时长
-3. 选随机化单元，检查干扰
-4. 设计随机化：分层（按关键 X 分层保证均衡）+ 倾向性日志
-5. 预注册分析计划：主指标、护栏、子群（防止事后挑显著的子群，见 04 多重检验）
-6. 上线后第一周查 SRM（样本比例失配）：组间比例偏离设计值 → 立即停，先查 bug
+## Propensity Log — The Most Commonly Missing, Irreplaceable Field
 
-## 常见死法
+**At every action decision, record P(action | x) — the probability that this
+specific action was selected for this user at this moment.**
 
-- **SRM 不查**：随机化代码有 bug，组间不可比，所有结论作废
-- **Peeking**：每天看 p 值，显著就停——假阳性率爆炸。用固定时长或序贯检验
-- **实验期太短**：2 周看不到 sleeping dog 的伤害和复购效应（见 08）
-- **控制组太小**：为了"少损失收入"把 GCG 压到 0.5%，方差大到什么都测不出来
-- **事后分群**：实验跑完后翻出 50 个子群找显著——全是噪声（见 04）
-- **倾向性没记**：三个月后想做 OPE，发现日志里只有"发了什么"没有"以多大概率发的"
+- Uniform random: log 1/K
+- Stratified random: log the per-stratum probability
+- Live policy / bandit: log the probability the policy assigned
 
-## 验收清单
+Without it: OPE (ref 06) is impossible; observational debiasing is impossible;
+bandit logs cannot be reused for evaluation.
+With it: all historical logs become reusable evaluation assets. This has higher
+priority than any modeling work.
 
-- [ ] 识别层级明确，3 级以下有书面假设论证
-- [ ] 功效计算做过，样本量和时长够检测设定的 MDE
-- [ ] 随机化单元匹配干扰结构
-- [ ] 倾向性日志在写代码阶段就接入
-- [ ] 分析计划预注册（主指标/护栏/子群清单）
-- [ ] SRM 监控上线
+## Choosing the Randomization Unit
 
-## 文献指针
+```
+├─ toC individual outreach → user-level randomization
+├─ toB / ABM → account-level cluster randomization
+│     (contacts within an account talk to each other; individual randomization
+│      guarantees contamination)
+├─ High interference (social, market supply/demand, shared budget)
+│     → geo-level or switchback
+└─ Offline / untargetable → geo-lift
+      (GeoLift-type tools; synthetic control as counterfactual)
+```
 
-- Kohavi, Tang & Xu (2020) *Trustworthy Online Controlled Experiments* — SRM、peeking、实验文化
-- Meta GeoLift（开源）/ Google TBR — geo 增量测量
-- Deng et al. (2013) "Improving the Sensitivity of Online Controlled Experiments" — CUPED
-- Athey & Imbens (2017) "The State of Applied Econometrics: Causality and Policy Evaluation" — 准实验方法地图
+Interference / SUTVA-violation signals: recommendation-driven cross-category
+cannibalization, couponed and uncouponed users sharing inventory, referral
+mechanics. When present, escalate the randomization unit.
+
+## Step-by-Step
+
+1. Choose identification level; document assumptions for anything below level 2.
+2. Run `power_analysis.py`: given baseline rate, MDE, α=0.05, power=0.8 →
+   required sample and experiment duration.
+3. Select randomization unit; check for interference.
+4. Design randomization: stratify on key X (balance), log propensity scores.
+5. Pre-register the analysis plan: primary metric, guardrails, subgroup list
+   (prevents post-hoc cherry-picking — ref 04 multiple testing).
+6. At launch, check for SRM (sample ratio mismatch): if group proportions deviate
+   from design values → stop immediately and debug.
+
+## Common Failure Modes
+
+- **SRM not checked**: randomization code has a bug, groups are incomparable,
+  all conclusions are void
+- **Peeking**: checking p-values daily and stopping when significant — false
+  positive rate explodes. Use fixed duration or sequential testing.
+- **Experiment too short**: two weeks won't capture sleeping-dog harm or
+  repurchase effects (→ ref 08)
+- **Control group too small**: GCG compressed to 0.5% "to lose less revenue" —
+  variance is too high to detect anything
+- **Post-hoc subgroup fishing**: 50 subgroups found after the experiment —
+  all noise (→ ref 04 multiple testing)
+- **Propensity not logged**: three months later you want to run OPE and find
+  only "what action was sent," not "with what probability"
+
+## Acceptance Checklist
+
+- [ ] Identification level confirmed; written assumption justification for
+      anything below level 2
+- [ ] Power calculation done; sample and duration sufficient for the target MDE
+- [ ] Randomization unit matches interference structure
+- [ ] Propensity log instrumented at code-write time (not retrofitted later)
+- [ ] Analysis plan pre-registered (primary metric / guardrails / subgroup list)
+- [ ] SRM monitoring live at launch
+
+## Literature
+
+- Kohavi, Tang & Xu (2020), *Trustworthy Online Controlled Experiments* —
+  SRM, peeking, experiment culture
+- Meta GeoLift (open source) / Google TBR — geo incrementality measurement
+- Deng et al. (2013) "Improving the Sensitivity of Online Controlled
+  Experiments by Utilizing Pre-Experiment Data" — CUPED
+- Athey & Imbens (2017) "The State of Applied Econometrics: Causality and
+  Policy Evaluation" — map of quasi-experimental methods

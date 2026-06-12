@@ -1,82 +1,121 @@
-# 09 · 治理与红队（前置，不是事后合规）
+# 09 · Governance & Red-Team (Front-loaded, Not Afterthought Compliance)
 
-## 什么时候用
+## When to Use
 
-**任何项目写代码之前**（01 的第 5 步引用本文件）；新特征入模前；
-新 treatment 类型上线前；被问"这样做合不合规"的时候。
+**Before writing any code for any project** (ref 01, step 5 points here);
+before a new feature enters a model; before a new treatment type goes live;
+when asked "is this compliant?"
 
-## 为什么前置
+## Why Front-Loaded
 
-因果个性化的能力本质是"对不同人差别对待且知道差别有效"——
-这个能力本身就是风险面。事后合规只能下线模型；前置治理才能避免
-"模型已经在用受保护属性的代理变量做价格歧视"这种既成事实。
+Causal personalization's core capability is "treating different people
+differently and knowing that difference is effective" — this capability is
+itself a risk surface. Compliance review after the fact can only take the model
+offline. Front-loaded governance prevents "the model has already been using a
+proxy for a protected attribute to set prices" from becoming a fait accompli.
 
-## 特征审查四问（每个 X 特征入模前过一遍）
+## Feature Review: Four Questions (run for every X feature before it enters a model)
 
 ```
-1. 合法：来源有用户同意吗？符合 PIPL/GDPR/CCPA 的目的限定吗？
-2. 稳定：分布会季节性漂移吗？上游埋点谁负责？
-3. 可解释：能向监管/用户说清这个特征为什么影响决策吗？
-4. 实时可得：决策时刻拿得到吗？（拿不到的特征训了也白训）
+1. Legal — Does the data source have user consent? Does the use
+   satisfy the purpose-limitation requirements of PIPL / GDPR / CCPA?
+
+2. Stable — Will the distribution shift seasonally? Who owns the
+   upstream instrumentation?
+
+3. Explainable — Can you articulate to a regulator or user why this
+   feature influences this decision?
+
+4. Available at decision time — Can you actually retrieve it when the
+   decision needs to be made? (A feature you can't serve at runtime is
+   useless regardless of its predictive value.)
 ```
 
-**代理变量审查**：邮编、机型、姓氏、购物时段都可能是受保护属性
-（民族、收入、性别）的代理。检查方法：用候选特征预测受保护属性，
-预测得准的特征单独过人工评审。
+**Proxy variable audit**: zip code, device model, surname, shopping time-of-day
+can all be proxies for protected attributes (ethnicity, income, gender). Check
+by training a classifier to predict the protected attribute from the candidate
+feature. High predictive accuracy → route to manual review before use.
 
-## 红队清单（每个新 treatment 类型 / policy 上线前过）
+## Red-Team Checklist (run for every new treatment type / policy before launch)
 
-- [ ] **价格公平**：同一商品对不同人不同价（或变相通过券实现）是否触线？
-      新老用户差别定价在多个法域已有处罚先例
-- [ ] **弱势群体**：策略会不会系统性向未成年人、高龄、信贷脆弱人群
-      倾斜高风险动作（借贷、冲动消费品类）？
-- [ ] **歧视性排除**：免打扰/lost cause 名单会不会把某个受保护群体
-      系统性排除在优惠之外？（用分组审计验证）
-- [ ] **虚假 claim**：AI 生成的话术有没有夸大功效、虚构稀缺
-      （"仅剩 3 件"是真的吗）、伪造社会证明？
-- [ ] **Dark patterns**：倒计时压迫、隐藏退订入口、确认羞辱（confirm-shaming）
-- [ ] **频率伤害**：叠加所有 campaign 后单用户触达频率是否超护栏？
+- [ ] **Price fairness**: does the policy charge different prices (or
+      effectively do so via coupons) to different users for the same product?
+      Differential pricing for new vs. existing customers has drawn regulatory
+      action in multiple jurisdictions.
 
-## AI 角色红线（制度化为系统约束，不是口头约定）
+- [ ] **Vulnerable populations**: does the policy systematically steer high-
+      risk actions (lending products, impulse-category goods) toward minors,
+      elderly users, or financially fragile segments?
 
-**AI 可以**：
-- 生成 treatment 变体（出口必须进 02 的"预筛→实验"队列）
-- 从评论/客服/销售记录提取 context 特征（产出必须过特征四问）
-- 写实验文档、解释模型输出、做策略模拟
-- 监控漂移、异常、护栏指标
+- [ ] **Discriminatory exclusion**: does the do-not-disturb / lost-cause list
+      systematically exclude any protected group from promotions?
+      Validate with disaggregated fairness audits.
 
-**AI 不可以**：
-- 在没有实验或识别策略支撑时宣布"这个动作有效"
-- 用 LLM 评估替代 holdout / 实验作为上线依据
-- 自主扩大目标人群或修改 treatment 参数后绕过审批直接投放
-- 生成规避审查的话术变体（同义改写绕过违禁词检查）
+- [ ] **False claims**: does AI-generated copy exaggerate efficacy, fabricate
+      scarcity ("only 3 left" — is it?), or manufacture social proof?
 
-落地方式：这四条"不可以"写进 agent 系统的工具权限和审批流，
-不是写进 prompt 就完事。
+- [ ] **Dark patterns**: countdown clocks that create artificial urgency,
+      buried unsubscribe paths, confirm-shaming.
 
-## 审计日志（监管问起来的时候你需要什么）
+- [ ] **Frequency harm**: after stacking all campaigns, does any user's
+      aggregate contact frequency exceed the guardrail cap?
 
-每次决策可追溯：用户 ID（脱敏）、时间戳、context 快照、候选动作集、
-倾向性、最终动作、审批链版本（policy 版本号 + treatment card 版本号）。
-03 的倾向性日志和这里是同一套基础设施。
+## AI Role Hard Lines (enforce in system permissions, not just in prompts)
 
-## 常见死法
+**AI may**:
+- Generate treatment variants (output must enter the ref 02
+  "pre-screen → experiment" queue)
+- Extract context features from unstructured data (output must pass the
+  four-question feature review)
+- Write experiment documentation, interpret model output, run policy simulations
+- Monitor drift, anomalies, and guardrail metrics
 
-- **合规当末位工序**：模型上线半年后法务发现券策略构成价格歧视，全量下线 + 回溯赔偿
-- **代理变量裸奔**："我们没用敏感属性"——但用了机型+邮编+购物时段，模型自己重建了收入画像
-- **红队只做一次**：treatment 库每周上新，红队清单停在上线日
-- **AI 红线只写在 prompt 里**：agent 被注入/越狱后红线即失效，权限层才挡得住
+**AI must not**:
+- Declare an action "effective" without experimental or identification-strategy
+  support
+- Use LLM evaluation as a substitute for holdout / experiment to justify launch
+- Autonomously expand the target audience or modify treatment parameters and
+  deploy without approval
+- Generate policy-evading copy variants (e.g., synonym-swap to bypass
+  restricted-keyword filters)
 
-## 验收清单
+**How to enforce**: these four prohibitions belong in agent tool permissions
+and approval workflows — not just in the system prompt.
 
-- [ ] 所有入模特征过了四问 + 代理变量审查
-- [ ] 红队清单对每类 treatment 完成且有记录
-- [ ] AI 四条红线落在权限/审批系统层
-- [ ] 审计日志可按用户回放任意一次决策
-- [ ] 分组公平性审计（按敏感维度分组看动作分布与 τ̂ 分布）季度化
+## Audit Log (what you need when a regulator asks)
 
-## 文献指针
+Every decision must be reproducible: anonymized user ID, timestamp, context
+snapshot, candidate action set, propensity, selected action, approval-chain
+version (policy version number + treatment card version number).
+The propensity log from ref 03 and this audit log are the same infrastructure.
 
-- Barocas, Hardt & Narayanan, *Fairness and Machine Learning* — 公平性框架
-- PIPL（中）/ GDPR（欧）/ FTC dark patterns 执法报告（美）— 按业务法域查最新条文
-- Wachter et al. (2017) "Counterfactual Explanations" — 可解释义务的技术路径
+## Common Failure Modes
+
+- **Compliance as final step**: model has been live for six months; Legal finds
+  the coupon policy constitutes price discrimination; full rollback + retroactive
+  remediation.
+- **Proxy variables in production**: "we don't use sensitive attributes" — but
+  the model uses device model + zip code + shopping timestamp, effectively
+  reconstructing an income score.
+- **Red-team run once**: the treatment library adds new actions weekly; the
+  red-team checklist hasn't been touched since launch day.
+- **AI hard lines only in prompt**: a prompt injection or jailbreak immediately
+  removes the constraint; only permission-layer enforcement holds.
+
+## Acceptance Checklist
+
+- [ ] All model features pass the four questions + proxy audit
+- [ ] Red-team checklist completed for every treatment type, with records
+- [ ] AI hard lines enforced at system permission / approval workflow level
+- [ ] Audit log can replay any individual decision
+- [ ] Disaggregated fairness audit (action distribution + τ̂ distribution by
+      sensitive dimension) on a quarterly cadence
+
+## Literature
+
+- Barocas, Hardt & Narayanan, *Fairness and Machine Learning* —
+  fairness framework
+- PIPL (China) / GDPR (EU) / FTC dark-patterns enforcement reports (US) —
+  consult the latest applicable jurisdiction's text
+- Wachter et al. (2017) "Counterfactual Explanations Without Opening the Black
+  Box" — technical path to explainability obligations

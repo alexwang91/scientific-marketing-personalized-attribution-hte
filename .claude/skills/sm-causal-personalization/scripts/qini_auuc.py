@@ -1,15 +1,16 @@
-"""Uplift 模型验证三件套：Qini 曲线、AUUC、分桶增量校准。
+"""Uplift model validation: Qini curve, AUUC, and decile calibration.
 
-参见 references/04-hte-estimation.md。禁止用 AUC 验证 uplift 模型——
-个体级 τ 不可观察，必须用以下随机化数据上的群体级方法。
+See references/04-hte-estimation.md.
+Do NOT use AUC / accuracy to validate uplift models — individual-level τ labels
+are unobservable. Use the randomized-data, group-level methods below.
 
-输入约定（持出集，且来自随机化实验）：
-    y:     结果 (n,)  0/1 或连续
-    t:     是否 treated (n,) 0/1
-    score: 模型输出的 τ̂(x) (n,)
+Input convention (holdout set, from a randomized experiment):
+    y:     outcome (n,)  binary or continuous
+    t:     treatment indicator (n,)  0/1
+    score: model-estimated τ̂(x) (n,)
 
-用法：
-    python qini_auuc.py        # 合成数据演示，输出指标并存 qini_curve.png
+Usage:
+    python qini_auuc.py        # synthetic data demo: metrics + qini_curve.png
 """
 
 from __future__ import annotations
@@ -19,9 +20,10 @@ import pandas as pd
 
 
 def qini_curve(y: np.ndarray, t: np.ndarray, score: np.ndarray, n_bins: int = 100):
-    """按 score 降序逐步扩大“投放比例”，计算累积增量。
+    """Sort by score descending, progressively expand targeting fraction, compute cumulative lift.
 
-    返回 DataFrame: frac（投放比例）, qini（累积增量人数，treated 规模口径）
+    Returns DataFrame: frac (targeting fraction), qini (cumulative incremental units,
+    normalized to treated-group scale).
     """
     order = np.argsort(-score)
     y, t = y[order], t[order]
@@ -32,7 +34,7 @@ def qini_curve(y: np.ndarray, t: np.ndarray, score: np.ndarray, n_bins: int = 10
         n_t, n_c = tk.sum(), (1 - tk).sum()
         if n_t == 0 or n_c == 0:
             continue
-        # 累积增量 = treated 转化数 − control 转化数（折算到 treated 规模）
+        # cumulative lift = treated conversions − control conversions (rescaled to treated volume)
         qini = yk[tk == 1].sum() - yk[tk == 0].sum() * (n_t / n_c)
         fracs.append(k / n)
         qinis.append(qini)
@@ -40,21 +42,24 @@ def qini_curve(y: np.ndarray, t: np.ndarray, score: np.ndarray, n_bins: int = 10
 
 
 def auuc(y: np.ndarray, t: np.ndarray, score: np.ndarray, n_bins: int = 100) -> float:
-    """AUUC：Qini 曲线下面积减去随机基线（对角线）下面积。>0 才有排序能力。"""
+    """AUUC: area under Qini curve minus area under random baseline (diagonal).
+    Positive AUUC means the model has rank-ordering ability; zero/negative means it does not.
+    """
     df = qini_curve(y, t, score, n_bins)
     total = df["qini"].iloc[-1]
     model_area = np.trapezoid(df["qini"], df["frac"])
-    random_area = total / 2  # 随机排序的 Qini 是从 0 到 total 的直线
+    random_area = total / 2  # random ordering: straight line from 0 to total
     return float(model_area - random_area)
 
 
 def decile_calibration(
     y: np.ndarray, t: np.ndarray, score: np.ndarray, n_buckets: int = 10
 ) -> pd.DataFrame:
-    """分桶增量校准表：按 τ̂ 分桶，对比桶内预测均值与实际 treated−control 差。
+    """Decile calibration table: bucket by τ̂, compare predicted vs actual treated−control gap.
 
-    好模型应当：actual_uplift 随桶单调上升，且与 predicted_uplift 量级一致。
-    排序对但量级错 → 06 的利润优化全错，必须先校准。
+    A good model should be monotone and calibrated: a bucket predicting 3% should
+    actually show ~3% uplift. Correct rank but wrong magnitude → policy
+    optimization in ref 06 will be systematically wrong.
     """
     df = pd.DataFrame({"y": y, "t": t, "score": score})
     df["bucket"] = pd.qcut(df["score"], n_buckets, labels=False, duplicates="drop")
@@ -92,27 +97,29 @@ def plot_qini(y, t, score, path: str = "qini_curve.png"):
 
 
 def _synthetic(n: int = 200_000, seed: int = 0):
-    """合成随机化数据：真实 uplift 与 x1 正相关，propensity 与 x2 相关（混淆项演示）。"""
+    """Synthetic randomized data: true uplift correlates with x1; propensity correlates with x2.
+    The propensity-as-uplift anti-pattern is demonstrated explicitly.
+    """
     rng = np.random.default_rng(seed)
-    x1 = rng.normal(size=n)               # 驱动 uplift
-    x2 = rng.normal(size=n)               # 驱动基线购买率
-    t = rng.binomial(1, 0.5, n)           # 随机化
-    base = 1 / (1 + np.exp(-(x2 - 2.5)))  # 基线转化 ~7%
-    tau = np.clip(0.03 * x1 + 0.03, 0, None)  # 真实 uplift，均值 ~3pp
+    x1 = rng.normal(size=n)               # drives uplift
+    x2 = rng.normal(size=n)               # drives baseline purchase rate
+    t = rng.binomial(1, 0.5, n)           # randomized
+    base = 1 / (1 + np.exp(-(x2 - 2.5))) # baseline conversion ~7%
+    tau = np.clip(0.03 * x1 + 0.03, 0, None)  # true uplift, mean ~3pp
     y = rng.binomial(1, np.clip(base + t * tau, 0, 1))
-    good_score = tau + rng.normal(0, 0.01, n)   # 接近真值的模型
-    propensity_score = base                      # 反面教材：propensity 当 uplift 用
+    good_score = tau + rng.normal(0, 0.01, n)   # near-oracle model
+    propensity_score = base                      # anti-pattern: propensity used as uplift score
     return y, t, good_score, propensity_score
 
 
 if __name__ == "__main__":
     y, t, good, prop = _synthetic()
 
-    print(f"uplift 模型   AUUC = {auuc(y, t, good):8.1f}  （应显著 > 0）")
-    print(f"propensity 冒充 AUUC = {auuc(y, t, prop):8.1f}  （反面教材：≈0 或为负）")
+    print(f"Uplift model   AUUC = {auuc(y, t, good):8.1f}  (should be significantly > 0)")
+    print(f"Propensity anti-pattern AUUC = {auuc(y, t, prop):8.1f}  (≈0 or negative)")
 
-    print("\n分桶校准（uplift 模型，桶 9 = τ̂ 最高）：")
+    print("\nDecile calibration (uplift model, bucket 9 = highest τ̂):")
     print(decile_calibration(y, t, good).to_string(index=False, float_format="%.4f"))
 
     path = plot_qini(y, t, good)
-    print(f"\nQini 曲线已保存: {path}")
+    print(f"\nQini curve saved to: {path}")

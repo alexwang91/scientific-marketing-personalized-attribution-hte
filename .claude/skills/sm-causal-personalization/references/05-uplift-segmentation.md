@@ -1,68 +1,96 @@
-# 05 · Uplift 人群分层
+# 05 · Uplift Segmentation
 
-## 什么时候用
+## When to Use
 
-向业务方解释"为什么不投高转化人群"的时候；做人群策略的时候；
-团队把流失风险分层当 uplift 分层用的时候。
+When explaining to stakeholders "why we're not targeting high-conversion users";
+when building a user targeting strategy; when a team is treating churn-risk
+segments as uplift segments.
 
-## 四象限（沟通工具，不是决策机制）
+## The Four Quadrants (communication tool, not a decision mechanism)
 
-按"不营销时买不买 × 营销后买不买"分四类：
+Classified by "would buy without marketing × would buy with marketing":
 
-| | 营销后买 | 营销后不买 |
+| | Buys with marketing | Does not buy with marketing |
 |---|---|---|
-| **不营销也买** | Sure things：投了纯浪费，券是白送的毛利 | Sleeping dogs：被打扰反而变差，投了是负增量 |
-| **不营销不买** | **Persuadables：唯一值得投的人** | Lost causes：怎么都不买，不要追 |
+| **Would buy anyway** | **Sure things**: marketing is pure waste — coupon is margin gifted away | **Sleeping dogs**: marketing makes them worse — negative incremental effect |
+| **Would not buy without** | **Persuadables**: the only people worth targeting | **Lost causes**: unreachable no matter what |
 
-**用途边界：四象限用于跟业务方沟通和讲故事，不用于线上决策。**
-线上决策用连续 τ̂(x) − 成本 + 预算约束（06）。原因：四类是隐藏类型，
-个体层面不可直接观察，只能用 τ̂(x) 的连续分布近似；强行打四个标签
-会把阈值附近的人群错分，且丢掉量级信息（τ̂=1% 和 τ̂=8% 都叫
-persuadable，但预算优先级完全不同）。
+**Scope of use**: the four quadrants are for stakeholder communication and
+storytelling, not for live targeting decisions. Live decisions use continuous
+τ̂(x) − cost + budget constraint (ref 06). The reasons:
 
-## Ascarza 教训：风险 ≠ 可挽回
+- The four types are latent (unobservable at the individual level); they can
+  only be approximated by τ̂(x)'s continuous distribution.
+- Hard classification at a threshold discards magnitude information (τ̂ = 1%
+  and τ̂ = 8% are both "persuadable" but have completely different budget
+  priority).
 
-Ascarza (2018) 在两个真实留存实验里发现：**流失风险最高的用户，
-和干预效果最好的用户，重叠常常不到一半**。按"流失概率"定向挽留
-（行业默认做法）显著劣于按 uplift 定向——高风险用户里很多是
-lost causes（怎么都留不住）甚至 sleeping dogs（提醒他他才想起来去取消）。
+## The Ascarza Lesson: Risk ≠ Rescuable
 
-这是对高管最有说服力的一页 PPT：**"最可能流失的人"和"挽留动作
-最有效的人"是两群人。** 同样的逻辑适用于：高购买概率 ≠ 发券有增量、
-高赢单概率 ≠ 折扣有必要（销售版见 10）。
+Ascarza (2018) ran experiments in two real retention programs and found that
+**the highest-churn-risk users and the users who responded best to intervention
+overlapped by less than half**. Targeting by "churn probability" (the industry
+default) was significantly worse than targeting by uplift — high-risk users
+contain many lost causes (nothing retains them) and even sleeping dogs
+(reminding them is what prompts them to cancel).
 
-## Sleeping dogs：最容易被忽略的一类
+This is the most persuasive slide for executives:
+**"The people most likely to churn" and "the people where retention action is
+most effective" are two different groups.**
 
-- 信号场景：催复购提醒了"原来我还订着这个"、清仓推送伤害品牌感知、
-  高频触达引发退订、对价格敏感用户暴露原价锚点
-- 识别难点：τ(x) < 0 的检出需要**更大样本**（负效应通常比正效应小而稀疏）
-  且常在**长期**才显形（退订、品牌疲劳，见 08）
-- 策略：τ̂ 显著为负的人群进入"免打扰名单"，并定期用 GCG 数据复核
+The same logic applies directly to: high purchase probability ≠ coupon has
+incremental effect; high win probability ≠ discount is necessary (B2B version
+→ ref 10).
 
-## 操作步骤
+## Sleeping Dogs: The Most Overlooked Segment
 
-1. 拿 04 输出的 τ̂(x) 和置信区间
-2. 对管理层：画四象限 + τ̂ 分布直方图，标出现行策略浪费在 sure things
-   上的预算比例（通常是最震撼的数字）
-3. 对线上：不打标签，τ̂ 连续分数直接进 06 的策略优化
-4. 单独拉出 τ̂ < 0 且显著的人群 → 免打扰名单 + 复核机制
+- **Signal scenarios**: repurchase reminders that prompt "oh, I'm still
+  subscribed to this?" reactions; clearance pushes that erode brand perception;
+  high-frequency outreach triggering unsubscribes; exposing price-sensitive
+  users to anchor prices
+- **Detection difficulty**: τ(x) < 0 requires **larger samples** to detect
+  (negative effects tend to be smaller in magnitude and sparser) and often
+  surfaces only in the **long run** (unsubscribes, brand fatigue → ref 08)
+- **Strategy**: users with significantly negative τ̂ → add to a "do-not-disturb"
+  list; review periodically using GCG data
 
-## 常见死法
+## Step-by-Step
 
-- **拿 propensity 分层冒充 uplift 分层**："高意向人群"是 sure things 浓度最高的人群，对他们加投是经典反模式
-- **四象限标签直接投放**：丢量级、错分阈值附近人群
-- **忽略 sleeping dogs**：样本不够检出负效应就当它不存在，长期烧名单
-- **分层一次定终身**：τ(x) 随生命周期变化，上季度的 persuadable 这季度已是 sure thing
+1. Take τ̂(x) and confidence intervals from ref 04.
+2. **For leadership**: draw the four-quadrant diagram + τ̂ distribution
+   histogram, highlighting what share of the current policy's spend lands on
+   sure-things. (This number is usually the most striking figure in the deck.)
+3. **For live system**: do not assign labels; feed continuous τ̂ scores directly
+   into policy optimization (ref 06).
+4. Pull users with significantly negative τ̂ → do-not-disturb list + review
+   mechanism.
 
-## 验收清单
+## Common Failure Modes
 
-- [ ] 业务方理解"风险/意向 ≠ 增量"（Ascarza 一页讲过了）
-- [ ] 线上决策用连续 τ̂，四象限只出现在汇报里
-- [ ] 免打扰名单建立且有复核机制
-- [ ] 分层随模型重训定期刷新
+- **Using propensity segments as uplift segments**: "high-intent audience" is
+  the highest concentration of sure-things — increasing spend on them is the
+  canonical anti-pattern
+- **Running four-quadrant labels in production**: discards magnitude, mislabels
+  users near thresholds
+- **Ignoring sleeping dogs**: insufficient sample to detect negative effects →
+  assumed they don't exist; long-term list destruction
+- **Segments fixed forever**: τ(x) changes with lifecycle; last quarter's
+  persuadable is this quarter's sure-thing
 
-## 文献指针
+## Acceptance Checklist
 
-- Ascarza (2018, JMR) "Retention Futility: Targeting High-Risk Customers Might Be Ineffective" — 本节核心
-- Radcliffe & Surry (2011) "Real-World Uplift Modelling with Significance-Based Uplift Trees" — 四象限源头之一
-- Hitsch, Misra & Sanders (2024, QME) "Heterogeneous Treatment Effects and Optimal Targeting Policy Evaluation" — 定向策略的因果评估框架
+- [ ] Stakeholders understand "risk / intent ≠ incrementality"
+      (Ascarza one-pager delivered)
+- [ ] Live targeting uses continuous τ̂; four-quadrant appears only in reporting
+- [ ] Do-not-disturb list built with review cadence
+- [ ] Segments refreshed on model retraining schedule
+
+## Literature
+
+- Ascarza (2018, JMR) "Retention Futility: Targeting High-Risk Customers Might
+  Be Ineffective" — the core reference for this section
+- Radcliffe & Surry (2011) "Real-World Uplift Modelling with Significance-Based
+  Uplift Trees" — one origin of the four-quadrant taxonomy
+- Hitsch, Misra & Sanders (2024, QME) "Heterogeneous Treatment Effects and
+  Optimal Targeting Policy Evaluation" — causal framework for targeting policy
+  evaluation
