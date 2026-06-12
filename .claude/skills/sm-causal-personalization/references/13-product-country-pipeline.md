@@ -26,7 +26,27 @@ effort *and* credibility damage.
 
 ---
 
-## Stage 1 — Evidence pull
+## Input: Required Product Facts
+
+| Field | Example | Notes |
+|-------|---------|-------|
+| `product_name` | "HUAWEI WATCH FIT 5 Pro" | Full commercial name |
+| `market` | "Hungary" | Country or region |
+| `price` | 99990 (HUF) | Local retail price |
+| `margin_rate` | 0.40 | Gross margin (user input; tag as Assumption) |
+| `budget` | 12000000 (HUF) | Total pilot budget |
+| `key_features` | ["GPS", "10-day battery", "AMOLED"] | 3–6 product USPs |
+| `local_retailers` | ["Alza", "eMAG", "MediaMarkt"] | Top local e-commerce platforms |
+| `platforms_available` | ["Google", "Meta", "TikTok", "YouTube"] | Active ad platforms |
+
+Optional but accelerates pipeline:
+- `competitor_products`: list of direct alternatives
+- `existing_audience_data`: first-party signals available
+- `compliance_constraints`: product categories with local restrictions
+
+---
+
+## Stage 1 — Evidence Pull
 
 Collect, each with URL + access date (→ `facts` + `numbers` as **sourced**):
 
@@ -37,11 +57,21 @@ Collect, each with URL + access date (→ `facts` + `numbers` as **sourced**):
    that caps the addressable market)
 5. Local compliance constraints on claims (health, speed, finance)
 
+Also establish market context from public sources or user input:
+- Which 3–5 retail platforms command the highest GMV share?
+- Which paid channels are locally effective (Google vs Yandex vs Naver, etc.)?
+- Are there local compliance constraints on health, finance, or performance claims?
+- What is the local currency, and are all monetary inputs in local denomination?
+
+Tag each fact: `Evidence` if sourced, `Assumption` if user-provided.
+
 Anything not obtainable goes into the registry as **missing** with
 `needed_from` + `cost_to_get` — not as a guess. User-supplied inputs (margin,
 budget envelope) register as **assumed** with basis.
 
-## Stage 2 — Unit economics
+---
+
+## Stage 2 — Unit Economics
 
 Pure derivation, zero new assumptions beyond declared ones:
 
@@ -56,11 +86,39 @@ conclusion, ranked. This ranking becomes (a) the thesis's overturn conditions,
 stage 6. Low-ticket products live or die here: a 60 RON unit margin is itself
 the report's central finding.
 
-## Stage 3 — Channel screen (the gate that may end the report)
+---
+
+## Stage 3 — Channel Screen (the gate that may end the report)
 
 For each candidate channel, attempt `CAC = cost-per-touch ÷ conversion-per-touch`
-with whatever provenance is available, and apply the benchmark asymmetry
-(ref 16): benchmarks may prove **not-viable**, never **viable**.
+with whatever provenance is available.
+
+**Benchmark asymmetry**: benchmarks may prove **not-viable**, never **viable**.
+A benchmark range that clears the ceiling gives no confidence that actual CAC
+will clear it — it only establishes that the channel is not yet ruled out.
+A benchmark range that fails the ceiling even at its optimistic end rules the
+channel out.
+
+Map each available channel to:
+- **Proximity to purchase** (1 = closest, 5 = furthest)
+- **Primary task** (capture / build / convert / suppress)
+- **Local proxy availability** (High / Medium / Low)
+- **Incrementality risk** (sure-thing / ad-fatigue / deal-seeker)
+
+Sort by proximity × proxy quality. Channels with Low proxy and far proximity enter
+the heatmap as S or N only.
+
+**Channel proximity reference**:
+
+```
+Retail Media       → proximity 1, capture, High proxy
+Search brand/cat   → proximity 1–2, capture, High proxy
+Shopping/PMax      → proximity 2, convert, High proxy
+Retargeting        → proximity 2, top-up, High (needs 1P data)
+YouTube Review     → proximity 3, build proof, Medium proxy
+KOL / Creator      → proximity 3–4, build proof, Medium proxy
+Social Prospecting → proximity 4–5, expand, Medium–Low proxy
+```
 
 | Verdict | Meaning | Downstream |
 |---------|---------|-----------|
@@ -73,22 +131,88 @@ with whatever provenance is available, and apply the benchmark asymmetry
 cheap data path, stop. Emit the short report (ref 12): verdict no-go, the math,
 the levers, the Missing ledger. This is a complete, successful deliverable.
 
-## Stage 4 — Dimension generation (survivors only)
+---
+
+## Stage 4 — Dimension Generation (survivors only)
 
 Run ref 14's generation protocol per surviving channel. Expect few dimensions —
-quality over coverage. The v1 failure mode was 32 dimensions for an unscreened
+quality over coverage. The failure mode is 32 dimensions for an unscreened
 channel list: maximal surface, zero verified depth.
 
-## Stage 5 — Adversarial review
+Generate candidate D dimensions by crossing:
+
+```
+Product mechanism  ×  Local purchase path  ×  Platform proxy  ×  Measurability
+```
+
+**Generation protocol**:
+1. List every product feature that could change a person's response to the action
+2. For each feature, identify who would respond differently (mechanism, not correlation)
+3. Check if that person type is reachable via a platform proxy in this market
+4. Check if the dimension is measurable (A/B, holdout, UTM, platform split)
+5. Flag any dimension touching sensitive attributes (health, body image, age, religion)
+   → send to Causal Activation Reviewer (ref 14) before including
+
+**Entry threshold**: dimension must pass ≥ 3 of the 5 checks in ref 14.
+
+**Standard D dimension candidates** (always evaluate, not always include):
+- Brand/OS affinity (D: brand loyal)
+- Smartwatch in-market (D: category intent)
+- Key sport segment (D: running / cycling / gym / outdoor)
+- Health / sleep tracking (D: health habit)
+- Long battery pain (D: battery pain vs competitor)
+- Price compare (D: comparison shopper)
+- Competitor alternative (D: switching consideration)
+- Cart abandon (D: near-purchase)
+- Tech review reader (D: proof-seeker)
+- Gift buyer (D: gift intent, seasonal)
+- Ad fatigue (D: suppression, not prospecting)
+- Deal-only buyer (D: suppression, negative margin risk)
+
+For each H-score cell in the heatmap, generate a Treatment Card with:
+
+```
+T{id}
+action:        plain-language description
+audience:      D dimension + proxy
+baseline:      what happens without the action (holdout / organic / no campaign)
+cost_formula:  CPC + X / CPM + Y / creator fee + usage rights
+mechanism:     one sentence — why this changes incremental purchase probability
+guardrail:     the main way this wastes budget (sure-thing / fatigue / deal-seeker)
+measurement:   how to estimate incremental effect
+```
+
+Number of Treatment Cards = number of H-score cells. If > 8, consolidate by grouping
+channels with the same mechanism.
+
+---
+
+## Stage 5 — Adversarial Review
 
 Independent pass per ref 14. Input: the data and the screen — **not** the
 recommendations (the reviewer must not anchor on what the analysis wants).
 Output: immutable challenges with status; `open-blocking` challenges stamp
-dependent actions in the report. Standard library: sure-thing, deal-seeker,
-correlation≠mechanism, proxy-reality, fatigue/sleeping-dog, compliance,
-market-ceiling.
+dependent actions in the report.
 
-## Stage 6 — Test design
+Standard challenge library: sure-thing, deal-seeker, correlation≠mechanism,
+proxy-reality, fatigue/sleeping-dog, compliance, market-ceiling.
+
+Before any budget is committed, check:
+
+| Gate | Input needed | Script |
+|------|-------------|--------|
+| Sample size | baseline CVR, MDE, eligible users/day | `power_analysis.py` |
+| Propensity log ready | eligible treatment set, assignment probability | manual |
+| Attribution method | holdout flag, cost, outcome | manual |
+| OPE support | propensity log p(t\|x) | `ope_estimators.py` |
+| AUUC > 0 | uplift model predictions | `qini_auuc.py` |
+
+Gates are binary: pass / not-ready. A "not-ready" gate does not block trial spend
+but blocks scale-up.
+
+---
+
+## Stage 6 — Test Design
 
 Every surviving action gets the three-piece set:
 
@@ -102,6 +226,8 @@ Decision date: when this line must become Sourced or be declared dead
 Plus a decision calendar: the single date when the go/no-go re-evaluation
 happens, named in the memo's checkpoint decisions.
 
+---
+
 ## Stage 7 — Render
 
 Assemble the config (schema: `examples/ax3-romania-config.json`), then:
@@ -111,12 +237,36 @@ python scripts/generate_report.py --config config.json --validate-only   # must 
 python scripts/generate_report.py --config config.json --output report.html
 ```
 
+Minimum config from this pipeline:
+
+```python
+config = {
+    "product": product_name,
+    "market": market,
+    "budget": budget_display,
+    "price": price,
+    "margin_rate": margin_rate,
+    "product_facts": [...],   # Stage 1 output
+    "channels": [...],        # Stage 3 output
+    "dimensions": [...],      # Stage 4 output
+    "heatmap": {...},          # Stage 4 output
+    "treatments": [...],      # Stage 4 output
+    "execution_gates": [...], # Stage 5 output
+    "power_analysis": {       # Stage 5 inputs for script bridge
+        "baseline_cvr": 0.02,
+        "mde_abs": 0.004,
+        "eligible_per_day": 10000,
+    },
+    # ... budget, plays, measurement, suppression, sources, checklist
+}
+```
+
 Build failure = a number broke the provenance contract. Fix the analysis,
 not the validator.
 
 ---
 
-## Failure modes
+## Failure Modes
 
 | Failure | Smell | Fix |
 |---------|-------|-----|
@@ -125,3 +275,8 @@ not the validator.
 | Costume numbers | Play tables with CAC/ROI ranges and no formulas | Ref 16; registry or deletion |
 | Reviewer anchoring | Challenges that read like endorsements | Stage 5 sees data, not recommendations |
 | No terminus fear | Analyst pads the report to justify the effort spent | The short report IS the deliverable; say so |
+| All dimensions enter as H | Skipped mechanism check | Re-run Stage 4 with reviewer (ref 14) |
+| Budget allocated before gates | Skipped Stage 5 | Gates are non-negotiable; label pre-gate numbers as Hypothesis |
+| KOL ROI treated as Evidence | No holdout or UTM | Re-tag as Assumption or Needs test |
+| Heatmap has > 20 H cells | No prioritization | Rank H cells by (proxy quality × mechanism clarity); keep top 8–10 |
+| Price / CAC missing tags | Draft from LLM | Every number with currency symbol must be tagged before delivery |

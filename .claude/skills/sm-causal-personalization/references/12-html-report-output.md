@@ -11,6 +11,11 @@ A report is a display of reasoning, not a display of conclusions. Credibility
 comes from checkability, not from labels claiming credibility. Estimation
 rules live in ref 16; this file covers structure and rendering.
 
+This reference is the authoritative source on report shape, tag semantics,
+provenance rendering, heatmap scoring, script bridges, and the acceptance
+checklist. When to trigger: the user asks for a deliverable report, campaign
+brief, trial plan, or formatted output after working through the pipeline.
+
 ---
 
 ## Report Structure: Part A + Part B
@@ -103,13 +108,13 @@ Default: `Assumption` or `Needs quote`.
 **Hard rule**: ROI and incrementality are never `Evidence` without a holdout or
 credible identification strategy. Default: `Hypothesis` or `Needs test`.
 
+Evidence tags operate at the level of claims in rendered HTML. Number-level
+provenance (see next section) operates at the level of individual values in the
+config registry. These are **two levels of the same obligation**, not alternatives.
+
 ---
 
 ## Number-Level Provenance (registry states enforced by generate_report.py)
-
-Evidence tags operate at the level of claims in rendered HTML. Number-level
-provenance operates at the level of individual values in the config registry.
-These are **two levels of the same obligation**, not alternatives.
 
 Every number lives in the config's central `numbers` registry with one of four
 provenance states:
@@ -254,6 +259,19 @@ answers an objection) where CAC math does not apply.
 - One callout per section, maximum.
 - Derivation chains in monospace blocks; prose in sentences.
 - Language follows the user (ref 15); markers, verdicts, and IDs stay English.
+
+---
+
+## Writing Rules for Report Text
+
+All report text follows ref 15. Key obligations in brief:
+
+1. **Language**: match user's language; technical terms stay English
+2. **No untagged numbers**: every ROI / CAC / KOL price / budget figure carries a claim tag AND exists in the registry
+3. **Decision-first**: lead with the recommendation, evidence second
+4. **No filler**: strip "it is worth noting that", "in conclusion", "as mentioned above"
+5. **Callout usage**: use `.callout` only for the single most important decision or
+   reviewer finding per section; do not put general summaries in callouts
 
 ---
 
