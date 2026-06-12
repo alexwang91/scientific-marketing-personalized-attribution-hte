@@ -127,21 +127,44 @@ What is the user asking about?
 │   → 09-governance  (always run this at project kickoff)
 ├─ "How to roll this out org-wide; marketing/sales team alignment; KPI design"
 │   → 10-org-playbook
-└─ "How to build or evaluate a production-scale platform (data eng, retraining,
-    serving, CPOG-style architecture)"
-    → 11-production-architecture
+├─ "How to build or evaluate a production-scale platform (data eng, retraining,
+│   serving, CPOG-style architecture)"
+│   → 11-production-architecture
+│
+│  ── Output & Delivery layer ───────────────────────────────────────────────
+├─ "Generate a deliverable report / campaign brief / HTML output"
+│   → 12-html-report-output  (section map, evidence tags, script bridge)
+│     └─ use generate_report.py to produce HTML from config
+├─ "User gives a product + country; needs channel map, audience, treatment plan"
+│   → 13-product-country-pipeline  (product facts → channels → D dims →
+│       treatment cards → experiment gate → HTML)
+├─ "How to generate or validate D dimensions; what is the Causal Activation Reviewer"
+│   → 14-d-dimension-reviewer  (generation protocol, 5-condition gate,
+│       reviewer verdicts: Retain / Demote S / Suppression only / Delete)
+└─ "How should the output be written; language rules; when to tag Evidence vs Assumption"
+    → 15-writing-rules  (language detection, evidence label obligation,
+        anti-slop rules, decision-first structure, maturity honest labeling)
 ```
 
 ---
 
 ## Scripts (all validated)
 
-| Script | Purpose |
-|--------|---------|
-| `power_analysis.py` | Uplift experiment power: sample size to detect incremental difference (~4× a standard A/B) |
-| `qini_auuc.py` | Qini curve, AUUC + bootstrap CI, decile calibration, two-model comparison |
-| `hte_starter.py` | T/X/DR-learner starter templates (sklearn, drop-in replaceable with EconML / CausalML) |
-| `ope_estimators.py` | IPS / SNIPS / Doubly Robust off-policy evaluation + support check |
+| Script | Purpose | Report bridge |
+|--------|---------|--------------|
+| `power_analysis.py` | Uplift experiment power: sample size to detect incremental difference (~4× a standard A/B) | Section 9 gate + section 13 duration |
+| `qini_auuc.py` | Qini curve, AUUC + bootstrap CI, decile calibration, two-model comparison | Section 11 AUUC launch gate |
+| `hte_starter.py` | T/X/DR-learner starter templates (sklearn, drop-in replaceable with EconML / CausalML) | — |
+| `ope_estimators.py` | IPS / SNIPS / Doubly Robust off-policy evaluation + support check | Section 14 OPE support check |
+| `generate_report.py` | Config-driven HTML report generator — bridges all four scripts into a structured deliverable | **Entry point for HTML output** |
+
+```bash
+# Generate demo report
+python scripts/generate_report.py --demo > report.html
+
+# From JSON config (see DEMO_CONFIG in generate_report.py for schema)
+python scripts/generate_report.py --config config.json --output report.html
+```
 
 ---
 
