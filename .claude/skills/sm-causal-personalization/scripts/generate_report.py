@@ -481,7 +481,7 @@ def s_actions(cfg: dict, numbers: dict, challenges_by_id: dict) -> str:
   <dl>
     <dt>Mechanism</dt><dd>{esc(a['mechanism'])}</dd>
     <dt>Guardrail</dt><dd>{esc(a['guardrail'])}</dd>
-    <dt>Test</dt><dd>{esc(a['test'])}</dd>
+    <dt>Test</dt><dd>{esc(a.get('test', a.get('measurement', '')))}</dd>
     {budget}{gate}
   </dl>
 </div>"""
@@ -583,16 +583,16 @@ def s_product_facts(cfg: dict) -> str:
     """Section 3 — Product & market facts."""
     features = cfg.get("product_facts", [])
     mfacts = cfg.get("market_facts", [])
-    feat_rows = "".join(
-        f"<tr><td>{esc(f['label'])}</td><td>{esc(f['detail'])}</td>"
-        f"<td><span class='tag {esc(f.get(\"tag\",\"evidence\"))}'>{esc(f.get('tag','Evidence').title())}</span></td></tr>"
-        for f in features
-    )
-    mfact_rows = "".join(
-        f"<tr><td>{esc(m['fact'])}</td>"
-        f"<td><span class='tag {esc(m.get(\"tag\",\"evidence\"))}'>{esc(m.get('tag','Evidence').title())}</span></td></tr>"
-        for m in mfacts
-    )
+    feat_rows = ""
+    for f in features:
+        tag = f.get("tag", "evidence")
+        feat_rows += (f"<tr><td>{esc(f['label'])}</td><td>{esc(f['detail'])}</td>"
+                      f"<td><span class='tag {esc(tag)}'>{esc(tag.title())}</span></td></tr>")
+    mfact_rows = ""
+    for m in mfacts:
+        tag = m.get("tag", "evidence")
+        mfact_rows += (f"<tr><td>{esc(m['fact'])}</td>"
+                       f"<td><span class='tag {esc(tag)}'>{esc(tag.title())}</span></td></tr>")
     feat_table = f"""<h3>Product features relevant to targeting</h3>
 <div class="table-wrap"><table>
   <thead><tr><th>Feature</th><th>Targeting relevance</th><th>Status</th></tr></thead>
@@ -730,13 +730,13 @@ def s_h_main(cfg: dict) -> str:
 def s_execution_gates(cfg: dict, numbers: dict, challenges_by_id: dict) -> str:
     """Section 9 — Execution gates + Treatment Cards (full T-card format)."""
     gates = cfg.get("execution_gates", [])
-    gate_rows = "".join(
-        f"<tr><td><strong>{esc(g['gate'])}</strong></td>"
-        f"<td>{esc(g.get('input_needed',''))}</td>"
-        f"<td><span class='pill pill-{esc(g[\"status\"])}'>{esc(g['status'])}</span></td>"
-        f"<td>{esc(g.get('note',''))}</td></tr>"
-        for g in gates
-    )
+    gate_rows = ""
+    for g in gates:
+        gstatus = g["status"]
+        gate_rows += (f"<tr><td><strong>{esc(g['gate'])}</strong></td>"
+                      f"<td>{esc(g.get('input_needed',''))}</td>"
+                      f"<td><span class='pill pill-{esc(gstatus)}'>{esc(gstatus)}</span></td>"
+                      f"<td>{esc(g.get('note',''))}</td></tr>")
     gate_html = f"""<div class="table-wrap"><table>
   <thead><tr><th>Gate</th><th>Input needed</th><th>Status</th><th>Note</th></tr></thead>
   <tbody>{gate_rows}</tbody></table></div>""" if gate_rows else ""
