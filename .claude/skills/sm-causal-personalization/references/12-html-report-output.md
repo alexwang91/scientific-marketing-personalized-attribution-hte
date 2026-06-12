@@ -1,163 +1,143 @@
-# 12 · HTML Report Output Adapter
+# 12 · HTML Report Output: The Decision Memo Contract
 
-## When to use
+## Purpose
 
-Trigger when the user asks for a deliverable report, campaign brief, trial plan, or
-formatted output after working through the pipeline. This reference specifies the
-canonical section structure, evidence labeling rules, and how to pipe script outputs
-into the report.
+Specifies the deliverable report format. The governing idea:
 
----
+> **A good report is a document that lets someone who does not trust you
+> check your reasoning.**
 
-## Section Map (canonical 15 sections)
-
-| # | Section | Required | Script input |
-|---|---------|----------|--------------|
-| 1 | Core decision + KPI strip | Yes | — |
-| 2 | Evidence tag legend | Yes (always static) | — |
-| 3 | Product & market facts | Yes | — |
-| 4 | Assumption register | Yes | — |
-| 5 | Local channel map | Yes | — |
-| 6 | D dimension table + Causal Activation Reviewer | Yes | — |
-| 7 | Semantic heatmap (channel × dimension) | Yes | — |
-| 8 | H-main breakdown | Yes | — |
-| 9 | Execution gates + Treatment Cards | Yes | `power_analysis.py` → sample size gate |
-| 10 | Budget allocation | Yes | — |
-| 11 | Priority plays + ROI scenarios | Yes | `qini_auuc.py` → AUUC gate (if model data available) |
-| 12 | KOL / Creator sourcing | Conditional | — |
-| 13 | Measurement plan | Yes | `power_analysis.py` → duration |
-| 14 | Suppression & risk rules | Yes | `ope_estimators.py` → support check |
-| 15 | Sources + Verification checklist | Yes | — |
+A report is a display of reasoning, not a display of conclusions. Credibility
+comes from checkability, not from labels claiming credibility. Estimation
+rules live in ref 16; this file covers structure and rendering.
 
 ---
 
-## Evidence Tag Semantics
+## The Six Sections (replaces the old 15)
 
-Every claim in the report must carry exactly one tag. No untagged ROI, CAC, or KOL
-price is allowed.
+```
+1. Decision Memo      ONE SCREEN: verdict badge + thesis + decisions
+                      (now / at checkpoint / never) + overturn conditions
+                      + the report's own weakest point
+2. The Math           Derivation chains (unit economics → CAC ceiling)
+                      → sensitivity table → channel viability screen
+3. Actions            Cards (4 fields: mechanism / guardrail / test / budget)
+                      only for screen survivors; rejected options listed
+                      with one-line reasons; BLOCKED stamps live here
+4. Adversarial Review Challenge table with resolved / open / open-blocking
+                      status; open-blocking links to stamped actions
+5. Test Plan          Prediction–test–kill-line–decision-date cards
+                      + power_analysis.py bridge output
+6. Evidence & Gaps    Sourced facts (with access dates) + assumption
+                      register + Missing ledger sorted by sensitivity
+```
 
-| Tag | Class | Meaning |
-|-----|-------|---------|
-| `Evidence` | `.evidence` | Sourced fact, stable method, or validated result |
-| `Assumption` | `.assumption` | Scenario input or estimate provided by user |
-| `Hypothesis` | `.hypothesis` | Semantic prior or unvalidated HTE inference |
-| `Needs test` | `.needs-test` | A judgment that will change budget, channel, or KOL decisions |
+Removed from v1, deliberately:
+- The empty "H-Main Breakdown" pass-through section (template smell)
+- The standalone KOL procurement section — it only exists when unit economics
+  support it; when they don't, KOL appears once in rejected options
+- The 4-tag evidence legend — replaced by the provenance marker system
+- The semantic heatmap as a default section — dimension detail is only earned
+  **after** a channel passes the viability screen; it can attach as an appendix
+  for viable channels, never before
 
-**Hard rule**: any number with a currency symbol or "%" that affects budget, CAC, or
-ROI must be tagged. No exceptions.
+### Why the order matters
+
+The report is a pyramid: a reader gets the conclusion in 30 seconds (section 1),
+the reasoning in 3 minutes (section 2), and full auditability in 30 minutes
+(sections 3–6). The single most important insight must be the first sentence
+of the thesis — not buried in a reviewer table on page 4.
 
 ---
 
-## Heatmap Score Semantics
+## Section 1 requirements (Decision Memo)
 
-| Score | CSS class | Meaning |
-|-------|-----------|---------|
-| H | `.hm-high` | Primary investment: strong mechanism, deployable proxy, testable |
-| T | `.hm-test` | Test slot: weaker signal or proxy; small budget to learn |
-| S | `.hm-small` | Small exploratory test only |
-| N | `.hm-none` | Not a focus this round |
-| A | `.hm-avoid` | Actively suppress: ad fatigue, sure-thing, compliance risk |
-
-A dimension enters the heatmap only if it satisfies ≥ 3 of:
-1. Observable before deployment
-2. Reachable via a platform proxy
-3. Mechanistically linked to a product feature or barrier
-4. Measurable via A/B, holdout, UTM, or platform report
-5. Changes a creative, bid, frequency, or suppression decision
+| Field | Rule |
+|-------|------|
+| `verdict` | go / no-go / conditional — rendered as a badge; no hedged fourth option |
+| `thesis` | ≤ 3 sentences; contains the central number(s); must be falsifiable |
+| `decisions` | Each tagged now / checkpoint / never. "Now" items should mostly be zero-cost data pulls |
+| `overturn_conditions` | Taken from the top of the sensitivity table. A report that cannot say what would change its mind is advocacy |
+| `weakest_point` | The report names its own weakest link before the reader finds it |
 
 ---
 
-## Script Bridge: How to Embed Script Outputs
+## Number rendering (enforced by generate_report.py)
 
-### Section 9 — Sample Size Gate (power_analysis.py)
+Every number lives in the config's central `numbers` registry with provenance
+sourced / assumed / derived / missing (ref 16). The generator **fails the build**
+on any violation: unsourced "sourced" numbers, value-carrying "missing" numbers,
+formulas referencing unregistered inputs, circular derivations.
 
-```python
-from power_analysis import n_per_arm_ate, n_per_cell_hte, experiment_duration_days
-
-n_ab  = n_per_arm_ate(baseline_rate=cfg["baseline_cvr"], mde_abs=cfg["mde_abs"])
-n_hte = n_per_cell_hte(
-    baseline_rate_a=cfg["baseline_cvr"], baseline_rate_b=cfg["baseline_cvr"],
-    uplift_a=cfg["mde_abs"] * 2, uplift_b=cfg["mde_abs"]
-)
-days = experiment_duration_days(4 * n_hte, cfg["eligible_per_day"])
-```
-
-Embed in execution gate row "Sample size":
-
-```html
-<span class="tag evidence">Script</span>
-ATE: {n_ab:,}/arm · HTE: {n_hte:,}/cell · ~{days}d at {eligible_per_day:,}/day
-```
-
-### Section 11 — AUUC Gate (qini_auuc.py)
-
-If uplift model scores are available:
-
-```python
-from qini_auuc import auuc_bootstrap_ci
-import numpy as np
-
-auuc, lo, hi = auuc_bootstrap_ci(y_true, w, tau_hat)
-gate_passes = lo > 0
-```
-
-Embed in priority plays table:
-
-```html
-<span class="tag evidence">Script</span>
-AUUC = {auuc:.1f}  95% CI [{lo:.1f}, {hi:.1f}]
-→ {"Gate PASSED" if gate_passes else "Gate FAILED — do not scale"}
-```
-
-### Section 14 — OPE Support Check (ope_estimators.py)
-
-Before any policy evaluation:
-
-```python
-from ope_estimators import support_check
-result = support_check(t_logged, p_logged, pi_new)
-# embed result["verdict"] in the gate row
-```
+- Derived numbers render as three-line chains: symbolic formula → substituted
+  values with provenance markers → result.
+- Range inputs propagate as intervals (corner evaluation). Never midpoint.
+- Missing numbers render as a gray dashed placeholder. Never a guessed value.
+- Markers are superscripts (`S/A/D/M`), not pills — they don't count against
+  the pill budget.
+- A prose linter warns when body text contains a currency amount matching no
+  registry value.
 
 ---
 
-## Programmatic Generation
+## Pill budget and verdict vocabulary
 
-Use `scripts/generate_report.py` for config-driven HTML output:
+Pills (colored capsules) are rationed because 50 tags = 0 tags. Only four
+families exist:
+
+| Family | Values |
+|--------|--------|
+| Report verdict | GO / NO-GO / CONDITIONAL (exactly one) |
+| Channel verdict | viable / not-viable / undetermined / role-only |
+| Challenge status | resolved / open / open-blocking |
+| Block stamp | ⊘ BLOCKED by C{n} |
+
+Target: **fewer than 20 pills in a full report.** `undetermined` is a legal and
+common channel verdict — see ref 16 on why honest blanks beat fabricated
+completeness. `role-only` marks channels evaluated for a non-acquisition role
+(e.g., review content that answers an objection) where CAC math doesn't apply.
+
+---
+
+## Readability budget
+
+- Tables: **maximum 4 columns.** More fields → cards (the generator renders
+  actions and test plans as cards natively).
+- One callout per section, maximum.
+- Derivation chains in monospace blocks; prose in sentences.
+- Language follows the user (ref 15); markers, verdicts, and IDs stay English.
+
+---
+
+## Short-report mode
+
+If the pipeline terminated at the viability screen (ref 13, stage 3), config
+carries a `termination` block and the generator renders only sections 1, 2, 6
+plus a termination notice. **A short report is a success state**, not a
+failure: "the math says don't spend; here are the levers that would change
+the math" is often the most valuable deliverable.
+
+---
+
+## Usage
 
 ```bash
-# Built-in demo
-python scripts/generate_report.py --demo > campaign_report.html
-
-# From config file
-python scripts/generate_report.py --config my_config.json --output report.html
+python scripts/generate_report.py --config config.json --output report.html
+python scripts/generate_report.py --config config.json --validate-only   # contract check
+python scripts/generate_report.py --demo > demo.html                     # minimal schema demo
 ```
 
-Config schema: see `DEMO_CONFIG` in `generate_report.py` and ref 13 (product pipeline)
-for how config is built from product inputs.
+Worked example config: `examples/ax3-romania-config.json`.
 
 ---
 
-## Writing Rules for Report Text
+## Acceptance checklist (apply to every generated report)
 
-All report text follows ref 15. Key obligations:
-
-1. **Language**: match user's language; technical terms stay English
-2. **No untagged numbers**: every ROI / CAC / KOL price / budget figure carries a tag
-3. **Decision-first**: lead with the recommendation, evidence second
-4. **No filler**: strip "it is worth noting that", "in conclusion", "as mentioned above"
-5. **Callout usage**: use `.callout` only for the single most important decision or
-   reviewer finding per section; do not put general summaries in callouts
-
----
-
-## Acceptance Checklist
-
-- [ ] Every section present and non-empty
-- [ ] All monetary figures tagged Evidence / Assumption / Hypothesis / Needs test
-- [ ] Heatmap legend rendered with correct color swatches
-- [ ] Causal Activation Reviewer table present in section 6/7
-- [ ] At least one script output embedded (power_analysis.py sample size minimum)
-- [ ] Treatment Cards cover all H-main channel/dimension pairs
-- [ ] Measurement plan states explicit scale-up and pause rules
-- [ ] Verification checklist covers propensity log, compliance claims, holdout gate
+- [ ] First screen alone tells the verdict, the central math, and the next action
+- [ ] Zero numbers without provenance — `--validate-only` passes, no lint warnings
+- [ ] At least one honest `undetermined` or Missing entry on any real project
+      (a registry with no unknowns is lying)
+- [ ] Unresolved blocking challenges are visible and stamp their dependent actions
+- [ ] Sensitivity table present; Missing ledger sorted by it
+- [ ] Every budgeted action has a kill line and a decision date
+- [ ] Pill count < 20; no table wider than 4 columns

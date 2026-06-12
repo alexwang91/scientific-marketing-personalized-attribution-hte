@@ -1,836 +1,709 @@
 #!/usr/bin/env python3
 """
-generate_report.py — Scientific Marketing HTML Report Generator
+generate_report.py v2 — Scientific Marketing decision-memo HTML generator
 
-Generates structured HTML campaign reports from a config dict or JSON file.
-Bridges power_analysis.py + qini_auuc.py + ope_estimators.py into the report.
+v2 design contract (references/12-html-report-output.md, 16-estimation-discipline.md):
+
+  1. NUMBER PROVENANCE IS ENFORCED. Every number lives in a central registry
+     and must be sourced / assumed / derived / missing. Derived numbers carry
+     a formula whose inputs resolve recursively; missing numbers render as
+     gray placeholders, never as guessed values. Validation failure = build error.
+  2. PYRAMID LAYOUT. Section 1 is a one-screen decision memo (thesis, verdict,
+     decisions, overturn conditions, weakest point). Everything after supports it.
+  3. ADVERSARIAL REVIEW HAS CONSEQUENCES. Challenges carry status
+     resolved / open / open-blocking. Any action or budget line that references
+     an open-blocking challenge renders with a BLOCKED stamp.
+  4. SHORT-REPORT MODE. If the pipeline terminated at the viability screen
+     (config["termination"]), only memo + math + evidence render.
+  5. READABILITY BUDGET. Tables are capped at 4 columns; treatment actions and
+     test plans render as cards; provenance markers are superscripts, not pills.
 
 Usage:
-  python generate_report.py --demo > report.html
   python generate_report.py --config config.json --output report.html
+  python generate_report.py --demo > report.html        # minimal schema demo
+  python generate_report.py --config c.json --validate-only
 
-Config schema: see DEMO_CONFIG below. Full spec: references/12-html-report-output.md.
-Product pipeline (how to build config from product inputs): references/13-product-country-pipeline.md.
+Config schema: see examples/ax3-romania-config.json and references/12.
 """
 
 from __future__ import annotations
 
 import argparse
+import itertools
 import json
+import re
 import sys
 from datetime import date
 from pathlib import Path
 from typing import Any
 
-# ── optional script imports ───────────────────────────────────────────────────
 _HERE = Path(__file__).parent
 
-
-def _import_power():
-    try:
-        sys.path.insert(0, str(_HERE))
-        from power_analysis import n_per_arm_ate, n_per_cell_hte, experiment_duration_days
-        return n_per_arm_ate, n_per_cell_hte, experiment_duration_days
-    except Exception:
-        return None, None, None
+PROVENANCES = {"sourced", "assumed", "derived", "missing"}
+CHALLENGE_STATUSES = {"resolved", "open", "open-blocking"}
+CHANNEL_VERDICTS = {"viable", "not-viable", "undetermined", "role-only"}
+_FORMULA_TOKEN = re.compile(r"^[A-Za-z0-9_+\-*/(). ]+$")
+_IDENT = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 
 
-def _import_qini():
-    try:
-        sys.path.insert(0, str(_HERE))
-        from qini_auuc import auuc_bootstrap_ci
-        return auuc_bootstrap_ci
-    except Exception:
-        return None
+class ConfigError(Exception):
+    """Raised when the config violates the provenance contract."""
 
 
-def _import_ope():
-    try:
-        sys.path.insert(0, str(_HERE))
-        from ope_estimators import support_check
-        return support_check
-    except Exception:
-        return None
+# ──────────────────────────────────────────────────────────────────────────────
+# Number registry: validation + resolution
+# ──────────────────────────────────────────────────────────────────────────────
+
+def _is_num(v) -> bool:
+    return isinstance(v, (int, float)) and not isinstance(v, bool)
 
 
-# ── HTML helpers ──────────────────────────────────────────────────────────────
-
-_TAG_CLASS = {
-    "evidence": "evidence",
-    "assumption": "assumption",
-    "hypothesis": "hypothesis",
-    "needs-test": "needs-test",
-    "needs-quote": "needs-test",
-}
-_TAG_LABEL = {
-    "evidence": "Evidence",
-    "assumption": "Assumption",
-    "hypothesis": "Hypothesis",
-    "needs-test": "Needs test",
-    "needs-quote": "Needs quote",
-}
-
-_HM_CLASS = {"H": "hm-high", "T": "hm-test", "S": "hm-small", "N": "hm-none", "A": "hm-avoid"}
+def _is_range(v) -> bool:
+    return (isinstance(v, list) and len(v) == 2 and all(_is_num(x) for x in v)
+            and v[0] <= v[1])
 
 
-def tag(status: str) -> str:
-    cls = _TAG_CLASS.get(status, "needs-test")
-    label = _TAG_LABEL.get(status, status.title())
-    return f'<span class="tag {cls}">{label}</span>'
+def validate_and_resolve(numbers: dict[str, dict]) -> dict[str, dict]:
+    """Validate provenance contract and compute derived values (interval-aware).
+
+    Returns the registry with resolved 'value' on derived entries.
+    Raises ConfigError listing every violation found.
+    """
+    errors: list[str] = []
+
+    for nid, spec in numbers.items():
+        if not isinstance(spec, dict):
+            errors.append(f"{nid}: spec must be an object")
+            continue
+        prov = spec.get("provenance")
+        if prov not in PROVENANCES:
+            errors.append(f"{nid}: provenance must be one of {sorted(PROVENANCES)}, got {prov!r}")
+            continue
+        if prov == "sourced":
+            if not spec.get("source_url") or not spec.get("accessed"):
+                errors.append(f"{nid}: sourced requires source_url + accessed date")
+            if not (_is_num(spec.get("value")) or _is_range(spec.get("value"))):
+                errors.append(f"{nid}: sourced requires numeric value or [lo, hi] range")
+        elif prov == "assumed":
+            if not spec.get("basis"):
+                errors.append(f"{nid}: assumed requires explicit basis")
+            if not (_is_num(spec.get("value")) or _is_range(spec.get("value"))):
+                errors.append(f"{nid}: assumed requires numeric value or [lo, hi] range")
+        elif prov == "derived":
+            if not spec.get("formula") or not spec.get("inputs"):
+                errors.append(f"{nid}: derived requires formula + inputs")
+            elif not _FORMULA_TOKEN.match(spec["formula"]):
+                errors.append(f"{nid}: formula contains illegal characters")
+            else:
+                for ident in _IDENT.findall(spec["formula"]):
+                    if ident not in spec["inputs"]:
+                        errors.append(f"{nid}: formula references '{ident}' not listed in inputs")
+                for inp in spec["inputs"]:
+                    if inp not in numbers:
+                        errors.append(f"{nid}: input '{inp}' not in registry")
+        elif prov == "missing":
+            if "value" in spec:
+                errors.append(f"{nid}: missing numbers must NOT carry a value — that is a guess")
+            if not spec.get("needed_from"):
+                errors.append(f"{nid}: missing requires needed_from (where to get the data)")
+
+    if errors:
+        raise ConfigError("Provenance contract violations:\n  - " + "\n  - ".join(errors))
+
+    # topological resolution of derived values, with interval propagation
+    resolved: dict[str, Any] = {}
+
+    def resolve(nid: str, stack: tuple = ()) -> Any:
+        if nid in stack:
+            raise ConfigError(f"circular derivation: {' -> '.join(stack + (nid,))}")
+        if nid in resolved:
+            return resolved[nid]
+        spec = numbers[nid]
+        prov = spec["provenance"]
+        if prov == "missing":
+            resolved[nid] = None
+        elif prov in ("sourced", "assumed"):
+            resolved[nid] = spec["value"]
+        else:  # derived
+            inputs = {i: resolve(i, stack + (nid,)) for i in spec["inputs"]}
+            if any(v is None for v in inputs.values()):
+                resolved[nid] = None  # derived-from-missing → missing
+            else:
+                resolved[nid] = _eval_interval(spec["formula"], inputs)
+            spec["value"] = resolved[nid]
+        return resolved[nid]
+
+    for nid in numbers:
+        resolve(nid)
+    return numbers
 
 
-def hm(v: str) -> str:
-    cls = _HM_CLASS.get(v, "hm-none")
-    return f'<td class="hm {cls}">{v}</td>'
+def _eval_interval(formula: str, inputs: dict[str, Any]) -> Any:
+    """Evaluate formula; range inputs propagate via corner enumeration."""
+    range_keys = [k for k, v in inputs.items() if _is_range(v)]
+    if not range_keys:
+        return _safe_eval(formula, inputs)
+    corners = []
+    for combo in itertools.product(*([inputs[k][0], inputs[k][1]] for k in range_keys)):
+        env = dict(inputs)
+        env.update(zip(range_keys, combo))
+        corners.append(_safe_eval(formula, env))
+    return [min(corners), max(corners)]
 
 
-def esc(s: str) -> str:
+def _safe_eval(formula: str, env: dict[str, float]) -> float:
+    if not _FORMULA_TOKEN.match(formula):
+        raise ConfigError(f"illegal formula: {formula!r}")
+    return float(eval(formula, {"__builtins__": {}}, dict(env)))  # noqa: S307 — token-validated
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Formatting
+# ──────────────────────────────────────────────────────────────────────────────
+
+_MARKER = {"sourced": "S", "assumed": "A", "derived": "D", "missing": "M"}
+
+
+def esc(s) -> str:
     return str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
-# ── CSS ───────────────────────────────────────────────────────────────────────
+def _fmt_scalar(v: float, spec: dict) -> str:
+    if spec.get("pct"):
+        return f"{v * 100:g}%"
+    dec = spec.get("decimals", 1)
+    out = f"{v:,.{dec}f}".rstrip("0").rstrip(".") if dec else f"{v:,.0f}"
+    unit = spec.get("unit", "")
+    return f"{out} {unit}".strip()
+
+
+def fmt_value(nid: str, numbers: dict, marker: bool = True) -> str:
+    spec = numbers[nid]
+    prov = spec["provenance"]
+    m = f'<sup class="mk mk-{prov}">{_MARKER[prov]}</sup>' if marker else ""
+    if prov == "missing" or spec.get("value") is None:
+        return f'<span class="missing-val">—{m}</span>'
+    v = spec["value"]
+    txt = (f"{_fmt_scalar(v[0], spec)}–{_fmt_scalar(v[1], spec)}" if _is_range(v)
+           else _fmt_scalar(v, spec))
+    return f"{esc(txt)}{m}"
+
+
+def provenance_note(nid: str, numbers: dict) -> str:
+    spec = numbers[nid]
+    prov = spec["provenance"]
+    if prov == "sourced":
+        return (f'<a href="{esc(spec["source_url"])}">{esc(spec.get("source_label", "source"))}</a>'
+                f', accessed {esc(spec["accessed"])}')
+    if prov == "assumed":
+        return esc(spec["basis"])
+    if prov == "missing":
+        return f'needed from: {esc(spec["needed_from"])}'
+    return "derived"
+
+
+def render_derivation(nid: str, numbers: dict) -> str:
+    """Three-line Fermi chain: symbolic, substituted with markers, result."""
+    spec = numbers[nid]
+    if spec["provenance"] != "derived":
+        return ""
+    label = spec.get("label", nid)
+    sub = spec["formula"]
+    for inp in sorted(spec["inputs"], key=len, reverse=True):
+        sub = re.sub(rf"\b{inp}\b", f"⟨{inp}⟩", sub)
+    for inp in spec["inputs"]:
+        ispec = numbers[inp]
+        val = fmt_value(inp, numbers)
+        note = ""
+        if ispec["provenance"] in ("sourced", "assumed"):
+            short = (ispec.get("source_label") or ispec.get("basis", ""))[:48]
+            note = f' <span class="prov-note">({esc(short)})</span>' if short else ""
+        sub = sub.replace(f"⟨{inp}⟩", f"{val}{note}")
+    result = fmt_value(nid, numbers, marker=False)
+    pretty_formula = spec["formula"].replace("*", "×").replace("/", "÷")
+    pretty_sub = sub.replace("*", "×").replace("/", "÷")
+    note_line = f'<div class="deriv-note">{esc(spec["note"])}</div>' if spec.get("note") else ""
+    return f"""<div class="derivation">
+  <div class="deriv-name">{esc(label)}</div>
+  <div class="deriv-line">= {esc(pretty_formula)}</div>
+  <div class="deriv-line">= {pretty_sub}</div>
+  <div class="deriv-result">= <strong>{result}</strong></div>
+  {note_line}
+</div>"""
+
+
+def lint_prose(cfg: dict, numbers: dict) -> list[str]:
+    """Warn on bare large numbers in prose that match no registry value."""
+    known: set[float] = set()
+    for spec in numbers.values():
+        v = spec.get("value")
+        if _is_num(v):
+            known.add(round(float(v), 1))
+        elif _is_range(v):
+            known.update(round(float(x), 1) for x in v)
+    warnings = []
+
+    def scan(obj, path):
+        if isinstance(obj, str):
+            for m in re.finditer(r"(\d[\d,]*\.?\d*)\s*(?:RON|HUF|EUR|USD|CNY|元)", obj):
+                val = round(float(m.group(1).replace(",", "")), 1)
+                if val not in known:
+                    warnings.append(f"{path}: '{m.group(0)}' matches no registry value")
+        elif isinstance(obj, dict):
+            for k, v in obj.items():
+                if k != "numbers":
+                    scan(v, f"{path}.{k}")
+        elif isinstance(obj, list):
+            for i, v in enumerate(obj):
+                scan(v, f"{path}[{i}]")
+
+    scan({k: v for k, v in cfg.items() if k != "numbers"}, "$")
+    return warnings
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Optional power-analysis bridge
+# ──────────────────────────────────────────────────────────────────────────────
+
+def power_bridge(cfg: dict) -> str:
+    pa = cfg.get("power_analysis")
+    if not pa:
+        return ""
+    try:
+        sys.path.insert(0, str(_HERE))
+        from power_analysis import n_per_arm_ate, n_per_cell_hte, experiment_duration_days
+        baseline, mde, epd = pa["baseline_cvr"], pa["mde_abs"], pa["eligible_per_day"]
+        n_ab = n_per_arm_ate(baseline, mde)
+        n_hte = n_per_cell_hte(baseline, baseline, mde * 2, mde)
+        days = experiment_duration_days(4 * n_hte, epd)
+        return (f'<div class="callout"><strong>power_analysis.py</strong> — baseline CVR {baseline:.1%}, '
+                f"MDE {mde:.2%}: ATE needs <strong>{n_ab:,}/arm</strong>; an uplift-difference (HTE) test needs "
+                f"<strong>{n_hte:,}/cell ({4 * n_hte:,} total)</strong> ≈ <strong>{days} days</strong> at "
+                f"{epd:,} eligible/day. First round therefore runs coarse cells only "
+                f"(channel × primary message), not per-dimension HTE.</div>")
+    except Exception as e:  # missing scipy etc. — report honestly, don't fake
+        return f'<div class="callout">power_analysis.py unavailable ({esc(e)}) — sample-size gate not computed.</div>'
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# CSS
+# ──────────────────────────────────────────────────────────────────────────────
 
 _CSS = """
-  :root {
-    --bg:#f6f7f8;--panel:#fff;--ink:#172026;--muted:#5f6b76;--line:#d9dee3;
-    --high:#dff3e8;--high-ink:#145c3b;--test:#fff1bf;--test-ink:#6b4e00;
-    --small:#ffe1c2;--small-ink:#7a3d00;--avoid:#f8d2cf;--avoid-ink:#84211b;
-    --neutral:#f2f4f7;--neutral-ink:#4c5965;--blue:#245d7c;
-  }
+  :root{--bg:#f6f7f8;--panel:#fff;--ink:#172026;--muted:#5f6b76;--line:#d9dee3;
+    --ok:#dff3e8;--ok-ink:#145c3b;--warn:#fff1bf;--warn-ink:#6b4e00;
+    --bad:#f8d2cf;--bad-ink:#84211b;--neutral:#f2f4f7;--neutral-ink:#4c5965;--blue:#245d7c}
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,"Helvetica Neue",sans-serif;line-height:1.48}
-  header{padding:28px 32px 20px;border-bottom:1px solid var(--line);background:#fff}
-  main{max-width:1480px;margin:0 auto;padding:22px 24px 48px}
-  h1{margin:0 0 8px;font-size:30px;line-height:1.15}
-  h2{margin:28px 0 12px;font-size:20px;border-bottom:1px solid var(--line);padding-bottom:8px}
-  h3{margin:18px 0 8px;font-size:16px}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,"Helvetica Neue",sans-serif;line-height:1.5}
+  main{max-width:1080px;margin:0 auto;padding:22px 24px 48px}
+  h1{margin:0 0 6px;font-size:26px;line-height:1.2}
+  h2{margin:30px 0 12px;font-size:19px;border-bottom:1px solid var(--line);padding-bottom:8px}
+  h3{margin:18px 0 8px;font-size:15px}
   p{margin:6px 0 10px}
   a{color:#0f5f91}
-  .meta{display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:10px;margin-top:14px}
-  .meta div,.callout,section{background:var(--panel);border:1px solid var(--line);border-radius:8px}
-  .meta div{padding:10px 12px;min-height:62px}
-  .label{display:block;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
-  section{padding:16px;margin:14px 0}
-  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-  .callout{border-left:5px solid var(--blue);padding:14px 16px;margin:14px 0;background:#f9fbfc}
-  .tag{display:inline-block;padding:3px 7px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:12px;color:#33414d;margin:2px 3px 2px 0;white-space:nowrap}
-  .evidence{border-color:#8bc5aa;color:#0f6842}
-  .assumption{border-color:#e4c36a;color:#805d00}
-  .hypothesis{border-color:#9fc3df;color:#164f78}
-  .needs-test{border-color:#e5a19b;color:#8a2018}
+  section{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px;margin:14px 0}
+  .memo{border-left:6px solid var(--blue);padding:20px 22px}
+  .memo .thesis{font-size:16px;line-height:1.55;margin:10px 0 14px}
+  .verdict{display:inline-block;padding:5px 14px;border-radius:6px;font-weight:700;font-size:14px;letter-spacing:.03em}
+  .verdict-go{background:var(--ok);color:var(--ok-ink)}
+  .verdict-no-go{background:var(--bad);color:var(--bad-ink)}
+  .verdict-conditional{background:var(--warn);color:var(--warn-ink)}
+  .memo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+  .memo-grid>div{border:1px solid var(--line);border-radius:8px;padding:12px;background:#fbfcfd}
+  .memo-grid h3{margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+  .memo-grid ul{margin:0;padding-left:18px}
+  .memo-grid li{margin:4px 0}
+  .derivation{font-family:ui-monospace,Consolas,monospace;font-size:13px;background:#f6f8fa;
+    border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:10px 0}
+  .deriv-name{font-weight:700;margin-bottom:4px}
+  .deriv-line{padding-left:14px;color:#33414d}
+  .deriv-result{padding-left:14px;margin-top:2px}
+  .deriv-note{margin-top:6px;color:var(--muted);font-family:Arial,sans-serif;font-size:12px}
+  .prov-note{color:var(--muted);font-size:11px}
+  sup.mk{font-size:9px;font-weight:700;padding:0 2px;margin-left:1px}
+  .mk-sourced{color:#0f6842}.mk-assumed{color:#805d00}.mk-derived{color:#164f78}.mk-missing{color:#8a2018}
+  .mk-legend{font-size:12px;color:var(--muted);margin:6px 0 0}
+  .missing-val{color:#9aa4ad;border-bottom:1px dashed #c2cad1}
+  .pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+  .pill-viable{background:var(--ok);color:var(--ok-ink)}
+  .pill-not-viable{background:var(--bad);color:var(--bad-ink)}
+  .pill-undetermined{background:var(--warn);color:var(--warn-ink)}
+  .pill-role-only{background:var(--neutral);color:var(--neutral-ink)}
+  .pill-resolved{background:var(--ok);color:var(--ok-ink)}
+  .pill-open{background:var(--warn);color:var(--warn-ink)}
+  .pill-open-blocking{background:var(--bad);color:var(--bad-ink)}
+  .blocked-stamp{display:inline-block;border:2px solid var(--bad-ink);color:var(--bad-ink);
+    padding:2px 10px;border-radius:4px;font-weight:700;font-size:12px;transform:rotate(-2deg);margin-left:8px}
   .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
-  table{width:100%;border-collapse:collapse;min-width:860px;font-size:13px}
-  th,td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:8px 9px;text-align:left;vertical-align:top}
-  th{background:#edf1f4;font-weight:700;position:sticky;top:0;z-index:1}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#edf1f4;font-weight:700}
   tr:last-child td{border-bottom:0}
   td:last-child,th:last-child{border-right:0}
-  .num{text-align:right;white-space:nowrap}
-  .hm{text-align:center;color:var(--neutral-ink);font-weight:700;min-width:46px}
-  .hm-high{background:var(--high);color:var(--high-ink)}
-  .hm-test{background:var(--test);color:var(--test-ink)}
-  .hm-small{background:var(--small);color:var(--small-ink)}
-  .hm-avoid{background:var(--avoid);color:var(--avoid-ink)}
-  .hm-none{background:var(--neutral);color:var(--neutral-ink)}
-  .legend{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 12px}
-  .swatch{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border:1px solid var(--line);border-radius:999px;background:#fff;font-size:12px}
-  .box{width:14px;height:14px;border-radius:3px;display:inline-block}
-  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:10px 0 4px}
-  .kpi div{border:1px solid var(--line);border-radius:8px;padding:12px;background:#fff}
-  .kpi strong{display:block;font-size:22px;margin-top:4px}
-  .decision-list{display:grid;grid-template-columns:repeat(2,minmax(260px,1fr));gap:10px;margin-top:10px}
-  .decision-list div{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:#fbfcfd}
-  footer{max-width:1480px;margin:0 auto;padding:18px 24px 40px;color:var(--muted);font-size:12px}
-  @media(max-width:900px){.meta,.grid-2,.grid-3,.kpi,.decision-list{grid-template-columns:1fr}header{padding:22px 18px 16px}main{padding:14px}h1{font-size:24px}}
-  @media print{body{background:#fff}section,.meta div,.callout{break-inside:avoid}a{color:#000;text-decoration:underline}.table-wrap{overflow:visible}table{font-size:11px}}
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;margin-top:10px}
+  .card{border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:#fbfcfd}
+  .card.blocked{border-color:var(--bad-ink);background:#fdf6f5}
+  .card h3{margin:0 0 6px;font-size:14px}
+  .card dl{margin:0;font-size:13px}
+  .card dt{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.03em;margin-top:7px}
+  .card dd{margin:1px 0 0}
+  .callout{border-left:5px solid var(--blue);border:1px solid var(--line);border-left-width:5px;
+    border-radius:8px;padding:12px 16px;margin:12px 0;background:#f9fbfc}
+  footer{max-width:1080px;margin:0 auto;padding:18px 24px 40px;color:var(--muted);font-size:12px}
+  @media(max-width:760px){.memo-grid,.cards{grid-template-columns:1fr}}
+  @media print{body{background:#fff}section{break-inside:avoid}a{color:#000}}
 """
 
 
-# ── Section renderers ─────────────────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────────────
+# Sections
+# ──────────────────────────────────────────────────────────────────────────────
 
-def s_header(cfg: dict) -> str:
-    meta_fields = [
-        ("Product", esc(cfg.get("product", "—"))),
-        ("Market", esc(cfg.get("market", "—"))),
-        ("Pilot Budget", esc(cfg.get("budget", "—"))),
-        ("Margin Assumption", esc(cfg.get("margin_assumption", "—"))),
-    ]
-    meta = "".join(
-        f'<div><span class="label">{k}</span>{v}</div>' for k, v in meta_fields
-    )
-    subtitle = esc(cfg.get("subtitle", "Channel allocation, D-dimension heatmap, Treatment Cards, measurement plan."))
-    return f"""<header>
-  <h1>{esc(cfg.get("product",""))} {esc(cfg.get("market",""))} Campaign Report</h1>
-  <p>{subtitle}</p>
-  <div class="meta">{meta}</div>
-</header>"""
-
-
-def s_core_decision(cfg: dict) -> str:
-    cd = cfg.get("core_decision", {})
-    rec = esc(cd.get("recommendation", ""))
-    tag_lines = "".join(
-        f'<p>{tag(t["cls"])} {esc(t["text"])}</p>'
-        for t in cd.get("tags", [])
-    )
-    kpis = cd.get("kpis", [])
-    kpi_html = "".join(
-        f'<div><span class="label">{esc(k["label"])}</span><strong>{esc(k["value"])}</strong></div>'
-        for k in kpis
-    )
-    return f"""<section>
-  <h2>1. Core Decision</h2>
-  <div class="callout">
-    <p><strong>Recommendation:</strong> {rec}</p>
-    {tag_lines}
+def s_memo(cfg: dict) -> str:
+    memo = cfg["decision_memo"]
+    meta = cfg.get("meta", {})
+    verdict = memo.get("verdict", "conditional")
+    vlabel = {"go": "GO", "no-go": "NO-GO", "conditional": "CONDITIONAL"}.get(verdict, verdict.upper())
+    horizon_label = {"now": "Now (zero cost)", "checkpoint": "At checkpoint", "never": "Not under this math"}
+    buckets: dict[str, list[str]] = {"now": [], "checkpoint": [], "never": []}
+    for d in memo.get("decisions", []):
+        buckets.setdefault(d["horizon"], []).append(d["text"])
+    decision_html = ""
+    for h in ("now", "checkpoint", "never"):
+        if buckets.get(h):
+            items = "".join(f"<li>{esc(t)}</li>" for t in buckets[h])
+            decision_html += f"<h3>{horizon_label[h]}</h3><ul>{items}</ul>"
+    overturn = "".join(f"<li>{esc(c)}</li>" for c in memo.get("overturn_conditions", []))
+    return f"""<section class="memo">
+  <div><span class="verdict verdict-{esc(verdict)}">{esc(vlabel)}</span>
+  &nbsp; <span style="color:var(--muted);font-size:13px">{esc(meta.get("product", ""))} · {esc(meta.get("market", ""))} · {esc(meta.get("date", ""))}</span></div>
+  <h1 style="margin-top:12px">1 · Decision Memo</h1>
+  <p class="thesis"><strong>Thesis:</strong> {esc(memo["thesis"])}</p>
+  <div class="memo-grid">
+    <div>{decision_html}</div>
+    <div>
+      <h3>What overturns this thesis</h3><ul>{overturn}</ul>
+      <h3>Weakest point of this report</h3><p style="margin:4px 0 0">{esc(memo.get("weakest_point", ""))}</p>
+    </div>
   </div>
-  <div class="kpi">{kpi_html}</div>
+  <p class="mk-legend">Number markers: <sup class="mk mk-sourced">S</sup> sourced (linked)
+  · <sup class="mk mk-assumed">A</sup> assumed (basis stated)
+  · <sup class="mk mk-derived">D</sup> derived (chain shown)
+  · <sup class="mk mk-missing">M</sup> missing (no value — placeholder only)</p>
 </section>"""
 
 
-def s_evidence_legend() -> str:
-    return f"""<section>
-  <h2>2. Evidence Tags</h2>
-  <p>
-    {tag("evidence")} Sourced fact, validated experiment, or script output.&nbsp;
-    {tag("assumption")} Scenario input or user-supplied estimate.&nbsp;
-    {tag("hypothesis")} Semantic prior or unvalidated HTE inference.&nbsp;
-    {tag("needs-test")} Judgment that will change budget, channel, or KOL decisions.
-  </p>
-  <p>All currency figures, CAC, ROI, and KOL prices must carry a tag. No untagged numbers in this report.</p>
-</section>"""
-
-
-def s_product_facts(cfg: dict) -> str:
-    rows = "".join(
-        f"""<tr>
-          <td>{esc(f["fact"])}</td>
-          <td>{tag(f.get("status","hypothesis"))}</td>
-          <td>{esc(f.get("use",""))}</td>
-          <td><a href="{esc(f.get("source_url","#"))}">{esc(f.get("source_label","—"))}</a></td>
-        </tr>"""
-        for f in cfg.get("product_facts", [])
+def s_math(cfg: dict, numbers: dict) -> str:
+    chains = "".join(render_derivation(nid, numbers) for nid in cfg.get("derivations", []))
+    sens_rows = "".join(
+        f"<tr><td>{esc(s['change'])}</td><td>{esc(s['effect'])}</td>"
+        f"<td style='text-align:center'>{esc(str(s['priority']))}</td></tr>"
+        for s in sorted(cfg.get("sensitivity", []), key=lambda x: x["priority"])
     )
-    return f"""<section>
-  <h2>3. Product &amp; Market Facts</h2>
+    sens = ""
+    if sens_rows:
+        sens = f"""<h3>Sensitivity — which assumption flips the conclusion</h3>
   <div class="table-wrap"><table>
-    <thead><tr><th>Fact</th><th>Status</th><th>Use in plan</th><th>Source</th></tr></thead>
-    <tbody>{rows}</tbody>
-  </table></div>
-</section>"""
+    <thead><tr><th>Assumption change</th><th>Effect on conclusion</th><th>Verify priority</th></tr></thead>
+    <tbody>{sens_rows}</tbody></table></div>
+  <p style="font-size:13px;color:var(--muted)">Verification order below follows this table, not convenience.</p>"""
 
-
-def s_assumptions(cfg: dict) -> str:
-    rows = "".join(
-        f"""<tr>
-          <td>{esc(a["assumption"])}</td>
-          <td class="num">{esc(a["value"])}</td>
-          <td>{esc(a.get("impact",""))}</td>
-          <td>{esc(a.get("validation",""))}</td>
-        </tr>"""
-        for a in cfg.get("assumptions", [])
-    )
-    return f"""<section>
-  <h2>4. Assumption Register</h2>
+    screen_rows = ""
+    for ch in cfg.get("channel_screen", []):
+        v = ch["verdict"]
+        cac = fmt_value(ch["cac_estimate"], numbers) if ch.get("cac_estimate") else "—"
+        screen_rows += (f"<tr><td><strong>{esc(ch['channel'])}</strong></td>"
+                        f"<td><span class='pill pill-{esc(v)}'>{esc(v)}</span></td>"
+                        f"<td>{cac}</td><td>{esc(ch['reasoning'])}</td></tr>")
+    screen = ""
+    if screen_rows:
+        screen = f"""<h3>Channel viability screen (threshold: CAC ceiling above)</h3>
   <div class="table-wrap"><table>
-    <thead><tr><th>Assumption</th><th>Value</th><th>Impact</th><th>Validation action</th></tr></thead>
-    <tbody>{rows}</tbody>
-  </table></div>
-</section>"""
-
-
-def s_channel_map(cfg: dict) -> str:
-    rows = "".join(
-        f"""<tr>
-          <td>{esc(c["name"])}</td>
-          <td>{esc(c.get("proxy",""))}</td>
-          <td>{esc(c.get("match_quality",""))}</td>
-          <td>{esc(c.get("task",""))}</td>
-          <td>{esc(c.get("risk",""))}</td>
-        </tr>"""
-        for c in cfg.get("channels", [])
-    )
-    return f"""<section>
-  <h2>5. Local Channel Map</h2>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Channel</th><th>Local audience proxy</th><th>Match quality</th><th>Primary task</th><th>Risk</th></tr></thead>
-    <tbody>{rows}</tbody>
-  </table></div>
-</section>"""
-
-
-def s_dimensions(cfg: dict) -> str:
-    dims = cfg.get("dimensions", [])
-    dim_rows = "".join(
-        f"""<tr>
-          <td>{esc(d["id"])}</td>
-          <td>{esc(d["name"])}</td>
-          <td>{esc(d.get("logic",""))}</td>
-          <td>{esc(d.get("proxy",""))}</td>
-          <td>{tag(d.get("status","hypothesis"))}</td>
-        </tr>"""
-        for d in dims
-    )
-    # Causal Activation Reviewer challenges
-    challenges = cfg.get("reviewer_challenges", [])
-    rev_rows = "".join(
-        f"""<tr>
-          <td>{esc(r["item"])}</td>
-          <td>{esc(r["question"])}</td>
-          <td>{esc(r["handling"])}</td>
-          <td>{esc(r["next_evidence"])}</td>
-        </tr>"""
-        for r in challenges
-    )
-    rev_section = ""
-    if challenges:
-        rev_section = f"""
-  <div class="callout">
-    <h3>Causal Activation Reviewer</h3>
-    <p><strong>Role:</strong> Challenges every D dimension and heatmap cell. Checks
-    that each dimension is pre-deployment observable, has a platform proxy, is
-    mechanistically linked to the product, can have its incremental effect tested,
-    and does not carry compliance or sure-thing risk. Verdicts: Retain / Retain (test) /
-    Demote S / Suppression only / Delete. See ref 14 for full protocol.</p>
-    <div class="table-wrap"><table>
-      <thead><tr><th>Challenged dimension</th><th>Challenge raised</th><th>Current handling</th><th>Next evidence</th></tr></thead>
-      <tbody>{rev_rows}</tbody>
-    </table></div>
-    <p><strong>Reviewer conclusion:</strong> D dimensions are candidate operational
-    variables, serving trial design and evidence collection. Before entering primary
-    budget, each must pass: deployable proxy, testable incrementality, stated mechanism,
-    no obvious compliance or margin risk.</p>
-  </div>"""
+    <thead><tr><th>Channel</th><th>Verdict</th><th>CAC estimate</th><th>Reasoning / what's missing</th></tr></thead>
+    <tbody>{screen_rows}</tbody></table></div>
+  <p style="font-size:13px;color:var(--muted)">Rules: a benchmark-based estimate can prove
+  <em>not-viable</em> (best case still fails) but never <em>viable</em> — that requires local data.
+  <em>undetermined</em> means the interval spans the ceiling; the action is to get data, not to pick an endpoint.</p>"""
 
     return f"""<section>
-  <h2>6. D Dimensions &amp; Causal Activation Reviewer</h2>
-  <div class="callout">
-    <h3>How D dimensions are generated</h3>
-    <p><strong>Generation logic:</strong> D columns come from
-    "product mechanism × local purchase path × platform proxy × measurability."
-    Features that could change incremental purchase response are identified,
-    then mapped to locally reachable platform signals. Dimensions that lack a
-    deployable proxy, cannot be measured, or create compliance risk are excluded.</p>
-    <p><strong>Entry threshold:</strong> ≥ 3 of 5 conditions must be satisfied:
-    pre-deployment observable, platform proxy exists, mechanism stated,
-    incrementality testable, drives a creative/bid/suppression decision.</p>
-  </div>
-  <div class="table-wrap"><table>
-    <thead><tr><th>D</th><th>Dimension</th><th>Mechanism</th><th>Local proxy</th><th>Status</th></tr></thead>
-    <tbody>{dim_rows}</tbody>
-  </table></div>
-  {rev_section}
+  <h2>2 · The Math</h2>
+  {chains}
+  {sens}
+  {screen}
 </section>"""
 
 
-def s_heatmap(cfg: dict) -> str:
-    dims = cfg.get("dimensions", [])
-    heatmap = cfg.get("heatmap", {})
-    channels = [c["name"] for c in cfg.get("channels", [])]
-    if not dims or not heatmap:
+def _blocked_by(action: dict, challenges_by_id: dict) -> list[str]:
+    return [cid for cid in action.get("blocked_by", [])
+            if challenges_by_id.get(cid, {}).get("status") == "open-blocking"]
+
+
+def s_actions(cfg: dict, numbers: dict, challenges_by_id: dict) -> str:
+    cards = ""
+    for a in cfg.get("actions", []):
+        blockers = _blocked_by(a, challenges_by_id)
+        stamp = "".join(f'<span class="blocked-stamp">⊘ BLOCKED by {esc(b)}</span>' for b in blockers)
+        budget = ""
+        if a.get("budget"):
+            budget = f"<dt>Budget envelope</dt><dd>{fmt_value(a['budget'], numbers)}</dd>"
+        gate = f"<dt>Unlocks</dt><dd>{esc(a['gate'])}</dd>" if a.get("gate") else ""
+        cards += f"""<div class="card{' blocked' if blockers else ''}">
+  <h3>{esc(a['id'])} · {esc(a['action'])} {stamp}</h3>
+  <dl>
+    <dt>Mechanism</dt><dd>{esc(a['mechanism'])}</dd>
+    <dt>Guardrail</dt><dd>{esc(a['guardrail'])}</dd>
+    <dt>Test</dt><dd>{esc(a['test'])}</dd>
+    {budget}{gate}
+  </dl>
+</div>"""
+    rejected = "".join(
+        f"<tr><td>{esc(r['option'])}</td><td>{esc(r['reason'])}</td></tr>"
+        for r in cfg.get("rejected_options", [])
+    )
+    rej_html = ""
+    if rejected:
+        rej_html = f"""<h3>Rejected options (and why)</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Option</th><th>Rejection reason</th></tr></thead>
+    <tbody>{rejected}</tbody></table></div>"""
+    return f"""<section>
+  <h2>3 · Actions</h2>
+  <p>Only options that survived the viability screen appear as cards. A card stamped
+  <strong>⊘ BLOCKED</strong> references an unresolved blocking challenge (section 4) and
+  must not receive budget until that challenge is resolved.</p>
+  <div class="cards">{cards}</div>
+  {rej_html}
+</section>"""
+
+
+def s_challenges(cfg: dict) -> str:
+    rows = ""
+    for c in cfg.get("challenges", []):
+        rows += (f"<tr><td><strong>{esc(c['id'])}</strong> · {esc(c['target'])}</td>"
+                 f"<td>{esc(c['question'])}</td>"
+                 f"<td><span class='pill pill-{esc(c['status'])}'>{esc(c['status'])}</span></td>"
+                 f"<td>{esc(c.get('resolution') or c.get('evidence_needed', ''))}</td></tr>")
+    return f"""<section>
+  <h2>4 · Adversarial Review</h2>
+  <p>Challenges are raised by an independent review pass and are immutable — the analysis
+  may respond but not rewrite them. <strong>open-blocking</strong> challenges stamp every
+  action that depends on them. An unresolved challenge displayed openly is the trust
+  mechanism; "resolved" requires data, not rhetoric.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Challenge</th><th>Question</th><th>Status</th><th>Resolution / evidence needed</th></tr></thead>
+    <tbody>{rows}</tbody></table></div>
+</section>"""
+
+
+def s_test_plan(cfg: dict) -> str:
+    cards = ""
+    for t in cfg.get("test_plan", []):
+        cards += f"""<div class="card">
+  <h3>{esc(t['name'])}</h3>
+  <dl>
+    <dt>Prediction</dt><dd>{esc(t['prediction'])}</dd>
+    <dt>Test</dt><dd>{esc(t['test'])}</dd>
+    <dt>Kill line</dt><dd>{esc(t['kill_line'])}</dd>
+    <dt>Decision date</dt><dd>{esc(t['decision_date'])}</dd>
+  </dl>
+</div>"""
+    return f"""<section>
+  <h2>5 · Test Plan</h2>
+  <p>Every claim that survives to budget carries a falsifiable prediction, a kill line,
+  and a decision date. On that date the line either becomes Sourced or is declared dead.</p>
+  {power_bridge(cfg)}
+  <div class="cards">{cards}</div>
+</section>"""
+
+
+def s_evidence(cfg: dict, numbers: dict) -> str:
+    facts = "".join(
+        f"<tr><td>{esc(f['fact'])}</td>"
+        f"<td><a href='{esc(f['source_url'])}'>{esc(f['source_label'])}</a></td>"
+        f"<td>{esc(f.get('accessed', ''))}</td></tr>"
+        for f in cfg.get("facts", [])
+    )
+    assumed_rows = "".join(
+        f"<tr><td>{esc(spec.get('label', nid))}</td><td>{fmt_value(nid, numbers, marker=False)}</td>"
+        f"<td>{esc(spec['basis'])}</td></tr>"
+        for nid, spec in numbers.items() if spec["provenance"] == "assumed"
+    )
+    missing_rows = "".join(
+        f"<tr><td>{esc(spec.get('label', nid))}</td><td>{esc(spec['needed_from'])}</td>"
+        f"<td>{esc(spec.get('cost_to_get', '—'))}</td><td>{esc(', '.join(spec.get('blocks', [])) or '—')}</td></tr>"
+        for nid, spec in numbers.items() if spec["provenance"] == "missing"
+    )
+    return f"""<section>
+  <h2>6 · Evidence &amp; Gaps</h2>
+  <h3>Sourced facts</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Fact</th><th>Source</th><th>Accessed</th></tr></thead>
+    <tbody>{facts}</tbody></table></div>
+  <h3>Assumption register</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Assumption</th><th>Value</th><th>Basis</th></tr></thead>
+    <tbody>{assumed_rows}</tbody></table></div>
+  <h3>Missing ledger — sorted by sensitivity, this is the work plan</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>What</th><th>Where to get it</th><th>Cost</th><th>Blocks</th></tr></thead>
+    <tbody>{missing_rows}</tbody></table></div>
+</section>"""
+
+
+def s_termination(cfg: dict) -> str:
+    term = cfg.get("termination")
+    if not term:
         return ""
-    dim_ids = [d["id"] for d in dims]
-    dim_names = [d["name"] for d in dims]
-
-    header_cells = "".join(f"<th>{esc(n)}</th>" for n in dim_names)
-    body_rows = ""
-    for ch in channels:
-        row_data = heatmap.get(ch, {})
-        cells = "".join(hm(row_data.get(did, "N")) for did in dim_ids)
-        body_rows += f"<tr><td>{esc(ch)}</td>{cells}</tr>\n"
-
-    legend = """
-  <div class="legend">
-    <span class="swatch"><span class="box" style="background:var(--high)"></span>H main</span>
-    <span class="swatch"><span class="box" style="background:var(--test)"></span>T test</span>
-    <span class="swatch"><span class="box" style="background:var(--small)"></span>S small</span>
-    <span class="swatch"><span class="box" style="background:var(--neutral)"></span>N no focus</span>
-    <span class="swatch"><span class="box" style="background:var(--avoid)"></span>A avoid/suppress</span>
-  </div>"""
-
-    return f"""<section>
-  <h2>7. Semantic Dimension Heatmap</h2>
-  <p>Rows: channels. Columns: D dimensions.
-  H = primary investment · T = test slot · S = small test · N = not this round · A = actively suppress.</p>
-  {legend}
-  <div class="table-wrap"><table>
-    <thead><tr><th>Channel</th>{header_cells}</tr></thead>
-    <tbody>{body_rows}</tbody>
-  </table></div>
+    return f"""<section style="border-left:6px solid var(--bad-ink)">
+  <h2>Pipeline terminated at stage {esc(str(term["stage"]))}</h2>
+  <p>{esc(term["reason"])}</p>
+  <p>This report is intentionally short: the math does not support a media plan.
+  The levers that would change the math are listed in the sensitivity table and the
+  Missing ledger. Re-run the pipeline when one of them moves.</p>
 </section>"""
 
 
-def s_treatments(cfg: dict, power_note: str = "") -> str:
-    # Execution gates
-    gates = cfg.get("execution_gates", [])
-    gate_rows = "".join(
-        f"""<tr>
-          <td>{esc(g["gate"])}</td>
-          <td>{tag(g.get("status_cls","hypothesis"))} {esc(g.get("status",""))}</td>
-          <td>{esc(g.get("can_do",""))}</td>
-          <td>{esc(g.get("cannot_do",""))}</td>
-          <td>{esc(g.get("next",""))}</td>
-        </tr>"""
-        for g in gates
-    )
-    power_block = ""
-    if power_note:
-        power_block = f'<div class="callout"><p>{power_note}</p></div>'
-
-    # Treatment cards
-    treatments = cfg.get("treatments", [])
-    t_rows = "".join(
-        f"""<tr>
-          <td>{esc(t["id"])}</td>
-          <td>{esc(t["action"])}</td>
-          <td>{esc(t.get("audience",""))}</td>
-          <td>{esc(t.get("baseline",""))}</td>
-          <td>{esc(t.get("cost_formula",""))}</td>
-          <td>{esc(t.get("mechanism",""))}</td>
-          <td>{esc(t.get("guardrail",""))}</td>
-          <td>{esc(t.get("measurement",""))}</td>
-        </tr>"""
-        for t in treatments
-    )
-
-    log_note = """<p>To upgrade from trial to OPE or policy learning, log:
-    eligible_treatment_set, treatment_id, creative_id, assignment_probability,
-    holdout_flag, cost, gross_margin, negative_feedback, policy_version, frequency_state.</p>"""
-
-    return f"""<section>
-  <h2>9. Execution Gates &amp; Treatment Cards</h2>
-  <div class="callout">
-    <p><strong>Maturity:</strong> Current analysis is at L0 hypothesis → early L1 experiment foundation.
-    Use for trial design and channel prioritization.
-    Do not treat semantic heatmap scores or platform proxies as CATE facts or scale-ready conclusions.</p>
-    <p><strong>Scale gate:</strong> Each primary action requires a holdout or credible baseline,
-    treatment-level cost, impression/click/conversion log, margin metric, and negative-feedback indicator
-    before budget is increased.</p>
-  </div>
-  {power_block}
-  <div class="table-wrap"><table>
-    <thead><tr><th>Gate</th><th>Status</th><th>Can do now</th><th>Cannot do</th><th>Next step</th></tr></thead>
-    <tbody>{gate_rows}</tbody>
-  </table></div>
-  <h3>Treatment Cards</h3>
-  <div class="table-wrap"><table>
-    <thead><tr><th>ID</th><th>Action</th><th>Audience / proxy</th><th>Baseline</th><th>Cost formula</th><th>Mechanism</th><th>Guardrail</th><th>Measurement</th></tr></thead>
-    <tbody>{t_rows}</tbody>
-  </table></div>
-  {log_note}
-</section>"""
-
-
-def s_budget(cfg: dict) -> str:
-    rows = "".join(
-        f"""<tr>
-          <td>{esc(b["module"])}</td>
-          <td class="num">{esc(b["budget"])}</td>
-          <td class="num">{esc(b["pct"])}</td>
-          <td>{esc(b.get("rationale",""))}</td>
-          <td>{tag(b.get("status_cls","hypothesis"))} {esc(b.get("status",""))}</td>
-        </tr>"""
-        for b in cfg.get("budget_allocation", [])
-    )
-    return f"""<section>
-  <h2>10. Budget Allocation</h2>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Module</th><th>Budget</th><th>Share</th><th>Rationale</th><th>Status</th></tr></thead>
-    <tbody>{rows}</tbody>
-  </table></div>
-</section>"""
-
-
-def s_plays(cfg: dict) -> str:
-    rows = "".join(
-        f"""<tr>
-          <td>{esc(p["id"])}</td>
-          <td>{esc(p.get("audience",""))}</td>
-          <td>{esc(p.get("channel",""))}</td>
-          <td class="num">{tag("assumption")} {esc(p.get("budget",""))}</td>
-          <td class="num">{tag("hypothesis")} {esc(p.get("est_cac",""))}</td>
-          <td class="num">{tag("hypothesis")} {esc(p.get("est_units",""))}</td>
-          <td class="num">{tag(p.get("status_cls","hypothesis"))} {esc(p.get("roi_range",""))}</td>
-          <td>{tag(p.get("status_cls","hypothesis"))}</td>
-        </tr>"""
-        for p in cfg.get("plays", [])
-    )
-    return f"""<section>
-  <h2>11. Priority Plays &amp; ROI Scenarios</h2>
-  <p>All CAC, unit, and ROI figures are planning hypotheses until validated by holdout or credible baseline.</p>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Play</th><th>Audience</th><th>Channel</th><th>Budget</th><th>Est. CAC</th><th>Est. Units</th><th>Net ROI range</th><th>Status</th></tr></thead>
-    <tbody>{rows}</tbody>
-  </table></div>
-</section>"""
-
-
-def s_kols(cfg: dict) -> str:
-    kols = cfg.get("kols", [])
-    if not kols:
-        return ""
-    rows = "".join(
-        f"""<tr>
-          <td>{esc(k.get("type",""))}</td>
-          <td>{esc(k.get("candidate",""))}</td>
-          <td>{esc(k.get("signal",""))}</td>
-          <td class="num">{tag("needs-test")} {esc(k.get("est_fee",""))}</td>
-          <td>{esc(k.get("fee_rationale",""))}</td>
-          <td>{esc(k.get("use",""))}</td>
-          <td>{esc(k.get("validation",""))}</td>
-        </tr>"""
-        for k in kols
-    )
-    return f"""<section>
-  <h2>12. KOL / Creator Sourcing</h2>
-  <p>{tag("needs-test")} All fees are planning estimates. Obtain direct quote + usage rights before commitment.
-  KOL incremental ROI is {tag("hypothesis")} until a matched holdout or UTM-based incrementality test is run.</p>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Type</th><th>Candidate</th><th>Public signal</th><th>Est. fee</th><th>Fee basis</th><th>Use</th><th>Validation action</th></tr></thead>
-    <tbody>{rows}</tbody>
-  </table></div>
-</section>"""
-
-
-def s_measurement(cfg: dict, power_duration: str = "") -> str:
-    mp = cfg.get("measurement_plan", {})
-    dur_note = f"<p>{power_duration}</p>" if power_duration else ""
-    return f"""<section>
-  <h2>13. Measurement Plan</h2>
-  <div class="grid-3">
-    <div>
-      <h3>Creative A/B</h3>
-      <p>{tag("needs-test")} {esc(mp.get("creative_ab","TBD"))}</p>
-    </div>
-    <div>
-      <h3>Incentive Test</h3>
-      <p>{tag("needs-test")} {esc(mp.get("incentive_test","TBD"))}</p>
-    </div>
-    <div>
-      <h3>KOL Incrementality</h3>
-      <p>{tag("needs-test")} {esc(mp.get("kol_incrementality","TBD"))}</p>
-    </div>
-  </div>
-  {dur_note}
-  <p><strong>Scale rule:</strong> {esc(mp.get("scale_rule","Add budget when incremental CAC is below target and guardrails are stable."))}</p>
-  <p><strong>Pause rule:</strong> {esc(mp.get("pause_rule","Pause scale when CAC exceeds ceiling and no long-term value evidence exists."))}</p>
-</section>"""
-
-
-def s_suppression(cfg: dict) -> str:
-    rows = "".join(
-        f"""<tr>
-          <td>{esc(r.get("group",""))}</td>
-          <td>{esc(r.get("reason",""))}</td>
-          <td>{esc(r.get("action",""))}</td>
-          <td>{tag(r.get("status_cls","hypothesis"))}</td>
-        </tr>"""
-        for r in cfg.get("suppression_rules", [])
-    )
-    return f"""<section>
-  <h2>14. Suppression &amp; Risk Rules</h2>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Risk group</th><th>Reason</th><th>Action</th><th>Status</th></tr></thead>
-    <tbody>{rows}</tbody>
-  </table></div>
-</section>"""
-
-
-def s_sources(cfg: dict) -> str:
-    items = "".join(
-        f'<li><a href="{esc(s.get("url","#"))}">{esc(s.get("label","—"))}</a></li>'
-        for s in cfg.get("sources", [])
-    )
-    return f"""<section>
-  <h2>15a. Sources</h2>
-  <ol>{items}</ol>
-</section>"""
-
-
-def s_checklist(cfg: dict) -> str:
-    rows = "".join(
-        f"""<tr>
-          <td>{esc(c["item"])}</td>
-          <td>{tag(c.get("status_cls","needs-test"))} {esc(c.get("status",""))}</td>
-          <td>{esc(c.get("next",""))}</td>
-        </tr>"""
-        for c in cfg.get("checklist", [])
-    )
-    return f"""<section>
-  <h2>15b. Verification Checklist</h2>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Check</th><th>Status</th><th>Next step</th></tr></thead>
-    <tbody>{rows}</tbody>
-  </table></div>
-</section>"""
-
-
-# ── Script bridge ─────────────────────────────────────────────────────────────
-
-def run_power_bridge(cfg: dict) -> tuple[str, str]:
-    """Returns (power_note for s_treatments, duration_note for s_measurement)."""
-    pa = cfg.get("power_analysis", {})
-    if not pa:
-        return "", ""
-
-    n_ate_fn, n_hte_fn, dur_fn = _import_power()
-    if not n_ate_fn:
-        return (
-            '<span class="tag needs-test">Script unavailable</span> '
-            "Install scipy to enable power_analysis.py bridge.",
-            ""
-        )
-
-    try:
-        baseline = pa.get("baseline_cvr", 0.02)
-        mde = pa.get("mde_abs", 0.004)
-        epd = pa.get("eligible_per_day", 10000)
-        n_ab = n_ate_fn(baseline, mde)
-        n_hte = n_hte_fn(baseline, baseline, mde * 2, mde)
-        days = dur_fn(4 * n_hte, epd)
-        power_note = (
-            f'<span class="tag evidence">power_analysis.py</span> '
-            f"Baseline CVR {baseline:.1%}, MDE {mde:.2%} → "
-            f"ATE: <strong>{n_ab:,}/arm</strong> · "
-            f"HTE: <strong>{n_hte:,}/cell ({4*n_hte:,} total)</strong> · "
-            f"HTE/ATE multiplier ≈ {4*n_hte/(2*n_ab):.1f}×"
-        )
-        dur_note = (
-            f'<span class="tag evidence">power_analysis.py</span> '
-            f"At {epd:,} eligible users/day → HTE experiment needs ~<strong>{days} days</strong>. "
-            f"Reduce dimensions or increase traffic if this exceeds the campaign window."
-        )
-        return power_note, dur_note
-    except Exception as e:
-        return f'<span class="tag needs-test">Script error</span> {esc(str(e))}', ""
-
-
-# ── Main assembler ────────────────────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────────────
+# Assembly
+# ──────────────────────────────────────────────────────────────────────────────
 
 def generate_html(cfg: dict) -> str:
-    power_note, dur_note = run_power_bridge(cfg)
-    report_date = cfg.get("report_date", str(date.today()))
+    numbers = validate_and_resolve(cfg.get("numbers", {}))
+    for w in lint_prose(cfg, numbers):
+        print(f"LINT WARNING — {w}", file=sys.stderr)
 
-    sections = "\n".join([
-        s_core_decision(cfg),
-        s_evidence_legend(),
-        s_product_facts(cfg),
-        s_assumptions(cfg),
-        s_channel_map(cfg),
-        s_dimensions(cfg),
-        s_heatmap(cfg),
-        "<section><h2>8. H-Main Breakdown</h2>"
-        "<p>Each H cell from the heatmap should have a corresponding Treatment Card row in section 9. "
-        "See the Treatment Cards table for per-channel, per-dimension breakdown of direction, "
-        "audience proxy, mechanism, and measurement approach.</p></section>",
-        s_treatments(cfg, power_note),
-        s_budget(cfg),
-        s_plays(cfg),
-        s_kols(cfg),
-        s_measurement(cfg, dur_note),
-        s_suppression(cfg),
-        s_sources(cfg),
-        s_checklist(cfg),
-    ])
+    challenges_by_id = {c["id"]: c for c in cfg.get("challenges", [])}
+    meta = cfg.get("meta", {})
+    short_mode = bool(cfg.get("termination"))
 
+    parts = [s_memo(cfg), s_termination(cfg), s_math(cfg, numbers)]
+    if not short_mode:
+        parts += [s_actions(cfg, numbers, challenges_by_id),
+                  s_challenges(cfg),
+                  s_test_plan(cfg)]
+    parts.append(s_evidence(cfg, numbers))
+
+    title = f'{meta.get("product", "")} {meta.get("market", "")} — Decision Memo'
     return f"""<!doctype html>
-<html lang="en">
+<html lang="{esc(meta.get("lang", "en"))}">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{esc(cfg.get("product",""))} {esc(cfg.get("market",""))} Campaign Report</title>
-  <style>{_CSS}</style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{esc(title)}</title>
+<style>{_CSS}</style>
 </head>
 <body>
-{s_header(cfg)}
-<main>{sections}</main>
+<main>
+{''.join(parts)}
+</main>
 <footer>
-  Scientific Marketing HTML report · Generated {report_date} ·
-  All ROI and CAC figures are planning hypotheses until validated by holdout or credible baseline. ·
-  <a href="https://github.com/alexwang91/scientific-marketing-personalized-attribution-hte">skill reference</a>
+  Generated {esc(meta.get("date", str(date.today())))} ·
+  Every number is sourced, assumed (basis stated), derived (chain shown), or missing (no value displayed) ·
+  <a href="https://github.com/alexwang91/scientific-marketing-personalized-attribution-hte">methodology</a>
 </footer>
 </body>
 </html>"""
 
 
-# ── Demo config ───────────────────────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────────────
+# Demo config — minimal, shows the schema; real example: examples/ax3-romania-config.json
+# ──────────────────────────────────────────────────────────────────────────────
 
 DEMO_CONFIG: dict[str, Any] = {
-    "product": "ProductX Smart Wearable",
-    "market": "Target Market",
-    "subtitle": "Channel allocation, D-dimension heatmap, Treatment Cards, measurement plan.",
-    "budget": "1,000,000 USD",
-    "margin_assumption": "40% gross margin",
-    "price": 299,
-    "margin_rate": 0.40,
-    "report_date": str(date.today()),
-
-    "core_decision": {
-        "recommendation": (
-            "Run 4-week pilot. Search/Retail captures purchase intent; "
-            "Creator/KOL builds third-party proof; Retargeting tops up at low frequency. "
-            "Scale only when incremental CAC < $90 and holdout confirms positive incremental margin."
-        ),
-        "tags": [
-            {"cls": "assumption", "text": "Price $299 and 40% margin are user inputs; not confirmed by finance."},
-            {"cls": "needs-test", "text": "Incremental CAC and ROI range are planning hypotheses. Holdout required before scale decision."},
+    "meta": {"product": "DemoProduct", "market": "DemoMarket", "date": str(date.today()), "lang": "en"},
+    "decision_memo": {
+        "verdict": "conditional",
+        "thesis": "Unit margin is 30.0 USD; no channel has local data proving CAC below the 18.0 USD ceiling. "
+                  "Do not allocate media budget; run the two zero-cost data pulls first.",
+        "decisions": [
+            {"horizon": "now", "text": "Pull keyword CPC (zero cost) — it is the highest-sensitivity unknown."},
+            {"horizon": "checkpoint", "text": "If projected CAC < ceiling at checkpoint, unlock pilot."},
+            {"horizon": "never", "text": "Influencer hero spend — unit economics cannot support it."},
         ],
-        "kpis": [
-            {"label": "Target CAC", "value": "<$90"},
-            {"label": "Unit Margin", "value": "$120"},
-            {"label": "Primary Channels", "value": "4"},
-            {"label": "Holdout Reserve", "value": "5%"},
-        ],
+        "overturn_conditions": ["Margin is actually 50% (ceiling rises to 30 USD)"],
+        "weakest_point": "CPC and CVR are both missing; the screen rests on benchmark ranges.",
     },
-
-    "product_facts": [
-        {"fact": "ProductX listed at $299 MSRP on official site.", "status": "evidence", "use": "Baseline price and margin.", "source_label": "Official site", "source_url": "#"},
-        {"fact": "Key features: GPS, 10-day battery, 1.9\" AMOLED, health monitoring.", "status": "evidence", "use": "Creative direction and D dimension mapping.", "source_label": "Product page", "source_url": "#"},
-        {"fact": "Available on top 3 local e-commerce platforms.", "status": "evidence", "use": "Retail media prioritization.", "source_label": "Market guide", "source_url": "#"},
-    ],
-
-    "assumptions": [
-        {"assumption": "Pilot budget", "value": "1,000,000 USD", "impact": "Channel allocation and minimum sample.", "validation": "Replace with approved budget."},
-        {"assumption": "Gross margin", "value": "40%", "impact": "CAC ceiling and ROI.", "validation": "Finance confirmation required."},
-        {"assumption": "KOL fee range", "value": "$2,000–$15,000", "impact": "ROI scenario modeling.", "validation": "Obtain direct quotes."},
-        {"assumption": "Incrementality fraction", "value": "40–65% of tracked sales", "impact": "Prevents platform attribution overcount.", "validation": "Holdout or platform lift test."},
-    ],
-
-    "channels": [
-        {"name": "Search (Brand + Category)", "proxy": "brand keywords, category queries, competitor alternatives", "match_quality": "High — especially high-intent", "task": "Capture demand", "risk": "Sure-thing cannibalization on brand terms"},
-        {"name": "Shopping / PMax", "proxy": "product feed, category shoppers, price-compare visitors", "match_quality": "High–Medium", "task": "Convert comparison shoppers", "risk": "Weak incrementality visibility"},
-        {"name": "Retail Media", "proxy": "category visitors, brand searchers, cart abandoners", "match_quality": "High — close to purchase", "task": "Last-mile conversion", "risk": "Placement terms need direct negotiation"},
-        {"name": "Social Prospecting", "proxy": "fitness, health, tech-gadget, lifestyle interests", "match_quality": "Medium", "task": "Expand audience, test framing", "risk": "Broad interests dilute audience quality"},
-        {"name": "YouTube Review", "proxy": "product review viewers, comparison searchers", "match_quality": "Medium", "task": "Build third-party proof", "risk": "Creator fit and cost volatility"},
-        {"name": "KOL / Creator", "proxy": "fitness, outdoor, lifestyle creator audiences", "match_quality": "Medium", "task": "Authentic use-case demonstration", "risk": "Audience location and incremental effect unverified"},
-        {"name": "Retargeting", "proxy": "product page visitors, cart abandoners, video viewers", "match_quality": "High relevance", "task": "Low-frequency proof top-up", "risk": "Ad fatigue and sleeping-dog risk"},
-    ],
-
-    "dimensions": [
-        {"id": "D1", "name": "Brand in-market", "logic": "Brand preference reduces purchase friction.", "proxy": "Brand keyword searches, category site visitors", "status": "hypothesis"},
-        {"id": "D2", "name": "Smartwatch in-market", "logic": "Category purchase intent — already in decision mode.", "proxy": "Smartwatch searches, feed category visitors", "status": "hypothesis"},
-        {"id": "D3", "name": "Running / Fitness", "logic": "GPS and lightweight design directly addresses running use case.", "proxy": "Running interest, fitness creator audiences", "status": "hypothesis"},
-        {"id": "D4", "name": "Health / Sleep", "logic": "Health monitoring is a daily-wear motivation.", "proxy": "Health, sleep, wellness content interests", "status": "hypothesis"},
-        {"id": "D5", "name": "Battery pain", "logic": "10-day battery is a provable differentiator.", "proxy": "Long battery queries, comparison content viewers", "status": "hypothesis"},
-        {"id": "D6", "name": "Price compare", "logic": "$299 is comparable; value proof can reduce hesitation.", "proxy": "Price-compare searches, shopping filter users", "status": "needs-test"},
-        {"id": "D7", "name": "Competitor alternative", "logic": "Users comparing alternatives; battery/price angles viable.", "proxy": "Competitor alternative searches, review viewers", "status": "needs-test"},
-        {"id": "D8", "name": "Cart abandon", "logic": "Close to purchase; blocked by price, shipping, or trust.", "proxy": "Cart abandoners, product page return visitors", "status": "hypothesis"},
-        {"id": "D9", "name": "Tech review reader", "logic": "Research behavior signals risk-reduction need.", "proxy": "Tech review viewers, product review searches", "status": "hypothesis"},
-        {"id": "D10", "name": "Ad fatigue", "logic": "High frequency may generate negative incremental effect.", "proxy": "High frequency, hide/report signals", "status": "needs-test"},
-    ],
-
-    "heatmap": {
-        "Search (Brand + Category)":   {"D1":"H","D2":"H","D3":"T","D4":"T","D5":"H","D6":"H","D7":"T","D8":"N","D9":"T","D10":"N"},
-        "Shopping / PMax":             {"D1":"H","D2":"H","D3":"T","D4":"T","D5":"H","D6":"H","D7":"T","D8":"T","D9":"S","D10":"N"},
-        "Retail Media":                {"D1":"H","D2":"H","D3":"T","D4":"T","D5":"T","D6":"H","D7":"T","D8":"H","D9":"S","D10":"S"},
-        "Social Prospecting":          {"D1":"T","D2":"T","D3":"T","D4":"H","D5":"T","D6":"S","D7":"S","D8":"T","D9":"S","D10":"S"},
-        "YouTube Review":              {"D1":"T","D2":"H","D3":"T","D4":"H","D5":"H","D6":"T","D7":"H","D8":"N","D9":"H","D10":"N"},
-        "KOL / Creator":               {"D1":"T","D2":"T","D3":"H","D4":"H","D5":"T","D6":"S","D7":"T","D8":"N","D9":"S","D10":"N"},
-        "Retargeting":                 {"D1":"H","D2":"H","D3":"T","D4":"T","D5":"H","D6":"T","D7":"T","D8":"H","D9":"T","D10":"A"},
+    "numbers": {
+        "price": {"label": "Retail price", "value": 100, "unit": "USD", "decimals": 0,
+                  "provenance": "sourced", "source_url": "https://example.com", "source_label": "official store",
+                  "accessed": str(date.today())},
+        "margin_rate": {"label": "Gross margin", "value": 0.30, "pct": True,
+                        "provenance": "assumed", "basis": "user input, not confirmed by finance"},
+        "unit_margin": {"label": "Unit margin", "unit": "USD",
+                        "provenance": "derived", "formula": "price * margin_rate", "inputs": ["price", "margin_rate"]},
+        "cac_share": {"label": "CAC share of margin", "value": 0.6, "pct": True,
+                      "provenance": "assumed", "basis": "convention: acquisition ≤ 60% of first-order margin"},
+        "cac_ceiling": {"label": "CAC ceiling", "unit": "USD",
+                        "provenance": "derived", "formula": "unit_margin * cac_share", "inputs": ["unit_margin", "cac_share"]},
+        "search_cpc": {"label": "Search CPC (local)", "provenance": "missing",
+                       "needed_from": "Keyword Planner", "cost_to_get": "0 budget, 1 hour",
+                       "blocks": ["search channel verdict"]},
+        "bench_cvr": {"label": "Benchmark site CVR", "value": [0.01, 0.03], "pct": True,
+                      "provenance": "assumed", "basis": "industry benchmark range, not local data"},
+        "bench_cpc": {"label": "Benchmark CPC", "value": [0.3, 1.2], "unit": "USD", "decimals": 2,
+                      "provenance": "assumed", "basis": "industry benchmark range, not local data"},
+        "search_cac_bench": {"label": "Search CAC (benchmark)", "unit": "USD",
+                             "provenance": "derived", "formula": "bench_cpc / bench_cvr",
+                             "inputs": ["bench_cpc", "bench_cvr"],
+                             "note": "Interval spans the ceiling → verdict is undetermined, not a coin flip."},
     },
-
-    "reviewer_challenges": [
-        {"item": "D6 Price compare", "question": "Price-seekers may buy anyway; platform ROAS will overcount. Positive incremental margin?", "handling": "Keep in test with incremental margin guardrail; not primary budget.", "next_evidence": "Discount vs proof vs no-contact holdout comparison."},
-        {"item": "D1 Brand search", "question": "Brand searchers are likely sure-things; paid capture may cannibalize organic.", "handling": "Primary investment but low-intensity holdout required.", "next_evidence": "Brand keyword holdout or region/time-split low-bid control."},
-        {"item": "D10 Ad fatigue", "question": "Retargeting can harm high-intent users. Sleeping-dog risk documented.", "handling": "Suppression dimension only; frequency cap and cooldown enforced.", "next_evidence": "Frequency, hide/report, no-contact arm comparison."},
+    "derivations": ["unit_margin", "cac_ceiling", "search_cac_bench"],
+    "sensitivity": [
+        {"change": "margin 30% → 50%", "effect": "ceiling 18 → 30 USD; search may flip to viable", "priority": 1},
     ],
-
-    "treatments": [
-        {"id":"T01","action":"Search brand + category capture","audience":"Brand searchers, smartwatch in-market queries","baseline":"Low bid or holdout","cost_formula":"CPC + landing cost","mechanism":"Reduce search-to-purchase friction.","guardrail":"Brand-term sure-thing cannibalization.","measurement":"Brand keyword holdout; incremental CAC by query type."},
-        {"id":"T02","action":"Shopping / PMax value proof","audience":"Category feed visitors, price-compare signals","baseline":"Generic feed or no campaign","cost_formula":"CPC/CPA + feed ops","mechanism":"Price, battery, rating, stock proof reduces decision cost.","guardrail":"PMax automation hides low-incrementality traffic.","measurement":"Split brand/category/competitor; track new customer rate and margin."},
-        {"id":"T03","action":"Retail sponsored placement","audience":"Retail category visitors, brand searchers","baseline":"Organic retail ranking","cost_formula":"Retail media fee + placement cost","mechanism":"Stock, warranty, reviews trust at point of purchase.","guardrail":"Discount-driven low-margin cohort.","measurement":"Retailer report by category visitor, new vs returning, cart abandon."},
-        {"id":"T04","action":"YouTube / tech review proof","audience":"Smartwatch review viewers, comparison searchers","baseline":"Brand video only or no review","cost_formula":"Creator fee + production + usage rights + amplification","mechanism":"Third-party explanation of battery, feature boundary, competitor gap.","guardrail":"Health/competitor claims; view-without-conversion waste.","measurement":"UTM, view quality, search lift, retargeting holdout."},
-        {"id":"T05","action":"KOL fitness / lifestyle content","audience":"Running, health-habit, lifestyle creator followers","baseline":"No creator content","cost_formula":"Creator fee + usage rights + paid amplification","mechanism":"Real use-case proof: lightweight wear, GPS tracking, sleep/health.","guardrail":"Audience location mismatch; engagement-only without purchase.","measurement":"Audience country screenshot, UTM, paid amplification holdout."},
-        {"id":"T06","action":"Retargeting low-frequency proof","audience":"Product page visitors, cart abandoners, video viewers","baseline":"No-contact holdout","cost_formula":"CPM/CPC + frequency cap overhead","mechanism":"Supplement price, stock, warranty, battery proof.","guardrail":"Ad fatigue, sleeping-dog, sure-thing.","measurement":"Proof creative vs light incentive vs no-contact; negative feedback + incremental margin."},
+    "channel_screen": [
+        {"channel": "Search", "verdict": "undetermined", "cac_estimate": "search_cac_bench",
+         "reasoning": "Benchmark interval spans the ceiling; need local CPC (missing) to decide."},
+        {"channel": "Social prospecting", "verdict": "not-viable", "cac_estimate": None,
+         "reasoning": "Best-case benchmark CAC already exceeds ceiling — benchmark may kill, never green-light."},
     ],
-
-    "execution_gates": [
-        {"gate":"Maturity","status":"L0 / early L1","status_cls":"hypothesis","can_do":"Design pilot and validation plan.","cannot_do":"Declare any segment has a true CATE.","next":"Build holdout for brand, retail, and retargeting."},
-        {"gate":"Attribution & incrementality","status":"Needs test","status_cls":"needs-test","can_do":"Use platform reports for operational feedback.","cannot_do":"Use platform ROAS as causal incrementality proof.","next":"Establish no-contact control per channel."},
-        {"gate":"Sample size","status":"Run script","status_cls":"needs-test","can_do":"Start with coarse dimensions: channel × primary message.","cannot_do":"Treat all D dimensions as separately estimable HTEs.","next":"Pull eligible users, daily traffic, baseline CVR → power_analysis.py."},
-        {"gate":"Propensity log","status":"Missing","status_cls":"needs-test","can_do":"Record manual allocation rules and budget weights.","cannot_do":"Run OPE or policy learning.","next":"Log: eligible_treatment_set, assignment_probability, policy_version."},
+    "actions": [
+        {"id": "A1", "action": "Pull local keyword CPC", "mechanism": "Resolves highest-sensitivity unknown",
+         "guardrail": "—", "test": "Compare projected CAC vs ceiling", "gate": "Search pilot"},
     ],
-
-    "power_analysis": {
-        "baseline_cvr": 0.02,
-        "mde_abs": 0.004,
-        "eligible_per_day": 10000,
-    },
-
-    "budget_allocation": [
-        {"module":"Retail Media","budget":"200,000","pct":"20.0%","rationale":"Closest to purchase; highest intent.","status":"Needs quote","status_cls":"needs-test"},
-        {"module":"Search / Shopping / PMax","budget":"225,000","pct":"22.5%","rationale":"Capture brand, category, and battery-pain queries.","status":"Needs keyword data","status_cls":"needs-test"},
-        {"module":"KOL / Creator","budget":"200,000","pct":"20.0%","rationale":"Build proof and reusable creative assets.","status":"Hypothesis","status_cls":"hypothesis"},
-        {"module":"Social Prospecting","budget":"150,000","pct":"15.0%","rationale":"Test fitness, design, health, and daily-wear framing.","status":"Hypothesis","status_cls":"hypothesis"},
-        {"module":"Retargeting","budget":"100,000","pct":"10.0%","rationale":"Low-frequency proof for product-page visitors and cart abandoners.","status":"Needs holdout","status_cls":"needs-test"},
-        {"module":"YouTube / Review","budget":"75,000","pct":"7.5%","rationale":"Support comparison and proof mission.","status":"Hypothesis","status_cls":"hypothesis"},
-        {"module":"Measurement / Holdout","budget":"50,000","pct":"5.0%","rationale":"Prevent platform ROAS from substituting for incrementality.","status":"Evidence","status_cls":"evidence"},
+    "rejected_options": [{"option": "Influencer hero spend", "reason": "Unit margin cannot cover creator costs."}],
+    "challenges": [
+        {"id": "C1", "target": "Search", "question": "Brand-term clicks may be sure-things.",
+         "status": "open", "evidence_needed": "brand keyword holdout"},
     ],
-
-    "plays": [
-        {"id":"P1","audience":"Brand + smartwatch in-market","channel":"Search + Retail","budget":"185,000","est_cac":"$65–$95","est_units":"1,950–2,840","roi_range":"0.37–1.23","status_cls":"hypothesis"},
-        {"id":"P2","audience":"Fitness / running / outdoor","channel":"KOL + Social + YouTube","budget":"165,000","est_cac":"$90–$180","est_units":"920–1,830","roi_range":"-0.30–0.45","status_cls":"needs-test"},
-        {"id":"P3","audience":"Battery pain + competitor comparison","channel":"Search + YouTube","budget":"100,000","est_cac":"$80–$150","est_units":"670–1,250","roi_range":"-0.10–0.60","status_cls":"needs-test"},
-        {"id":"P4","audience":"Retail category visitors","channel":"Retail Media","budget":"130,000","est_cac":"$55–$85","est_units":"1,530–2,360","roi_range":"0.53–1.55","status_cls":"needs-test"},
-        {"id":"P5","audience":"Cart abandoners / product page","channel":"Retargeting","budget":"100,000","est_cac":"$65–$110","est_units":"910–1,540","roi_range":"0.13–1.00","status_cls":"needs-test"},
+    "test_plan": [
+        {"name": "Search CAC check", "prediction": "CAC lands above ceiling",
+         "test": "2-week minimal spend on exact-match terms", "kill_line": "CAC > 2× ceiling for 7 days",
+         "decision_date": "checkpoint + 14d"},
     ],
-
-    "measurement_plan": {
-        "creative_ab": "Sport performance vs long battery/lightweight daily wear vs health/sleep proof.",
-        "incentive_test": "No incentive vs light benefit vs price discount. Guardrail: incremental margin per eligible user.",
-        "kol_incrementality": "Creator content + paid amplification; matched holdout where feasible.",
-        "scale_rule": "Add budget when incremental CAC < $90 and guardrails stable.",
-        "pause_rule": "Pause scale when CAC > $120 and no long-term value evidence.",
-    },
-
-    "suppression_rules": [
-        {"group":"Competing ecosystem heavy users","reason":"Ecosystem habits create purchase barriers.","action":"Test only price/battery comparison; avoid ecosystem replacement claims.","status_cls":"hypothesis"},
-        {"group":"Deal-only buyers","reason":"Negative incremental margin if discount > proof value.","action":"Exclude from primary budget; small isolated test only.","status_cls":"hypothesis"},
-        {"group":"High-frequency retargeted","reason":"Ad fatigue and sleeping-dog risk.","action":"Frequency cap; cooldown window; proof-first creative.","status_cls":"needs-test"},
-        {"group":"App-dependent users","reason":"Third-party app expectations may block purchase.","action":"Set explicit compatibility boundaries; do not over-promise.","status_cls":"evidence"},
-    ],
-
-    "sources": [
-        {"label": "Official product page", "url": "#"},
-        {"label": "Market e-commerce guide", "url": "#"},
-        {"label": "Retail platform ranking", "url": "#"},
-        {"label": "Scientific Marketing skill — GitHub", "url": "https://github.com/alexwang91/scientific-marketing-personalized-attribution-hte"},
-    ],
-
-    "checklist": [
-        {"item":"Product price","status":"Evidence","status_cls":"evidence","next":"Re-check before media launch."},
-        {"item":"Gross margin","status":"Assumption","status_cls":"assumption","next":"Finance confirmation required."},
-        {"item":"KOL fees","status":"Needs quote","status_cls":"needs-test","next":"Obtain direct rate + usage rights."},
-        {"item":"Retail media availability","status":"Needs quote","status_cls":"needs-test","next":"Contact platforms for placement terms."},
-        {"item":"Keyword volume + CPC","status":"Needs data pull","status_cls":"needs-test","next":"Pull keyword planner or DSP forecast."},
-        {"item":"Incrementality","status":"Needs experiment","status_cls":"needs-test","next":"Set holdout for search, retail, retargeting, KOL."},
-        {"item":"Maturity gate","status":"L0 / early L1","status_cls":"hypothesis","next":"Complete data gaps in execution gate section before OPE."},
-        {"item":"Treatment Cards","status":"Method","status_cls":"evidence","next":"Write T01–T06 into campaign brief and logging spec."},
-        {"item":"Propensity log","status":"Missing","status_cls":"needs-test","next":"Log: eligible_treatment_set, assignment_probability, policy_version."},
-        {"item":"Compliance claims","status":"Needs review","status_cls":"needs-test","next":"Review health, payment, performance claims for local standards."},
+    "facts": [
+        {"fact": "Retail price 100 USD at official store", "source_url": "https://example.com",
+         "source_label": "official store", "accessed": str(date.today())},
     ],
 }
 
 
-# ── CLI ───────────────────────────────────────────────────────────────────────
-
 def main():
-    parser = argparse.ArgumentParser(description="Generate a Scientific Marketing HTML report.")
-    parser.add_argument("--demo", action="store_true", help="Run with built-in demo config")
-    parser.add_argument("--config", help="Path to JSON config file")
-    parser.add_argument("--output", help="Output HTML file (default: stdout)")
-    args = parser.parse_args()
+    ap = argparse.ArgumentParser(description="Decision-memo HTML report generator (v2, provenance-enforced)")
+    ap.add_argument("--demo", action="store_true", help="render built-in minimal demo")
+    ap.add_argument("--config", help="JSON config path")
+    ap.add_argument("--output", help="output HTML path (default stdout)")
+    ap.add_argument("--validate-only", action="store_true", help="validate config, render nothing")
+    args = ap.parse_args()
 
     if args.demo:
         cfg = DEMO_CONFIG
     elif args.config:
-        with open(args.config) as f:
-            cfg = json.load(f)
+        cfg = json.loads(Path(args.config).read_text())
     else:
-        parser.print_help()
+        ap.print_help()
         sys.exit(1)
 
-    html = generate_html(cfg)
+    try:
+        if args.validate_only:
+            validate_and_resolve(cfg.get("numbers", {}))
+            for w in lint_prose(cfg, cfg["numbers"]):
+                print(f"LINT WARNING — {w}", file=sys.stderr)
+            print("Config valid: provenance contract satisfied.", file=sys.stderr)
+            return
+        html = generate_html(cfg)
+    except ConfigError as e:
+        print(f"BUILD FAILED — {e}", file=sys.stderr)
+        sys.exit(2)
 
     if args.output:
         Path(args.output).write_text(html, encoding="utf-8")

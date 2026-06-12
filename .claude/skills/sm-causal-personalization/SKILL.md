@@ -39,6 +39,11 @@ This is an AI-assisted causal decisioning system, not a single model:
   (τ(x) = E[Y(1)−Y(0)|X=x])
 - **Hard line**: AI must not declare an action "effective" without experimental
   or identification-strategy support. LLM evaluation does not replace holdout.
+- **Hard line**: honest blanks beat fabricated completeness. Every number in
+  every deliverable is sourced, assumed (basis stated), derived (chain shown),
+  or missing (no value displayed) — there is no fifth state (→ ref 16).
+  "Undetermined" and "don't spend" are legal, common, and often the most
+  valuable conclusions.
 
 ### Three-Layer Relationship
 
@@ -133,17 +138,20 @@ What is the user asking about?
 │
 │  ── Output & Delivery layer ───────────────────────────────────────────────
 ├─ "Generate a deliverable report / campaign brief / HTML output"
-│   → 12-html-report-output  (section map, evidence tags, script bridge)
-│     └─ use generate_report.py to produce HTML from config
+│   → 12-html-report-output  (6-section decision memo, provenance rendering,
+│       pill budget, short-report mode; generate_report.py enforces the contract)
 ├─ "User gives a product + country; needs channel map, audience, treatment plan"
-│   → 13-product-country-pipeline  (product facts → channels → D dims →
-│       treatment cards → experiment gate → HTML)
-├─ "How to generate or validate D dimensions; what is the Causal Activation Reviewer"
-│   → 14-d-dimension-reviewer  (generation protocol, 5-condition gate,
-│       reviewer verdicts: Retain / Demote S / Suppression only / Delete)
-└─ "How should the output be written; language rules; when to tag Evidence vs Assumption"
-    → 15-writing-rules  (language detection, evidence label obligation,
-        anti-slop rules, decision-first structure, maturity honest labeling)
+│   → 13-product-country-pipeline  (7 stages: evidence → unit economics →
+│       channel screen [may terminate here] → dimensions → review → tests → render)
+├─ "How to generate / challenge D dimensions; adversarial review"
+│   → 14-d-dimension-reviewer  (generation gate; independent review pass,
+│       immutable challenges, open-blocking → BLOCKED budget linkage)
+├─ "How should the output be written; language; how to state uncertainty"
+│   → 15-writing-rules  (language policy, falsifiability obligation,
+│       honest-state vocabulary, anti-slop, form budget)
+└─ "Where does this number come from; estimates; benchmarks; sensitivity"
+    → 16-estimation-discipline  (four provenance states, Fermi chains,
+        benchmark asymmetry, sensitivity-sorted Missing ledger)
 ```
 
 ---
@@ -156,14 +164,13 @@ What is the user asking about?
 | `qini_auuc.py` | Qini curve, AUUC + bootstrap CI, decile calibration, two-model comparison | Section 11 AUUC launch gate |
 | `hte_starter.py` | T/X/DR-learner starter templates (sklearn, drop-in replaceable with EconML / CausalML) | — |
 | `ope_estimators.py` | IPS / SNIPS / Doubly Robust off-policy evaluation + support check | Section 14 OPE support check |
-| `generate_report.py` | Config-driven HTML report generator — bridges all four scripts into a structured deliverable | **Entry point for HTML output** |
+| `generate_report.py` | Decision-memo HTML generator (v2). **Enforces the provenance contract**: build fails on any number that is not sourced / assumed / derived / missing; renders derivation chains; stamps BLOCKED on actions gated by open-blocking challenges; short-report mode when the pipeline terminates at the channel screen | **Entry point for HTML output** |
 
 ```bash
-# Generate demo report
-python scripts/generate_report.py --demo > report.html
-
-# From JSON config (see DEMO_CONFIG in generate_report.py for schema)
+python scripts/generate_report.py --config config.json --validate-only  # contract check
 python scripts/generate_report.py --config config.json --output report.html
+python scripts/generate_report.py --demo > demo.html
+# Worked example: examples/ax3-romania-config.json
 ```
 
 ---

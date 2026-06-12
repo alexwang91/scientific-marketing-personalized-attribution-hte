@@ -1,181 +1,127 @@
-# 13 · Product-to-Country Pipeline
+# 13 · Product-to-Country Pipeline (7 stages, may terminate early)
 
 ## Purpose
 
-Transform user-supplied product inputs into a complete campaign config:
-product facts → country/channel map → audience proxy → treatment cards →
-experiment gate → HTML report.
+Turn "user gives a product + market" into a decision memo (ref 12). The
+pipeline's defining property: **it is allowed to stop.** A pipeline that
+always produces a full media plan regardless of what the data says is a
+template, not an analysis — and readers can smell the difference.
+
+```
+Stage 1  Evidence pull        prices, platforms, competitors — all with URL+date
+Stage 2  Unit economics       pure math: margin → CAC ceiling → sensitivity
+Stage 3  Channel screen       benchmark ranges vs ceiling → viable / not-viable /
+                              undetermined
+         ── POSSIBLE TERMINUS: if nothing is viable or undetermined-with-a-path,
+            emit the short report: "don't spend; here are the levers" ──
+Stage 4  Dimension generation D dimensions ONLY for surviving channels (ref 14)
+Stage 5  Adversarial review   independent pass; immutable challenges (ref 14)
+Stage 6  Test design          prediction / kill line / decision date + power calc
+Stage 7  Render               provenance-validated config → generate_report.py
+```
+
+The stage order is the argument order: nothing downstream may run before its
+upstream gate. Dimension work for a channel that fails the screen is deleted
+effort *and* credibility damage.
 
 ---
 
-## Input: Required Product Facts
+## Stage 1 — Evidence pull
 
-| Field | Example | Notes |
-|-------|---------|-------|
-| `product_name` | "HUAWEI WATCH FIT 5 Pro" | Full commercial name |
-| `market` | "Hungary" | Country or region |
-| `price` | 99990 (HUF) | Local retail price |
-| `margin_rate` | 0.40 | Gross margin (user input; tag as Assumption) |
-| `budget` | 12000000 (HUF) | Total pilot budget |
-| `key_features` | ["GPS", "10-day battery", "AMOLED"] | 3–6 product USPs |
-| `local_retailers` | ["Alza", "eMAG", "MediaMarkt"] | Top local e-commerce platforms |
-| `platforms_available` | ["Google", "Meta", "TikTok", "YouTube"] | Active ad platforms |
+Collect, each with URL + access date (→ `facts` + `numbers` as **sourced**):
 
-Optional but accelerates pipeline:
-- `competitor_products`: list of direct alternatives
-- `existing_audience_data`: first-party signals available
-- `compliance_constraints`: product categories with local restrictions
+1. Local retail price(s) — actual listings, noting the spread across SKUs/retailers
+2. Dominant retail platforms and price-comparison sites for the market
+3. Direct competitor products and price positions
+4. Structural demand facts (e.g., "ISPs bundle free routers" — the kind of fact
+   that caps the addressable market)
+5. Local compliance constraints on claims (health, speed, finance)
 
----
+Anything not obtainable goes into the registry as **missing** with
+`needed_from` + `cost_to_get` — not as a guess. User-supplied inputs (margin,
+budget envelope) register as **assumed** with basis.
 
-## Step 1 — Country / Market Context
+## Stage 2 — Unit economics
 
-**Output**: local e-commerce landscape, platform reach, regulatory notes.
-
-Questions to answer from public sources or user input:
-1. Which 3–5 retail platforms command the highest GMV share?
-2. Which paid channels are locally effective (Google vs Yandex vs Naver, etc.)?
-3. Are there local compliance constraints on health, finance, or performance claims?
-4. What is the local currency, and are all monetary inputs in local denomination?
-
-Tag each fact: `Evidence` if sourced, `Assumption` if user-provided.
-
----
-
-## Step 2 — Channel Map
-
-Map each available channel to:
-- **Proximity to purchase** (1 = closest, 5 = furthest)
-- **Primary task** (capture / build / convert / suppress)
-- **Local proxy availability** (High / Medium / Low)
-- **Incrementality risk** (sure-thing / ad-fatigue / deal-seeker)
-
-Sort by proximity × proxy quality. Channels with Low proxy and far proximity enter
-the heatmap as S or N only.
+Pure derivation, zero new assumptions beyond declared ones:
 
 ```
-Retail Media       → proximity 1, capture, High proxy
-Search brand/cat   → proximity 1–2, capture, High proxy
-Shopping/PMax      → proximity 2, convert, High proxy
-Retargeting        → proximity 2, top-up, High (needs 1P data)
-YouTube Review     → proximity 3, build proof, Medium proxy
-KOL / Creator      → proximity 3–4, build proof, Medium proxy
-Social Prospecting → proximity 4–5, expand, Medium–Low proxy
+unit_margin = price × margin_rate
+cac_ceiling = unit_margin × cac_share_of_margin   (share itself is a declared assumption)
 ```
 
----
+Then the **sensitivity table**: for each assumption, what change flips the
+conclusion, ranked. This ranking becomes (a) the thesis's overturn conditions,
+(b) the sort order of the Missing ledger, (c) the verification order in
+stage 6. Low-ticket products live or die here: a 60 RON unit margin is itself
+the report's central finding.
 
-## Step 3 — Audience Proxy (D Dimension Generation)
+## Stage 3 — Channel screen (the gate that may end the report)
 
-Generate candidate D dimensions by crossing:
+For each candidate channel, attempt `CAC = cost-per-touch ÷ conversion-per-touch`
+with whatever provenance is available, and apply the benchmark asymmetry
+(ref 16): benchmarks may prove **not-viable**, never **viable**.
+
+| Verdict | Meaning | Downstream |
+|---------|---------|-----------|
+| viable | local data shows CAC < ceiling | proceeds to stage 4 |
+| undetermined | interval spans ceiling, or inputs missing | proceeds ONLY as a data-acquisition action |
+| not-viable | best case still fails the ceiling | one line in rejected options |
+| role-only | non-acquisition role (objection-answering content, proof asset) | small envelope, no CAC claim |
+
+**Termination rule**: if no channel is viable and no undetermined channel has a
+cheap data path, stop. Emit the short report (ref 12): verdict no-go, the math,
+the levers, the Missing ledger. This is a complete, successful deliverable.
+
+## Stage 4 — Dimension generation (survivors only)
+
+Run ref 14's generation protocol per surviving channel. Expect few dimensions —
+quality over coverage. The v1 failure mode was 32 dimensions for an unscreened
+channel list: maximal surface, zero verified depth.
+
+## Stage 5 — Adversarial review
+
+Independent pass per ref 14. Input: the data and the screen — **not** the
+recommendations (the reviewer must not anchor on what the analysis wants).
+Output: immutable challenges with status; `open-blocking` challenges stamp
+dependent actions in the report. Standard library: sure-thing, deal-seeker,
+correlation≠mechanism, proxy-reality, fatigue/sleeping-dog, compliance,
+market-ceiling.
+
+## Stage 6 — Test design
+
+Every surviving action gets the three-piece set:
 
 ```
-Product mechanism  ×  Local purchase path  ×  Platform proxy  ×  Measurability
+Prediction:    falsifiable, with a number and a direction
+Test:          duration / spend / cell structure; power_analysis.py for sample size
+Kill line:     the result that declares the hypothesis dead (numeric, dated)
+Decision date: when this line must become Sourced or be declared dead
 ```
 
-**Generation protocol**:
-1. List every product feature that could change a person's response to the action
-2. For each feature, identify who would respond differently (mechanism, not correlation)
-3. Check if that person type is reachable via a platform proxy in this market
-4. Check if the dimension is measurable (A/B, holdout, UTM, platform split)
-5. Flag any dimension touching sensitive attributes (health, body image, age, religion)
-   → send to Causal Activation Reviewer (ref 14) before including
+Plus a decision calendar: the single date when the go/no-go re-evaluation
+happens, named in the memo's checkpoint decisions.
 
-**Entry threshold**: dimension must pass ≥ 3 of the 5 checks in ref 12 heatmap rules.
+## Stage 7 — Render
 
-**Standard D dimension candidates** (always evaluate, not always include):
-- Brand/OS affinity (D: brand loyal)
-- Smartwatch in-market (D: category intent)
-- Key sport segment (D: running / cycling / gym / outdoor)
-- Health / sleep tracking (D: health habit)
-- Long battery pain (D: battery pain vs competitor)
-- Price compare (D: comparison shopper)
-- Competitor alternative (D: switching consideration)
-- Cart abandon (D: near-purchase)
-- Tech review reader (D: proof-seeker)
-- Gift buyer (D: gift intent, seasonal)
-- Ad fatigue (D: suppression, not prospecting)
-- Deal-only buyer (D: suppression, negative margin risk)
+Assemble the config (schema: `examples/ax3-romania-config.json`), then:
 
----
-
-## Step 4 — Treatment Cards
-
-For each H-score cell in the heatmap, generate a Treatment Card with:
-
-```
-T{id}
-action:        plain-language description
-audience:      D dimension + proxy
-baseline:      what happens without the action (holdout / organic / no campaign)
-cost_formula:  CPC + X / CPM + Y / creator fee + usage rights
-mechanism:     one sentence — why this changes incremental purchase probability
-guardrail:     the main way this wastes budget (sure-thing / fatigue / deal-seeker)
-measurement:   how to estimate incremental effect
-```
-
-Number of Treatment Cards = number of H-score cells. If > 8, consolidate by grouping
-channels with the same mechanism.
-
----
-
-## Step 5 — Experiment Gate
-
-Before any budget is committed, check:
-
-| Gate | Input needed | Script |
-|------|-------------|--------|
-| Sample size | baseline CVR, MDE, eligible users/day | `power_analysis.py` |
-| Propensity log ready | eligible treatment set, assignment probability | manual |
-| Attribution method | holdout flag, cost, outcome | manual |
-| OPE support | propensity log p(t\|x) | `ope_estimators.py` |
-| AUUC > 0 | uplift model predictions | `qini_auuc.py` |
-
-Gates are binary: pass / not-ready. A "not-ready" gate does not block trial spend
-but blocks scale-up.
-
----
-
-## Step 6 — Generate HTML Report
-
-Pass the assembled config to `generate_report.py`:
-
-```python
-# Minimum config from this pipeline:
-config = {
-    "product": product_name,
-    "market": market,
-    "budget": budget_display,
-    "price": price,
-    "margin_rate": margin_rate,
-    "product_facts": [...],   # Step 1 output
-    "channels": [...],        # Step 2 output
-    "dimensions": [...],      # Step 3 output
-    "heatmap": {...},          # Step 3 output
-    "treatments": [...],      # Step 4 output
-    "execution_gates": [...], # Step 5 output
-    "power_analysis": {       # Step 5 inputs for script bridge
-        "baseline_cvr": 0.02,
-        "mde_abs": 0.004,
-        "eligible_per_day": 10000,
-    },
-    # ... budget, plays, measurement, suppression, sources, checklist
-}
-```
-
-Then:
 ```bash
+python scripts/generate_report.py --config config.json --validate-only   # must pass
 python scripts/generate_report.py --config config.json --output report.html
 ```
 
+Build failure = a number broke the provenance contract. Fix the analysis,
+not the validator.
+
 ---
 
-## Common Failure Modes
+## Failure modes
 
-| Failure | Cause | Fix |
+| Failure | Smell | Fix |
 |---------|-------|-----|
-| All dimensions enter as H | Skipped mechanism check | Re-run Step 3 with reviewer (ref 14) |
-| Budget allocated before gates | Skipped Step 5 | Gates are non-negotiable; label pre-gate numbers as Hypothesis |
-| KOL ROI treated as Evidence | No holdout or UTM | Re-tag as Assumption or Needs test |
-| Heatmap has > 20 H cells | No prioritization | Rank H cells by (proxy quality × mechanism clarity); keep top 8–10 |
-| Price / CAC missing tags | Draft from LLM | Every number with currency symbol must be tagged before delivery |
+| Template completeness | Full 6 sections for a product whose math died in stage 2 | Use the terminus; short report |
+| Screen skipped | Dimensions/heatmaps for channels never tested against the ceiling | Re-run stage 3; delete unearned detail |
+| Costume numbers | Play tables with CAC/ROI ranges and no formulas | Ref 16; registry or deletion |
+| Reviewer anchoring | Challenges that read like endorsements | Stage 5 sees data, not recommendations |
+| No terminus fear | Analyst pads the report to justify the effort spent | The short report IS the deliverable; say so |
