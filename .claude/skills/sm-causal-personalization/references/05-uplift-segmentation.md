@@ -25,6 +25,25 @@ storytelling, not for live targeting decisions. Live decisions use continuous
   and τ̂ = 8% are both "persuadable" but have completely different budget
   priority).
 
+## Empirical Evidence: Propensity Scores as Uplift Predictors Fail (VALOR 2026)
+
+VALOR (Valueteer for Revenue, arXiv 2604.02472) is the first published
+production B2B causal lead scoring system. Key finding from a 4-month A/B
+test (504k+ transactions, ≥2.7× incremental revenue vs control):
+
+- A traditional propensity-based lead score **actively misdirected** sales
+  resources — high-propensity leads are disproportionately self-service
+  customers (sure-things) who close regardless of rep attention.
+- The causal score (τ̂ = incremental win rate from rep follow-up) redirected
+  effort to genuinely persuadable leads, doubling incrementality at the same
+  rep capacity.
+- The gap between propensity-score AUUC ≈ 0 and causal-score AUUC ≫ 0
+  reproduced the theoretical anti-pattern from `scripts/qini_auuc.py`
+  in a real production environment.
+
+Use this number (2.7×) when making the business case for uplift over propensity
+scoring in B2B settings. The toC equivalent is the Ascarza retention study.
+
 ## The Ascarza Lesson: Risk ≠ Rescuable
 
 Ascarza (2018) ran experiments in two real retention programs and found that
@@ -94,3 +113,5 @@ incremental effect; high win probability ≠ discount is necessary (B2B version
 - Hitsch, Misra & Sanders (2024, QME) "Heterogeneous Treatment Effects and
   Optimal Targeting Policy Evaluation" — causal framework for targeting policy
   evaluation
+- Wang et al. (2026, arXiv 2604.02472) "VALOR: Valueteer for Revenue" — B2B
+  causal lead scoring; 2.7× incremental revenue vs propensity-based baseline

@@ -70,6 +70,36 @@ are a fallback and must include explicit identification assumptions (→ ref 03)
 
 ---
 
+## Four-Layer Production Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Layer 1 · Data & Experiment Assets                             │
+│  RCT logs + propensity P(t|x) + GCG + historical experiments   │
+│  (ref 03)  ← pool across campaigns; each experiment is a       │
+│             reusable evaluation asset (Snap, arXiv 2512.03060) │
+├─────────────────────────────────────────────────────────────────┤
+│  Layer 2 · Effect Estimation                                    │
+│  τ̂(x) via DR-learner / Causal Forest / X-learner             │
+│  (ref 04)  ← calibrated AND ranked; ZILN loss for revenue Y   │
+├─────────────────────────────────────────────────────────────────┤
+│  Layer 3 · Decision & Allocation                               │
+│  Policy π(x): argmax + λ* budget constraint + OPE gate        │
+│  (ref 06)  ← two-stage default; E3IR end-to-end for L2+;      │
+│             large action space: MIPS/OffCEM/embedding OPE      │
+├─────────────────────────────────────────────────────────────────┤
+│  Layer 4 · Generation & Serving (optional, L2+)                │
+│  LLM embeddings as features (not decision-makers);             │
+│  GenAI serving layer for copy personalization                  │
+│  (LinkedIn CPOG, arXiv 2505.09847)                             │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Architecture position**: two-stage (estimate then optimize) is the default
+for auditability and declarative constraints. End-to-end decision-focused
+training (E3IR, Booking 2024) is a L2+ performance option when calibration
+is less critical than rank quality.
+
 ## Decision Tree: Which Reference Applies?
 
 ```
@@ -82,18 +112,24 @@ What is the user asking about?
 │   → 03-experiments
 ├─ "How to estimate who is affected; which model to use; how to validate"
 │   → 04-hte-estimation
+│     ├─ Need calibrated τ̂ (profit optimization) → standard path
+│     └─ Need ranking only (budget rank-list) → decision-focused learner
 ├─ "How to segment users; who to target and who to skip"
 │   → 05-uplift-segmentation
 ├─ "Which action to give each user; budget constraints; evaluate before launch"
 │   → 06-policy-nbt
+│     └─ Large action space (>100 arms) → 06 large-action-space OPE section
 ├─ "Should we use a bandit; how to do online learning"
 │   → 07-bandits-online
 ├─ "Short-term works, what about long-term? LTV, surrogate metrics"
 │   → 08-long-term-value
 ├─ "Compliance, fairness, privacy, which features are allowed"
 │   → 09-governance  (always run this at project kickoff)
-└─ "How to roll this out org-wide; marketing/sales team alignment; KPI design"
-    → 10-org-playbook
+├─ "How to roll this out org-wide; marketing/sales team alignment; KPI design"
+│   → 10-org-playbook
+└─ "How to build or evaluate a production-scale platform (data eng, retraining,
+    serving, CPOG-style architecture)"
+    → 11-production-architecture
 ```
 
 ---
@@ -103,7 +139,7 @@ What is the user asking about?
 | Script | Purpose |
 |--------|---------|
 | `power_analysis.py` | Uplift experiment power: sample size to detect incremental difference (~4× a standard A/B) |
-| `qini_auuc.py` | Qini curve, AUUC, decile calibration — the only valid validation method for uplift models |
+| `qini_auuc.py` | Qini curve, AUUC + bootstrap CI, decile calibration, two-model comparison |
 | `hte_starter.py` | T/X/DR-learner starter templates (sklearn, drop-in replaceable with EconML / CausalML) |
 | `ope_estimators.py` | IPS / SNIPS / Doubly Robust off-policy evaluation + support check |
 

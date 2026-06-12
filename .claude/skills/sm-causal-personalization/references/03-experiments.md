@@ -113,8 +113,10 @@ mechanics. When present, escalate the randomization unit.
 
 - **SRM not checked**: randomization code has a bug, groups are incomparable,
   all conclusions are void
-- **Peeking**: checking p-values daily and stopping when significant — false
-  positive rate explodes. Use fixed duration or sequential testing.
+- **Peeking with classical p-values**: checking p-values daily and stopping
+  when significant — false positive rate explodes. Use fixed duration or
+  **anytime-valid inference** (confidence sequences) for legitimate continuous
+  monitoring (see below).
 - **Experiment too short**: two weeks won't capture sleeping-dog harm or
   repurchase effects (→ ref 08)
 - **Control group too small**: GCG compressed to 0.5% "to lose less revenue" —
@@ -124,6 +126,57 @@ mechanics. When present, escalate the randomization unit.
 - **Propensity not logged**: three months later you want to run OPE and find
   only "what action was sent," not "with what probability"
 
+## Anytime-Valid Inference (Legitimate Continuous Monitoring)
+
+Classical p-values require a pre-committed stopping rule. **Anytime-valid
+confidence sequences** provide intervals that are valid at every sample size,
+allowing early stopping without inflating false positives. Now production-
+standard at Netflix, Microsoft, Adobe.
+
+**Rule**: replace fixed-horizon t-test with a confidence sequence (e.g.,
+mixture martingale from Waudby-Smith & Ramdas 2024). You may stop as soon as
+the CI excludes zero — this is statistically valid. Classical "peek once at
+the end" remains equally valid; use whichever matches your operational cadence.
+
+**When not to use early stopping**: for HTE subgroup analysis and uplift model
+validation, keep the pre-committed sample to avoid winner's curse in subgroup
+selection (ref 04).
+
+## Switchback Interval Selection
+
+For switchback experiments (time-slot rotation, ref identification ladder
+level 3): interval duration should be **fit from historical data** using
+Empirical Bayes on autocorrelation structure of the outcome series, not set
+by intuition. A data-driven interval can reduce MSE by ~33% vs default choices.
+Short intervals inflate variance from carryover; long intervals inflate bias
+from trend. Instrument the autocorrelation and fit interval length before
+running.
+
+## Cluster Experiments: Two-Layer SRM Check
+
+Cluster randomization (accounts, geos, time slots) requires a **two-layer
+SRM check** (LinkedIn, 2024):
+
+1. **Cluster-level SRM**: are the number of assigned clusters per arm correct?
+2. **Unit-within-cluster SRM**: within each arm, does the unit distribution
+   match expectations?
+
+Failing either layer → stop and debug. A unit-level SRM inside a correctly
+allocated cluster arm is a common silent failure mode.
+
+## Experiments as Reusable Evaluation Assets
+
+Every completed experiment is permanently valuable. Archive:
+- Propensity logs (for OPE on future policies)
+- Estimated τ̂(x) and confidence intervals
+- Covariate balance statistics and SRM check results
+
+Pooling historical experiments (Snap platform pattern, arXiv 2512.03060)
+enables: (a) warm-start estimation for new experiments, (b) cross-scenario
+τ̂ transfer for data-thin segments, (c) organizational learning that
+compounds across years of experiments. Build the archive from day one —
+retroactive reconstruction is expensive.
+
 ## Acceptance Checklist
 
 - [ ] Identification level confirmed; written assumption justification for
@@ -132,14 +185,22 @@ mechanics. When present, escalate the randomization unit.
 - [ ] Randomization unit matches interference structure
 - [ ] Propensity log instrumented at code-write time (not retrofitted later)
 - [ ] Analysis plan pre-registered (primary metric / guardrails / subgroup list)
-- [ ] SRM monitoring live at launch
+- [ ] SRM monitoring live at launch; cluster experiments check two layers
+- [ ] Continuous monitoring uses confidence sequences, not classical p-values
+- [ ] Completed experiment archived (propensity logs + τ̂ + balance stats)
 
 ## Literature
 
 - Kohavi, Tang & Xu (2020), *Trustworthy Online Controlled Experiments* —
   SRM, peeking, experiment culture
+- Waudby-Smith & Ramdas (2024) "Estimating Means of Bounded Random Variables
+  by Betting" — confidence sequences / anytime-valid inference
+- Howard et al. (2021) "Time-Uniform, Nonparametric, Nonasymptotic Confidence
+  Sequences" — theoretical foundation for anytime-valid CIs
 - Meta GeoLift (open source) / Google TBR — geo incrementality measurement
 - Deng et al. (2013) "Improving the Sensitivity of Online Controlled
   Experiments by Utilizing Pre-Experiment Data" — CUPED
 - Athey & Imbens (2017) "The State of Applied Econometrics: Causality and
   Policy Evaluation" — map of quasi-experimental methods
+- Xiong et al. (2024) "Optimal Switchback Experiment Design" — Empirical
+  Bayes interval selection for switchback experiments

@@ -73,7 +73,9 @@ feature. High predictive accuracy → route to manual review before use.
 **AI must not**:
 - Declare an action "effective" without experimental or identification-strategy
   support
-- Use LLM evaluation as a substitute for holdout / experiment to justify launch
+- Use LLM evaluation — including multi-agent simulation (AgentA/B) — as a
+  substitute for holdout / experiment to justify launch. Simulation results
+  are pre-screening evidence only.
 - Autonomously expand the target audience or modify treatment parameters and
   deploy without approval
 - Generate policy-evading copy variants (e.g., synonym-swap to bypass

@@ -61,6 +61,20 @@ independently requires linearly growing sample. Solutions:
    or policy-violating variants. LLM scores are not evidence of causal effect.
    All variants must pass through experiment before launch. (Red line → ref 09.)
 
+5. **LLM embeddings as treatment features (cheapest LLM integration)**: rather
+   than routing the LLM into the decision loop, encode each variant's text
+   as an embedding vector and include it in z. Standard meta-learners then
+   learn which embedding dimensions drive uplift. New LLM-generated copy slots
+   into the same model at prediction time. Cost: one embedding call per variant
+   at card creation, not at serving time.
+
+6. **AgentA/B simulation as pre-screening** (pilot evidence, not launch
+   authorization): simulate two-agent conversations (agent=treated user vs
+   agent=control user) to rank variants before committing experiment traffic.
+   Screening gate only — does not replace holdout. LLM simulation results
+   are pre-screening evidence; they are not valid for launch authorization
+   (→ ref 09 AI hard lines).
+
 ## Defining the Control Group (the most error-prone detail)
 
 - **"No action" vs "placeholder content" are two different controls**: the

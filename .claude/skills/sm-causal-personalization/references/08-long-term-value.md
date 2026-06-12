@@ -94,10 +94,54 @@ window past the crossing point before reporting net effect.
 - [ ] Permanent holdout + policy-level long-term controls running
 - [ ] Pull-forward check quarterly; surrogate deviation review annually
 
+## Netflix Surrogate Index Benchmark
+
+Netflix ran 200 experiments with both short-term surrogate predictions and
+long-term ground truth (63-day direct measurement). Key findings
+(Farias et al., arXiv 2024):
+
+- **95% consistency**: surrogate-predicted launch decisions matched ground
+  truth in 95% of cases.
+- **65–79% recall** on launch decisions: the surrogate correctly identified
+  65–79% of the experiments that ground truth would have launched.
+- **Practical implication**: surrogate index is a high-precision screening
+  tool, not a final arbiter. Use it to prioritize iteration and eliminate
+  clear losers quickly; keep long-term holdout for final launch authorization
+  on high-stakes policy changes.
+
+The 5% inconsistency rate is not random — it is concentrated in experiments
+where the treatment mechanism has a direct long-term channel that bypasses
+the surrogate metrics (e.g., one-time brand events, hard-to-reverse UX changes).
+Document these "surrogate bypass" mechanisms explicitly when building f(S).
+
+## LOPE: Long-Term Off-Policy Evaluation
+
+**LOPE** (Long-term Off-Policy Evaluation, Spotify/Cornell, WWW 2024) bridges
+off-policy evaluation (ref 06) and surrogate metrics (this file):
+
+```
+Problem: I have a new policy π_new; I want to estimate its long-term value
+         V_∞(π_new) from short-term bandit logs without running a full long
+         experiment.
+
+LOPE solution:
+  V_∞(π_new) = OPE(π_new; short-term logs) + surrogate bridge G(S, π_new)
+  where G corrects OPE's short-window bias using the surrogate model f(S).
+```
+
+**When to use**: at L2/L3, when you retrain the offline policy frequently
+and cannot wait 63 days for each version. LOPE gives a practically-valid
+long-term estimate in days. Validate LOPE estimates against actual long-term
+holdout quarterly; if they diverge, update f(S).
+
 ## Literature
 
 - Athey, Chetty, Imbens & Kang (2019) "The Surrogate Index" — methodological
   foundation
+- Farias et al. (2024, arXiv) "Correcting for Outcome Measurement Error in
+  Surrogate Evaluation" — Netflix 200-experiment benchmark
+- Bompaire et al. (2024, WWW / Spotify) "Long-Term Off-Policy Evaluation and
+  Learning" — LOPE bridging OPE and surrogacy
 - Yang, Eckles et al. — industrial surrogate applications
   (Netflix / Meta public materials)
 - Gupta et al. (2006) "Modeling Customer Lifetime Value" — LTV metrics

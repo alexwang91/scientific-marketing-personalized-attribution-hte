@@ -77,6 +77,57 @@ def decile_calibration(
     return pd.DataFrame(rows).sort_values("bucket", ascending=False)
 
 
+def auuc_bootstrap_ci(
+    y: np.ndarray,
+    t: np.ndarray,
+    score: np.ndarray,
+    n_boot: int = 500,
+    alpha: float = 0.05,
+    seed: int = 0,
+    n_bins: int = 100,
+):
+    """Bootstrap CI for AUUC. Two models are significantly different only if
+    their CIs do not overlap. Returns (point_estimate, lo, hi).
+    """
+    rng = np.random.default_rng(seed)
+    n = len(y)
+    vals = []
+    for _ in range(n_boot):
+        idx = rng.integers(0, n, n)
+        vals.append(auuc(y[idx], t[idx], score[idx], n_bins))
+    point = auuc(y, t, score, n_bins)
+    lo, hi = np.percentile(vals, [100 * alpha / 2, 100 * (1 - alpha / 2)])
+    return float(point), float(lo), float(hi)
+
+
+def compare_models(
+    y: np.ndarray,
+    t: np.ndarray,
+    score_a: np.ndarray,
+    score_b: np.ndarray,
+    n_boot: int = 500,
+    alpha: float = 0.05,
+    seed: int = 0,
+) -> dict:
+    """Bootstrap test for AUUC(A) > AUUC(B). Returns CIs and whether the
+    difference is significant (CIs of ΔAUUCs do not include zero).
+    """
+    rng = np.random.default_rng(seed)
+    n = len(y)
+    deltas = []
+    for _ in range(n_boot):
+        idx = rng.integers(0, n, n)
+        deltas.append(auuc(y[idx], t[idx], score_a[idx]) - auuc(y[idx], t[idx], score_b[idx]))
+    delta_point = auuc(y, t, score_a) - auuc(y, t, score_b)
+    lo, hi = np.percentile(deltas, [100 * alpha / 2, 100 * (1 - alpha / 2)])
+    return {
+        "delta_auuc": float(delta_point),
+        "ci_lo": float(lo),
+        "ci_hi": float(hi),
+        "significant": bool(lo > 0 or hi < 0),
+    }
+
+
 def plot_qini(y, t, score, path: str = "qini_curve.png"):
     import matplotlib
     matplotlib.use("Agg")
@@ -115,8 +166,15 @@ def _synthetic(n: int = 200_000, seed: int = 0):
 if __name__ == "__main__":
     y, t, good, prop = _synthetic()
 
-    print(f"Uplift model   AUUC = {auuc(y, t, good):8.1f}  (should be significantly > 0)")
-    print(f"Propensity anti-pattern AUUC = {auuc(y, t, prop):8.1f}  (≈0 or negative)")
+    pt, lo, hi = auuc_bootstrap_ci(y, t, good)
+    print(f"Uplift model   AUUC = {pt:8.1f}  95% CI [{lo:.1f}, {hi:.1f}]  (should be > 0)")
+    pt2, lo2, hi2 = auuc_bootstrap_ci(y, t, prop)
+    print(f"Propensity anti-pattern AUUC = {pt2:8.1f}  95% CI [{lo2:.1f}, {hi2:.1f}]  (≈0 or negative)")
+
+    cmp = compare_models(y, t, good, prop)
+    print(f"\nModel comparison  ΔAUUC={cmp['delta_auuc']:.1f}  "
+          f"CI [{cmp['ci_lo']:.1f}, {cmp['ci_hi']:.1f}]  "
+          f"significant={cmp['significant']}")
 
     print("\nDecile calibration (uplift model, bucket 9 = highest τ̂):")
     print(decile_calibration(y, t, good).to_string(index=False, float_format="%.4f"))

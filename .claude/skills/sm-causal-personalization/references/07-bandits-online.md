@@ -108,6 +108,35 @@ claim — it requires three concrete mechanisms:
 - [ ] Propensity logs going to data warehouse; OPE reusable
 - [ ] Drift monitoring, minimum exploration floor, guardrail rollback all live
 
+## Delayed Reward: Impatient Bandits (Spotify, 2024)
+
+The standard bandit assumes the reward signal arrives quickly. In subscription
+or B2B settings, the true outcome (retention, contract renewal) arrives weeks
+to months later, but you need a reward signal now.
+
+**Impatient Bandits solution** (Spotify/Cornell, WWW 2024):
+
+```
+1. Train a Bayesian surrogate model:
+     P(long_term_Y | partial_signal_at_day_k, arm, context)
+   using historical complete trajectories.
+
+2. At bandit update time (day k), impute:
+     r̂ = E[Y | observed so far, arm, x]
+   as the reward signal for Thompson Sampling.
+
+3. Update the posterior on r̂, not on the eventual Y.
+   When Y finally arrives, do a retrospective posterior correction.
+```
+
+**Key check**: the partial-signal model must be calibrated. At quarterly
+review, compare r̂ predictions at day-k vs actual long-term Y —
+miscalibration here compounds into reward-signal bias that corrupts the bandit.
+
+This pattern generalizes to any setting where you have fast partial signals
+correlated with slow final outcomes (day-7 engagement → 90-day LTV, etc.).
+It is the bandit equivalent of the surrogate index in ref 08.
+
 ## Literature
 
 - Li et al. (2010) "A Contextual-Bandit Approach to Personalized News Article
@@ -117,3 +146,6 @@ claim — it requires three concrete mechanisms:
   constraints
 - Agarwal et al. (2016) "Making Contextual Decisions with Low Technical Debt"
   — industrial deployment (Decision Service)
+- Bompaire et al. (2024, WWW / Spotify) "Impatient Bandits: Optimizing
+  Recommendations that Drive Long-Term Engagement" — delayed reward in
+  production bandit systems

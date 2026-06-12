@@ -50,6 +50,28 @@ organization" — a more useful management number than any single-point ROI.
 Multiple treatments sharing a budget, or sales capacity constraints (ref 10:
 SDR time), follow the exact same formulation — replace c_t with time cost.
 
+## Two-Stage vs End-to-End: Architectural Choice
+
+```
+Two-stage (default):
+  estimate τ̂(x) → optimize π(x) based on τ̂
+  + Interpretable τ̂ values; declarative constraints; auditable
+  + Calibration requirement: τ̂ must be well-calibrated (ref 04)
+  − Two optimization gaps: estimation error + allocation error
+
+End-to-end (E3IR, RecSys 2024; Booking 2024):
+  train model directly on rank / allocation objective
+  + Optimizes what you actually care about (rank quality / revenue)
+  + Monotonicity constraints (discount₁ ≤ discount₂ effects) easily encoded
+  − Less interpretable magnitude; harder to audit individual decisions
+  − Requires more data to converge; L2+ only
+```
+
+**Default: two-stage.** Switch to end-to-end only when: (a) you have large
+training data (≥1M treated observations), (b) calibration is genuinely hard
+(zero-inflated revenue), and (c) interpretability requirements are met via
+separate explanation layer.
+
 ## OPE: Offline Evaluation Before Launch (the core L2 capability)
 
 Don't launch and gamble. Use historical logs (containing propensity p(t|x),
@@ -68,6 +90,69 @@ DR (doubly robust):
 ```
 
 Full implementation in `scripts/ope_estimators.py`.
+
+### Large Action Space OPE (>100 arms, recommendation/ad settings)
+
+Standard IPS breaks when the action space is large: the probability that
+π_new's action appears in historical logs approaches zero → weight explosion.
+
+**Solution ladder**:
+
+1. **MIPS** (Marginalized IPS, Saito & Joachims 2022): marginalize over
+   action embeddings rather than individual arms. Requires a learned action
+   embedding space where similar arms share statistical strength.
+   ```
+   V̂_MIPS = (1/n) Σ [π_new(e|x) / p_logged(e|x)] × y
+   ```
+   where e = action embedding (cluster), not individual arm id.
+
+2. **OffCEM** (Saito et al. 2023): cluster actions by context-conditional
+   similarity; estimate OPE within clusters. Better bias-variance tradeoff
+   than MIPS when action clusters are dense.
+
+3. **Embedding-weighted OPE** (practical default for large action spaces):
+   - Train an action embedding on historical co-occurrence or feature
+     similarity
+   - Compute importance weights in the lower-dimensional embedding space
+   - Use DR correction to debias residuals
+
+**Reference implementation**: Open Bandit Pipeline (OBP) library provides
+MIPS and embedding-based OPE estimators for production use.
+`pip install obp`
+
+**Support check adaption for large action space**: instead of checking
+individual arm overlap, check embedding-space coverage — fraction of
+π_new's recommendation embedding mass covered by logs.
+
+### Conformal OPE (Finite-Sample Valid Intervals)
+
+Standard OPE gives asymptotic confidence intervals that can be unreliable
+in finite samples. **Conformal prediction for OPE** provides finite-sample
+valid prediction intervals under mild assumptions:
+
+```
+Use split conformal: calibrate residuals on a held-out log set,
+construct prediction intervals for ΔV̂.
+```
+
+When the OPE CI is tight asymptotically but the sample is <10k, apply
+conformal calibration before reporting the interval. `pip install mapie`
+
+### Safe OPG: Launch Guardrail Ordering
+
+**Safe Off-Policy Gradient (Safe OPG)**: when launching a new policy, apply
+strict conservative constraints first and relax as data accumulates:
+
+```
+Round 1 (first 1–4 weeks): enforce ΔV̂ ≥ 0 AND
+  worst-case lower bound (1−ε credible interval) > 0
+Round 2 (subsequent retraining): relax to point estimate > 0
+  with CI does not cross zero
+```
+
+This prevents the scenario where a noise-favorable OPE estimate launches
+a policy that is actually worse than current, with irreversible rollout
+effects (couponing patterns, user expectations already shifted).
 
 **Support check (must run before anything else)**: the (x, t) pairs recommended
 by π_new must appear in the historical log with non-zero probability. A new
@@ -106,9 +191,12 @@ result.
 
 - [ ] Calibrated τ̂_t(x) and cost c_t available for every action
 - [ ] Budget constraint explicitly modeled; λ* computed
-- [ ] Support check passed before OPE
+- [ ] Support check passed before OPE; for large action spaces use
+      embedding-space coverage check
+- [ ] Two-stage vs end-to-end decision documented with rationale
 - [ ] Launch sequence followed: OPE → small traffic → full launch with
       dual holdouts
+- [ ] Safe OPG conservative constraints in round 1 deployment
 - [ ] Guardrails and auto-rollback wired up
 
 ## Literature
@@ -117,5 +205,10 @@ result.
 - Athey & Wager (2021, *Econometrica*) "Policy Learning with Observational Data"
 - Swaminathan & Joachims (2015) "The Self-Normalized Estimator for
   Counterfactual Learning" — SNIPS
+- Saito & Joachims (2022, ICML) "Off-Policy Evaluation for Large Action Spaces
+  via Embeddings" — MIPS estimator
+- Saito et al. (2023) "OffCEM: Off-Policy Evaluation via Causal Effect
+  Estimation for Large Action Spaces"
+- Kiyohara et al. (2021) "Open Bandit Pipeline" — OBP reference implementation
 - Hitsch, Misra & Sanders (2024, QME) — comprehensive policy evaluation
   framework for marketing

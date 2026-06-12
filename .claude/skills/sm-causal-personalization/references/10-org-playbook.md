@@ -75,6 +75,44 @@ this deal close anyway?**
   deals where "discount is a genuine swing factor" get fast-tracked.
 - This is the sure-things problem in a B2B jacket. Typically the highest ROI
   single-point application in B2B causal personalization.
+- **Empirical scale**: a study of 504k+ B2B transactions (VALOR 2026) found
+  that salesperson-level calibration of discount τ̂ materially outperforms
+  territory-level or product-level averages — individual rep context predicts
+  whether a discount is a swing factor. Segment τ̂ by rep × deal-stage, not
+  just by deal attributes.
+
+### AI Coaching Inverted-U Effect
+
+AI-assisted sales coaching (real-time next-best-action prompts during calls)
+shows an **inverted-U effect across rep skill levels** (research evidence,
+2024–2025):
+
+- Low-skill reps: coaching recommendations are most impactful (large τ̂)
+- Medium-skill reps: moderate incremental benefit
+- High-skill reps: coaching can be distracting or actively harmful (negative τ̂)
+
+**Deployment implication**: do not roll out AI coaching uniformly. Estimate
+τ̂(rep_skill_level) before rollout; suppress or opt-out high-skill reps from
+real-time prompting. This is a direct application of the sleeping-dogs pattern
+(ref 05) in a B2B coaching context.
+
+### LinkedIn CPOG: Production B2B Reference Architecture
+
+LinkedIn's **Causal Personalization on Graph (CPOG)** system (arXiv 2505.09847)
+is the most detailed published production B2B causal personalization architecture:
+
+```
+Layer 1: Causal prediction (τ̂ for member-level content/outreach decisions)
+Layer 2: Constrained optimization + contextual bandit (budget + capacity)
+Layer 3: GenAI serving (personalized copy grounded by causal scores)
+```
+
+Key design choices for B2B replication:
+- τ̂ is computed at the **member × account × product** grain, not just member-level
+- Bandit exploration is separated from editorial constraints (legal / brand
+  review happens before a treatment enters the bandit arm pool)
+- GenAI layer is a serving/copywriting layer only; it reads causal scores as
+  context but does not make policy decisions (enforces ref 09 AI hard lines)
 
 ### ABM Experiment Discipline
 
@@ -147,5 +185,9 @@ kills the project in Phase 2.
   (ref 05)
 - Hitsch & Misra (2018) "Heterogeneous Treatment Effects and Optimal Targeting
   Policy Evaluation" — profit-lens targeting
+- Wang et al. (2026, arXiv 2604.02472) "VALOR: Valueteer for Revenue" —
+  B2B causal lead scoring; 2.7× incremental revenue; salesperson-level τ̂
+- LinkedIn CPOG (arXiv 2505.09847) "Causal Personalization on Graph" —
+  production B2B three-layer architecture reference
 - Braze Global Control Group documentation and similar CDP vendor holdout
   guides — operational reference
