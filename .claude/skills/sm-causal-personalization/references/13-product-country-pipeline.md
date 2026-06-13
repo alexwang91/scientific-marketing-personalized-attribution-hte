@@ -321,7 +321,7 @@ not the validator.
 |---------|-------|-----|
 | Stage 0 skipped | Channel map built from global brand knowledge; "eMAG is biggest" with no local source; no telco channel; no price/income ratio | Run the scoping kernel (ref 00); fill the transfer-assumption ledger before any lookup |
 | Assumption transferred silently | A retailer rank / competitor set / channel mix imported from another country or the brand's home market | Move 2 ledger: mark cross-border beliefs HIGH risk, verify before shipping |
-| Template completeness | Full 6 sections for a product whose math died in stage 2 | Use the terminus; short report |
+| Template completeness | Full 17-section report for a product whose math died in Stage 2/3 | Use short-report mode: Memo + The Math + Missing ledger (ref 12) |
 | Screen skipped | Dimensions/heatmaps for channels never tested against the ceiling | Re-run stage 3; delete unearned detail |
 | Costume numbers | Play tables with CAC/ROI ranges and no formulas | Ref 16; registry or deletion |
 | Reviewer anchoring | Challenges that read like endorsements | Stage 5 sees data, not recommendations |

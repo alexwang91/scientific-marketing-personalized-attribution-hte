@@ -56,32 +56,55 @@ deliverable. Do not pad a short report into a full one.
 
 ---
 
-## Section Map (canonical 15 sections)
+## Section Map (canonical sequence, as rendered by generate_report.py)
 
-| # | Section | Required | Script input |
-|---|---------|----------|--------------|
-| 1 | Core decision + KPI strip | Yes | — |
-| 2 | Evidence tag legend | Yes (always static) | — |
-| 3 | Product & market facts | Yes | — |
-| 4 | Assumption register | Yes | — |
-| 5 | Local channel map | Yes | — |
-| 6 | D dimension table + Causal Activation Reviewer | Yes | — |
-| 7 | Semantic heatmap (channel × dimension) | Yes | — |
-| 8 | H-main breakdown | Yes | — |
-| 9 | Execution gates + Treatment Cards | Yes | `power_analysis.py` → sample size gate |
-| 10 | Budget allocation | Yes | — |
-| 11 | Priority plays + ROI scenarios | Yes | `qini_auuc.py` → AUUC gate (if model data available) |
-| 12 | KOL / Creator sourcing | Conditional | — |
-| 13 | Measurement plan | Yes | `power_analysis.py` → duration |
-| 14 | Suppression & risk rules | Yes | `ope_estimators.py` → support check |
-| 15 | Sources + Verification checklist | Yes | — |
+This map is the authoritative numbering and **matches the generator's output
+exactly.** Section numbers are monotonic; the generator threads every heading
+through `L(cfg, key, default)` so numbers and text localize together. If you
+change the order here, change `generate_html()`'s `parts` list to match.
+
+| # | Section | Renderer | Required | Script input |
+|---|---------|----------|----------|--------------|
+| 1 | Decision Memo (verdict band + body) | `s_memo` | Yes | — |
+| 2 | The Math (CAC ceiling, sensitivity, channel screen) | `s_math` | Yes | — |
+| 3 | Product & market facts | `s_product_facts` | Yes | — |
+| 4 | Local channel map | `s_channel_map` | Yes | — |
+| 5 | D dimension table + Causal Activation Reviewer | `s_dimensions` | Yes | — |
+| 6 | Semantic heatmap (channel × dimension) | `s_heatmap` | Yes | — |
+| 7 | H-main breakdown | `s_h_main` | Yes | — |
+| 8 | Execution gates + Treatment Cards | `s_execution_gates` | Yes | `power_analysis.py` → sample-size gate |
+| 9 | Causal Activation Reviewer (campaign-level challenges) | `s_challenges` | Yes | — |
+| 10 | Budget allocation | `s_budget` | Yes | — |
+| 11 | Priority plays + ROI scenarios | `s_priority_plays` | Yes | `qini_auuc.py` → AUUC gate (if model data) |
+| 12 | KOL / Creator sourcing | `s_kol` | Conditional | — |
+| 13 | Measurement plan | `s_measurement` | Yes | `power_analysis.py` → duration |
+| 14 | Test plan (prediction / kill line / decision date) | `s_test_plan` | Yes | — |
+| 15 | Suppression & risk rules | `s_suppression` | Yes | `ope_estimators.py` → support check |
+| 16 | Evidence & gaps (sourced facts, assumption register, Missing ledger) | `s_evidence` | Yes | — |
+| 17 | Sources + Verification checklist | `s_checklist` | Yes | — |
+
+**H-main** (section 7) = the set of channel×dimension cells the heatmap scored
+`H` (primary investment). Section 7 breaks each one down into its HTE hypothesis
+and its Treatment Card pointer; the cards themselves render in section 8.
+
+**Evidence tag legend** is not a standalone section — the marker legend renders
+inside the Decision Memo (section 1), and the claim-tag semantics are documented
+below in this reference, not in the report body.
 
 ### Why the order matters
 
-The report is a pyramid: a reader gets the conclusion in 30 seconds (Part A),
-the reasoning in 3 minutes (sections 2–5), and full auditability in 30 minutes
-(sections 6–15). The single most important insight must be the first sentence
+The report is a pyramid: a reader gets the conclusion in 30 seconds (section 1),
+the reasoning in 3 minutes (sections 2–6), and full auditability in 30 minutes
+(sections 7–17). The single most important insight must be the first sentence
 of the Decision Memo — not buried in a reviewer table on page 4.
+
+### Short-report mode (early termination)
+
+When `config["termination"]` is set (pipeline stopped at the viability screen,
+ref 13 Stage 3), the generator renders only: section 1 (Memo) + the termination
+notice + section 2 (The Math) + section 16 (Evidence & gaps, Missing ledger
+sorted by sensitivity). No full analysis sections. A short report is a success
+state — do not pad it.
 
 ---
 

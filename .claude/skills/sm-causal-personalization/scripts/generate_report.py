@@ -617,7 +617,7 @@ def s_challenges(cfg: dict) -> str:
                  f"<td><span class='pill pill-{esc(c['status'])}'>{esc(c['status'])}</span></td>"
                  f"<td>{esc(c.get('resolution') or c.get('evidence_needed', ''))}</td></tr>")
     return f"""<section>
-  <h2>{esc(L(cfg, "challenges_heading", "4 · Adversarial Review"))}</h2>
+  <h2>{esc(L(cfg, "challenges_heading", "9 · Causal Activation Reviewer (campaign-level)"))}</h2>
   <p>{L(cfg, "challenges_intro", 'Challenges are raised by an independent review pass and are immutable — the analysis may respond but not rewrite them. <strong>open-blocking</strong> challenges stamp every action that depends on them. An unresolved challenge displayed openly is the trust mechanism; "resolved" requires data, not rhetoric.')}</p>
   <div class="table-wrap"><table>
     <thead><tr><th>{esc(L(cfg, "ch_th_challenge", "Challenge"))}</th><th>{esc(L(cfg, "ch_th_question", "Question"))}</th><th>{esc(L(cfg, "ch_th_status", "Status"))}</th><th>{esc(L(cfg, "ch_th_resolution", "Resolution / evidence needed"))}</th></tr></thead>
@@ -638,7 +638,7 @@ def s_test_plan(cfg: dict) -> str:
   </dl>
 </div>"""
     return f"""<section>
-  <h2>{esc(L(cfg, "testplan_heading", "5 · Test Plan"))}</h2>
+  <h2>{esc(L(cfg, "testplan_heading", "14 · Test Plan"))}</h2>
   <p>{L(cfg, "testplan_intro", "Every claim that survives to budget carries a falsifiable prediction, a kill line, and a decision date. On that date the line either becomes Sourced or is declared dead.")}</p>
   {power_bridge(cfg)}
   <div class="cards">{cards}</div>
@@ -663,7 +663,7 @@ def s_evidence(cfg: dict, numbers: dict) -> str:
         for nid, spec in numbers.items() if spec["provenance"] == "missing"
     )
     return f"""<section>
-  <h2>{esc(L(cfg, "evidence_heading", "6 · Evidence &amp; Gaps"))}</h2>
+  <h2>{esc(L(cfg, "evidence_heading", "16 · Evidence & Gaps"))}</h2>
   <h3>{esc(L(cfg, "sourced_facts_heading", "Sourced facts"))}</h3>
   <div class="table-wrap"><table>
     <thead><tr><th>{esc(L(cfg, "ev_th_fact", "Fact"))}</th><th>{esc(L(cfg, "ev_th_source", "Source"))}</th><th>{esc(L(cfg, "ev_th_accessed", "Accessed"))}</th></tr></thead>
@@ -702,7 +702,7 @@ def s_product_facts(cfg: dict) -> str:
   <thead><tr><th>{esc(L(cfg, "mf_th_fact", "Fact"))}</th><th>{esc(L(cfg, "mf_th_status", "Status"))}</th></tr></thead>
   <tbody>{mfact_rows}</tbody></table></div>""" if mfact_rows else ""
     return f"""<section>
-  <h2>{esc(L(cfg, "product_heading", "3 · Product &amp; Market Facts"))}</h2>
+  <h2>{esc(L(cfg, "product_heading", "3 · Product & Market Facts"))}</h2>
   {feat_table}
   {mfact_table}
 </section>"""
@@ -722,7 +722,7 @@ def s_channel_map(cfg: dict, numbers: dict) -> str:
                  f"<td>{cac_est}</td>"
                  f"<td>{esc(ch.get('note',''))}</td></tr>")
     return f"""<section>
-  <h2>{esc(L(cfg, "channel_heading", "5 · Local Channel Map"))}</h2>
+  <h2>{esc(L(cfg, "channel_heading", "4 · Local Channel Map"))}</h2>
   <div class="table-wrap"><table>
     <thead><tr><th>{esc(L(cfg, "cm_th_channel", "Channel"))}</th><th>{esc(L(cfg, "cm_th_task", "Task"))}</th><th>{esc(L(cfg, "cm_th_proxy", "Proxy quality"))}</th><th>{esc(L(cfg, "cm_th_verdict", "Verdict"))}</th><th>{esc(L(cfg, "cm_th_cac", "CAC estimate"))}</th><th>{esc(L(cfg, "cm_th_note", "Note"))}</th></tr></thead>
     <tbody>{rows}</tbody></table></div>
@@ -767,7 +767,7 @@ def s_dimensions(cfg: dict) -> str:
   <tbody>{reviewer_rows}</tbody></table></div>
 <div class="callout">{esc(L(cfg, "reviewer_callout", "D dimensions are candidate operational variables for trial design. Before entering primary budget, each must pass: deployable proxy, testable incrementality, stated mechanism, no compliance or margin risk."))}</div>""" if reviewer_rows else ""
     return f"""<section>
-  <h2>{esc(L(cfg, "dim_heading", "6 · D Dimension Table &amp; Causal Activation Reviewer"))}</h2>
+  <h2>{esc(L(cfg, "dim_heading", "5 · D Dimension Table & Causal Activation Reviewer"))}</h2>
   <div class="table-wrap"><table>
     <thead><tr><th>{esc(L(cfg, "dt_th_dimension", "Dimension"))}</th><th>{esc(L(cfg, "dt_th_mechanism", "Mechanism"))}</th><th>{esc(L(cfg, "dt_th_proxy", "Platform proxy"))}</th><th>{esc(L(cfg, "dt_th_score", "Score"))}</th><th>{esc(L(cfg, "dt_th_verdict", "Verdict"))}</th><th>{esc(L(cfg, "dt_th_status", "Status"))}</th></tr></thead>
     <tbody>{rows}</tbody></table></div>
@@ -803,7 +803,7 @@ def s_heatmap(cfg: dict) -> str:
             rows += f'<div class="hm-cell {esc(cls)}">{esc(sc)}</div>'
     legend = " · ".join(f'<span class="hm-cell {_score_cls[s]}" style="display:inline-block;padding:2px 8px;border-radius:4px">{s}</span> {lbl.split("—")[1].strip()}' for s, lbl in score_labels.items())
     return f"""<section>
-  <h2>{esc(L(cfg, "heatmap_heading", "7 · Semantic Heatmap (channel × dimension)"))}</h2>
+  <h2>{esc(L(cfg, "heatmap_heading", "6 · Semantic Heatmap (channel × dimension)"))}</h2>
   <p style="font-size:13px">{L(cfg, "heatmap_intro", "Only channels that survived the viability screen appear. H = primary investment target; A = actively suppress.")}</p>
   <div class="heatmap" style="grid-template-columns:{esc(col_def)};margin:12px 0">
     {header}{rows}
@@ -823,10 +823,10 @@ def s_h_main(cfg: dict) -> str:
         for h in h_cells
     )
     return f"""<section>
-  <h2>8 · H-Main Breakdown</h2>
-  <p>These are the cells where HTE is expected to be positive. Each maps to a Treatment Card in Section 9. Priority order: top to bottom.</p>
+  <h2>{esc(L(cfg, "hmain_heading", "7 · H-Main Breakdown"))}</h2>
+  <p>{esc(L(cfg, "hmain_intro", "These are the cells where HTE is expected to be positive. Each maps to a Treatment Card in the Execution Gates section. Priority order: top to bottom."))}</p>
   <div class="table-wrap"><table>
-    <thead><tr><th>Channel × Dimension</th><th>HTE hypothesis</th><th>Treatment Card</th><th>Notes</th></tr></thead>
+    <thead><tr><th>{esc(L(cfg, "hmain_th_cell", "Channel × Dimension"))}</th><th>{esc(L(cfg, "hmain_th_hypothesis", "HTE hypothesis"))}</th><th>{esc(L(cfg, "hmain_th_tcard", "Treatment Card"))}</th><th>{esc(L(cfg, "hmain_th_notes", "Notes"))}</th></tr></thead>
     <tbody>{rows}</tbody></table></div>
 </section>"""
 
@@ -842,35 +842,42 @@ def s_execution_gates(cfg: dict, numbers: dict, challenges_by_id: dict) -> str:
                       f"<td><span class='pill pill-{esc(gstatus)}'>{esc(gstatus)}</span></td>"
                       f"<td>{esc(g.get('note',''))}</td></tr>")
     gate_html = f"""<div class="table-wrap"><table>
-  <thead><tr><th>Gate</th><th>Input needed</th><th>Status</th><th>Note</th></tr></thead>
+  <thead><tr><th>{esc(L(cfg, "eg_th_gate", "Gate"))}</th><th>{esc(L(cfg, "eg_th_input", "Input needed"))}</th><th>{esc(L(cfg, "eg_th_status", "Status"))}</th><th>{esc(L(cfg, "eg_th_note", "Note"))}</th></tr></thead>
   <tbody>{gate_rows}</tbody></table></div>""" if gate_rows else ""
 
+    audience_lbl = esc(L(cfg, "tc_audience", "Audience"))
+    baseline_lbl = esc(L(cfg, "tc_baseline", "Baseline"))
+    mechanism_lbl = esc(L(cfg, "tc_mechanism", "Mechanism"))
+    guardrail_lbl = esc(L(cfg, "tc_guardrail", "Guardrail"))
+    measurement_lbl = esc(L(cfg, "tc_measurement", "Measurement"))
+    budget_lbl = esc(L(cfg, "tc_budget", "Budget envelope"))
+    blocked_lbl = esc(L(cfg, "tc_blocked_by", "BLOCKED by"))
     cards = ""
     for a in cfg.get("actions", []):
         blockers = _blocked_by(a, challenges_by_id)
-        stamp = "".join(f'<span class="blocked-stamp">&#8856; BLOCKED by {esc(b)}</span>' for b in blockers)
-        audience = f"<dt>Audience</dt><dd>{esc(a['audience'])}</dd>" if a.get("audience") else ""
-        baseline = f"<dt>Baseline</dt><dd>{esc(a['baseline'])}</dd>" if a.get("baseline") else ""
-        budget = (f"<dt>Budget envelope</dt><dd>{fmt_value(a['budget'], numbers)}</dd>"
+        stamp = "".join(f'<span class="blocked-stamp">&#8856; {blocked_lbl} {esc(b)}</span>' for b in blockers)
+        audience = f"<dt>{audience_lbl}</dt><dd>{esc(a['audience'])}</dd>" if a.get("audience") else ""
+        baseline = f"<dt>{baseline_lbl}</dt><dd>{esc(a['baseline'])}</dd>" if a.get("baseline") else ""
+        budget = (f"<dt>{budget_lbl}</dt><dd>{fmt_value(a['budget'], numbers)}</dd>"
                   if a.get("budget") and a["budget"] in numbers else "")
         cards += f"""<div class="card{' blocked' if blockers else ''}">
   <h3>{esc(a['id'])} · {esc(a['action'])} {stamp}</h3>
   <dl>
     {audience}
     {baseline}
-    <dt>Mechanism</dt><dd>{esc(a['mechanism'])}</dd>
-    <dt>Guardrail</dt><dd>{esc(a['guardrail'])}</dd>
-    <dt>Measurement</dt><dd>{esc(a['measurement'])}</dd>
+    <dt>{mechanism_lbl}</dt><dd>{esc(a.get('mechanism', '—'))}</dd>
+    <dt>{guardrail_lbl}</dt><dd>{esc(a.get('guardrail', '—'))}</dd>
+    <dt>{measurement_lbl}</dt><dd>{esc(a.get('measurement', a.get('test', '—')))}</dd>
     {budget}
   </dl>
 </div>"""
     maturity = cfg.get("measurement_plan", {}).get("maturity", "L0")
     return f"""<section>
-  <h2>9 · Execution Gates &amp; Treatment Cards</h2>
-  <p><strong>Maturity: {esc(maturity)}</strong> — this analysis supports trial design and channel screening, not CATE claims or policy optimization.</p>
+  <h2>{esc(L(cfg, "eg_heading", "8 · Execution Gates & Treatment Cards"))}</h2>
+  <p><strong>{esc(L(cfg, "maturity_label", "Maturity"))}: {esc(maturity)}</strong> — {esc(L(cfg, "eg_maturity_note", "this analysis supports trial design and channel screening, not CATE claims or policy optimization."))}</p>
   {gate_html}
   {power_bridge(cfg)}
-  <h3>Treatment Cards (H-main cells only)</h3>
+  <h3>{esc(L(cfg, "eg_tcards_heading", "Treatment Cards (H-main cells only)"))}</h3>
   <div class="cards">{cards}</div>
 </section>"""
 
@@ -888,9 +895,9 @@ def s_budget(cfg: dict, numbers: dict) -> str:
     )
     note = cfg.get("budget_note", "")
     return f"""<section>
-  <h2>10 · Budget Allocation</h2>
+  <h2>{esc(L(cfg, "budget_heading", "10 · Budget Allocation"))}</h2>
   <div class="table-wrap"><table>
-    <thead><tr><th>Phase</th><th>Item</th><th>Budget</th><th>Condition</th></tr></thead>
+    <thead><tr><th>{esc(L(cfg, "bg_th_phase", "Phase"))}</th><th>{esc(L(cfg, "bg_th_item", "Item"))}</th><th>{esc(L(cfg, "bg_th_budget", "Budget"))}</th><th>{esc(L(cfg, "bg_th_condition", "Condition"))}</th></tr></thead>
     <tbody>{row_html}</tbody></table></div>
   {f'<p class="callout">{esc(note)}</p>' if note else ""}
 </section>"""
@@ -899,20 +906,24 @@ def s_budget(cfg: dict, numbers: dict) -> str:
 def s_priority_plays(cfg: dict, numbers: dict) -> str:
     """Section 11 — Priority plays."""
     plays = cfg.get("priority_plays", [])
+    whynow_lbl = esc(L(cfg, "pp_why_now", "Why now"))
+    cac_lbl = esc(L(cfg, "pp_expected_cac", "Expected incremental CAC"))
+    needstest_lbl = esc(L(cfg, "tag_needs_test", "Needs test"))
+    killline_lbl = esc(L(cfg, "pp_kill_line", "Kill line"))
     cards = "".join(
         f"""<div class="card">
   <h3>{esc(p['play'])} — {esc(p['action'])}</h3>
   <dl>
-    <dt>Why now</dt><dd>{esc(p['why_now'])}</dd>
-    <dt>Expected incremental CAC</dt><dd><span class="tag needs-test">Needs test</span> {esc(p.get('expected_cac','undetermined'))}</dd>
-    <dt>Kill line</dt><dd>{esc(p.get('kill_line',''))}</dd>
+    <dt>{whynow_lbl}</dt><dd>{esc(p['why_now'])}</dd>
+    <dt>{cac_lbl}</dt><dd><span class="tag needs-test">{needstest_lbl}</span> {esc(p.get('expected_cac','undetermined'))}</dd>
+    <dt>{killline_lbl}</dt><dd>{esc(p.get('kill_line',''))}</dd>
   </dl>
 </div>"""
         for p in plays
     )
     auuc_note = cfg.get("auuc_note", "No uplift model scores available yet — AUUC gate will be applied when model predictions are generated after pilot data collection.")
     return f"""<section>
-  <h2>11 · Priority Plays &amp; ROI Scenarios</h2>
+  <h2>{esc(L(cfg, "plays_heading", "11 · Priority Plays & ROI Scenarios"))}</h2>
   <div class="callout">{esc(auuc_note)}</div>
   <div class="cards">{cards}</div>
 </section>"""
@@ -927,22 +938,29 @@ def s_kol(cfg: dict, numbers: dict) -> str:
     creator_html = ""
     for c in creators:
         fee = fmt_value(c["fee_id"], numbers) if c.get("fee_id") and c["fee_id"] in numbers else "—"
+        format_lbl = esc(L(cfg, "kol_format", "Format"))
+        fee_lbl = esc(L(cfg, "kol_fee", "Fee estimate"))
+        assumption_lbl = esc(L(cfg, "tag_assumption", "Assumption"))
+        pending_lbl = esc(L(cfg, "kol_fee_pending", "pending direct quote"))
+        attribution_lbl = esc(L(cfg, "kol_attribution", "Attribution"))
+        incrementality_lbl = esc(L(cfg, "kol_incrementality", "Incrementality"))
+        needstest_lbl = esc(L(cfg, "tag_needs_test", "Needs test"))
         creator_html += f"""<div class="kol-card">
   <strong>{esc(c['profile'])}</strong>
   <dl style="margin:6px 0 0;font-size:13px">
-    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase">Format</dt>
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase">{format_lbl}</dt>
     <dd>{esc(c['format'])}</dd>
-    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">Fee estimate</dt>
-    <dd><span class="tag assumption">Assumption</span> {fee} — pending direct quote</dd>
-    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">Attribution</dt>
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">{fee_lbl}</dt>
+    <dd><span class="tag assumption">{assumption_lbl}</span> {fee} — {pending_lbl}</dd>
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">{attribution_lbl}</dt>
     <dd>{esc(c['attribution'])}</dd>
-    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">Incrementality</dt>
-    <dd><span class="tag needs-test">Needs test</span> {esc(c['incrementality_note'])}</dd>
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">{incrementality_lbl}</dt>
+    <dd><span class="tag needs-test">{needstest_lbl}</span> {esc(c['incrementality_note'])}</dd>
   </dl>
 </div>"""
     rule = kol.get("roi_rule", "KOL ROI is never Evidence without a holdout or credible identification strategy. All creator attribution is tagged Hypothesis until a holdout arm is designed.")
     return f"""<section>
-  <h2>12 · KOL / Creator Sourcing</h2>
+  <h2>{esc(L(cfg, "kol_heading", "12 · KOL / Creator Sourcing"))}</h2>
   <div class="callout">{esc(rule)}</div>
   {creator_html}
 </section>"""
@@ -963,13 +981,13 @@ def s_measurement(cfg: dict) -> str:
     sec = mp.get("secondary_metrics", [])
     sec_items = "".join(f"<li>{esc(m)}</li>" for m in sec)
     return f"""<section>
-  <h2>13 · Measurement Plan</h2>
-  <p><strong>Maturity: {esc(maturity)}</strong></p>
-  <p><strong>Primary metric:</strong> {esc(primary)}</p>
-  {"<p><strong>Secondary metrics:</strong></p><ul>" + sec_items + "</ul>" if sec_items else ""}
-  {"<h3>Scale-up rule</h3><p>" + esc(scale_up) + "</p>" if scale_up else ""}
-  {"<h3>Pause rule</h3><p>" + esc(pause_rule) + "</p>" if pause_rule else ""}
-  {"<h3>GCG design</h3><p>" + esc(gcg) + "</p>" if gcg else ""}
+  <h2>{esc(L(cfg, "measurement_heading", "13 · Measurement Plan"))}</h2>
+  <p><strong>{esc(L(cfg, "maturity_label", "Maturity"))}: {esc(maturity)}</strong></p>
+  <p><strong>{esc(L(cfg, "mp_primary", "Primary metric:"))}</strong> {esc(primary)}</p>
+  {"<p><strong>" + esc(L(cfg, "mp_secondary", "Secondary metrics:")) + "</strong></p><ul>" + sec_items + "</ul>" if sec_items else ""}
+  {"<h3>" + esc(L(cfg, "mp_scaleup", "Scale-up rule")) + "</h3><p>" + esc(scale_up) + "</p>" if scale_up else ""}
+  {"<h3>" + esc(L(cfg, "mp_pause", "Pause rule")) + "</h3><p>" + esc(pause_rule) + "</p>" if pause_rule else ""}
+  {"<h3>" + esc(L(cfg, "mp_gcg", "GCG design")) + "</h3><p>" + esc(gcg) + "</p>" if gcg else ""}
   {"<div class='callout'>" + esc(hte_note) + "</div>" if hte_note else ""}
 </section>"""
 
@@ -985,10 +1003,10 @@ def s_suppression(cfg: dict) -> str:
     )
     ope_note = cfg.get("ope_note", "OPE support check (ope_estimators.py) will run once propensity log P(t|x) is available. Gate: support check must pass before any scaled deployment.")
     return f"""<section>
-  <h2>14 · Suppression &amp; Risk Rules</h2>
+  <h2>{esc(L(cfg, "suppression_heading", "15 · Suppression & Risk Rules"))}</h2>
   <div class="callout">{esc(ope_note)}</div>
   <div class="table-wrap"><table>
-    <thead><tr><th>Rule</th><th>Dimension</th><th>Reason</th></tr></thead>
+    <thead><tr><th>{esc(L(cfg, "sp_th_rule", "Rule"))}</th><th>{esc(L(cfg, "sp_th_dimension", "Dimension"))}</th><th>{esc(L(cfg, "sp_th_reason", "Reason"))}</th></tr></thead>
     <tbody>{rows}</tbody></table></div>
 </section>"""
 
@@ -1004,7 +1022,7 @@ def s_checklist(cfg: dict) -> str:
         for i in items
     )
     return f"""<section>
-  <h2>15 · Sources &amp; Verification Checklist</h2>
+  <h2>{esc(L(cfg, "checklist_heading", "17 · Sources & Verification Checklist"))}</h2>
   <ul class="checklist">{list_items}</ul>
 </section>"""
 
@@ -1013,12 +1031,11 @@ def s_termination(cfg: dict) -> str:
     term = cfg.get("termination")
     if not term:
         return ""
+    term_heading = L(cfg, "termination_heading", "Pipeline terminated at stage {stage}").format(stage=esc(str(term["stage"])))
     return f"""<section style="border-left:6px solid var(--bad-ink)">
-  <h2>Pipeline terminated at stage {esc(str(term["stage"]))}</h2>
+  <h2>{term_heading}</h2>
   <p>{esc(term["reason"])}</p>
-  <p>This report is intentionally short: the math does not support a media plan.
-  The levers that would change the math are listed in the sensitivity table and the
-  Missing ledger. Re-run the pipeline when one of them moves.</p>
+  <p>{esc(L(cfg, "termination_note", "This report is intentionally short: the math does not support a media plan. The levers that would change the math are listed in the sensitivity table and the Missing ledger. Re-run the pipeline when one of them moves."))}</p>
 </section>"""
 
 
@@ -1035,26 +1052,29 @@ def generate_html(cfg: dict) -> str:
     meta = cfg.get("meta", {})
     short_mode = bool(cfg.get("termination"))
 
+    # Single monotonic section sequence. s_actions was removed: it duplicated
+    # the Treatment Cards already rendered by s_execution_gates.
     parts = [s_memo(cfg), s_termination(cfg), s_math(cfg, numbers)]
-    if not short_mode:
+    if short_mode:
+        parts.append(s_evidence(cfg, numbers))   # short report: memo + math + evidence
+    else:
         parts += [
-            s_product_facts(cfg),          # Section 3
-            s_channel_map(cfg, numbers),    # Section 5 (was part of math)
-            s_dimensions(cfg),             # Section 6
-            s_heatmap(cfg),                # Section 7
-            s_h_main(cfg),                 # Section 8
-            s_execution_gates(cfg, numbers, challenges_by_id),  # Section 9
-            s_budget(cfg, numbers),        # Section 10
-            s_priority_plays(cfg, numbers),# Section 11
-            s_kol(cfg, numbers),           # Section 12
-            s_measurement(cfg),            # Section 13
-            s_suppression(cfg),            # Section 14
-            s_actions(cfg, numbers, challenges_by_id),   # kept for compatibility
-            s_challenges(cfg),             # Adversarial review (separate)
-            s_test_plan(cfg),              # Test plan
-            s_checklist(cfg),              # Section 15
+            s_product_facts(cfg),                              # 3
+            s_channel_map(cfg, numbers),                       # 4
+            s_dimensions(cfg),                                 # 5
+            s_heatmap(cfg),                                    # 6
+            s_h_main(cfg),                                     # 7
+            s_execution_gates(cfg, numbers, challenges_by_id), # 8
+            s_challenges(cfg),                                 # 9
+            s_budget(cfg, numbers),                            # 10
+            s_priority_plays(cfg, numbers),                    # 11
+            s_kol(cfg, numbers),                               # 12
+            s_measurement(cfg),                                # 13
+            s_test_plan(cfg),                                  # 14
+            s_suppression(cfg),                                # 15
+            s_evidence(cfg, numbers),                          # 16
+            s_checklist(cfg),                                  # 17
         ]
-    parts.append(s_evidence(cfg, numbers))
 
     title = f'{meta.get("product", "")} — {meta.get("market", "")} Decision Memo'
     return f"""<!doctype html>
