@@ -144,10 +144,11 @@ What is the user asking about?
 │   → 13-product-country-pipeline  (8 stages: **Stage 0 local market intelligence
 │       [mandatory, see ref 00]** → evidence → unit economics →
 │       channel screen [may terminate here] → dimensions → review → tests → render)
-├─ "Need to research local market before pipeline: retailer ranking, telco channel,
-│   price comparison sites, consumer spending capacity, category penetration"
-│   → 00-local-market-intelligence  (6 sections: category reception / audience map
-│       / product tier / distribution landscape / buying journey / regulatory)
+├─ "Need to research a new product × country before the pipeline; how to avoid
+│   transferring wrong assumptions (retailer rank, channels) across markets"
+│   → 00-local-market-intelligence  (dynamic 5-move scoping kernel: characterize
+│       cell on 7 axes → transfer-assumption ledger → distinctiveness hypotheses
+│       → rank plan → re-orchestrate; generates a custom plan per cell, not a list)
 ├─ "How to generate / challenge D dimensions; adversarial review"
 │   → 14-d-dimension-reviewer  (generation gate; independent review pass,
 │       immutable challenges, open-blocking → BLOCKED budget linkage)

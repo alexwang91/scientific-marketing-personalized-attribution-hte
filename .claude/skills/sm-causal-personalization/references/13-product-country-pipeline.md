@@ -50,29 +50,31 @@ Optional but accelerates pipeline:
 
 ---
 
-## Stage 0 — Local Market Intelligence (ref 00)
+## Stage 0 — Market Scoping Kernel (ref 00)
 
-**See `references/00-local-market-intelligence.md` for the full protocol.**
+**See `references/00-local-market-intelligence.md` for the full kernel.**
 
-Six mandatory research areas before Stage 1 starts:
+Stage 0 is **not a checklist** — it is a five-move reasoning kernel that derives a
+*custom research plan* for the specific cell (product category × country), instead
+of running the same fixed questions every time. A fixed list would miss whatever
+is idiosyncratic to the next cell (tablets in Romania, insurance in Brazil).
 
-| Section | Key output |
+| Move | What it does |
 |---|---|
-| A · Category reception | Penetration rate, dominant local job-to-be-done |
-| B · Consumer audience map | Price / avg-salary ratio, buyer segments |
-| C · Product tier analysis | Local competitive set from local price comparison site |
-| D · Distribution & channel landscape | Verified retailer ranking, telco channel, price comparison sites |
-| E · Consumer buying journey | Research cycle length, discovery channels |
-| F · Regulatory & compliance | VAT, health claim rules, comparative ad rules |
+| 1 · Characterize the cell | Position on 7 axes (price/income, category maturity, regulatory load, distribution structure, brand position, cultural specificity, commerce infra); each position *fires* specific research threads |
+| 2 · Transfer-assumption ledger | Enumerate every belief being borrowed from another country/product/global ranking; mark transfer risk; **this catches the eMAG-in-Hungary class of error** |
+| 3 · Distinctiveness hypotheses | "Where is THIS cell most likely to break my defaults?" → 3–5 priority targets |
+| 4 · Derive & rank the plan | Rank questions by decision-impact × assumption-fragility; thread bank is a menu to extend, not fill |
+| 5 · Execute & re-orchestrate | Research is a loop; surprising findings on high-impact axes re-open the plan |
 
 **Stage 0 gate:** before Stage 1 begins, the analyst must be able to answer:
 1. Which retailer is #1 for this category in this country (with source)?
-2. Does a telco/operator channel exist for this category (yes/no/unknown)?
-3. What is the price as a multiple of average monthly salary?
+2. Does a telco/operator (or other intermediary) channel exist for this category?
+3. What is the price as a multiple of average monthly income?
 4. Which local price-comparison site(s) do consumers use for research?
 
-If any of these are "unknown," that is acceptable — but they must be declared
-as `undetermined` in `market_facts`, not silently assumed.
+Any "unknown" is acceptable — but it must be declared `undetermined` in
+`market_facts`, never silently assumed.
 
 ---
 
