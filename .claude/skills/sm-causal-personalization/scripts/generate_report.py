@@ -302,23 +302,23 @@ _CSS = """
      Layout: fixed 210px sidebar TOC + fluid content column.
   ────────────────────────────────────────────────────────────────────────── */
   :root{
-    --bg:#e5e7eb;
-    --panel:#fafbfc;
-    --surface:#f0f2f5;
-    --ink:#111827;
-    --ink-2:#374151;
-    --muted:#6b7280;
-    --muted-2:#9ca3af;
-    --line:#dde1e7;
-    --line-strong:#c9cdd5;
-    --accent:#c94220;
-    --accent-light:#fdf0ec;
-    --ok:#d1fae5;--ok-ink:#065f46;
-    --warn:#fef3c7;--warn-ink:#78350f;
+    --bg:#f0f2f5;
+    --panel:#ffffff;
+    --surface:#f6f7fb;
+    --ink:#0f172a;
+    --ink-2:#334155;
+    --muted:#64748b;
+    --muted-2:#94a3b8;
+    --line:#e2e8f0;
+    --line-strong:#cbd5e1;
+    --accent:#4f46e5;
+    --accent-light:#eef2ff;
+    --ok:#dcfce7;--ok-ink:#166534;
+    --warn:#fef9c3;--warn-ink:#854d0e;
     --bad:#fee2e2;--bad-ink:#991b1b;
-    --neutral:#f3f4f6;--neutral-ink:#374151;
+    --neutral:#f1f5f9;--neutral-ink:#475569;
     --radius:8px;
-    --sidebar-w:210px;
+    --sidebar-w:220px;
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);
@@ -608,9 +608,9 @@ _CSS = """
     font-size:11px;color:var(--ink);white-space:nowrap}
   .hm-cell{padding:7px 4px;text-align:center;font-weight:800;
     font-size:10.5px;letter-spacing:.03em;min-width:36px}
-  .hm-high{background:#c94220;color:#fff}
-  .hm-test{background:#78350f;color:#fff}
-  .hm-small{background:#e5e7eb;color:#4b5563}
+  .hm-high{background:#4338ca;color:#fff}
+  .hm-test{background:#1e3a8a;color:#fff}
+  .hm-small{background:#e0e7ff;color:#3730a3}
   .hm-none{background:#f9fafb;color:#d1d5db}
   .hm-avoid{background:#991b1b;color:#fff}
 
@@ -654,12 +654,289 @@ _CSS = """
     section{break-inside:avoid;box-shadow:none}
     .memo-verdict-band{-webkit-print-color-adjust:exact;print-color-adjust:exact}
     a{color:var(--ink)}}
+  /* ── Decision horizon strip ── */
+  .hz-bar{display:flex;height:28px;border-radius:6px;overflow:hidden;margin:14px 0;gap:1px}
+  .hz-seg{display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:700;color:#fff;overflow:hidden;
+    white-space:nowrap;padding:0 8px;min-width:40px}
+
+  /* ── H-main opportunity bars ── */
+  .hm-bars{margin:14px 0}
+  .hm-bar-row{display:grid;grid-template-columns:150px 1fr auto;
+    gap:8px;align-items:center;margin:5px 0}
+  .hm-bar-label{font-size:11.5px;font-weight:600;color:var(--ink-2);text-align:right;line-height:1.3}
+  .hm-bar-track{height:18px;background:var(--surface);border-radius:4px;
+    border:1px solid var(--line);overflow:hidden}
+  .hm-bar-fill{height:100%;background:var(--accent);border-radius:4px;opacity:.8}
+  .hm-bar-card{font-size:10px;color:var(--muted);font-weight:600;white-space:nowrap}
+
+  /* ── Vertical timeline ── */
+  .timeline{position:relative;margin:16px 0 8px;padding-left:20px}
+  .timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;
+    width:2px;background:var(--line-strong);border-radius:1px}
+  .tl-item{position:relative;margin-bottom:14px}
+  .tl-item::before{content:'';position:absolute;left:-13px;top:5px;
+    width:10px;height:10px;border-radius:50%;background:var(--accent);
+    border:2px solid var(--panel)}
+  .tl-name{font-size:12.5px;font-weight:700;color:var(--ink);line-height:1.35}
+  .tl-date{font-size:10.5px;color:var(--muted);margin-top:2px}
+  .tl-desc{font-size:12px;color:var(--ink-2);margin-top:3px;line-height:1.5}
+
+  /* ── Suppression rule cards ── */
+  .supp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:10px;margin:12px 0}
+  .supp-card{background:var(--surface);border:1px solid var(--line);
+    border-radius:7px;padding:13px 14px;border-left:3px solid var(--bad-ink)}
+  .supp-dim{font-size:9.5px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.07em;color:var(--muted);margin-bottom:4px}
+  .supp-rule{font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.4;margin-bottom:4px}
+  .supp-reason{font-size:11.5px;color:var(--muted);line-height:1.45}
+
+  /* ── Provenance donut ── */
+  .prov-donut-wrap{display:flex;align-items:center;gap:24px;margin:14px 0}
+  .prov-donut{width:100px;height:100px;border-radius:50%;flex-shrink:0}
+  .prov-legend{display:flex;flex-direction:column;gap:7px}
+  .prov-leg-item{display:flex;align-items:center;gap:8px;font-size:12.5px}
+  .prov-leg-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+  .prov-leg-count{font-weight:700;color:var(--ink);margin-left:auto;padding-left:14px}
+
+  /* ── Checklist progress ── */
+  .chk-summary{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));
+    gap:8px;margin:12px 0}
+  .chk-stat{background:var(--surface);border:1px solid var(--line);border-radius:7px;
+    padding:11px 13px;text-align:center}
+  .chk-stat-num{font-size:22px;font-weight:800;letter-spacing:-.03em}
+  .chk-stat-label{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-top:3px}
+  .chk-progress-bar{height:7px;background:var(--surface);border-radius:4px;
+    border:1px solid var(--line);overflow:hidden;margin:6px 0 16px}
+  .chk-progress-fill{height:100%;background:var(--ok-ink);border-radius:4px}
+
+  /* ── KOL tier cards ── */
+  .kol-tiers{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+    gap:10px;margin:14px 0}
+  .kol-tier-card{border:1px solid var(--line);border-radius:7px;
+    padding:12px 14px;background:var(--surface);text-align:center}
+  .kol-tier-label{font-size:9.5px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--accent);margin-bottom:6px}
+  .kol-tier-name{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px;line-height:1.3}
+  .kol-tier-meta{font-size:11px;color:var(--muted);line-height:1.5}
+
+  /* ── Budget phase diagram ── */
+  .budget-phases{display:flex;flex-direction:column;gap:4px;margin:14px 0}
+  .bp-phase{display:grid;grid-template-columns:20px 1fr;gap:10px;align-items:start}
+  .bp-line{display:flex;flex-direction:column;align-items:center}
+  .bp-dot{width:12px;height:12px;border-radius:50%;background:var(--accent);
+    border:2px solid var(--panel);flex-shrink:0;margin-top:3px}
+  .bp-connector{width:2px;flex:1;background:var(--line-strong);margin:2px 0;min-height:14px}
+  .bp-body{background:var(--surface);border:1px solid var(--line);
+    border-radius:6px;padding:9px 12px;margin-bottom:2px}
+  .bp-name{font-size:12.5px;font-weight:700;color:var(--ink)}
+  .bp-cond{font-size:11px;color:var(--muted);margin-top:3px}
+  .bp-amt{font-size:11px;font-weight:700;color:var(--accent);margin-top:3px}
+
 """
 
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Sections
 # ──────────────────────────────────────────────────────────────────────────────
+
+
+def s_horizon_visual(cfg: dict) -> str:
+    memo = cfg.get("decision_memo", {})
+    counts: dict = {"now": 0, "checkpoint": 0, "never": 0}
+    for d in memo.get("decisions", []):
+        counts[d.get("horizon", "checkpoint")] += 1
+    total = sum(counts.values())
+    if total == 0:
+        return ""
+    _color = {"now": "#166534", "checkpoint": "#854d0e", "never": "#991b1b"}
+    _lbl = {
+        "now": L(cfg, "horizon_now", "Now"),
+        "checkpoint": L(cfg, "horizon_checkpoint", "Checkpoint"),
+        "never": L(cfg, "horizon_never", "Never"),
+    }
+    segs = ""
+    for k in ("now", "checkpoint", "never"):
+        if counts[k]:
+            pct = counts[k] / total * 100
+            segs += (f'<div class="hz-seg" style="width:{pct:.1f}%;background:{_color[k]}"'
+                     f' title="{esc(_lbl[k])}: {counts[k]}">'
+                     f'<span>{esc(_lbl[k][:10])} {counts[k]}</span></div>')
+    return f'<div class="hz-bar">{segs}</div>'
+
+
+def s_hmain_bars(cfg: dict) -> str:
+    cells = cfg.get("h_main_breakdown", [])
+    if not cells:
+        return ""
+    rows = ""
+    n = len(cells)
+    for i, h in enumerate(cells):
+        pct = 100 - (i / max(n - 1, 1)) * 55
+        rows += (f'<div class="hm-bar-row">'
+                 f'<div class="hm-bar-label">{esc(h["channel_dim"][:24])}</div>'
+                 f'<div class="hm-bar-track">'
+                 f'<div class="hm-bar-fill" style="width:{pct:.0f}%"></div></div>'
+                 f'<div class="hm-bar-card">{esc(h.get("t_card",""))}</div>'
+                 f'</div>')
+    return f'<div class="hm-bars">{rows}</div>'
+
+
+def s_test_timeline(cfg: dict) -> str:
+    tests = cfg.get("test_plan", [])
+    if not tests:
+        return ""
+    items = ""
+    for t in tests:
+        kill = t.get("kill_line", "")
+        items += (f'<div class="tl-item">'
+                  f'<div class="tl-name">{esc(t.get("name",""))}</div>'
+                  f'<div class="tl-date">&#128197; {esc(t.get("decision_date",""))}</div>'
+                  f'<div class="tl-desc">{esc(kill[:80])}{"…" if len(kill) > 80 else ""}</div>'
+                  f'</div>')
+    return f'<div class="timeline">{items}</div>'
+
+
+def s_suppression_cards(cfg: dict) -> str:
+    rules = cfg.get("suppression_rules", [])
+    if not rules:
+        return ""
+    cards = ""
+    for r in rules:
+        cards += (f'<div class="supp-card">'
+                  f'<div class="supp-dim">{esc(r.get("dimension",""))}</div>'
+                  f'<div class="supp-rule">{esc(r.get("rule",""))}</div>'
+                  f'<div class="supp-reason">{esc(r.get("reason",""))}</div>'
+                  f'</div>')
+    return f'<div class="supp-grid">{cards}</div>'
+
+
+def s_provenance_donut(numbers: dict) -> str:
+    counts: dict = {"sourced": 0, "assumed": 0, "derived": 0, "missing": 0}
+    for spec in numbers.values():
+        p = spec.get("provenance", "missing")
+        counts[p] = counts.get(p, 0) + 1
+    total = sum(counts.values())
+    if total == 0:
+        return ""
+    colors = {"sourced": "#166534", "assumed": "#854d0e",
+               "derived": "#1e40af", "missing": "#991b1b"}
+    labels = {"sourced": "Sourced", "assumed": "Assumed",
+               "derived": "Derived", "missing": "Missing"}
+    stops, deg = [], 0.0
+    for key in ("sourced", "assumed", "derived", "missing"):
+        if counts[key]:
+            end = deg + counts[key] / total * 360
+            stops.append(f"{colors[key]} {deg:.1f}deg {end:.1f}deg")
+            deg = end
+    gradient = ",".join(stops)
+    legend = ""
+    for key in ("sourced", "assumed", "derived", "missing"):
+        if counts[key]:
+            legend += (f'<div class="prov-leg-item">'
+                       f'<div class="prov-leg-dot" style="background:{colors[key]}"></div>'
+                       f'<span>{esc(labels[key])}</span>'
+                       f'<span class="prov-leg-count">{counts[key]}</span>'
+                       f'</div>')
+    donut = (f'<div class="prov-donut" '
+             f'style="background:conic-gradient({gradient})"></div>')
+    return (f'<div class="prov-donut-wrap">'
+            f'{donut}<div class="prov-legend">{legend}</div></div>')
+
+
+def s_checklist_progress(cfg: dict) -> str:
+    items = cfg.get("checklist", [])
+    if not items:
+        return ""
+    by_status: dict = {}
+    for i in items:
+        s = i.get("status", "pending")
+        by_status[s] = by_status.get(s, 0) + 1
+    done = by_status.get("done", 0)
+    pending = by_status.get("pending", 0)
+    blocked = by_status.get("blocked", 0)
+    total = len(items)
+    pct = done / total * 100 if total else 0
+    stats = ""
+    for label, val, color in [
+        ("Done", done, "var(--ok-ink)"),
+        ("Pending", pending, "var(--warn-ink)"),
+        ("Blocked", blocked, "var(--bad-ink)"),
+        ("Total", total, "var(--ink)"),
+    ]:
+        stats += (f'<div class="chk-stat">'
+                  f'<div class="chk-stat-num" style="color:{color}">{val}</div>'
+                  f'<div class="chk-stat-label">{esc(label)}</div>'
+                  f'</div>')
+    bar = (f'<div class="chk-progress-bar">'
+           f'<div class="chk-progress-fill" style="width:{pct:.0f}%"></div></div>')
+    return f'<div class="chk-summary">{stats}</div>{bar}'
+
+
+def s_kol_tier(cfg: dict) -> str:
+    kol = cfg.get("kol", {})
+    creators = kol.get("creators", [])
+    if not creators:
+        return ""
+    cards = ""
+    for c in creators:
+        tier = c.get("tier", "")
+        profile = c.get("profile", "")
+        fmt = c.get("format", "")
+        subs = c.get("subscribers", c.get("followers", ""))
+        cards += (f'<div class="kol-tier-card">'
+                  f'<div class="kol-tier-label">{esc(tier.upper()) if tier else "KOL"}</div>'
+                  f'<div class="kol-tier-name">{esc(profile[:30])}</div>'
+                  f'<div class="kol-tier-meta">{esc(fmt)}'
+                  f'{"<br>" + esc(str(subs)) if subs else ""}</div>'
+                  f'</div>')
+    return f'<div class="kol-tiers">{cards}</div>'
+
+
+def s_budget_phases(cfg: dict, numbers: dict) -> str:
+    rows = cfg.get("budget_rows", [])
+    if not rows:
+        return ""
+    items = ""
+    for i, r in enumerate(rows):
+        phase = r.get("phase", "")
+        item = r.get("item", "")
+        name = f"{phase} — {item}" if phase and item else (item or phase or f"Phase {i+1}")
+        cond = r.get("condition", "")
+        amt_id = r.get("budget_id", "")
+        amt = (fmt_value(amt_id, numbers) if amt_id and amt_id in numbers
+               else r.get("budget_display", r.get("amount_text", "")))
+        connector = '<div class="bp-connector"></div>' if i < len(rows) - 1 else ""
+        cond_html = f'<div class="bp-cond">{esc(cond[:80])}</div>' if cond else ""
+        amt_html = f'<div class="bp-amt">{amt}</div>' if amt else ""
+        items += (f'<div class="bp-phase">'
+                  f'<div class="bp-line"><div class="bp-dot"></div>{connector}</div>'
+                  f'<div class="bp-body">'
+                  f'<div class="bp-name">{esc(name)}</div>'
+                  f'{cond_html}'
+                  f'{amt_html}'
+                  f'</div></div>')
+    return f'<div class="budget-phases">{items}</div>'
+
+
+def s_play_timeline(cfg: dict) -> str:
+    plays = cfg.get("priority_plays", [])
+    if not plays:
+        return ""
+    items = ""
+    for p in plays:
+        name = p.get("action", p.get("play", ""))
+        channel = p.get("channel", "")
+        kill = p.get("kill_line", "")
+        ch_html = f'<div class="tl-date">{esc(channel)}</div>' if channel else ""
+        kill_html = f'<div class="tl-desc">Kill: {esc(kill[:70])}</div>' if kill else ""
+        items += (f'<div class="tl-item">'
+                  f'<div class="tl-name">{esc(name[:60])}</div>'
+                  f'{ch_html}'
+                  f'{kill_html}'
+                  f'</div>')
+    return f'<div class="timeline">{items}</div>'
 
 def s_memo(cfg: dict) -> str:
     memo = cfg["decision_memo"]
@@ -680,6 +957,7 @@ def s_memo(cfg: dict) -> str:
             items = "".join(f"<li>{esc(t)}</li>" for t in buckets[h])
             decision_html += f"<h3>{horizon_label[h]}</h3><ul>{items}</ul>"
     overturn = "".join(f"<li>{esc(c)}</li>" for c in memo.get("overturn_conditions", []))
+    hz = s_horizon_visual(cfg)
     return f"""<section id="s1" class="memo">
   <div class="memo-verdict-band">
     <div class="verdict-label">{esc(L(cfg, "verdict_label", "VERDICT"))}</div>
@@ -689,6 +967,7 @@ def s_memo(cfg: dict) -> str:
   <div class="memo-body">
     <h1>{esc(L(cfg, "memo_heading", "1 · Decision Memo"))}</h1>
     <p class="memo-thesis"><strong>{esc(L(cfg, "thesis_label", "Thesis:"))}</strong> {esc(memo["thesis"])}</p>
+    {hz}
     <div class="memo-grid">
       <div>{decision_html}</div>
       <div>
@@ -1113,6 +1392,7 @@ def s_test_plan(cfg: dict) -> str:
     <dt>{esc(L(cfg, 'decision_date_label', 'Decision date'))}</dt><dd>{esc(t['decision_date'])}</dd>
   </dl>
 </div>"""
+    test_tl = s_test_timeline(cfg)
     intro = _narrative_intro(cfg, "s14_intro",
         "Every Treatment Card from section 8 carries a falsifiable prediction and a kill line. "
         "These are not milestones — they are decision gates. On the decision date, "
@@ -1120,6 +1400,7 @@ def s_test_plan(cfg: dict) -> str:
     return f"""<section id=\"s14\">
   <h2>{esc(L(cfg, "testplan_heading", "14 · Test Plan"))}</h2>
   {intro}
+  {test_tl}
   <p>{L(cfg, "testplan_intro", "Every claim that survives to budget carries a falsifiable prediction, a kill line, and a decision date. On that date the line either becomes Sourced or is declared dead.")}</p>
   {power_bridge(cfg)}
   <div class="cards">{cards}</div>
@@ -1143,6 +1424,7 @@ def s_evidence(cfg: dict, numbers: dict) -> str:
         f"<td>{esc(spec.get('cost_to_get', '—'))}</td><td>{esc(', '.join(spec.get('blocks', [])) or '—')}</td></tr>"
         for nid, spec in numbers.items() if spec["provenance"] == "missing"
     )
+    prov_donut = s_provenance_donut(numbers)
     intro = _narrative_intro(cfg, "s16_intro",
         "This is the audit trail for every number in the report. "
         "Every value above is either Sourced (linked to a URL), Assumed (basis explicitly stated), "
@@ -1151,6 +1433,7 @@ def s_evidence(cfg: dict, numbers: dict) -> str:
     return f"""<section id=\"s16\">
   <h2>{esc(L(cfg, "evidence_heading", "16 · Evidence & Gaps"))}</h2>
   {intro}
+  {prov_donut}
   <h3>{esc(L(cfg, "sourced_facts_heading", "Sourced facts"))}</h3>
   <div class="table-wrap"><table>
     <thead><tr><th>{esc(L(cfg, "ev_th_fact", "Fact"))}</th><th>{esc(L(cfg, "ev_th_source", "Source"))}</th><th>{esc(L(cfg, "ev_th_accessed", "Accessed"))}</th></tr></thead>
@@ -1336,6 +1619,7 @@ def s_h_main(cfg: dict) -> str:
         f"<td style='font-size:12px'>{esc(h.get('notes',''))}</td></tr>"
         for h in h_cells
     )
+    hm_bars = s_hmain_bars(cfg)
     intro = _narrative_intro(cfg, "s7_intro",
         "The heatmap above identified all H and T cells. This section narrows to the H-main cells: "
         "the specific channel-dimension combinations where we expect positive incremental lift. "
@@ -1343,6 +1627,7 @@ def s_h_main(cfg: dict) -> str:
     return f"""<section id=\"s7\">
   <h2>{esc(L(cfg, "hmain_heading", "7 · H-Main Breakdown"))}</h2>
   {intro}
+  {hm_bars}
   <p>{esc(L(cfg, "hmain_intro", "These are the cells where HTE is expected to be positive. Each maps to a Treatment Card in the Execution Gates section. Priority order: top to bottom."))}</p>
   <div class="table-wrap"><table>
     <thead><tr><th>{esc(L(cfg, "hmain_th_cell", "Channel × Dimension"))}</th><th>{esc(L(cfg, "hmain_th_hypothesis", "HTE hypothesis"))}</th><th>{esc(L(cfg, "hmain_th_tcard", "Treatment Card"))}</th><th>{esc(L(cfg, "hmain_th_notes", "Notes"))}</th></tr></thead>
@@ -1420,6 +1705,7 @@ def s_budget(cfg: dict, numbers: dict) -> str:
     )
     note = cfg.get("budget_note", "")
     budget_chart = s_budget_chart(cfg, numbers)
+    bphases = s_budget_phases(cfg, numbers)
     intro = _narrative_intro(cfg, "s10_intro",
         "Budget allocation follows the channel screen and execution gates — not the reverse. "
         "Only channels that survived the screen receive funds. "
@@ -1428,6 +1714,7 @@ def s_budget(cfg: dict, numbers: dict) -> str:
     return f"""<section id=\"s10\">
   <h2>{esc(L(cfg, "budget_heading", "10 · Budget Allocation"))}</h2>
   {intro}
+  {bphases}
   {budget_chart}
   <div class="table-wrap"><table>
     <thead><tr><th>{esc(L(cfg, "bg_th_phase", "Phase"))}</th><th>{esc(L(cfg, "bg_th_item", "Item"))}</th><th>{esc(L(cfg, "bg_th_budget", "Budget"))}</th><th>{esc(L(cfg, "bg_th_condition", "Condition"))}</th></tr></thead>
@@ -1454,6 +1741,7 @@ def s_priority_plays(cfg: dict, numbers: dict) -> str:
 </div>"""
         for p in plays
     )
+    play_tl = s_play_timeline(cfg)
     auuc_note = cfg.get("auuc_note", "No uplift model scores available yet — AUUC gate will be applied when model predictions are generated after pilot data collection.")
     intro = _narrative_intro(cfg, "s11_intro",
         "Given the channel screen, dimension scores, and budget structure above, "
@@ -1463,6 +1751,7 @@ def s_priority_plays(cfg: dict, numbers: dict) -> str:
     return f"""<section id=\"s11\">
   <h2>{esc(L(cfg, "plays_heading", "11 · Priority Plays & ROI Scenarios"))}</h2>
   {intro}
+  {play_tl}
   <div class="callout">{esc(auuc_note)}</div>
   <div class="cards">{cards}</div>
 </section>"""
@@ -1497,6 +1786,7 @@ def s_kol(cfg: dict, numbers: dict) -> str:
     <dd><span class="tag needs-test">{needstest_lbl}</span> {esc(c['incrementality_note'])}</dd>
   </dl>
 </div>"""
+    kol_tier_vis = s_kol_tier(cfg)
     intro = _narrative_intro(cfg, "s12_intro",
         "Creator sourcing follows the channel map: YouTube and social serve a content-asset role, not direct response. "
         "A KOL post generates awareness and anchors the product story — it does not prove incrementality. "
@@ -1505,6 +1795,7 @@ def s_kol(cfg: dict, numbers: dict) -> str:
     return f"""<section id=\"s12\">
   <h2>{esc(L(cfg, "kol_heading", "12 · KOL / Creator Sourcing"))}</h2>
   {intro}
+  {kol_tier_vis}
   <div class="callout">{esc(rule)}</div>
   {creator_html}
 </section>"""
@@ -1553,6 +1844,7 @@ def s_suppression(cfg: dict) -> str:
         for r in rules
     )
     ope_note = cfg.get("ope_note", "OPE support check (ope_estimators.py) will run once propensity log P(t|x) is available. Gate: support check must pass before any scaled deployment.")
+    supp_vis = s_suppression_cards(cfg)
     intro = _narrative_intro(cfg, "s15_intro",
         "Suppression is as important as targeting. The rules below define who NOT to reach — "
         "protecting margin, preventing regulatory exposure, and avoiding the adverse selection "
@@ -1560,6 +1852,7 @@ def s_suppression(cfg: dict) -> str:
     return f"""<section id=\"s15\">
   <h2>{esc(L(cfg, "suppression_heading", "15 · Suppression & Risk Rules"))}</h2>
   {intro}
+  {supp_vis}
   <div class="callout">{esc(ope_note)}</div>
   <div class="table-wrap"><table>
     <thead><tr><th>{esc(L(cfg, "sp_th_rule", "Rule"))}</th><th>{esc(L(cfg, "sp_th_dimension", "Dimension"))}</th><th>{esc(L(cfg, "sp_th_reason", "Reason"))}</th></tr></thead>
@@ -1577,6 +1870,7 @@ def s_checklist(cfg: dict) -> str:
         f'{esc(status_icons.get(i["status"],"○"))}</span> {esc(i["item"])}</li>'
         for i in items
     )
+    chk_prog = s_checklist_progress(cfg)
     intro = _narrative_intro(cfg, "s17_intro",
         "Pre-launch verification checklist. All items must reach Done before any budget is unlocked. "
         "Pending items block the corresponding Treatment Cards. "
@@ -1584,6 +1878,7 @@ def s_checklist(cfg: dict) -> str:
     return f"""<section id=\"s17\">
   <h2>{esc(L(cfg, "checklist_heading", "17 · Sources & Verification Checklist"))}</h2>
   {intro}
+  {chk_prog}
   <ul class="checklist">{list_items}</ul>
 </section>"""
 
