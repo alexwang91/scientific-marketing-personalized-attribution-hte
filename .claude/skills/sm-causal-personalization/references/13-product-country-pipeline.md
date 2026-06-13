@@ -278,9 +278,15 @@ config = {
     "budget": budget_display,
     "price": price,
     "margin_rate": margin_rate,
+    "market_facts": [...],    # Stage 0 output — scoping kernel: verified retailer
+                              #   rank, telco channel, price/income ratio, VAT,
+                              #   category penetration (each sourced or undetermined)
+    "channels": [...],        # Stage 0 seeds the candidate list; Stage 3 screens it
+    "numbers": {              # Stage 0 sources competitor prices into the registry,
+        # competitor_X_price: {... "provenance": "sourced", ...}   #  Stage 2 uses
+    },
     "product_facts": [...],   # Stage 1 output
-    "channels": [...],        # Stage 3 output
-    "dimensions": [...],      # Stage 4 output
+    "dimensions": [...],      # Stage 4 output (Stage 0 audience map seeds candidates)
     "heatmap": {...},          # Stage 4 output
     "treatments": [...],      # Stage 4 output
     "execution_gates": [...], # Stage 5 output
@@ -293,6 +299,17 @@ config = {
 }
 ```
 
+**Stage 0 → config mapping** (so the kernel's output is not lost):
+
+| Kernel output | Config destination |
+|---|---|
+| Verified retailer rank, telco channel, price-comparison sites | `market_facts[]` + candidate `channels[]` |
+| Competitor prices (sourced) | `numbers` registry → feeds Stage 2 tier analysis |
+| Price ÷ income ratio, VAT | `market_facts[]` + `decision_memo` framing |
+| Audience segments | candidate `dimensions[]` (Stage 4 screens them) |
+| Regulatory / claim limits | `suppression_rules[]` + suppression `dimensions[]` |
+| Unanswered gate questions | `market_facts[]` tagged `undetermined` (honest blanks) |
+
 Build failure = a number broke the provenance contract. Fix the analysis,
 not the validator.
 
@@ -302,6 +319,8 @@ not the validator.
 
 | Failure | Smell | Fix |
 |---------|-------|-----|
+| Stage 0 skipped | Channel map built from global brand knowledge; "eMAG is biggest" with no local source; no telco channel; no price/income ratio | Run the scoping kernel (ref 00); fill the transfer-assumption ledger before any lookup |
+| Assumption transferred silently | A retailer rank / competitor set / channel mix imported from another country or the brand's home market | Move 2 ledger: mark cross-border beliefs HIGH risk, verify before shipping |
 | Template completeness | Full 6 sections for a product whose math died in stage 2 | Use the terminus; short report |
 | Screen skipped | Dimensions/heatmaps for channels never tested against the ceiling | Re-run stage 3; delete unearned detail |
 | Costume numbers | Play tables with CAC/ROI ranges and no formulas | Ref 16; registry or deletion |
