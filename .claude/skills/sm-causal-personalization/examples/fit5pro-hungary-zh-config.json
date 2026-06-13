@@ -1,0 +1,948 @@
+{
+  "meta": {
+    "product": "华为 WATCH FIT 5 Pro",
+    "market": "匈牙利",
+    "date": "2026-06-13",
+    "lang": "zh"
+  },
+
+  "labels": {
+    "memo_heading": "1 · 决策备忘",
+    "thesis_label": "论点：",
+    "overturn_heading": "什么会推翻这个论点",
+    "weakest_heading": "本报告最薄弱处",
+    "marker_legend": "数字标记：◆S 已溯源（带链接）· ◇A 假设（已述依据）· ⊕D 推导（展示链条）· ○M 缺失（无值，仅占位）",
+    "horizon_now": "现在（零成本）",
+    "horizon_checkpoint": "检查点时",
+    "horizon_never": "此测算下不做",
+    "math_heading": "2 · 测算",
+    "sensitivity_heading": "敏感性分析 — 哪个假设会翻转结论",
+    "sens_th_change": "假设变化",
+    "sens_th_effect": "对结论的影响",
+    "sens_th_priority": "验证优先级",
+    "sens_note": "以下验证顺序按此表排列，而非按便利性。",
+    "screen_heading": "渠道可行性筛查（阈值：上方 CAC 上限）",
+    "screen_th_channel": "渠道",
+    "screen_th_verdict": "结论",
+    "screen_th_cac": "CAC 估算",
+    "screen_th_reasoning": "原因 / 缺失数据",
+    "screen_note": "规则：基准估算可以证明<em>不可行</em>（最优情况仍超上限），但<em>无法</em>证明可行——可行需要本地数据。<em>undetermined</em> 意味着区间横跨上限；行动是获取数据，而非选一个端点。",
+    "product_heading": "3 · 产品与市场事实",
+    "product_features_heading": "与定向相关的产品功能",
+    "market_facts_heading": "市场事实",
+    "product_th_feature": "功能",
+    "product_th_relevance": "定向相关性",
+    "product_th_status": "状态",
+    "market_th_fact": "事实",
+    "market_th_status": "状态",
+    "channel_heading": "5 · 本地渠道地图",
+    "channel_th_name": "渠道",
+    "channel_th_task": "任务",
+    "channel_th_proxy": "Proxy 质量",
+    "channel_th_verdict": "结论",
+    "channel_th_cac": "CAC 估算",
+    "channel_th_note": "备注",
+    "channel_benchmark_note": "基准可以证明<em>不可行</em>（最优情况仍超上限），但<em>无法</em>证明可行。<em>undetermined</em> = 区间横跨上限；需要获取数据。",
+    "dim_heading": "6 · D 维度表与因果激活评审",
+    "dim_th_id": "维度",
+    "dim_th_mechanism": "机制",
+    "dim_th_proxy": "平台 Proxy",
+    "dim_th_score": "评分",
+    "dim_th_verdict": "评审结论",
+    "dim_th_status": "状态",
+    "dim_verdict_legend": "结论说明：Retain = 热力图 H 或 T · Retain (test) = T 或 S · Demote S = 仅 S · Suppression = 抑制目标 · Delete = 剔除。",
+    "dim_reviewer_heading": "因果激活评审 — 维度挑战",
+    "dim_reviewer_th_dimension": "维度",
+    "dim_reviewer_th_challenge": "提出的挑战",
+    "dim_reviewer_th_handling": "当前处理",
+    "dim_reviewer_th_evidence": "所需证据",
+    "dim_reviewer_callout": "D 维度是试验设计的候选操作变量。在进入主要预算之前，每个维度必须通过：可部署的 Proxy、可测试的增量效果、已陈述的机制、无合规或边际风险。",
+    "heatmap_heading": "7 · 语义热力图（渠道 × 维度）",
+    "heatmap_intro": "仅通过可行性筛查的渠道出现在此。H = 主要投资目标；A = 主动抑制。",
+    "heatmap_legend_prefix": "图例：",
+    "hmain_heading": "8 · H 主投格拆解",
+    "hmain_intro": "这些是预期 HTE 为正的格子。每个映射到第9节的 Treatment Card。优先顺序：从上至下。",
+    "hmain_th_cell": "渠道 × 维度",
+    "hmain_th_hypothesis": "HTE 假设",
+    "hmain_th_card": "Treatment Card",
+    "hmain_th_notes": "备注",
+    "gates_heading": "9 · 执行门与 Treatment Cards",
+    "gates_maturity_prefix": "成熟度：",
+    "gates_maturity_suffix": " — 本分析支持试验设计和渠道筛查，不支持 CATE 声明或策略优化。",
+    "gates_th_gate": "执行门",
+    "gates_th_input": "所需输入",
+    "gates_th_status": "状态",
+    "gates_th_note": "备注",
+    "gates_cards_heading": "Treatment Cards（仅 H 主投格）",
+    "card_audience": "受众",
+    "card_baseline": "基线",
+    "card_mechanism": "机制",
+    "card_guardrail": "护栏",
+    "card_measurement": "测量",
+    "budget_envelope_label": "预算额度",
+    "card_unlocks": "解锁条件",
+    "budget_heading": "10 · 预算分配",
+    "budget_th_phase": "阶段",
+    "budget_th_item": "项目",
+    "budget_th_budget": "预算",
+    "budget_th_condition": "条件",
+    "plays_heading": "11 · 优先打法与 ROI 情景",
+    "plays_why_now": "为何现在",
+    "plays_expected_cac": "预期增量 CAC",
+    "plays_kill_line": "止损线",
+    "kol_heading": "12 · KOL / 达人寻源",
+    "kol_format": "内容形式",
+    "kol_fee": "费用估算",
+    "kol_fee_suffix": "待直接询价",
+    "kol_attribution": "归因",
+    "kol_incrementality": "增量",
+    "measurement_heading": "13 · 测量计划",
+    "measurement_primary": "主指标",
+    "measurement_secondary": "次要指标",
+    "measurement_scaleup": "放量规则",
+    "measurement_pause": "暂停规则",
+    "measurement_gcg": "全局对照组（GCG）设计",
+    "suppression_heading": "14 · 抑制与风险规则",
+    "suppression_th_rule": "规则",
+    "suppression_th_dimension": "维度",
+    "suppression_th_reason": "原因",
+    "checklist_heading": "15 · 来源与验证清单",
+    "actions_heading": "附 · Treatment Cards 汇总",
+    "actions_intro": "仅通过可行性筛查的选项以卡片形式出现。标有 <strong>⊘ BLOCKED</strong> 的卡片引用了未解决的阻塞性挑战（第4节），必须在解决该挑战之前不得分配预算。",
+    "actions_rejected_heading": "已拒绝选项（及原因）",
+    "actions_rejected_th_option": "选项",
+    "actions_rejected_th_reason": "拒绝原因",
+    "challenges_heading": "4 · 对抗式评审",
+    "challenges_intro": "挑战由独立评审过程提出，不可更改——分析方可回应但不得改写。<strong>open-blocking</strong> 挑战为每个依赖它的行动打上标记。公开展示未解决的挑战是信任机制；\"resolved\" 需要数据，而非说辞。",
+    "challenges_th_challenge": "挑战",
+    "challenges_th_question": "问题",
+    "challenges_th_status": "状态",
+    "challenges_th_resolution": "解决方案 / 所需证据",
+    "testplan_heading": "5 · 测试计划",
+    "testplan_intro": "每个进入预算的主张都带有可证伪的预测、止损线和决策日期。在该日期，该线要么成为已溯源数据，要么被宣告无效。",
+    "card_prediction": "预测",
+    "card_test": "测试",
+    "card_kill_line": "止损线",
+    "card_decision_date": "决策日期",
+    "evidence_heading": "6 · 证据与缺口",
+    "evidence_sourced_heading": "已溯源事实",
+    "evidence_assumed_heading": "假设登记",
+    "evidence_missing_heading": "缺失台账 — 按敏感性排序，即工作计划",
+    "evidence_th_fact": "事实",
+    "evidence_th_source": "来源",
+    "evidence_th_accessed": "访问日期",
+    "evidence_th_assumption": "假设",
+    "evidence_th_value": "值",
+    "evidence_th_basis": "依据",
+    "evidence_th_missing": "缺失项",
+    "evidence_th_where": "获取渠道",
+    "evidence_th_cost": "成本",
+    "evidence_th_blocks": "阻塞"
+  },
+
+  "decision_memo": {
+    "verdict": "conditional",
+    "thesis": "单位利润 ⊕21,996 HUF；CAC 上限 ⊕8,798 HUF。无渠道有本地数据证明 CAC 低于上限——基准数据横跨搜索、再营销和 Meta 的上限区间。结论：CONDITIONAL。暂不分配媒体预算；先完成两项零成本数据拉取，再解锁试点投放。",
+    "decisions": [
+      {"horizon": "now", "text": "拉取 Google Keyword Planner 数据：'GPS okosóra'、'futóóra'——解决最高敏感性未知量，零预算，1小时。"},
+      {"horizon": "now", "text": "联系 2–3 位匈牙利跑步/运动达人直接询价——解决 KOL 费用缺口。"},
+      {"horizon": "now", "text": "续航痛点关键词（'okosóra akkumulátor'）月搜索量核查（C3 阻塞，零成本）。"},
+      {"horizon": "checkpoint", "text": "若搜索 CAC 验证显示 CAC < 8,800 HUF：解锁 T01 + T05 试点（合计 80,000 HUF）。"},
+      {"horizon": "checkpoint", "text": "若再营销验证显示增量 CVR > 0.5pp vs holdout：解锁 T03 + T04（30,000 HUF）。"},
+      {"horizon": "never", "text": "大规模 Meta 前景广告——即使在基准最优情况下，CAC 也超过上限；仅可做微型测试（5,000 HUF）以建立本地 CVR 基准。"},
+      {"horizon": "never", "text": "签约单一 hero 健美达人做 D1 跑步 GPS 内容——机制错配，增量不可信（见 KOL 第12节）。"},
+      {"horizon": "never", "text": "仅匈牙利 HTE 实验——power_analysis.py 显示需 473 天（500 人/天）；HTE 须汇集 CEE 市场（匈牙利+罗马尼亚+捷克+斯洛伐克）达 5,000 人/天→48 天可行。"}
+    ],
+    "overturn_conditions": [
+      "毛利率实为 50%+（非 40%）：上限升至 10,998 HUF；搜索基准中值可能达标",
+      "本地搜索 CPC 位于基准低端（120 HUF）且 CVR 3.5%：CAC = 3,429 HUF → 可行",
+      "匈牙利每日有效用户 2,000+（非 500）：ATE 实验从 114 天压缩至 29 天",
+      "达人报价落在基准低端（200,000 HUF）且 UTM CVR > 0.8%：KOL 试点可行"
+    ],
+    "weakest_point": "所有渠道 CAC 估算均依赖基准区间，而非本地实测数据。搜索区间 3,429–23,333 HUF——7倍宽度使「可行」与「不可行」均合理。关键词量和 CPC 是最高优先级数据缺口，当天即可以零成本解决。"
+  },
+
+  "numbers": {
+    "price_huf": {
+      "label": "零售价",
+      "value": 54990,
+      "unit": "HUF",
+      "decimals": 0,
+      "provenance": "assumed",
+      "basis": "欧洲市场华为 FIT 系列中档定位；无截至 2026-06-13 的实时挂牌价核实"
+    },
+    "margin_rate": {
+      "label": "毛利率",
+      "value": 0.40,
+      "pct": true,
+      "provenance": "assumed",
+      "basis": "用户输入；未经华为财务团队确认"
+    },
+    "unit_margin": {
+      "label": "单位利润",
+      "unit": "HUF",
+      "decimals": 0,
+      "provenance": "derived",
+      "formula": "price_huf * margin_rate",
+      "inputs": ["price_huf", "margin_rate"]
+    },
+    "cac_share": {
+      "label": "CAC 占利润比例",
+      "value": 0.40,
+      "pct": true,
+      "provenance": "assumed",
+      "basis": "惯例：获客成本 ≤ 首单单位利润的 40%；中档消费电子保守估算"
+    },
+    "cac_ceiling": {
+      "label": "CAC 上限",
+      "unit": "HUF",
+      "decimals": 0,
+      "provenance": "derived",
+      "formula": "unit_margin * cac_share",
+      "inputs": ["unit_margin", "cac_share"]
+    },
+    "search_cpc_bench": {
+      "label": "搜索 CPC 基准",
+      "value": [120, 350],
+      "unit": "HUF",
+      "decimals": 0,
+      "provenance": "assumed",
+      "basis": "消费电子 Google Ads EU 基准（2024–2025）；匈牙利低于西欧"
+    },
+    "search_cvr_bench": {
+      "label": "搜索 CVR 基准",
+      "value": [0.015, 0.035],
+      "pct": true,
+      "provenance": "assumed",
+      "basis": "中档电子产品类目搜索的电商 CVR 基准区间"
+    },
+    "search_cac_bench": {
+      "label": "搜索 CAC（基准）",
+      "unit": "HUF",
+      "decimals": 0,
+      "provenance": "derived",
+      "formula": "search_cpc_bench / search_cvr_bench",
+      "inputs": ["search_cpc_bench", "search_cvr_bench"],
+      "note": "区间横跨上限 → 结论为 undetermined，不是硬币两面之一。"
+    },
+    "rtg_cpc_bench": {
+      "label": "再营销 CPC 基准",
+      "value": [80, 150],
+      "unit": "HUF",
+      "decimals": 0,
+      "provenance": "assumed",
+      "basis": "匈牙利再营销 CPC 基准；受众质量高故低于前景广告"
+    },
+    "rtg_cvr_bench": {
+      "label": "再营销 CVR 基准",
+      "value": [0.02, 0.05],
+      "pct": true,
+      "provenance": "assumed",
+      "basis": "电子产品暖受众再营销 CVR 基准"
+    },
+    "rtg_cac_bench": {
+      "label": "再营销 CAC（基准）",
+      "unit": "HUF",
+      "decimals": 0,
+      "provenance": "derived",
+      "formula": "rtg_cpc_bench / rtg_cvr_bench",
+      "inputs": ["rtg_cpc_bench", "rtg_cvr_bench"]
+    },
+    "meta_cpm_bench": {
+      "label": "Meta CPM 基准",
+      "value": [1200, 2400],
+      "unit": "HUF",
+      "decimals": 0,
+      "provenance": "assumed",
+      "basis": "匈牙利消费电子 Meta CPM 基准（2024–2025）"
+    },
+    "meta_ctr_bench": {
+      "label": "Meta CTR 基准",
+      "value": [0.01, 0.02],
+      "pct": true,
+      "provenance": "assumed",
+      "basis": "消费电子轮播/单图 Meta CTR 基准"
+    },
+    "meta_cpc_bench": {
+      "label": "Meta CPC（基准）",
+      "unit": "HUF",
+      "decimals": 0,
+      "provenance": "derived",
+      "formula": "meta_cpm_bench / (meta_ctr_bench * 1000)",
+      "inputs": ["meta_cpm_bench", "meta_ctr_bench"]
+    },
+    "meta_cvr_bench": {
+      "label": "Meta CVR 基准",
+      "value": [0.003, 0.015],
+      "pct": true,
+      "provenance": "assumed",
+      "basis": "社交广告到购买的 CVR；中档电子产品意图低"
+    },
+    "meta_cac_bench": {
+      "label": "Meta CAC（基准）",
+      "unit": "HUF",
+      "decimals": 0,
+      "provenance": "derived",
+      "formula": "meta_cpc_bench / meta_cvr_bench",
+      "inputs": ["meta_cpc_bench", "meta_cvr_bench"],
+      "note": "区间极宽——Meta 最优情况或可行，最差情况超上限 6 倍以上。"
+    },
+    "kol_fee_range": {
+      "label": "达人合作费用（估算）",
+      "value": [200000, 500000],
+      "unit": "HUF",
+      "decimals": 0,
+      "provenance": "assumed",
+      "basis": "匈牙利中量级跑步/运动达人估算费用区间；待直接询价确认"
+    },
+    "pilot_search_budget": {
+      "label": "搜索试点预算（3周）",
+      "value": 50000,
+      "unit": "HUF",
+      "decimals": 0,
+      "provenance": "assumed",
+      "basis": "类目搜索词精准匹配最小验证投放（3周）"
+    },
+    "pilot_rtg_budget": {
+      "label": "再营销试点预算（2周）",
+      "value": 30000,
+      "unit": "HUF",
+      "decimals": 0,
+      "provenance": "assumed",
+      "basis": "含 holdout 对照组的再营销验证投放（2周）"
+    },
+    "garmin_fr55_price": {
+      "label": "竞品 Garmin FR55 参考价",
+      "value": 54990,
+      "unit": "HUF",
+      "decimals": 0,
+      "provenance": "assumed",
+      "basis": "Garmin Forerunner 55 匈牙利典型零售价（近似值，价格随时间波动）"
+    },
+    "samsung_fit3_price": {
+      "label": "竞品 Samsung Galaxy Fit 3 参考价",
+      "value": 29990,
+      "unit": "HUF",
+      "decimals": 0,
+      "provenance": "assumed",
+      "basis": "Samsung Galaxy Fit 3 匈牙利典型零售价（低于华为 FIT 5 Pro）"
+    }
+  },
+
+  "derivations": ["unit_margin", "cac_ceiling", "search_cac_bench", "rtg_cac_bench", "meta_cac_bench"],
+
+  "sensitivity": [
+    {
+      "change": "本地搜索 CPC 实测（当前缺失）",
+      "effect": "若 CPC = 120 HUF（基准低端），搜索 CAC = 3,429 HUF → 可行。若 CPC = 350 HUF + CVR 1.5%，CAC = 23,333 HUF → 不可行。单一输入即可翻转结论。",
+      "priority": 1
+    },
+    {
+      "change": "毛利率 40% → 50%",
+      "effect": "CAC 上限从 8,798 升至 10,998 HUF；搜索基准中值可通过筛查",
+      "priority": 2
+    },
+    {
+      "change": "每日有效用户 500 → 2,000",
+      "effect": "ATE 实验从 114 天压缩至 29 天",
+      "priority": 3
+    },
+    {
+      "change": "价格 54,990 → 64,990 HUF（高端定位）",
+      "effect": "CAC 上限升至 10,398 HUF；搜索基准低端明确可行",
+      "priority": 4
+    }
+  ],
+
+  "channel_screen": [
+    {
+      "channel": "Google 搜索",
+      "verdict": "undetermined",
+      "cac_estimate": "search_cac_bench",
+      "reasoning": "基准区间 3,429–23,333 HUF 横跨上限 8,798 HUF。需本地 CPC 数据（缺失）方可判断。"
+    },
+    {
+      "channel": "Google Shopping",
+      "verdict": "undetermined",
+      "cac_estimate": null,
+      "reasoning": "Shopping CPC 与搜索相近；意图匹配使 CVR 更高。结论待本地数据确认，与搜索相同。"
+    },
+    {
+      "channel": "零售媒体（eMAG）",
+      "verdict": "undetermined",
+      "cac_estimate": null,
+      "reasoning": "eMAG 赞助位 CPC 及 CVR 数据需开通账户方可获取。零成本申请可行。"
+    },
+    {
+      "channel": "Meta 前景广告",
+      "verdict": "undetermined",
+      "cac_estimate": "meta_cac_bench",
+      "reasoning": "区间极宽，无法明确判定可行性。仅可做微型测试（5,000 HUF）以建立本地 CVR 基准。"
+    },
+    {
+      "channel": "再营销（Google/Meta）",
+      "verdict": "undetermined",
+      "cac_estimate": "rtg_cac_bench",
+      "reasoning": "暖受众基准区间 1,600–7,500 HUF——最优情况可行。第二优先级数据拉取。"
+    },
+    {
+      "channel": "YouTube",
+      "verdict": "role-only",
+      "cac_estimate": null,
+      "reasoning": "按 CPV 计价；直接 CAC 不适用。角色：构建 GPS 精度证明内容和达人测评资产。"
+    },
+    {
+      "channel": "KOL / 达人",
+      "verdict": "undetermined",
+      "cac_estimate": null,
+      "reasoning": "达人费用缺失（待询价）。UTM 归因仅提供相关性；无 holdout 无增量数据。"
+    }
+  ],
+
+  "product_facts": [
+    {"label": "双频 GPS（L1+L5）", "detail": "路线精度主打卖点，适用于跑步/骑行 D1/D2 维度定向；解决手腕 GPS 漂移痛点", "tag": "evidence"},
+    {"label": "10 天续航", "detail": "对比 Samsung Galaxy Fit 3（8天）具有差异化优势；与多日户外行程（D3越野）机制直接挂钩", "tag": "evidence"},
+    {"label": "ECG + SpO₂ + 压力监测", "detail": "健康传感套件，启用 D6 睡眠/压力 和 D7 泛健康用户定向", "tag": "evidence"},
+    {"label": "女性健康追踪", "detail": "经期/孕期功能；D9 维度——激活前须完成合规审查（C4 阻塞）", "tag": "assumption"},
+    {"label": "华为 Health 生态", "detail": "与华为手机/手环/耳机联动；D16 生态用户定向依据", "tag": "evidence"},
+    {"label": "价格与 Garmin FR55 持平", "detail": "FIT 5 Pro 约 54,990 HUF vs Garmin FR55 约 54,990 HUF：同价位 GPS 运动表，可作竞品比较标题", "tag": "assumption"}
+  ],
+
+  "market_facts": [
+    {"fact": "匈牙利人口约1000万；智能手机普及率约 85%；智能手表普及率 <10% 且持续增长", "tag": "assumption"},
+    {"fact": "匈牙利增值税 27%（欧盟最高）——影响零售定价和利润测算", "tag": "assumption"},
+    {"fact": "主要电商平台：eMAG.hu（最大）、Alza.hu、MediaMarkt、Extreme Digital", "tag": "assumption"},
+    {"fact": "主要比价网站：árgép.hu——电子产品购买决策关键触点", "tag": "assumption"},
+    {"fact": "Google 搜索占主导（市场份额 >95%）；Meta/Instagram 对 18–45 岁消费电子人群覆盖强", "tag": "assumption"},
+    {"fact": "主要智能手表竞品：Garmin（GPS专业）、Samsung Fit（价格敏感）；Apple Watch SE 为理想品但价格高 3 倍", "tag": "assumption"}
+  ],
+
+  "channels": [
+    {"name": "Google 搜索", "task": "捕获意图", "proxy_quality": "高", "verdict": "undetermined", "cac_estimate": "search_cac_bench", "note": "类目词 + 竞品词双轨；品牌词需 holdout"},
+    {"name": "Google Shopping", "task": "购买转化", "proxy_quality": "高", "verdict": "undetermined", "cac_estimate": null, "note": "高意图，商品列表格式，直接与竞品比价"},
+    {"name": "零售媒体（eMAG）", "task": "捕获意图", "proxy_quality": "中", "verdict": "undetermined", "cac_estimate": null, "note": "需开通账户获取数据"},
+    {"name": "Meta 前景广告", "task": "触达扩展", "proxy_quality": "中", "verdict": "undetermined", "cac_estimate": "meta_cac_bench", "note": "区间极宽；仅微型测试"},
+    {"name": "再营销（Google/Meta）", "task": "再激活转化", "proxy_quality": "高", "verdict": "undetermined", "cac_estimate": "rtg_cac_bench", "note": "暖受众；需 holdout 对照"},
+    {"name": "YouTube", "task": "构建证明资产", "proxy_quality": "中", "verdict": "role-only", "cac_estimate": null, "note": "不做直接 CAC 测算；GPS 精度演示内容"},
+    {"name": "KOL / 达人", "task": "社区背书", "proxy_quality": "中", "verdict": "undetermined", "cac_estimate": null, "note": "垂直跑步/户外 micro 达人；费用待询价"}
+  ],
+
+  "dimensions": [
+    {
+      "id": "D1", "name": "跑步——GPS 精度",
+      "mechanism": "追踪路线精度的跑者对双频 GPS 声明响应更强——手腕计步漂移是他们在跑步社区中明确表达的痛点，FIT 5 Pro 的 L1+L5 双频 GPS 直接回应这一需求",
+      "proxy": "Google 搜索：'futóóra GPS'、'GPS okosóra'、'útvonal pontosság óra'；Facebook 跑步兴趣",
+      "entry_score": "5/5", "verdict": "Retain", "resolution_status": "resolved"
+    },
+    {
+      "id": "D2", "name": "骑行——长距离 GPS",
+      "mechanism": "骑行者需要爬升数据和长距离 GPS 精度，且内容格式/出价/关键词与跑步完全不同；FIT 5 Pro 的多运动切换是对接这一需求的机制",
+      "proxy": "Google 搜索：'kerékpár GPS óra'、'bicikli okosóra'；Facebook 骑行兴趣",
+      "entry_score": "4/5", "verdict": "Retain (test)", "resolution_status": "open"
+    },
+    {
+      "id": "D3", "name": "徒步/越野——离线 GPS + 续航",
+      "mechanism": "多日徒步者对离线 GPS 和超长续航响应更强——10 天续航让多日行程无需充电，这两个功能的机制在徒步场景中叠加",
+      "proxy": "Instagram #hegyfutás #túrázás；搜索 'túra óra' 'outdoor okosóra'；@turafuggo.vagyok 达人受众",
+      "entry_score": "4/5", "verdict": "Retain (test)", "resolution_status": "open"
+    },
+    {
+      "id": "D4", "name": "游泳——防水识别",
+      "mechanism": "游泳者对防水深度和划水识别功能响应——需核实 FIT 5 Pro 的防水等级和游泳识别规格是否满足这一机制",
+      "proxy": "搜索：'úszás okosóra'；Facebook 游泳/水上运动兴趣",
+      "entry_score": "3/5", "verdict": "Demote S", "resolution_status": "open"
+    },
+    {
+      "id": "D5", "name": "铁三/多项运动",
+      "mechanism": "铁三运动员需要在跑/骑/游三项之间一键切换，减少操作摩擦；多项运动切换是直接响应机制",
+      "proxy": "搜索：'multisport óra'、'triatlon okosóra'；Facebook 铁三/多项运动兴趣",
+      "entry_score": "3/5", "verdict": "Demote S", "resolution_status": "open"
+    },
+    {
+      "id": "D6", "name": "睡眠/压力追踪",
+      "mechanism": "有睡眠质量困扰的用户对睡眠分追踪和压力监测响应——产品主打卖点，明确的痛点机制",
+      "proxy": "Facebook 睡眠健康内容受众；搜索：'alvásfigyelés okosóra'",
+      "entry_score": "4/5", "verdict": "Retain", "resolution_status": "resolved"
+    },
+    {
+      "id": "D7", "name": "泛健康习惯用户",
+      "mechanism": "已有每日健康追踪习惯的用户可从更丰富的传感器（ECG、SpO₂）即时获益，对健康功能深度展示响应更强",
+      "proxy": "Facebook 健身 app 兴趣；健康内容消费受众",
+      "entry_score": "4/5", "verdict": "Retain", "resolution_status": "resolved"
+    },
+    {
+      "id": "D8", "name": "心脏/ECG 关注者",
+      "mechanism": "有家族心脏病史或关注心率异常的中老年用户对 ECG 监测功能响应——但这涉及健康状况推断，属敏感属性",
+      "proxy": "健康内容受众（广义代理）",
+      "entry_score": "4/5", "verdict": "Suppression only — 合规待审", "resolution_status": "open-blocking"
+    },
+    {
+      "id": "D9", "name": "女性健康追踪",
+      "mechanism": "追踪经期/孕期的女性用户对专项女性健康功能响应——Garmin FR55 和 Samsung Fit 3 在该功能上明显薄弱",
+      "proxy": "Facebook 女性健康内容；孕期 app 兴趣",
+      "entry_score": "4/5", "verdict": "Suppression only — 合规待审", "resolution_status": "open-blocking"
+    },
+    {
+      "id": "D10", "name": "续航痛点用户",
+      "mechanism": "每日给智能手表充电的用户对 10 天续航声明响应——充电摩擦是明确表达的痛点",
+      "proxy": "搜索：'okosóra akkumulátor'、'okosóra töltés'——月搜索量待核实",
+      "entry_score": "3/5", "verdict": "Retain (test)", "resolution_status": "open-blocking"
+    },
+    {
+      "id": "D11", "name": "竞品比较者",
+      "mechanism": "决策期品牌未定的用户对价格+功能直接对比内容响应——购买意图高但品牌忠诚度低，FIT 5 Pro 对比 Garmin 同价位 GPS 功能形成直接切入点",
+      "proxy": "Google 竞品品牌词：'Garmin okosóra'、'Samsung Watch alternatíva'；árgép.hu 智能手表类目访客",
+      "entry_score": "5/5", "verdict": "Retain", "resolution_status": "open"
+    },
+    {
+      "id": "D12", "name": "价格比较者",
+      "mechanism": "árgép.hu 重度访客以价格为唯一决策依据；增量风险高——折扣驱动用户贡献负边际利润",
+      "proxy": "árgép.hu 类目访客；优惠券关键词搜索者",
+      "entry_score": "3/5", "verdict": "Demote S", "resolution_status": "open"
+    },
+    {
+      "id": "D13", "name": "加购未付/商详回访",
+      "mechanism": "近购买行为是最强意图信号；商详页回访用户在 3–14 天窗口内有高转化倾向，再营销直接触发决策",
+      "proxy": "再营销：产品详情页回访（3–14 天窗口）",
+      "entry_score": "5/5", "verdict": "Retain", "resolution_status": "resolved"
+    },
+    {
+      "id": "D14", "name": "换机用户",
+      "mechanism": "旧表损坏/电池老化的用户处于高紧迫近购买状态；对「立即入手」框架响应更强",
+      "proxy": "搜索：'okosóra csere'、'okosóra meghibásodott'",
+      "entry_score": "4/5", "verdict": "Retain (test)", "resolution_status": "open"
+    },
+    {
+      "id": "D15", "name": "升级党（从入门手环升级）",
+      "mechanism": "小米手环/华为手环老用户有「升一档」的需求，对 FIT 5 Pro 的全功能 GPS + 健康传感套件响应——这是跨品类升级机制，而非竞品品牌切换",
+      "proxy": "Facebook 入门手环品牌兴趣（小米、Huawei Band）；搜索 'fitnesz karkötő váltás'",
+      "entry_score": "4/5", "verdict": "Retain (test)", "resolution_status": "open"
+    },
+    {
+      "id": "D16", "name": "华为生态用户",
+      "mechanism": "已有华为手机的用户对华为 Health 生态联动（数据互通、无缝切换）有即时收益——但须排除「必然购买」用户（sure-thing 风险）",
+      "proxy": "Facebook 华为品牌兴趣；Android 华为设备定向",
+      "entry_score": "4/5", "verdict": "Retain (test)", "resolution_status": "open"
+    },
+    {
+      "id": "D17", "name": "安卓兼容性焦虑",
+      "mechanism": "非华为安卓用户对「第三方兼容」存在顾虑；机制是通过兼容性证明内容打消购买障碍，而非功能本身",
+      "proxy": "搜索：'Huawei Health kompatibilitás'、'Android nem Huawei okosóra'",
+      "entry_score": "3/5", "verdict": "Retain (test)", "resolution_status": "open"
+    },
+    {
+      "id": "D18", "name": "送礼场景",
+      "mechanism": "节日/父亲节/生日购礼者对「好礼物」框架响应，而非功能深度——这是完全不同的内容机制",
+      "proxy": "节日礼物类目；搜索 'ajándék okosóra' 'okosóra ajándék férfinak'",
+      "entry_score": "3/5", "verdict": "Demote S", "resolution_status": "open"
+    },
+    {
+      "id": "D19", "name": "首次购表用户",
+      "mechanism": "从未使用智能手表的用户对「入门友好 + 全功能」框架响应——强调低学习曲线和全场景覆盖",
+      "proxy": "搜索：'első okosóra'；泛智能手表类目入门词",
+      "entry_score": "3/5", "verdict": "Retain (test)", "resolution_status": "open"
+    },
+    {
+      "id": "D20", "name": "测评读者/观众",
+      "mechanism": "购买前寻找第三方评测的用户对专业测评内容响应——测评内容构建信任，推动决策阶段转化",
+      "proxy": "科技测评 YouTube 受众；搜索 'okosóra teszt' 'okosóra vélemény'",
+      "entry_score": "4/5", "verdict": "Retain (test)", "resolution_status": "resolved"
+    },
+    {
+      "id": "D21", "name": "仅折扣买家（抑制）",
+      "mechanism": "以价格促销为唯一购买驱动的用户在折扣后贡献负增量边际，且复购率低",
+      "proxy": "árgép.hu 重度访客 + 优惠券关键词搜索行为组合",
+      "entry_score": "3/5", "verdict": "Suppression only", "resolution_status": "resolved"
+    },
+    {
+      "id": "D22", "name": "广告疲劳用户（抑制）",
+      "mechanism": "≥5 次曝光 0 转化的用户已饱和，继续投放为浪费或 sleeping-dog 伤害",
+      "proxy": "再营销频次过滤：≥5 次曝光且 0 点击/转化",
+      "entry_score": "3/5", "verdict": "Suppression only", "resolution_status": "resolved"
+    },
+    {
+      "id": "D23", "name": "铁粉「必然购买」（抑制）",
+      "mechanism": "无论是否投放都会购买的重度品牌粉丝——holdout 中转化率与投放组相同，广告成本为纯浪费",
+      "proxy": "华为铁粉信号：复购/华为全系产品用户",
+      "entry_score": "3/5", "verdict": "Suppression only — 需 holdout 核实", "resolution_status": "open"
+    }
+  ],
+
+  "reviewer_table": [
+    {
+      "dimension": "D16 华为生态用户",
+      "challenge": "Sure-thing：华为手机用户是否无论广告与否都会购买 FIT 5 Pro？生态联动是购买理由，不一定是广告响应机制——holdout 显示增量为零的概率很高。",
+      "handling": "在华为设备受众内强制设置 holdout 对照组；不将自然转化计入广告贡献。将 D16 降级为 T 槽，不进 H。",
+      "evidence_needed": "在华为手机用户细分内设计 GCG holdout（2周），对比投放组 vs 自然组转化率"
+    },
+    {
+      "dimension": "D11 竞品比较者",
+      "challenge": "相关≠机制：搜索 'Garmin okosóra' 是否预示对华为广告的响应？还是仅反映高智能手表购买意图（最终购买 Garmin）？若后者，我们在为 Garmin 买家付费投放。",
+      "handling": "列为 T 槽而非 H，小预算验证。在竞品关键词投放中加入 holdout 对照；监测 Garmin 购买量作为负向指标。",
+      "evidence_needed": "A/B 测试：竞品关键词访客 → 华为广告 vs 不投广告；测量增量华为（而非总智能手表）转化率"
+    },
+    {
+      "dimension": "D10 续航痛点",
+      "challenge": "Proxy 现实性：匈牙利 'okosóra akkumulátor' 及相关关键词月搜索量可能 < 500——在此市场规模下可能无法购买到足够受众进行定向投放。",
+      "handling": "C3 open-blocking 已标记。T02（续航）不激活，直到量级核查完成。",
+      "evidence_needed": "Google Keyword Planner 拉取（匈牙利，零成本，1小时）——截止 2026-06-20；< 500/月则 D10 从计划中移除"
+    },
+    {
+      "dimension": "D8 心脏/ECG + D9 女性健康",
+      "challenge": "合规：基于行为信号推断健康状况（心脏风险、生育状态）需要在匈牙利广告标准和 GDPR 框架下进行人工合规审查。默认：在法律团队签字前排除在计划之外。",
+      "handling": "C4 open-blocking 已阻塞 D8、D9 和对应 Treatment Cards。",
+      "evidence_needed": "法律/合规团队对定向逻辑和创意声明的书面审核"
+    },
+    {
+      "dimension": "D23 铁粉「必然购买」",
+      "challenge": "Sure-thing：华为重度粉丝是否无论广告与否都会购买？这类用户被纳入受众时会人为拉高 ROAS，但 holdout 中增量为零。",
+      "handling": "标记为抑制维度；在华为复购用户受众中构建 holdout 验证。",
+      "evidence_needed": "RCT holdout 对比：华为铁粉受众投放组 vs 不投放组；核实增量净额"
+    }
+  ],
+
+  "heatmap": {
+    "channels": ["Google 搜索", "Google Shopping", "零售媒体（eMAG）", "Meta", "再营销", "KOL"],
+    "dimensions": ["D1", "D6", "D11", "D13", "D15", "D16", "D20"],
+    "dim_labels": {
+      "D1": "D1 跑步 GPS",
+      "D6": "D6 睡眠/压力",
+      "D11": "D11 竞品比较",
+      "D13": "D13 回访再营销",
+      "D15": "D15 升级党",
+      "D16": "D16 华为生态",
+      "D20": "D20 测评观众"
+    },
+    "scores": {
+      "Google 搜索":     {"D1": "H", "D6": "S", "D11": "H", "D13": "N", "D15": "T", "D16": "T", "D20": "S"},
+      "Google Shopping": {"D1": "H", "D6": "N", "D11": "H", "D13": "N", "D15": "T", "D16": "S", "D20": "N"},
+      "零售媒体（eMAG）": {"D1": "T", "D6": "S", "D11": "T", "D13": "S", "D15": "S", "D16": "T", "D20": "S"},
+      "Meta":            {"D1": "T", "D6": "T", "D11": "T", "D13": "S", "D15": "T", "D16": "S", "D20": "T"},
+      "再营销":           {"D1": "T", "D6": "H", "D11": "H", "D13": "H", "D15": "T", "D16": "N", "D20": "S"},
+      "KOL":             {"D1": "H", "D6": "S", "D11": "S", "D13": "N", "D15": "T", "D16": "S", "D20": "H"}
+    }
+  },
+
+  "h_main_breakdown": [
+    {"channel_dim": "Google 搜索 × D1 跑步 GPS", "hypothesis": "GPS 精度搜索词（'futóóra GPS'）投放专项创意，转化 CAC < 8,798 HUF——较通用广告提升 0.5pp CVR", "t_card": "T01", "notes": "品牌词需 10% holdout 不出价对照组"},
+    {"channel_dim": "Google 搜索 × D11 竞品比较", "hypothesis": "竞品品牌词访客看到华为 FIT 5 Pro 价格+功能对比创意，华为增量 CVR > 1%", "t_card": "T02", "notes": "C2（相关≠机制）挑战悬而未决——列为 T 不列为 H"},
+    {"channel_dim": "Google Shopping × D1 跑步", "hypothesis": "Shopping 广告覆盖 GPS 运动手表高意图购买时刻，CAC 基准中值可达上限内", "t_card": "T05", "notes": "CAC undetermined；本地数据出来前不扩量"},
+    {"channel_dim": "再营销 × D6 睡眠/压力", "hypothesis": "看过健康功能页的访客经睡眠/压力证明内容再营销，增量 CVR > 0.5pp vs holdout", "t_card": "T03", "notes": "第1天起设 5% holdout 对照组"},
+    {"channel_dim": "再营销 × D11 竞品比较 + D13 回访", "hypothesis": "访问过竞品页面的回访者看到直接比较广告，华为增量 CVR > 0.5pp", "t_card": "T04", "notes": "频次上限 3 次；排除 Garmin 强品牌忠诚信号"},
+    {"channel_dim": "KOL × D1 跑步 + D20 测评", "hypothesis": "2–3 位匈牙利跑步/越野 micro 达人 GPS 路线精度演示视频，UTM CVR > 0.8% 且促销码核销 > 50", "t_card": "T06", "notes": "KOL ROI 为 Hypothesis 直至 holdout 设计完成；micro 达人机制相关度优于百万级健美账号"}
+  ],
+
+  "execution_gates": [
+    {"gate": "搜索 CPC 本地数据", "input_needed": "Google Keyword Planner 拉取", "status": "pending", "note": "零成本，1小时——2026-06-20 前完成"},
+    {"gate": "续航痛点 Proxy 量级核查（C3）", "input_needed": "Keyword Planner：'okosóra akkumulátor' 月搜索量", "status": "pending", "note": "D10 维度有效性核查——阻塞 T-续航"},
+    {"gate": "达人报价询价", "input_needed": "直接联系 2–3 位跑步/运动达人", "status": "pending", "note": "验证 KOL 预算可行性所需"},
+    {"gate": "D8/D9 合规审查（C4）", "input_needed": "法律/合规团队对健康相关定向和创意的书面确认", "status": "blocked", "note": "C4 open-blocking——D8、D9 及 T07 均无法推进"},
+    {"gate": "Propensity Log P(t|x)", "input_needed": "含分配概率的曝光日志（任何 ML 模型前必备）", "status": "pending", "note": "OPE 支持核查（ope_estimators.py）的前提"},
+    {"gate": "样本量门控（ATE）", "input_needed": "power_analysis.py：28,304/组，56,608 总量，500人/天 → 114天", "status": "pending", "note": "已由 power_analysis.py 确认——见下方 callout"}
+  ],
+
+  "actions": [
+    {
+      "id": "T01",
+      "action": "类目搜索 × D1 跑步 GPS 精度创意",
+      "audience": "D1——跑步意图关键词搜索者（'futóóra GPS'、'GPS okosóra'、'útvonal pontosság óra'）",
+      "baseline": "无付费搜索；自然产品页每日约 200 次访问",
+      "mechanism": "主动寻找 GPS 精度的跑者的搜索词与 FIT 5 Pro 双频 GPS 主打卖点直接匹配，意图极高",
+      "guardrail": "品牌词设 10% 不出价 holdout 对照组；若增量 CVR < 0.3pp vs holdout，暂停并重新审视",
+      "measurement": "holdout 对照组（10% 不出价）；测量增量转化率和收入 vs 自然基线",
+      "budget": "pilot_search_budget",
+      "blocked_by": []
+    },
+    {
+      "id": "T02",
+      "action": "竞品关键词 × D11 切换者落地页",
+      "audience": "D11——主动搜索竞品品牌词的用户（'Garmin okosóra'、'Samsung Watch alternatíva'）",
+      "baseline": "无竞品词覆盖；竞品品牌流量流向竞品页面",
+      "mechanism": "处于品牌未定决策阶段的比较者，看到 FIT 5 Pro 价格+GPS 功能直接对比可切换决策",
+      "guardrail": "保守出价；CVR < 0.8% 时说明竞品词受众品牌忠诚度过高（负增量）。C2 挑战悬而未决——仅做 T 预算。",
+      "measurement": "独立广告系列；UTM 按关键词组追踪；对比华为 CVR vs 无广告对照",
+      "budget": "pilot_search_budget",
+      "blocked_by": []
+    },
+    {
+      "id": "T03",
+      "action": "再营销 × D6 睡眠/压力健康证明创意",
+      "audience": "浏览过产品健康功能页的访客；3–14 天时效窗口",
+      "baseline": "无再营销；暖受众在考虑期后流失",
+      "mechanism": "有健康追踪意图的用户已发出信号；睡眠分/压力监测演示内容将考虑转化为购买决策",
+      "guardrail": "频次上限：每周最多 5 次曝光；14 天后排除（边际效用递减）",
+      "measurement": "Cookie 基础 holdout 10% 不触达；测量再营销池内增量 CVR",
+      "budget": "pilot_rtg_budget",
+      "blocked_by": []
+    },
+    {
+      "id": "T04",
+      "action": "再营销 × D11/D13 竞品页访客比较卡片",
+      "audience": "过去 7 天内访问过 Garmin.hu、Samsung 智能手表页、árgép.hu 智能手表类目的用户",
+      "baseline": "无跟进；用户继续在竞品购买漏斗中推进",
+      "mechanism": "决策期比较购物者看到直接价格+功能对比卡，GPS 精度 vs Garmin 同价位是核心信息",
+      "guardrail": "上限 3 次曝光；排除 Garmin 强品牌忠诚信号；C2 悬而未决——密切监测",
+      "measurement": "UTM + 再营销 holdout；对比增量华为转化 vs 不触达对照",
+      "budget": "pilot_rtg_budget",
+      "blocked_by": []
+    },
+    {
+      "id": "T05",
+      "action": "Google Shopping × D1 GPS 运动手表类目",
+      "audience": "D1 类目意图（智能手表、GPS 手表、运动手表）Google Shopping 高意图用户",
+      "baseline": "无 Shopping 投放；类目流量流向 Garmin、Samsung、Apple 商品列表",
+      "mechanism": "Shopping 格式服务于高意图购买时刻；FIT 5 Pro 与 Garmin FR55 同价位是商品列表标题主张",
+      "guardrail": "监测 ROAS vs 增量利润；排除 Apple 生态强信号（切换概率低）",
+      "measurement": "Google Ads 实验（处理 vs 对照受众）；测量高于 Shopping 自然基线的增量收入",
+      "budget": "pilot_search_budget",
+      "blocked_by": []
+    },
+    {
+      "id": "T06",
+      "action": "KOL × D1/D20 跑步 micro 达人 GPS 精度演示",
+      "audience": "D1 跑步社区（通过达人受众触达）；每位达人约 2,000–150,000 人",
+      "baseline": "无达人合作；跑步社区认知仅靠华为 Health 自有内容",
+      "mechanism": "跑步社区信任达人测评而非品牌广告；真实路线中手腕 GPS vs 手机对比演示直接回应 D1 痛点",
+      "guardrail": "达人费用为 Assumption——待报价确认。每位达人独立 UTM + 专属促销码。止损线：4 周内促销码核销 < 50 则不扩展。KOL ROI 为 Hypothesis 直至 holdout 设计完成。",
+      "measurement": "UTM 流量 CVR vs 站内平均；促销码核销量；合同中加入 holdout 设计",
+      "blocked_by": []
+    },
+    {
+      "id": "T07",
+      "action": "女性健康功能 × D9 女性健康受众",
+      "audience": "D9——女性健康内容受众，生活方式+健康兴趣",
+      "baseline": "无女性专项广告系列",
+      "mechanism": "FIT 5 Pro 经期/孕期追踪功能填补 Garmin FR55 和 Samsung Fit 3 的空缺",
+      "guardrail": "合规审查完成前 BLOCKED——不可激活",
+      "measurement": "含/不含女性健康文案的对比测试；测量目标细分增量 CVR",
+      "blocked_by": ["C4"]
+    }
+  ],
+
+  "rejected_options": [
+    {"option": "大规模 Meta 前景广告", "reason": "最优基准 CAC 区间仍横跨上限；扩量投放需先获取本地 CVR 数据。仅允许微型测试（5,000 HUF）建立基准。"},
+    {"option": "仅匈牙利 HTE 实验", "reason": "power_analysis.py：500 人/天时需 473 天。HTE 须汇集 CEE 市场（48 天，5,000 人/天）。单匈牙利 HTE 不具操作可行性。"},
+    {"option": "D8/D9 健康敏感维度（合规审查前）", "reason": "C4 open-blocking。默认：无法律签字前排除健康相关定向。"},
+    {"option": "签约单一 hero 健美达人（Anita Herbert 级别）做 D1 跑步内容", "reason": "创作者层面的「相关≠机制」：健美粉丝 ≠ GPS 跑步 FIT 用户。300 万粉是触达，不是增量机制。宁用 2–3 位跑步垂类 micro 达人，增量质量更可靠。"}
+  ],
+
+  "budget_rows": [
+    {"phase": "数据采集（现在）", "item": "Google Keyword Planner CPC + 量级拉取", "budget_display": "0 HUF", "condition": "试点投放前必须完成"},
+    {"phase": "数据采集（现在）", "item": "2–3 位达人询价外联", "budget_display": "0 HUF", "condition": "KOL 试点预算审批前必须完成"},
+    {"phase": "试点第一阶段（有条件）", "item": "搜索类目试点 T01 + T02 + T05——3周", "budget_id": "pilot_search_budget", "condition": "解锁条件：搜索 CPC 数据显示预测 CAC < 8,800 HUF"},
+    {"phase": "试点第一阶段（有条件）", "item": "再营销 holdout 测试 T03 + T04——2周", "budget_id": "pilot_rtg_budget", "condition": "解锁条件：确认再营销池每周 ≥ 500 访客"},
+    {"phase": "试点第二阶段（有条件）", "item": "达人试点——1位达人，4周", "budget_display": "待报价（估算 200,000–500,000 HUF）", "condition": "解锁条件：直接报价已收到且预算已审批"},
+    {"phase": "放量（检查点）", "item": "通过验证渠道扩量至完整试点预算", "budget_display": "检查点时确定", "condition": "解锁条件：≥ 1 个渠道通过 holdout 验证，CAC < 上限"}
+  ],
+  "budget_note": "目前无媒体预算承诺。试点投放仅在前期数据采集确认至少一个渠道 CAC 在上限以内后方可解锁。预算表为有条件路线图，不是承诺。",
+
+  "priority_plays": [
+    {
+      "play": "P1",
+      "action": "T01 — GPS 精度搜索广告",
+      "why_now": "跑步意图机制最清晰，Proxy 最强；搜索数据拉取（第1天）可在一周内确定可行性",
+      "expected_cac": "3,400–23,300 HUF（基准区间——undetermined，待本地数据）",
+      "kill_line": "3 周检查点 CAC > 17,600 HUF → 暂停"
+    },
+    {
+      "play": "P2",
+      "action": "T03 — 再营销健康暖受众",
+      "why_now": "成本最低的有效测试：再营销池已在自然流量中积累；holdout 设置成本接近零",
+      "expected_cac": "1,600–7,500 HUF（基准区间——最优情况可行）",
+      "kill_line": "vs holdout 增量 CVR < 0.3pp → 再营销池意图不足"
+    },
+    {
+      "play": "P3",
+      "action": "T06 — 跑步 micro 达人 GPS 演示（2–3 位）",
+      "why_now": "垂直机制最清晰（D1 GPS 痛点）；达人内容可复用为 YouTube 证明资产；micro 达人增量质量优于机制错配的百万级账号",
+      "expected_cac": "undetermined——取决于报价和 holdout CVR",
+      "kill_line": "每位达人 4 周内促销码核销 < 50 → 不扩展达人计划"
+    }
+  ],
+
+  "auuc_note": "暂无 uplift 模型分数（试验前阶段）。AUUC 门控（qini_auuc.py）将在试点数据采集后应用。前提：任何扩量部署前必须建立 Propensity Log P(t|x)。",
+
+  "kol": {
+    "enabled": true,
+    "roi_rule": "KOL ROI 无 holdout 不是证据。以下姓名/平台/粉丝数均可公开查证（标 sourced），报价为 missing（只能直接询价），增量为 Hypothesis（无 holdout 控制不构成因果证据）。",
+    "sourcing_protocol": "完整跑步/越野达人短名单从 Modash、Heepsy、Favikon、StarNgage、influData 的匈牙利 running/fitness/outdoor 榜拉取，叠加 hashtag 侦察 #futás #trailrunning #hegyfutás #maraton #kerékpározás；入选标准：（1）内容垂类与 D1/D3 机制匹配，（2）互动率 > 2%，（3）是否做过设备/装备测评。粉丝数与报价在采集后填入，当前为缺口。",
+    "creators": [
+      {
+        "profile": "Anita Herbert（@anita_herbert）— 健美/健身",
+        "platform_url": "https://www.instagram.com/anita_herbert/",
+        "follower_note": "约 300 万（2026-06-12 采集）",
+        "niche_fit": "⚠️ 机制错配：健美粉丝 ≠ GPS 跑步用户。300万粉是触达，不是增量机制。仅适合品牌曝光（不计入 D1 增量 CAC）——这是创作者层面的「相关≠机制」。",
+        "fee_id": "kol_fee_range",
+        "format": "品牌曝光（若有），不做 GPS 测评内容",
+        "attribution": "纯曝光追踪；不做 UTM 增量测算",
+        "incrementality_note": "不做增量测算——机制错配。"
+      },
+      {
+        "profile": "@maratonmanversenysorozat — 跑步赛事系列",
+        "platform_url": "https://www.instagram.com/maratonmanversenysorozat/",
+        "follower_note": "约 2,780（2026-06-12 采集）",
+        "niche_fit": "✓ D1 跑步高度匹配，micro 但垂直；赛事系列覆盖马拉松群体",
+        "fee_id": "kol_fee_range",
+        "format": "GPS 路线精度演示视频（真实赛道手腕 vs 手机对比）",
+        "attribution": "UTM 链接 + 专属促销码",
+        "incrementality_note": "Hypothesis；micro 但垂直——增量质量可能高于大账号"
+      },
+      {
+        "profile": "@daniramirezcoach — 跑步教练/马拉松运动员",
+        "platform_url": "https://www.instagram.com/daniramirezcoach/",
+        "follower_note": "待采集（从 Modash/Heepsy 拉取）",
+        "niche_fit": "✓ D1 跑步高度匹配；教练背书增强可信度",
+        "fee_id": "kol_fee_range",
+        "format": "训练中 GPS 精度测评 + 配速追踪对比",
+        "attribution": "UTM 链接 + 专属促销码",
+        "incrementality_note": "Hypothesis；教练型内容适合做 GPS 精度实测，可信度高于纯娱乐博主"
+      },
+      {
+        "profile": "@turafuggo.vagyok — 徒步/户外博主",
+        "platform_url": "https://www.instagram.com/turafuggo.vagyok/",
+        "follower_note": "约 1,656（2026-06-12 采集）",
+        "niche_fit": "✓ D3 越野/徒步匹配；接 10 天续航卖点（多日行程场景）",
+        "fee_id": "kol_fee_range",
+        "format": "多日徒步续航测试视频：全程 GPS 导航 + 电量记录",
+        "attribution": "UTM 链接 + 专属促销码",
+        "incrementality_note": "Hypothesis；D10 续航通过 C3 量级核查后方可合并续航卖点"
+      },
+      {
+        "profile": "Strenner Jázmin — YouTube 健身测评博主",
+        "platform_url": "https://www.youtube.com/results?search_query=Strenner+J%C3%A1zmin",
+        "follower_note": "待采集（YouTube 频道订阅量需直接查取）",
+        "niche_fit": "✓ D20 测评观众匹配；专业设备测评内容可构建产品信任资产",
+        "fee_id": "kol_fee_range",
+        "format": "FIT 5 Pro 全功能测评（GPS 精度、续航、健康传感套件），视频可复用为广告素材",
+        "attribution": "YouTube UTM + 独立促销码",
+        "incrementality_note": "Hypothesis；测评内容价值不止在自身转化，更在于构建跨渠道的「第三方证明资产」"
+      }
+    ]
+  },
+
+  "measurement_plan": {
+    "maturity": "L0",
+    "primary_metric": "增量转化量（holdout 验证）——无法设置 holdout 对照的渠道只贡献 Hypothesis 级指标",
+    "secondary_metrics": [
+      "分渠道增量 CAC",
+      "holdout 调整后的转化率提升",
+      "达人 UTM CVR（仅相关性代理，非因果）"
+    ],
+    "scale_up_rule": "仅在以下条件同时满足时放量：（1）holdout 验证增量 CVR > 0.5pp，（2）holdout 验证增量 CAC < 8,800 HUF，（3）≥ 100 次增量转化观测",
+    "pause_rule": "以下情况立即暂停任何渠道：holdout 验证增量 CAC > 17,600 HUF（2倍上限）连续 7 天，或频次 > 8 次且 CVR < 0.2pp",
+    "gcg_design": "全局对照组（GCG）：5% 有效受众全程排除在所有付费触达之外。按用户 ID 哈希分组——跨渠道稳定。用于事后 ATE 估算。",
+    "hte_note": "匈牙利单市场无法支撑 HTE 实验（500人/天时需 473 天）。HTE 须汇集 CEE 市场（匈牙利+罗马尼亚+捷克+斯洛伐克：估算合计 5,000人/天 → 48 天 HTE 可行）。HTE 激活为 L2+ 里程碑，在 ATE 验证完成后推进。"
+  },
+
+  "suppression_rules": [
+    {"rule": "首次折扣购买后排除 D21 仅折扣买家", "dimension": "D21", "reason": "折扣驱动买家在复购时贡献负增量边际；排除保护同期群组贡献利润"},
+    {"rule": "排除曝光 ≥ 5 次且零互动（0 点击、0 视频播放）的用户", "dimension": "D22 广告疲劳", "reason": "饱和受众；继续投放是浪费，或对品牌情感产生 sleeping-dog 伤害"},
+    {"rule": "全渠道合并频次上限：每用户每周最多 5 次曝光", "dimension": "跨渠道", "reason": "防止渠道组合下的频次累积疲劳；再营销+搜索同时曝光时尤为关键"},
+    {"rule": "D9 女性健康定向在 C4（合规审查）解决前持续排除", "dimension": "D9", "reason": "GDPR 及匈牙利广告标准——无法律签字前默认排除健康相关定向"},
+    {"rule": "D8 心脏/ECG 定向在合规审查完成前排除", "dimension": "D8", "reason": "推断健康状况属于敏感属性推断——同上，合规 first"},
+    {"rule": "全局对照组（GCG，5% 有效受众）排除在所有付费触达之外", "dimension": "GCG", "reason": "保留 ATE 估算能力；GCG 是任何因果声明的不可妥协前提"}
+  ],
+
+  "ope_note": "OPE 支持核查（ope_estimators.py）将在试点 Propensity Log P(t|x) 采集完成后运行。门控：支持核查通过后方可进行任何超出试点范围的策略优化或扩量部署。",
+
+  "checklist": [
+    {"item": "启动前将 Propensity Log P(t|x) 纳入实验设计", "status": "pending"},
+    {"item": "全局对照组（GCG，5% 不触达）在整个试点期间设置并保持稳定", "status": "pending"},
+    {"item": "所有试点广告系列确认设置 holdout 对照组（T01、T03、T04、T05）", "status": "pending"},
+    {"item": "完成 Keyword Planner CPC + 量级拉取（'GPS okosóra' 及 D10 续航痛点词）", "status": "pending"},
+    {"item": "从 ≥ 2 位匈牙利跑步/运动达人收到直接报价", "status": "pending"},
+    {"item": "D9 女性健康 + D8 心脏 ECG：合规审查完成并签字", "status": "blocked"},
+    {"item": "D10 续航痛点：Proxy 量级 > 500/月确认，或维度从计划中移除", "status": "pending"},
+    {"item": "C4（合规）挑战解决后方可激活 T07", "status": "blocked"},
+    {"item": "所有货币数字均已打 claim tag（Evidence / Assumption / Hypothesis / Needs test）", "status": "done"},
+    {"item": "KOL / 达人费用无直接报价不标为 Evidence", "status": "done"},
+    {"item": "基准 CAC 区间已标 Assumption；无任何基准被视为本地证据", "status": "done"},
+    {"item": "HTE 实验范围已记录为须 CEE 市场汇集（不支持单匈牙利）", "status": "done"},
+    {"item": "power_analysis.py 确认：ATE 28,304/组，HTE 59,116/格，500人/天→114天 ATE", "status": "done"},
+    {"item": "热力图仅呈现通过筛查的渠道（不含所有 23 个 D 维度——避免 v1 错误）", "status": "done"},
+    {"item": "匈牙利单市场 HTE 不可行已明确记录（473天）；CEE 汇集方案（48天）已列入 L2 规划", "status": "done"}
+  ],
+
+  "facts": [
+    {"fact": "匈牙利增值税率 27%（欧盟最高；长期稳定）", "source_url": "https://ec.europa.eu/taxation_customs/tedb/splSearchResult.html", "source_label": "EU VAT 数据库", "accessed": "2026-06-13"},
+    {"fact": "eMAG 为匈牙利最大电商平台", "source_url": "https://emag.hu", "source_label": "eMAG 匈牙利", "accessed": "2026-06-13"},
+    {"fact": "@maratonmanversenysorozat — 匈牙利跑步赛事系列 Instagram 账号", "source_url": "https://www.instagram.com/maratonmanversenysorozat/", "source_label": "Instagram 主页（2026-06-13 采集）", "accessed": "2026-06-13"},
+    {"fact": "Anita Herbert (@anita_herbert) — 匈牙利健美/健身博主，约 300 万粉", "source_url": "https://www.instagram.com/anita_herbert/", "source_label": "Instagram 主页（2026-06-13 采集）", "accessed": "2026-06-13"},
+    {"fact": "@turafuggo.vagyok — 匈牙利徒步/户外博主，约 1,656 粉", "source_url": "https://www.instagram.com/turafuggo.vagyok/", "source_label": "Instagram 主页（2026-06-13 采集）", "accessed": "2026-06-13"}
+  ],
+
+  "challenges": [
+    {
+      "id": "C1",
+      "target": "D16 华为生态用户",
+      "question": "Sure-thing：华为手机用户是否无论广告与否都会购买 FIT 5 Pro？生态联动是购买理由，不一定是广告响应机制——holdout 内增量为零的概率很高。",
+      "status": "open",
+      "evidence_needed": "在华为手机用户细分内设 GCG holdout（2周），对比投放组 vs 自然组转化率"
+    },
+    {
+      "id": "C2",
+      "target": "D11 竞品比较",
+      "question": "搜索 'Garmin okosóra' 是否预示对华为广告的响应？还是仅反映高智能手表购买意图（最终购买 Garmin）？若后者，我们在为 Garmin 买家付费投放。",
+      "status": "open",
+      "evidence_needed": "A/B 测试：竞品关键词访客 → 华为广告 vs 不投广告；测量增量华为（而非总智能手表）转化率"
+    },
+    {
+      "id": "C3",
+      "target": "D10 续航痛点",
+      "question": "匈牙利 'okosóra akkumulátor' 及相关续航痛点关键词月搜索量可能 < 500——在此市场规模下无法购买到足够受众进行定向投放。此维度在匈牙利可能不具可操作性。",
+      "status": "open-blocking",
+      "resolution": "Google Keyword Planner 拉取（匈牙利，零成本，1小时）——截止 2026-06-20；< 500/月则 D10 从计划中移除"
+    },
+    {
+      "id": "C4",
+      "target": "D8 心脏/ECG + D9 女性健康",
+      "question": "基于行为信号推断健康状况（心脏风险、生育状态）需要在匈牙利广告标准和 GDPR 框架下进行人工合规审查。健康相关创意（'经期追踪'、'孕期模式'）在匈牙利存在合规风险。默认：审查完成前排除。",
+      "status": "open-blocking",
+      "evidence_needed": "法律/合规团队对定向逻辑和创意声明的书面审核"
+    },
+    {
+      "id": "C5",
+      "target": "KOL / 达人",
+      "question": "机构宣称的达人 ROAS 将自然购买意图与广告驱动的增量混为一谈。无达人合同中的 holdout 设计，T06 ROI 是 Hypothesis，不是证据。此外：匈牙利尚未关注科技达人但有智能手表购买倾向的用户有多少？",
+      "status": "open",
+      "evidence_needed": "达人合同中嵌入 holdout 设计（10% 无促销码对照组）；UTM CVR 基线 vs 站内平均，以界定增量上界"
+    }
+  ],
+
+  "test_plan": [
+    {
+      "name": "搜索 CAC 验证",
+      "prediction": "类目搜索词（'GPS okosóra'）CAC 将落在 3,400–23,000 HUF 基准区间内",
+      "test": "3 周试点：50,000 HUF 精准匹配类目词；测量归因 + holdout 调整后转化量",
+      "kill_line": "3 周内 ≥ 30 次转化后 CAC > 17,600 HUF（2倍上限）→ 暂停搜索并重审利润假设",
+      "decision_date": "2026-07-04"
+    },
+    {
+      "name": "再营销 CVR 核查",
+      "prediction": "再营销增量 CVR（vs holdout）将超过 0.5pp（暖产品页访客）",
+      "test": "2 周再营销广告（30,000 HUF），含 10% 不触达 holdout 对照组；测量增量 CVR",
+      "kill_line": "2 周后 holdout 增量 CVR（处理-对照）< 0.3pp → 再营销池缺乏紧迫性；缩减频次、延长窗口",
+      "decision_date": "2026-06-27"
+    },
+    {
+      "name": "达人试点",
+      "prediction": "跑步达人 UTM 流量 CVR > 0.8%，且促销码核销 > 50（4周内，每位达人）",
+      "test": "1位达人试点合作（需先收到直接报价）；4周内容投放，含 UTM + 专属促销码",
+      "kill_line": "促销码核销 < 50 或 UTM CVR < 0.3%（4周后）→ 不扩展达人计划",
+      "decision_date": "2026-07-13"
+    },
+    {
+      "name": "续航痛点 Proxy 量级核查",
+      "prediction": "匈牙利续航痛点关键词月搜索量 < 500——D10 维度在此市场不具可操作性",
+      "test": "Google Keyword Planner 拉取 'okosóra akkumulátor'、'okosóra töltés'、'okosóra akkumulátor tartam'（零成本，1小时）",
+      "kill_line": "月搜索量 < 500 → D10 从计划移除。月搜索量 ≥ 2,000 → D10 升至 T 槽",
+      "decision_date": "2026-06-20"
+    }
+  ],
+
+  "power_analysis": {
+    "baseline_cvr": 0.015,
+    "mde_abs": 0.003,
+    "eligible_per_day": 500
+  }
+}

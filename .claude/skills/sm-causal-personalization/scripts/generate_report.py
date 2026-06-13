@@ -39,6 +39,11 @@ from typing import Any
 
 _HERE = Path(__file__).parent
 
+
+def L(cfg, key, default):
+    return cfg.get("labels", {}).get(key, default)
+
+
 PROVENANCES = {"sourced", "assumed", "derived", "missing"}
 CHALLENGE_STATUSES = {"resolved", "open", "open-blocking"}
 CHANNEL_VERDICTS = {"viable", "not-viable", "undetermined", "role-only"}
@@ -393,7 +398,11 @@ def s_memo(cfg: dict) -> str:
     meta = cfg.get("meta", {})
     verdict = memo.get("verdict", "conditional")
     vlabel = {"go": "GO", "no-go": "NO-GO", "conditional": "CONDITIONAL"}.get(verdict, verdict.upper())
-    horizon_label = {"now": "Now (zero cost)", "checkpoint": "At checkpoint", "never": "Not under this math"}
+    horizon_label = {
+        "now": L(cfg, "horizon_now", "Now (zero cost)"),
+        "checkpoint": L(cfg, "horizon_checkpoint", "At checkpoint"),
+        "never": L(cfg, "horizon_never", "Not under this math"),
+    }
     buckets: dict[str, list[str]] = {"now": [], "checkpoint": [], "never": []}
     for d in memo.get("decisions", []):
         buckets.setdefault(d["horizon"], []).append(d["text"])
@@ -406,19 +415,16 @@ def s_memo(cfg: dict) -> str:
     return f"""<section class="memo">
   <div><span class="verdict verdict-{esc(verdict)}">{esc(vlabel)}</span>
   &nbsp; <span style="color:var(--muted);font-size:13px">{esc(meta.get("product", ""))} · {esc(meta.get("market", ""))} · {esc(meta.get("date", ""))}</span></div>
-  <h1 style="margin-top:12px">1 · Decision Memo</h1>
-  <p class="thesis"><strong>Thesis:</strong> {esc(memo["thesis"])}</p>
+  <h1 style="margin-top:12px">{esc(L(cfg, "memo_heading", "1 · Decision Memo"))}</h1>
+  <p class="thesis"><strong>{esc(L(cfg, "thesis_label", "Thesis:"))}</strong> {esc(memo["thesis"])}</p>
   <div class="memo-grid">
     <div>{decision_html}</div>
     <div>
-      <h3>What overturns this thesis</h3><ul>{overturn}</ul>
-      <h3>Weakest point of this report</h3><p style="margin:4px 0 0">{esc(memo.get("weakest_point", ""))}</p>
+      <h3>{esc(L(cfg, "overturn_heading", "What overturns this thesis"))}</h3><ul>{overturn}</ul>
+      <h3>{esc(L(cfg, "weakest_heading", "Weakest point of this report"))}</h3><p style="margin:4px 0 0">{esc(memo.get("weakest_point", ""))}</p>
     </div>
   </div>
-  <p class="mk-legend">Number markers: <sup class="mk mk-sourced">S</sup> sourced (linked)
-  · <sup class="mk mk-assumed">A</sup> assumed (basis stated)
-  · <sup class="mk mk-derived">D</sup> derived (chain shown)
-  · <sup class="mk mk-missing">M</sup> missing (no value — placeholder only)</p>
+  <p class="mk-legend">{esc(L(cfg, "marker_legend", "Number markers: ◆S sourced (linked) · ◇A assumed (basis stated) · ⊕D derived (chain shown) · ○M missing (no value — placeholder only)"))}</p>
 </section>"""
 
 
@@ -431,11 +437,11 @@ def s_math(cfg: dict, numbers: dict) -> str:
     )
     sens = ""
     if sens_rows:
-        sens = f"""<h3>Sensitivity — which assumption flips the conclusion</h3>
+        sens = f"""<h3>{esc(L(cfg, "sensitivity_heading", "Sensitivity — which assumption flips the conclusion"))}</h3>
   <div class="table-wrap"><table>
-    <thead><tr><th>Assumption change</th><th>Effect on conclusion</th><th>Verify priority</th></tr></thead>
+    <thead><tr><th>{esc(L(cfg, "sens_th_change", "Assumption change"))}</th><th>{esc(L(cfg, "sens_th_effect", "Effect on conclusion"))}</th><th>{esc(L(cfg, "sens_th_priority", "Verify priority"))}</th></tr></thead>
     <tbody>{sens_rows}</tbody></table></div>
-  <p style="font-size:13px;color:var(--muted)">Verification order below follows this table, not convenience.</p>"""
+  <p style="font-size:13px;color:var(--muted)">{esc(L(cfg, "sens_note", "Verification order below follows this table, not convenience."))}</p>"""
 
     screen_rows = ""
     for ch in cfg.get("channel_screen", []):
@@ -446,16 +452,14 @@ def s_math(cfg: dict, numbers: dict) -> str:
                         f"<td>{cac}</td><td>{esc(ch['reasoning'])}</td></tr>")
     screen = ""
     if screen_rows:
-        screen = f"""<h3>Channel viability screen (threshold: CAC ceiling above)</h3>
+        screen = f"""<h3>{esc(L(cfg, "screen_heading", "Channel viability screen (threshold: CAC ceiling above)"))}</h3>
   <div class="table-wrap"><table>
-    <thead><tr><th>Channel</th><th>Verdict</th><th>CAC estimate</th><th>Reasoning / what's missing</th></tr></thead>
+    <thead><tr><th>{esc(L(cfg, "screen_th_channel", "Channel"))}</th><th>{esc(L(cfg, "screen_th_verdict", "Verdict"))}</th><th>{esc(L(cfg, "screen_th_cac", "CAC estimate"))}</th><th>{esc(L(cfg, "screen_th_reasoning", "Reasoning / what's missing"))}</th></tr></thead>
     <tbody>{screen_rows}</tbody></table></div>
-  <p style="font-size:13px;color:var(--muted)">Rules: a benchmark-based estimate can prove
-  <em>not-viable</em> (best case still fails) but never <em>viable</em> — that requires local data.
-  <em>undetermined</em> means the interval spans the ceiling; the action is to get data, not to pick an endpoint.</p>"""
+  <p style="font-size:13px;color:var(--muted)">{L(cfg, "screen_note", "Rules: a benchmark-based estimate can prove <em>not-viable</em> (best case still fails) but never <em>viable</em> — that requires local data. <em>undetermined</em> means the interval spans the ceiling; the action is to get data, not to pick an endpoint.")}</p>"""
 
     return f"""<section>
-  <h2>2 · The Math</h2>
+  <h2>{esc(L(cfg, "math_heading", "2 · The Math"))}</h2>
   {chains}
   {sens}
   {screen}
@@ -474,14 +478,14 @@ def s_actions(cfg: dict, numbers: dict, challenges_by_id: dict) -> str:
         stamp = "".join(f'<span class="blocked-stamp">⊘ BLOCKED by {esc(b)}</span>' for b in blockers)
         budget = ""
         if a.get("budget"):
-            budget = f"<dt>Budget envelope</dt><dd>{fmt_value(a['budget'], numbers)}</dd>"
-        gate = f"<dt>Unlocks</dt><dd>{esc(a['gate'])}</dd>" if a.get("gate") else ""
+            budget = f"<dt>{esc(L(cfg, 'budget_envelope_label', 'Budget envelope'))}</dt><dd>{fmt_value(a['budget'], numbers)}</dd>"
+        gate = f"<dt>{esc(L(cfg, 'unlocks_label', 'Unlocks'))}</dt><dd>{esc(a['gate'])}</dd>" if a.get("gate") else ""
         cards += f"""<div class="card{' blocked' if blockers else ''}">
   <h3>{esc(a['id'])} · {esc(a['action'])} {stamp}</h3>
   <dl>
-    <dt>Mechanism</dt><dd>{esc(a['mechanism'])}</dd>
-    <dt>Guardrail</dt><dd>{esc(a['guardrail'])}</dd>
-    <dt>Test</dt><dd>{esc(a.get('test', a.get('measurement', '')))}</dd>
+    <dt>{esc(L(cfg, 'mechanism_label', 'Mechanism'))}</dt><dd>{esc(a['mechanism'])}</dd>
+    <dt>{esc(L(cfg, 'guardrail_label', 'Guardrail'))}</dt><dd>{esc(a['guardrail'])}</dd>
+    <dt>{esc(L(cfg, 'test_label', 'Test'))}</dt><dd>{esc(a.get('test', a.get('measurement', '')))}</dd>
     {budget}{gate}
   </dl>
 </div>"""
@@ -491,15 +495,13 @@ def s_actions(cfg: dict, numbers: dict, challenges_by_id: dict) -> str:
     )
     rej_html = ""
     if rejected:
-        rej_html = f"""<h3>Rejected options (and why)</h3>
+        rej_html = f"""<h3>{esc(L(cfg, "rejected_heading", "Rejected options (and why)"))}</h3>
   <div class="table-wrap"><table>
-    <thead><tr><th>Option</th><th>Rejection reason</th></tr></thead>
+    <thead><tr><th>{esc(L(cfg, "rejected_th_option", "Option"))}</th><th>{esc(L(cfg, "rejected_th_reason", "Rejection reason"))}</th></tr></thead>
     <tbody>{rejected}</tbody></table></div>"""
     return f"""<section>
-  <h2>3 · Actions</h2>
-  <p>Only options that survived the viability screen appear as cards. A card stamped
-  <strong>⊘ BLOCKED</strong> references an unresolved blocking challenge (section 4) and
-  must not receive budget until that challenge is resolved.</p>
+  <h2>{esc(L(cfg, "actions_heading", "3 · Actions"))}</h2>
+  <p>{L(cfg, "actions_intro", "Only options that survived the viability screen appear as cards. A card stamped <strong>⊘ BLOCKED</strong> references an unresolved blocking challenge (section 4) and must not receive budget until that challenge is resolved.")}</p>
   <div class="cards">{cards}</div>
   {rej_html}
 </section>"""
@@ -513,13 +515,10 @@ def s_challenges(cfg: dict) -> str:
                  f"<td><span class='pill pill-{esc(c['status'])}'>{esc(c['status'])}</span></td>"
                  f"<td>{esc(c.get('resolution') or c.get('evidence_needed', ''))}</td></tr>")
     return f"""<section>
-  <h2>4 · Adversarial Review</h2>
-  <p>Challenges are raised by an independent review pass and are immutable — the analysis
-  may respond but not rewrite them. <strong>open-blocking</strong> challenges stamp every
-  action that depends on them. An unresolved challenge displayed openly is the trust
-  mechanism; "resolved" requires data, not rhetoric.</p>
+  <h2>{esc(L(cfg, "challenges_heading", "4 · Adversarial Review"))}</h2>
+  <p>{L(cfg, "challenges_intro", 'Challenges are raised by an independent review pass and are immutable — the analysis may respond but not rewrite them. <strong>open-blocking</strong> challenges stamp every action that depends on them. An unresolved challenge displayed openly is the trust mechanism; "resolved" requires data, not rhetoric.')}</p>
   <div class="table-wrap"><table>
-    <thead><tr><th>Challenge</th><th>Question</th><th>Status</th><th>Resolution / evidence needed</th></tr></thead>
+    <thead><tr><th>{esc(L(cfg, "ch_th_challenge", "Challenge"))}</th><th>{esc(L(cfg, "ch_th_question", "Question"))}</th><th>{esc(L(cfg, "ch_th_status", "Status"))}</th><th>{esc(L(cfg, "ch_th_resolution", "Resolution / evidence needed"))}</th></tr></thead>
     <tbody>{rows}</tbody></table></div>
 </section>"""
 
@@ -530,16 +529,15 @@ def s_test_plan(cfg: dict) -> str:
         cards += f"""<div class="card">
   <h3>{esc(t['name'])}</h3>
   <dl>
-    <dt>Prediction</dt><dd>{esc(t['prediction'])}</dd>
-    <dt>Test</dt><dd>{esc(t['test'])}</dd>
-    <dt>Kill line</dt><dd>{esc(t['kill_line'])}</dd>
-    <dt>Decision date</dt><dd>{esc(t['decision_date'])}</dd>
+    <dt>{esc(L(cfg, 'prediction_label', 'Prediction'))}</dt><dd>{esc(t['prediction'])}</dd>
+    <dt>{esc(L(cfg, 'test_label', 'Test'))}</dt><dd>{esc(t['test'])}</dd>
+    <dt>{esc(L(cfg, 'kill_line_label', 'Kill line'))}</dt><dd>{esc(t['kill_line'])}</dd>
+    <dt>{esc(L(cfg, 'decision_date_label', 'Decision date'))}</dt><dd>{esc(t['decision_date'])}</dd>
   </dl>
 </div>"""
     return f"""<section>
-  <h2>5 · Test Plan</h2>
-  <p>Every claim that survives to budget carries a falsifiable prediction, a kill line,
-  and a decision date. On that date the line either becomes Sourced or is declared dead.</p>
+  <h2>{esc(L(cfg, "testplan_heading", "5 · Test Plan"))}</h2>
+  <p>{L(cfg, "testplan_intro", "Every claim that survives to budget carries a falsifiable prediction, a kill line, and a decision date. On that date the line either becomes Sourced or is declared dead.")}</p>
   {power_bridge(cfg)}
   <div class="cards">{cards}</div>
 </section>"""
@@ -563,18 +561,18 @@ def s_evidence(cfg: dict, numbers: dict) -> str:
         for nid, spec in numbers.items() if spec["provenance"] == "missing"
     )
     return f"""<section>
-  <h2>6 · Evidence &amp; Gaps</h2>
-  <h3>Sourced facts</h3>
+  <h2>{esc(L(cfg, "evidence_heading", "6 · Evidence &amp; Gaps"))}</h2>
+  <h3>{esc(L(cfg, "sourced_facts_heading", "Sourced facts"))}</h3>
   <div class="table-wrap"><table>
-    <thead><tr><th>Fact</th><th>Source</th><th>Accessed</th></tr></thead>
+    <thead><tr><th>{esc(L(cfg, "ev_th_fact", "Fact"))}</th><th>{esc(L(cfg, "ev_th_source", "Source"))}</th><th>{esc(L(cfg, "ev_th_accessed", "Accessed"))}</th></tr></thead>
     <tbody>{facts}</tbody></table></div>
-  <h3>Assumption register</h3>
+  <h3>{esc(L(cfg, "assumption_register_heading", "Assumption register"))}</h3>
   <div class="table-wrap"><table>
-    <thead><tr><th>Assumption</th><th>Value</th><th>Basis</th></tr></thead>
+    <thead><tr><th>{esc(L(cfg, "ev_th_assumption", "Assumption"))}</th><th>{esc(L(cfg, "ev_th_value", "Value"))}</th><th>{esc(L(cfg, "ev_th_basis", "Basis"))}</th></tr></thead>
     <tbody>{assumed_rows}</tbody></table></div>
-  <h3>Missing ledger — sorted by sensitivity, this is the work plan</h3>
+  <h3>{esc(L(cfg, "missing_ledger_heading", "Missing ledger — sorted by sensitivity, this is the work plan"))}</h3>
   <div class="table-wrap"><table>
-    <thead><tr><th>What</th><th>Where to get it</th><th>Cost</th><th>Blocks</th></tr></thead>
+    <thead><tr><th>{esc(L(cfg, "ev_th_what", "What"))}</th><th>{esc(L(cfg, "ev_th_where", "Where to get it"))}</th><th>{esc(L(cfg, "ev_th_cost", "Cost"))}</th><th>{esc(L(cfg, "ev_th_blocks", "Blocks"))}</th></tr></thead>
     <tbody>{missing_rows}</tbody></table></div>
 </section>"""
 
@@ -593,16 +591,16 @@ def s_product_facts(cfg: dict) -> str:
         tag = m.get("tag", "evidence")
         mfact_rows += (f"<tr><td>{esc(m['fact'])}</td>"
                        f"<td><span class='tag {esc(tag)}'>{esc(tag.title())}</span></td></tr>")
-    feat_table = f"""<h3>Product features relevant to targeting</h3>
+    feat_table = f"""<h3>{esc(L(cfg, "product_features_heading", "Product features relevant to targeting"))}</h3>
 <div class="table-wrap"><table>
-  <thead><tr><th>Feature</th><th>Targeting relevance</th><th>Status</th></tr></thead>
+  <thead><tr><th>{esc(L(cfg, "pf_th_feature", "Feature"))}</th><th>{esc(L(cfg, "pf_th_relevance", "Targeting relevance"))}</th><th>{esc(L(cfg, "pf_th_status", "Status"))}</th></tr></thead>
   <tbody>{feat_rows}</tbody></table></div>""" if feat_rows else ""
-    mfact_table = f"""<h3>Market facts</h3>
+    mfact_table = f"""<h3>{esc(L(cfg, "market_facts_heading", "Market facts"))}</h3>
 <div class="table-wrap"><table>
-  <thead><tr><th>Fact</th><th>Status</th></tr></thead>
+  <thead><tr><th>{esc(L(cfg, "mf_th_fact", "Fact"))}</th><th>{esc(L(cfg, "mf_th_status", "Status"))}</th></tr></thead>
   <tbody>{mfact_rows}</tbody></table></div>""" if mfact_rows else ""
     return f"""<section>
-  <h2>3 · Product &amp; Market Facts</h2>
+  <h2>{esc(L(cfg, "product_heading", "3 · Product &amp; Market Facts"))}</h2>
   {feat_table}
   {mfact_table}
 </section>"""
@@ -622,11 +620,11 @@ def s_channel_map(cfg: dict, numbers: dict) -> str:
                  f"<td>{cac_est}</td>"
                  f"<td>{esc(ch.get('note',''))}</td></tr>")
     return f"""<section>
-  <h2>5 · Local Channel Map</h2>
+  <h2>{esc(L(cfg, "channel_heading", "5 · Local Channel Map"))}</h2>
   <div class="table-wrap"><table>
-    <thead><tr><th>Channel</th><th>Task</th><th>Proxy quality</th><th>Verdict</th><th>CAC estimate</th><th>Note</th></tr></thead>
+    <thead><tr><th>{esc(L(cfg, "cm_th_channel", "Channel"))}</th><th>{esc(L(cfg, "cm_th_task", "Task"))}</th><th>{esc(L(cfg, "cm_th_proxy", "Proxy quality"))}</th><th>{esc(L(cfg, "cm_th_verdict", "Verdict"))}</th><th>{esc(L(cfg, "cm_th_cac", "CAC estimate"))}</th><th>{esc(L(cfg, "cm_th_note", "Note"))}</th></tr></thead>
     <tbody>{rows}</tbody></table></div>
-  <p style="font-size:13px;color:var(--muted)">Benchmarks may prove <em>not-viable</em> (best case still fails ceiling) but never <em>viable</em>. <em>undetermined</em> = interval spans ceiling; data acquisition required.</p>
+  <p style="font-size:13px;color:var(--muted)">{L(cfg, "channel_note", "Benchmarks may prove <em>not-viable</em> (best case still fails ceiling) but never <em>viable</em>. <em>undetermined</em> = interval spans ceiling; data acquisition required.")}</p>
 </section>"""
 
 
@@ -661,17 +659,17 @@ def s_dimensions(cfg: dict) -> str:
         f"<td>{esc(r['handling'])}</td><td>{esc(r.get('evidence_needed',''))}</td></tr>"
         for r in cfg.get("reviewer_table", [])
     )
-    reviewer = f"""<h3>Causal Activation Reviewer — dimension challenges</h3>
+    reviewer = f"""<h3>{esc(L(cfg, "reviewer_heading", "Causal Activation Reviewer — dimension challenges"))}</h3>
 <div class="table-wrap"><table>
-  <thead><tr><th>Dimension</th><th>Challenge raised</th><th>Current handling</th><th>Evidence needed</th></tr></thead>
+  <thead><tr><th>{esc(L(cfg, "rv_th_dimension", "Dimension"))}</th><th>{esc(L(cfg, "rv_th_challenge", "Challenge raised"))}</th><th>{esc(L(cfg, "rv_th_handling", "Current handling"))}</th><th>{esc(L(cfg, "rv_th_evidence", "Evidence needed"))}</th></tr></thead>
   <tbody>{reviewer_rows}</tbody></table></div>
-<div class="callout">D dimensions are candidate operational variables for trial design. Before entering primary budget, each must pass: deployable proxy, testable incrementality, stated mechanism, no compliance or margin risk.</div>""" if reviewer_rows else ""
+<div class="callout">{esc(L(cfg, "reviewer_callout", "D dimensions are candidate operational variables for trial design. Before entering primary budget, each must pass: deployable proxy, testable incrementality, stated mechanism, no compliance or margin risk."))}</div>""" if reviewer_rows else ""
     return f"""<section>
-  <h2>6 · D Dimension Table &amp; Causal Activation Reviewer</h2>
+  <h2>{esc(L(cfg, "dim_heading", "6 · D Dimension Table &amp; Causal Activation Reviewer"))}</h2>
   <div class="table-wrap"><table>
-    <thead><tr><th>Dimension</th><th>Mechanism</th><th>Platform proxy</th><th>Score</th><th>Verdict</th><th>Status</th></tr></thead>
+    <thead><tr><th>{esc(L(cfg, "dt_th_dimension", "Dimension"))}</th><th>{esc(L(cfg, "dt_th_mechanism", "Mechanism"))}</th><th>{esc(L(cfg, "dt_th_proxy", "Platform proxy"))}</th><th>{esc(L(cfg, "dt_th_score", "Score"))}</th><th>{esc(L(cfg, "dt_th_verdict", "Verdict"))}</th><th>{esc(L(cfg, "dt_th_status", "Status"))}</th></tr></thead>
     <tbody>{rows}</tbody></table></div>
-  <p style="font-size:13px;color:var(--muted)">Verdicts: Retain = H or T in heatmap · Retain (test) = T or S · Demote S = S only · Suppression = exclude not target · Delete = remove.</p>
+  <p style="font-size:13px;color:var(--muted)">{esc(L(cfg, "dim_verdict_legend", "Verdicts: Retain = H or T in heatmap · Retain (test) = T or S · Demote S = S only · Suppression = exclude not target · Delete = remove."))}</p>
   {reviewer}
 </section>"""
 
@@ -688,7 +686,8 @@ def s_heatmap(cfg: dict) -> str:
     score_labels = {"H": "H — Primary", "T": "T — Test", "S": "S — Small", "N": "N — None", "A": "A — Avoid"}
     n_cols = len(dims) + 1
     col_def = f"repeat({n_cols}, 1fr)"
-    header = '<div class="hm-header">Channel \\ Dimension</div>' + "".join(
+    corner = esc(L(cfg, "heatmap_corner", "Channel / Dimension"))
+    header = f'<div class="hm-header">{corner}</div>' + "".join(
         f'<div class="hm-header">{esc(label_map.get(d, d))}</div>' for d in dims
     )
     rows = ""
@@ -699,12 +698,12 @@ def s_heatmap(cfg: dict) -> str:
             rows += f'<div class="hm-cell hm-{esc(sc.lower())}">{esc(sc)}</div>'
     legend = " · ".join(f'<span class="hm-cell hm-{s.lower()}" style="display:inline-block;padding:2px 8px;border-radius:4px">{s}</span> {lbl.split("—")[1].strip()}' for s, lbl in score_labels.items())
     return f"""<section>
-  <h2>7 · Semantic Heatmap (channel × dimension)</h2>
-  <p style="font-size:13px">Only channels that survived the viability screen appear. H = primary investment target; A = actively suppress.</p>
+  <h2>{esc(L(cfg, "heatmap_heading", "7 · Semantic Heatmap (channel × dimension)"))}</h2>
+  <p style="font-size:13px">{L(cfg, "heatmap_intro", "Only channels that survived the viability screen appear. H = primary investment target; A = actively suppress.")}</p>
   <div class="heatmap" style="grid-template-columns:{esc(col_def)};margin:12px 0">
     {header}{rows}
   </div>
-  <p style="font-size:12px;color:var(--muted);margin-top:8px">Legend: {legend}</p>
+  <p style="font-size:12px;color:var(--muted);margin-top:8px">{esc(L(cfg, "heatmap_legend_label", "Legend"))}: {legend}</p>
 </section>"""
 
 
