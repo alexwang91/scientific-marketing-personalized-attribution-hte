@@ -1,4 +1,4 @@
-# 13 · Product-to-Country Pipeline (7 stages, may terminate early)
+# 13 · Product-to-Country Pipeline (8 stages, may terminate early)
 
 ## Purpose
 
@@ -8,6 +8,9 @@ always produces a full media plan regardless of what the data says is a
 template, not an analysis — and readers can smell the difference.
 
 ```
+Stage 0  Local market intelligence  category reception, audience, distribution
+                                    landscape, buying journey — ref 00
+         ── Outputs: channel list, competitor set, spending anchor ──
 Stage 1  Evidence pull        prices, platforms, competitors — all with URL+date
 Stage 2  Unit economics       pure math: margin → CAC ceiling → sensitivity
 Stage 3  Channel screen       benchmark ranges vs ceiling → viable / not-viable /
@@ -21,8 +24,9 @@ Stage 7  Render               provenance-validated config → generate_report.py
 ```
 
 The stage order is the argument order: nothing downstream may run before its
-upstream gate. Dimension work for a channel that fails the screen is deleted
-effort *and* credibility damage.
+upstream gate. **Stage 0 is not optional.** Starting at Stage 1 without a
+validated channel landscape is the most common source of systematic error in
+the output (wrong retailers, missing telco channel, wrong competitive set).
 
 ---
 
@@ -32,17 +36,43 @@ effort *and* credibility damage.
 |-------|---------|-------|
 | `product_name` | "HUAWEI WATCH FIT 5 Pro" | Full commercial name |
 | `market` | "Hungary" | Country or region |
-| `price` | 99990 (HUF) | Local retail price |
+| `price` | 99990 (HUF) | Local retail price — Stage 0 verifies this |
 | `margin_rate` | 0.40 | Gross margin (user input; tag as Assumption) |
 | `budget` | 12000000 (HUF) | Total pilot budget |
 | `key_features` | ["GPS", "10-day battery", "AMOLED"] | 3–6 product USPs |
-| `local_retailers` | ["Alza", "eMAG", "MediaMarkt"] | Top local e-commerce platforms |
-| `platforms_available` | ["Google", "Meta", "TikTok", "YouTube"] | Active ad platforms |
+
+Stage 0 will determine `local_retailers`, `platforms_available`, and
+`competitor_products` — do not pre-fill these from general knowledge.
 
 Optional but accelerates pipeline:
-- `competitor_products`: list of direct alternatives
 - `existing_audience_data`: first-party signals available
 - `compliance_constraints`: product categories with local restrictions
+
+---
+
+## Stage 0 — Local Market Intelligence (ref 00)
+
+**See `references/00-local-market-intelligence.md` for the full protocol.**
+
+Six mandatory research areas before Stage 1 starts:
+
+| Section | Key output |
+|---|---|
+| A · Category reception | Penetration rate, dominant local job-to-be-done |
+| B · Consumer audience map | Price / avg-salary ratio, buyer segments |
+| C · Product tier analysis | Local competitive set from local price comparison site |
+| D · Distribution & channel landscape | Verified retailer ranking, telco channel, price comparison sites |
+| E · Consumer buying journey | Research cycle length, discovery channels |
+| F · Regulatory & compliance | VAT, health claim rules, comparative ad rules |
+
+**Stage 0 gate:** before Stage 1 begins, the analyst must be able to answer:
+1. Which retailer is #1 for this category in this country (with source)?
+2. Does a telco/operator channel exist for this category (yes/no/unknown)?
+3. What is the price as a multiple of average monthly salary?
+4. Which local price-comparison site(s) do consumers use for research?
+
+If any of these are "unknown," that is acceptable — but they must be declared
+as `undetermined` in `market_facts`, not silently assumed.
 
 ---
 

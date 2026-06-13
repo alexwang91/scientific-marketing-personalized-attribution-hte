@@ -141,8 +141,13 @@ What is the user asking about?
 │   → 12-html-report-output  (6-section decision memo, provenance rendering,
 │       pill budget, short-report mode; generate_report.py enforces the contract)
 ├─ "User gives a product + country; needs channel map, audience, treatment plan"
-│   → 13-product-country-pipeline  (7 stages: evidence → unit economics →
+│   → 13-product-country-pipeline  (8 stages: **Stage 0 local market intelligence
+│       [mandatory, see ref 00]** → evidence → unit economics →
 │       channel screen [may terminate here] → dimensions → review → tests → render)
+├─ "Need to research local market before pipeline: retailer ranking, telco channel,
+│   price comparison sites, consumer spending capacity, category penetration"
+│   → 00-local-market-intelligence  (6 sections: category reception / audience map
+│       / product tier / distribution landscape / buying journey / regulatory)
 ├─ "How to generate / challenge D dimensions; adversarial review"
 │   → 14-d-dimension-reviewer  (generation gate; independent review pass,
 │       immutable challenges, open-blocking → BLOCKED budget linkage)
