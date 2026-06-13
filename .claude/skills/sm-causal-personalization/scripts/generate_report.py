@@ -297,197 +297,253 @@ def power_bridge(cfg: dict) -> str:
 _CSS = """
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-  /* ── Design system: GPS sport-precision · nexu-io/open-design inspired ────
-     Font: Inter Variable (Linear's choice) · Palette: dark graphite + performance
-     orange · Layout: 8px grid, 1040px content column · Surfaces: layered whites
-     with subtle shadows, not heavy borders.
+  /* ── Design system · nexu-io/open-design (Linear palette) ─────────────────
+     Palette: dark graphite ink, warm neutral surfaces, muted performance orange.
+     Layout: fixed 210px sidebar TOC + fluid content column.
   ────────────────────────────────────────────────────────────────────────── */
   :root{
-    --bg:#eef0f3;
-    --panel:#ffffff;
-    --surface:#f8f9fa;
-    --ink:#0f1117;
+    --bg:#e5e7eb;
+    --panel:#fafbfc;
+    --surface:#f0f2f5;
+    --ink:#111827;
     --ink-2:#374151;
     --muted:#6b7280;
-    --line:#e5e7eb;
-    --line-subtle:rgba(0,0,0,.06);
-    --accent:#f04e23;
-    --accent-light:#fff2ee;
+    --muted-2:#9ca3af;
+    --line:#dde1e7;
+    --line-strong:#c9cdd5;
+    --accent:#c94220;
+    --accent-light:#fdf0ec;
     --ok:#d1fae5;--ok-ink:#065f46;
     --warn:#fef3c7;--warn-ink:#78350f;
     --bad:#fee2e2;--bad-ink:#991b1b;
     --neutral:#f3f4f6;--neutral-ink:#374151;
     --radius:8px;
-    --shadow-sm:0 1px 2px rgba(0,0,0,.05);
-    --shadow-md:0 2px 8px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
-    --shadow-lg:0 4px 16px rgba(0,0,0,.1),0 1px 4px rgba(0,0,0,.06);
+    --sidebar-w:210px;
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);
     font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-    font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;
+    font-size:14.5px;line-height:1.65;-webkit-font-smoothing:antialiased;
     font-feature-settings:'cv01','ss03'}
-  main{max-width:1040px;margin:0 auto;padding:32px 24px 72px}
+
+  /* ── Two-column layout: sidebar + content ── */
+  .page-layout{display:grid;grid-template-columns:var(--sidebar-w) 1fr;
+    max-width:1200px;margin:0 auto;min-height:100vh}
+  .content-col{min-width:0}
+  main{padding:32px 32px 72px;max-width:960px}
+  footer{padding:20px 32px 48px;color:var(--muted);font-size:12px;
+    border-top:1px solid var(--line);max-width:960px}
+
+  /* ── Sidebar TOC ── */
+  .sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;
+    background:var(--panel);border-right:1px solid var(--line);
+    padding:24px 0 32px;display:flex;flex-direction:column}
+  .toc-logo{padding:0 18px 16px;font-size:11px;font-weight:800;
+    letter-spacing:.04em;color:var(--ink);border-bottom:1px solid var(--line);
+    margin-bottom:6px}
+  .toc-logo span{color:var(--accent)}
+  .toc-group-label{padding:12px 18px 4px;font-size:9.5px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.1em;color:var(--muted-2)}
+  .toc-link{display:block;padding:5px 18px 5px 16px;font-size:12px;
+    color:var(--muted);text-decoration:none;line-height:1.4;
+    border-left:2px solid transparent;transition:color .12s,border-color .12s,background .12s;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .toc-link:hover{color:var(--ink);background:rgba(0,0,0,.03)}
+  .toc-link.active{color:var(--accent);border-left-color:var(--accent);
+    background:var(--accent-light);font-weight:600}
 
   /* ── Typography ── */
-  h1{margin:0 0 8px;font-size:26px;font-weight:800;line-height:1.2;
+  h1{margin:0 0 8px;font-size:24px;font-weight:800;line-height:1.2;
     letter-spacing:-.025em;color:var(--ink)}
-  h2{margin:40px 0 16px;font-size:18px;font-weight:700;letter-spacing:-.01em;
-    color:var(--ink);display:flex;align-items:center;gap:10px}
-  h2::before{content:'';display:inline-block;width:4px;height:20px;
+  h2{margin:36px 0 14px;font-size:17px;font-weight:700;letter-spacing:-.01em;
+    color:var(--ink);display:flex;align-items:center;gap:9px}
+  h2::before{content:'';display:inline-block;width:3px;height:18px;
     background:var(--accent);border-radius:2px;flex-shrink:0}
   h2+*{margin-top:0}
-  h3{margin:20px 0 10px;font-size:11px;font-weight:700;text-transform:uppercase;
+  h3{margin:18px 0 8px;font-size:10.5px;font-weight:700;text-transform:uppercase;
     letter-spacing:.08em;color:var(--accent)}
-  p{margin:0 0 12px}
+  p{margin:0 0 11px}
   strong{font-weight:600}
-
-  /* ── Section card ── */
-  section{background:var(--panel);border:1px solid var(--line);
-    border-radius:12px;padding:28px 32px;margin:16px 0;
-    box-shadow:var(--shadow-md)}
   a{color:var(--accent);text-decoration:none}
   a:hover{text-decoration:underline}
 
+  /* ── Narrative intro (section connective paragraph) ── */
+  .section-intro{font-size:13.5px;color:var(--ink-2);line-height:1.75;
+    margin:0 0 18px;padding:13px 16px;background:var(--surface);
+    border-radius:6px;border-left:3px solid var(--line-strong)}
+
+  /* ── Section card ── */
+  section{background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:26px 30px;margin:14px 0;
+    box-shadow:0 1px 3px rgba(0,0,0,.04)}
+
   /* ── KPI stat strip ── */
-  .kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-    gap:12px;margin:0 0 24px}
-  .kpi{background:var(--surface);border:1px solid var(--line);border-radius:10px;
-    padding:20px 22px;position:relative;overflow:hidden;
-    box-shadow:var(--shadow-sm)}
-  .kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  .kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));
+    gap:10px;margin:0 0 20px}
+  .kpi{background:var(--surface);border:1px solid var(--line);border-radius:8px;
+    padding:18px 20px;position:relative;overflow:hidden}
+  .kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;
     background:var(--accent)}
-  .kpi-num{font-size:28px;font-weight:800;letter-spacing:-.04em;
+  .kpi-num{font-size:26px;font-weight:800;letter-spacing:-.04em;
     line-height:1;color:var(--ink);margin-bottom:6px}
-  .kpi-num .kpi-unit{font-size:14px;font-weight:600;color:var(--muted);margin-left:2px}
-  .kpi-label{font-size:11px;color:var(--muted);text-transform:uppercase;
+  .kpi-num .kpi-unit{font-size:13px;font-weight:600;color:var(--muted);margin-left:2px}
+  .kpi-label{font-size:10.5px;color:var(--muted);text-transform:uppercase;
     letter-spacing:.06em;font-weight:600}
 
   /* ── CAC bar chart ── */
-  .cac-chart{margin:0 0 24px;background:var(--surface);border:1px solid var(--line);
-    border-radius:10px;padding:22px 24px 16px;box-shadow:var(--shadow-sm)}
-  .cac-chart-title{font-size:11px;font-weight:700;text-transform:uppercase;
-    letter-spacing:.08em;color:var(--accent);margin-bottom:20px}
-  .cac-row{display:grid;grid-template-columns:140px 1fr;gap:14px;
-    align-items:center;margin:12px 0}
-  .cac-name{font-size:13px;font-weight:600;text-align:right;line-height:1.3;
+  .cac-chart{margin:0 0 20px;background:var(--surface);border:1px solid var(--line);
+    border-radius:8px;padding:20px 22px 14px}
+  .cac-chart-title{font-size:10.5px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--accent);margin-bottom:18px}
+  .cac-row{display:grid;grid-template-columns:140px 1fr;gap:12px;
+    align-items:center;margin:10px 0}
+  .cac-name{font-size:12px;font-weight:600;text-align:right;line-height:1.3;
     color:var(--ink-2)}
-  .cac-track{position:relative;height:28px;background:#f0f1f3;border-radius:6px}
-  .cac-bar{position:absolute;height:100%;border-radius:6px;top:0;
-    display:flex;align-items:center;padding:0 8px;
+  .cac-track{position:relative;height:26px;background:#e9eaec;border-radius:5px}
+  .cac-bar{position:absolute;height:100%;border-radius:5px;top:0;
+    display:flex;align-items:center;padding:0 7px;
     font-size:10px;font-weight:700;color:#fff;white-space:nowrap;min-width:2px}
   .cac-bar.viable{background:#16a34a}
-  .cac-bar.undetermined{background:#f59e0b}
+  .cac-bar.undetermined{background:#d97706}
   .cac-bar.not-viable{background:#dc2626}
   .cac-bar.role-only{background:#9ca3af}
-  .cac-ceiling{position:absolute;top:-8px;bottom:-8px;width:2px;
+  .cac-ceiling{position:absolute;top:-7px;bottom:-7px;width:2px;
     background:var(--ink);z-index:6;border-radius:1px}
-  .cac-ceiling-flag{position:absolute;top:-24px;transform:translateX(-50%);
-    background:var(--ink);color:#fff;font-size:10px;font-weight:700;
+  .cac-ceiling-flag{position:absolute;top:-22px;transform:translateX(-50%);
+    background:var(--ink);color:#fff;font-size:9.5px;font-weight:700;
     padding:2px 6px;border-radius:4px;white-space:nowrap;z-index:7}
-  .cac-axis{display:grid;grid-template-columns:140px 1fr;gap:14px;margin-top:8px}
+  .cac-axis{display:grid;grid-template-columns:140px 1fr;gap:12px;margin-top:6px}
   .cac-axis-labels{display:flex;justify-content:space-between;
     font-size:10px;color:var(--muted);font-weight:600}
-  .cac-legend{margin-top:12px;font-size:11px;color:var(--muted);
-    display:flex;gap:14px;flex-wrap:wrap}
+  .cac-legend{margin-top:10px;font-size:11px;color:var(--muted);
+    display:flex;gap:12px;flex-wrap:wrap}
   .cac-legend span{display:inline-flex;align-items:center;gap:5px}
   .cac-legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
 
   /* ── Sensitivity priority cards ── */
-  .sens-chart{margin:0 0 24px}
-  .sens-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
-    gap:10px;margin-top:10px}
+  .sens-chart{margin:0 0 20px}
+  .sens-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+    gap:9px;margin-top:10px}
   .sens-card{background:var(--surface);border:1px solid var(--line);
-    border-radius:8px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;
-    box-shadow:var(--shadow-sm)}
-  .sens-badge{width:32px;height:32px;border-radius:50%;display:flex;
-    align-items:center;justify-content:center;font-size:12px;font-weight:800;
-    color:#fff;flex-shrink:0}
+    border-radius:7px;padding:13px 15px;display:flex;gap:11px;align-items:flex-start}
+  .sens-badge{width:28px;height:28px;border-radius:50%;display:flex;
+    align-items:center;justify-content:center;font-size:11px;font-weight:800;
+    color:#fff;flex-shrink:0;margin-top:1px}
   .sens-badge.p1{background:var(--accent)}
-  .sens-badge.p2{background:#f59e0b}
-  .sens-badge.p3{background:var(--ink)}
+  .sens-badge.p2{background:#d97706}
+  .sens-badge.p3{background:var(--ink-2)}
   .sens-badge.pN{background:var(--muted)}
-  .sens-change{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px;line-height:1.4}
-  .sens-effect{font-size:11px;color:var(--muted);line-height:1.4}
+  .sens-change{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px;line-height:1.4}
+  .sens-effect{font-size:11px;color:var(--muted);line-height:1.45}
 
   /* ── Dimension score chart ── */
-  .dim-chart{margin:0 0 20px}
-  .dim-chart-row{display:grid;grid-template-columns:160px 1fr 36px;
-    gap:10px;align-items:center;margin:5px 0}
+  .dim-chart{margin:0 0 18px}
+  .dim-chart-row{display:grid;grid-template-columns:155px 1fr 34px;
+    gap:9px;align-items:center;margin:4px 0}
   .dim-label-cell{font-size:11px;font-weight:600;color:var(--ink-2);
     text-overflow:ellipsis;overflow:hidden;white-space:nowrap;text-align:right}
-  .dim-bar-track{background:#f0f1f3;border-radius:4px;height:14px}
-  .dim-bar{height:100%;border-radius:4px;transition:width .3s}
+  .dim-bar-track{background:#e5e7eb;border-radius:3px;height:12px}
+  .dim-bar{height:100%;border-radius:3px}
   .dim-score-lbl{font-size:10px;font-weight:700;color:var(--muted);text-align:right}
 
   /* ── Price comparison chart ── */
-  .price-chart{margin:0 0 24px;background:var(--surface);border:1px solid var(--line);
-    border-radius:10px;padding:22px 24px;box-shadow:var(--shadow-sm)}
-  .price-chart-title{font-size:11px;font-weight:700;text-transform:uppercase;
-    letter-spacing:.08em;color:var(--accent);margin-bottom:20px}
-  .price-axis-wrap{position:relative;padding:36px 0 32px;margin:0 8px}
-  .price-axis-line{height:3px;background:#e5e7eb;border-radius:2px;position:relative}
+  .price-chart{margin:0 0 20px;background:var(--surface);border:1px solid var(--line);
+    border-radius:8px;padding:20px 22px}
+  .price-chart-title{font-size:10.5px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--accent);margin-bottom:18px}
+  .price-axis-wrap{position:relative;padding:34px 0 30px;margin:0 8px}
+  .price-axis-line{height:3px;background:#dde1e7;border-radius:2px;position:relative}
   .price-dot{position:absolute;transform:translateX(-50%) translateY(-50%);
-    top:50%;width:16px;height:16px;border-radius:50%;border:3px solid #fff;
-    box-shadow:0 2px 6px rgba(0,0,0,.2);z-index:2}
-  .price-dot.ours{background:var(--accent);width:22px;height:22px}
-  .price-dot.comp{background:var(--ink)}
+    top:50%;width:14px;height:14px;border-radius:50%;border:2.5px solid #fff;
+    box-shadow:0 1px 5px rgba(0,0,0,.18);z-index:2}
+  .price-dot.ours{background:var(--accent);width:20px;height:20px}
+  .price-dot.comp{background:var(--ink-2)}
   .price-top-label{position:absolute;transform:translateX(-50%);
-    bottom:calc(100% + 14px);font-size:11px;font-weight:700;
+    bottom:calc(100% + 12px);font-size:11px;font-weight:700;
     white-space:nowrap;color:var(--ink)}
-  .price-top-label.ours{color:var(--accent);font-size:12px}
+  .price-top-label.ours{color:var(--accent)}
   .price-bot-label{position:absolute;transform:translateX(-50%);
-    top:calc(100% + 14px);font-size:10px;color:var(--muted);white-space:nowrap}
+    top:calc(100% + 12px);font-size:9.5px;color:var(--muted);white-space:nowrap}
   .price-axis-ends{display:flex;justify-content:space-between;
     font-size:10px;color:var(--muted);font-weight:600;margin-top:4px}
 
   /* ── Budget allocation bar ── */
-  .budget-chart{margin:0 0 24px}
-  .budget-bar-row{display:flex;height:36px;border-radius:8px;overflow:hidden;
-    gap:2px;margin:12px 0;box-shadow:var(--shadow-sm)}
-  .budget-seg{display:flex;align-items:center;padding:0 10px;
+  .budget-chart{margin:0 0 20px}
+  .budget-bar-row{display:flex;height:32px;border-radius:7px;overflow:hidden;
+    gap:2px;margin:10px 0}
+  .budget-seg{display:flex;align-items:center;padding:0 9px;
     font-size:10px;font-weight:700;color:#fff;white-space:nowrap;
-    overflow:hidden;min-width:24px;transition:opacity .2s}
-  .budget-legend{font-size:11px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;margin-top:8px}
+    overflow:hidden;min-width:20px}
+  .budget-legend{font-size:11px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
   .budget-legend span{display:inline-flex;align-items:center;gap:5px}
   .budget-legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
 
-  /* ── Signature element: verdict band ── */
+  /* ── Channel verdict strip ── */
+  .cv-strip{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+  .cv-badge{display:inline-flex;align-items:center;gap:7px;
+    padding:8px 12px;border-radius:7px;border:1px solid var(--line);
+    background:var(--surface);font-size:12px}
+  .cv-badge-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .cv-name{font-weight:700;color:var(--ink);font-size:12px}
+  .cv-task{color:var(--muted);font-size:11px}
+
+  /* ── Challenge traffic lights ── */
+  .ch-visual{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+    gap:8px;margin:0 0 18px}
+  .ch-card{background:var(--surface);border:1px solid var(--line);
+    border-radius:7px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start}
+  .ch-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-top:3px}
+  .ch-dot.resolved{background:#16a34a}
+  .ch-dot.open{background:#d97706}
+  .ch-dot.open-blocking{background:#dc2626}
+  .ch-title{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px;line-height:1.35}
+  .ch-target{font-size:11px;color:var(--muted)}
+
+  /* ── Maturity ladder ── */
+  .maturity-ladder{display:flex;gap:2px;margin:0 0 18px;border-radius:7px;
+    overflow:hidden;border:1px solid var(--line)}
+  .ml-step{flex:1;padding:12px 14px;background:var(--surface);
+    font-size:11px;line-height:1.4;text-align:center;position:relative}
+  .ml-step.active{background:var(--accent);color:#fff}
+  .ml-step.done{background:var(--ok);color:var(--ok-ink)}
+  .ml-step-label{font-weight:700;font-size:12px;display:block;margin-bottom:2px}
+  .ml-step-desc{font-size:10.5px;opacity:.8}
+
+  /* ── Signature: verdict band ── */
   .memo{border:none;padding:0;box-shadow:none;background:transparent}
-  .memo-verdict-band{
-    background:var(--ink);color:#fff;
-    border-radius:12px 12px 0 0;padding:36px 32px 28px}
+  .memo-verdict-band{background:#1a202c;color:#fff;
+    border-radius:10px 10px 0 0;padding:32px 30px 26px}
   .verdict-label{font-size:10px;font-weight:700;letter-spacing:.12em;
-    text-transform:uppercase;opacity:.5;margin-bottom:8px}
-  .verdict{display:inline-block;padding:8px 24px;border-radius:6px;
-    font-weight:800;font-size:22px;letter-spacing:.03em}
+    text-transform:uppercase;opacity:.45;margin-bottom:8px}
+  .verdict{display:inline-block;padding:7px 22px;border-radius:6px;
+    font-weight:800;font-size:20px;letter-spacing:.03em}
   .verdict-go{background:var(--ok);color:var(--ok-ink)}
   .verdict-no-go{background:var(--bad);color:var(--bad-ink)}
   .verdict-conditional{background:var(--accent);color:#fff}
   .memo-body{background:var(--panel);border:1px solid var(--line);
-    border-top:none;border-radius:0 0 12px 12px;padding:28px 32px}
-  .memo-thesis{font-size:15px;line-height:1.7;margin:0 0 22px;color:var(--ink)}
-  .memo-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px}
-  .memo-grid>div{border:1px solid var(--line);border-radius:8px;
-    padding:16px 18px;background:var(--surface)}
-  .memo-grid h3{margin:0 0 10px}
-  .memo-grid ul{margin:0;padding-left:18px}
-  .memo-grid li{margin:6px 0;font-size:13.5px;line-height:1.5}
-  .mk-legend{font-size:11.5px;color:var(--muted);margin:16px 0 0;
-    padding-top:12px;border-top:1px solid var(--line)}
+    border-top:none;border-radius:0 0 10px 10px;padding:26px 30px}
+  .memo-thesis{font-size:14.5px;line-height:1.75;margin:0 0 20px;color:var(--ink)}
+  .memo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
+  .memo-grid>div{border:1px solid var(--line);border-radius:7px;
+    padding:15px 17px;background:var(--surface)}
+  .memo-grid h3{margin:0 0 9px}
+  .memo-grid ul{margin:0;padding-left:17px}
+  .memo-grid li{margin:5px 0;font-size:13.5px;line-height:1.55}
+  .mk-legend{font-size:11px;color:var(--muted);margin:14px 0 0;
+    padding-top:11px;border-top:1px solid var(--line)}
 
   /* ── Derivation chains ── */
   .derivation{font-family:ui-monospace,"JetBrains Mono",Consolas,monospace;
-    font-size:12px;background:var(--surface);border:1px solid var(--line);
-    border-left:3px solid var(--accent);border-radius:0 8px 8px 0;
-    padding:12px 16px;margin:10px 0;line-height:1.8}
-  .deriv-name{font-weight:700;font-size:13px;margin-bottom:4px;color:var(--ink)}
-  .deriv-line{padding-left:12px;color:#4b5563}
-  .deriv-result{padding-left:12px;margin-top:4px;font-weight:700;color:var(--ink)}
-  .deriv-note{margin-top:8px;color:var(--muted);
-    font-family:'Inter',sans-serif;font-size:12px;
+    font-size:11.5px;background:var(--surface);border:1px solid var(--line);
+    border-left:3px solid var(--accent);border-radius:0 7px 7px 0;
+    padding:11px 15px;margin:10px 0;line-height:1.8}
+  .deriv-name{font-weight:700;font-size:12.5px;margin-bottom:4px;color:var(--ink)}
+  .deriv-line{padding-left:11px;color:#4b5563}
+  .deriv-result{padding-left:11px;margin-top:4px;font-weight:700;color:var(--ink)}
+  .deriv-note{margin-top:7px;color:var(--muted);
+    font-family:'Inter',sans-serif;font-size:11.5px;
     padding-top:6px;border-top:1px dashed var(--line)}
-  .prov-note{color:var(--muted);font-size:11px}
+  .prov-note{color:var(--muted);font-size:10.5px}
 
   /* ── Provenance markers ── */
   sup.mk{font-size:9px;font-weight:700;padding:1px 3px;margin-left:1px;border-radius:2px}
@@ -498,8 +554,8 @@ _CSS = """
   .missing-val{color:#9ca3af;border-bottom:1px dashed #d1d5db}
 
   /* ── Pills ── */
-  .pill{display:inline-block;padding:2px 9px;border-radius:999px;
-    font-size:11px;font-weight:700;white-space:nowrap;letter-spacing:.01em}
+  .pill{display:inline-block;padding:2px 8px;border-radius:999px;
+    font-size:10.5px;font-weight:700;white-space:nowrap}
   .pill-viable{background:var(--ok);color:var(--ok-ink)}
   .pill-not-viable{background:var(--bad);color:var(--bad-ink)}
   .pill-undetermined{background:var(--warn);color:var(--warn-ink)}
@@ -508,93 +564,93 @@ _CSS = """
   .pill-open{background:var(--warn);color:var(--warn-ink)}
   .pill-open-blocking{background:var(--bad);color:var(--bad-ink)}
   .blocked-stamp{display:inline-block;border:2px solid var(--bad-ink);
-    color:var(--bad-ink);padding:2px 9px;border-radius:4px;
-    font-weight:700;font-size:11px;transform:rotate(-1.5deg);margin-left:8px}
+    color:var(--bad-ink);padding:2px 8px;border-radius:4px;
+    font-weight:700;font-size:10.5px;transform:rotate(-1.5deg);margin-left:7px}
 
   /* ── Tables ── */
   .table-wrap{overflow-x:auto;border:1px solid var(--line);
-    border-radius:8px;background:#fff;margin:12px 0}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th{background:var(--surface);font-weight:700;font-size:10.5px;text-transform:uppercase;
-    letter-spacing:.06em;color:var(--muted);padding:10px 14px;
+    border-radius:7px;background:#fff;margin:10px 0}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{background:var(--surface);font-weight:700;font-size:10px;text-transform:uppercase;
+    letter-spacing:.06em;color:var(--muted);padding:9px 13px;
     border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
-  td{padding:11px 14px;border-bottom:1px solid var(--line);
-    vertical-align:top;text-align:left;font-size:13px}
+  td{padding:10px 13px;border-bottom:1px solid var(--line);
+    vertical-align:top;text-align:left;font-size:12.5px}
   tr:last-child td{border-bottom:0}
   tr:nth-child(even) td{background:#fafafa}
 
   /* ── Cards ── */
-  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));
-    gap:14px;margin-top:14px}
-  .card{border:1px solid var(--line);border-radius:8px;
-    padding:16px 18px;background:var(--surface);border-top:3px solid var(--line)}
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+    gap:12px;margin-top:12px}
+  .card{border:1px solid var(--line);border-radius:7px;
+    padding:15px 17px;background:var(--surface);border-top:2px solid var(--line)}
   .card.blocked{border-top-color:var(--bad-ink);background:#fff8f8}
-  .card h3{margin:0 0 10px;font-size:14px;font-weight:700;line-height:1.35}
-  .card dl{margin:0;font-size:13px}
-  .card dt{color:var(--muted);font-size:10px;font-weight:700;
-    text-transform:uppercase;letter-spacing:.06em;margin-top:10px}
+  .card h3{margin:0 0 9px;font-size:13.5px;font-weight:700;line-height:1.35}
+  .card dl{margin:0;font-size:12.5px}
+  .card dt{color:var(--muted);font-size:9.5px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.06em;margin-top:9px}
   .card dd{margin:3px 0 0;line-height:1.5}
 
   /* ── Callout ── */
-  .callout{border-left:4px solid var(--accent);border-radius:0 8px 8px 0;
-    padding:14px 18px;margin:14px 0;background:var(--accent-light);
-    font-size:13.5px;line-height:1.6}
+  .callout{border-left:3px solid var(--accent);border-radius:0 7px 7px 0;
+    padding:13px 17px;margin:12px 0;background:var(--accent-light);
+    font-size:13px;line-height:1.65}
 
   /* ── Heatmap ── */
   .heatmap{display:grid;gap:2px;background:var(--line);
-    border:1px solid var(--line);border-radius:8px;
-    overflow:hidden;font-size:11px;margin:14px 0;overflow-x:auto}
-  .hm-header{background:var(--ink);color:#fff;font-weight:700;
-    padding:7px 6px;text-align:center;font-size:9.5px;
+    border:1px solid var(--line);border-radius:7px;
+    overflow:hidden;font-size:11px;margin:12px 0;overflow-x:auto}
+  .hm-header{background:#1f2937;color:#fff;font-weight:700;
+    padding:7px 6px;text-align:center;font-size:9px;
     text-transform:uppercase;letter-spacing:.03em;line-height:1.3;
     word-break:break-all;min-width:36px}
   .hm-label{background:#f9fafb;font-weight:600;padding:8px 10px;
     font-size:11px;color:var(--ink);white-space:nowrap}
-  .hm-cell{padding:8px 4px;text-align:center;font-weight:800;
-    font-size:11px;letter-spacing:.03em;min-width:36px}
-  .hm-high{background:#f04e23;color:#fff}
+  .hm-cell{padding:7px 4px;text-align:center;font-weight:800;
+    font-size:10.5px;letter-spacing:.03em;min-width:36px}
+  .hm-high{background:#c94220;color:#fff}
   .hm-test{background:#78350f;color:#fff}
   .hm-small{background:#e5e7eb;color:#4b5563}
   .hm-none{background:#f9fafb;color:#d1d5db}
   .hm-avoid{background:#991b1b;color:#fff}
 
   /* ── Score dots ── */
-  .score-bar{display:inline-flex;gap:3px;vertical-align:middle}
-  .score-dot{width:8px;height:8px;border-radius:50%}
-  .score-dot.pass{background:#f04e23}.score-dot.fail{background:#e5e7eb}
+  .score-bar{display:inline-flex;gap:2px;vertical-align:middle}
+  .score-dot{width:7px;height:7px;border-radius:50%}
+  .score-dot.pass{background:var(--accent)}.score-dot.fail{background:#e5e7eb}
 
   /* ── KOL card ── */
-  .kol-card{border:1px solid var(--line);border-radius:8px;
-    padding:16px 18px;background:var(--surface);margin:10px 0;
+  .kol-card{border:1px solid var(--line);border-radius:7px;
+    padding:15px 17px;background:var(--surface);margin:9px 0;
     border-left:3px solid var(--accent)}
 
   /* ── Checklist ── */
   .checklist{list-style:none;padding:0;margin:0}
-  .checklist li{display:flex;gap:12px;padding:9px 0;
+  .checklist li{display:flex;gap:11px;padding:8px 0;
     border-bottom:1px solid var(--line);font-size:13px;align-items:flex-start}
   .checklist li:last-child{border-bottom:0}
   .chk-pending{color:var(--warn-ink);font-weight:800;min-width:18px;margin-top:1px}
   .chk-done{color:var(--ok-ink);font-weight:800;min-width:18px;margin-top:1px}
   .chk-blocked{color:var(--bad-ink);font-weight:800;min-width:18px;margin-top:1px}
 
-  /* ── Evidence claim tags ── */
-  .tag{display:inline-block;padding:2px 8px;border-radius:999px;
-    font-size:11px;font-weight:700;white-space:nowrap}
+  /* ── Evidence tags ── */
+  .tag{display:inline-block;padding:2px 7px;border-radius:999px;
+    font-size:10.5px;font-weight:700;white-space:nowrap}
   .tag.evidence{background:var(--ok);color:var(--ok-ink)}
   .tag.assumption{background:var(--warn);color:var(--warn-ink)}
   .tag.hypothesis{background:#dbeafe;color:#1e40af}
   .tag.needs-test{background:var(--bad);color:var(--bad-ink)}
 
-  /* ── Footer ── */
-  footer{max-width:1040px;margin:0 auto;padding:20px 24px 48px;
-    color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
-
-  @media(max-width:720px){
-    .memo-grid,.cards{grid-template-columns:1fr}
-    .dim-chart-row{grid-template-columns:100px 1fr 32px}
-    .sens-grid{grid-template-columns:1fr}
+  @media(max-width:760px){
+    .page-layout{grid-template-columns:1fr}
+    .sidebar{display:none}
+    .memo-grid,.cards,.sens-grid,.ch-visual,.cv-strip{grid-template-columns:1fr}
+    .dim-chart-row{grid-template-columns:90px 1fr 30px}
+    .maturity-ladder{flex-direction:column}
   }
   @media print{body{background:#fff;font-size:12px}
+    .sidebar{display:none}
+    .page-layout{grid-template-columns:1fr}
     section{break-inside:avoid;box-shadow:none}
     .memo-verdict-band{-webkit-print-color-adjust:exact;print-color-adjust:exact}
     a{color:var(--ink)}}
@@ -624,7 +680,7 @@ def s_memo(cfg: dict) -> str:
             items = "".join(f"<li>{esc(t)}</li>" for t in buckets[h])
             decision_html += f"<h3>{horizon_label[h]}</h3><ul>{items}</ul>"
     overturn = "".join(f"<li>{esc(c)}</li>" for c in memo.get("overturn_conditions", []))
-    return f"""<section class="memo">
+    return f"""<section id="s1" class="memo">
   <div class="memo-verdict-band">
     <div class="verdict-label">{esc(L(cfg, "verdict_label", "VERDICT"))}</div>
     <div><span class="verdict verdict-{esc(verdict)}">{esc(vlabel)}</span></div>
@@ -873,6 +929,77 @@ def s_price_comparison(cfg: dict, numbers: dict) -> str:
 </div>"""
 
 
+def _narrative_intro(cfg: dict, key: str, default: str = "") -> str:
+    text = L(cfg, key, default)
+    if not text:
+        return ""
+    return f'<p class="section-intro">{text}</p>'
+
+
+def s_channel_verdict_visual(cfg: dict) -> str:
+    """Visual strip of channel verdict badges before the detail table."""
+    channels = cfg.get("channel_screen", [])
+    if not channels:
+        return ""
+    _dot = {"viable": "#16a34a", "undetermined": "#d97706",
+             "not-viable": "#dc2626", "role-only": "#9ca3af"}
+    badges = ""
+    for ch in channels:
+        v = ch.get("verdict", "undetermined")
+        color = _dot.get(v, "#9ca3af")
+        task = ch.get("reasoning", "")[:60] + ("…" if len(ch.get("reasoning", "")) > 60 else "")
+        badges += (
+            f'<div class="cv-badge">'
+            f'<div class="cv-badge-dot" style="background:{color}"></div>'
+            f'<div><div class="cv-name">{esc(ch["channel"])}</div>'
+            f'<div class="cv-task">{esc(task)}</div></div>'
+            f'</div>'
+        )
+    return f'<div class="cv-strip">{badges}</div>'
+
+
+def s_challenge_visual(cfg: dict) -> str:
+    """Traffic-light card grid for challenges — rendered above the detail table."""
+    challenges = cfg.get("challenges", [])
+    if not challenges:
+        return ""
+    cards = ""
+    for c in challenges:
+        status = c.get("status", "open")
+        cards += (
+            f'<div class="ch-card">'
+            f'<div class="ch-dot {esc(status)}"></div>'
+            f'<div><div class="ch-title">{esc(c["id"])} · {esc(c["target"])}</div>'
+            f'<div class="ch-target">{esc(c["question"][:80])}{"…" if len(c["question"]) > 80 else ""}</div></div>'
+            f'</div>'
+        )
+    return f'<div class="ch-visual">{cards}</div>'
+
+
+def s_maturity_visual(cfg: dict) -> str:
+    """Visual L0→L1→L2→L3 maturity ladder with current step highlighted."""
+    mp = cfg.get("measurement_plan", {})
+    current = mp.get("maturity", "L0")
+    steps = [
+        ("L0", L(cfg, "ml_l0", "Pre-experiment"), L(cfg, "ml_l0_desc", "No holdout yet")),
+        ("L1", L(cfg, "ml_l1", "GCG + retrospective"), L(cfg, "ml_l1_desc", "Randomized holdout")),
+        ("L2", L(cfg, "ml_l2", "Policy learning + OPE"), L(cfg, "ml_l2_desc", "Offline validation")),
+        ("L3", L(cfg, "ml_l3", "Contextual bandit"), L(cfg, "ml_l3_desc", "Online learning")),
+    ]
+    order = [s[0] for s in steps]
+    current_idx = order.index(current) if current in order else 0
+    items = ""
+    for i, (level, label, desc) in enumerate(steps):
+        cls = "active" if i == current_idx else ("done" if i < current_idx else "")
+        items += (
+            f'<div class="ml-step {cls}">'
+            f'<span class="ml-step-label">{esc(level)} · {esc(label)}</span>'
+            f'<span class="ml-step-desc">{esc(desc)}</span>'
+            f'</div>'
+        )
+    return f'<div class="maturity-ladder">{items}</div>'
+
+
 def s_math(cfg: dict, numbers: dict) -> str:
     kpi = s_kpi_strip(cfg, numbers)
     cac_chart = s_cac_chart(cfg, numbers)
@@ -894,8 +1021,13 @@ def s_math(cfg: dict, numbers: dict) -> str:
     <tbody>{screen_rows}</tbody></table></div>
   <p style="font-size:13px;color:var(--muted)">{L(cfg, "screen_note", "Rules: a benchmark-based estimate can prove <em>not-viable</em> (best case still fails) but never <em>viable</em> — that requires local data. <em>undetermined</em> means the interval spans the ceiling; the action is to get data, not to pick an endpoint.")}</p>"""
 
-    return f"""<section>
+    intro = _narrative_intro(cfg, "s2_intro",
+        "The verdict above rests on a single economic logic: unit margin sets the ceiling on how much we can spend to acquire one customer. "
+        "Every channel and every action in this report is evaluated against that ceiling. "
+        "A benchmark can only disprove viability — it cannot confirm it.")
+    return f"""<section id="s2">
   <h2>{esc(L(cfg, "math_heading", "2 · The Math"))}</h2>
+  {intro}
   {kpi}
   {cac_chart}
   {chains}
@@ -952,8 +1084,16 @@ def s_challenges(cfg: dict) -> str:
                  f"<td>{esc(c['question'])}</td>"
                  f"<td><span class='pill pill-{esc(c['status'])}'>{esc(c['status'])}</span></td>"
                  f"<td>{esc(c.get('resolution') or c.get('evidence_needed', ''))}</td></tr>")
-    return f"""<section>
+    ch_visual = s_challenge_visual(cfg)
+    intro = _narrative_intro(cfg, "s9_intro",
+        "An independent review pass raised these challenges after the initial analysis was complete. "
+        "They are immutable — the analysis may respond but cannot rewrite them. "
+        "Open-blocking challenges stamp every dependent action with a BLOCKED notice. "
+        "Displaying unresolved challenges openly is the trust mechanism of this framework.")
+    return f"""<section id=\"s9\">
   <h2>{esc(L(cfg, "challenges_heading", "9 · Causal Activation Reviewer (campaign-level)"))}</h2>
+  {intro}
+  {ch_visual}
   <p>{L(cfg, "challenges_intro", 'Challenges are raised by an independent review pass and are immutable — the analysis may respond but not rewrite them. <strong>open-blocking</strong> challenges stamp every action that depends on them. An unresolved challenge displayed openly is the trust mechanism; "resolved" requires data, not rhetoric.')}</p>
   <div class="table-wrap"><table>
     <thead><tr><th>{esc(L(cfg, "ch_th_challenge", "Challenge"))}</th><th>{esc(L(cfg, "ch_th_question", "Question"))}</th><th>{esc(L(cfg, "ch_th_status", "Status"))}</th><th>{esc(L(cfg, "ch_th_resolution", "Resolution / evidence needed"))}</th></tr></thead>
@@ -973,8 +1113,13 @@ def s_test_plan(cfg: dict) -> str:
     <dt>{esc(L(cfg, 'decision_date_label', 'Decision date'))}</dt><dd>{esc(t['decision_date'])}</dd>
   </dl>
 </div>"""
-    return f"""<section>
+    intro = _narrative_intro(cfg, "s14_intro",
+        "Every Treatment Card from section 8 carries a falsifiable prediction and a kill line. "
+        "These are not milestones — they are decision gates. On the decision date, "
+        "the prediction either becomes Sourced evidence or the action is killed and the budget is returned.")
+    return f"""<section id=\"s14\">
   <h2>{esc(L(cfg, "testplan_heading", "14 · Test Plan"))}</h2>
+  {intro}
   <p>{L(cfg, "testplan_intro", "Every claim that survives to budget carries a falsifiable prediction, a kill line, and a decision date. On that date the line either becomes Sourced or is declared dead.")}</p>
   {power_bridge(cfg)}
   <div class="cards">{cards}</div>
@@ -998,8 +1143,14 @@ def s_evidence(cfg: dict, numbers: dict) -> str:
         f"<td>{esc(spec.get('cost_to_get', '—'))}</td><td>{esc(', '.join(spec.get('blocks', [])) or '—')}</td></tr>"
         for nid, spec in numbers.items() if spec["provenance"] == "missing"
     )
-    return f"""<section>
+    intro = _narrative_intro(cfg, "s16_intro",
+        "This is the audit trail for every number in the report. "
+        "Every value above is either Sourced (linked to a URL), Assumed (basis explicitly stated), "
+        "Derived (formula shown with inputs), or Missing (placeholder — no value was invented). "
+        "The Missing ledger is ordered by sensitivity: the top items are the work plan.")
+    return f"""<section id=\"s16\">
   <h2>{esc(L(cfg, "evidence_heading", "16 · Evidence & Gaps"))}</h2>
+  {intro}
   <h3>{esc(L(cfg, "sourced_facts_heading", "Sourced facts"))}</h3>
   <div class="table-wrap"><table>
     <thead><tr><th>{esc(L(cfg, "ev_th_fact", "Fact"))}</th><th>{esc(L(cfg, "ev_th_source", "Source"))}</th><th>{esc(L(cfg, "ev_th_accessed", "Accessed"))}</th></tr></thead>
@@ -1038,8 +1189,13 @@ def s_product_facts(cfg: dict, numbers: dict) -> str:
   <thead><tr><th>{esc(L(cfg, "mf_th_fact", "Fact"))}</th><th>{esc(L(cfg, "mf_th_status", "Status"))}</th></tr></thead>
   <tbody>{mfact_rows}</tbody></table></div>""" if mfact_rows else ""
     price_chart = s_price_comparison(cfg, numbers)
-    return f"""<section>
+    intro = _narrative_intro(cfg, "s3_intro",
+        "The economics establish the ceiling. This section grounds the analysis in product reality: "
+        "which features carry differentiation value, how the product is positioned against competitors, "
+        "and which market facts constrain the channel and audience strategy.")
+    return f"""<section id=\"s3\">
   <h2>{esc(L(cfg, "product_heading", "3 · Product & Market Facts"))}</h2>
+  {intro}
   {price_chart}
   {feat_table}
   {mfact_table}
@@ -1059,8 +1215,15 @@ def s_channel_map(cfg: dict, numbers: dict) -> str:
                  f"<td><span class='pill pill-{esc(v)}'>{esc(v)}</span></td>"
                  f"<td>{cac_est}</td>"
                  f"<td>{esc(ch.get('note',''))}</td></tr>")
-    return f"""<section>
+    cv_visual = s_channel_verdict_visual(cfg)
+    intro = _narrative_intro(cfg, "s4_intro",
+        "With the CAC ceiling set above, each channel is now screened: can its cost-per-acquisition "
+        "interval fall under the ceiling? The verdict strip below gives the quick answer; "
+        "the table below it provides the reasoning. Remember: a benchmark can only rule a channel OUT.")
+    return f"""<section id=\"s4\">
   <h2>{esc(L(cfg, "channel_heading", "4 · Local Channel Map"))}</h2>
+  {intro}
+  {cv_visual}
   <div class="table-wrap"><table>
     <thead><tr><th>{esc(L(cfg, "cm_th_channel", "Channel"))}</th><th>{esc(L(cfg, "cm_th_task", "Task"))}</th><th>{esc(L(cfg, "cm_th_proxy", "Proxy quality"))}</th><th>{esc(L(cfg, "cm_th_verdict", "Verdict"))}</th><th>{esc(L(cfg, "cm_th_cac", "CAC estimate"))}</th><th>{esc(L(cfg, "cm_th_note", "Note"))}</th></tr></thead>
     <tbody>{rows}</tbody></table></div>
@@ -1105,8 +1268,14 @@ def s_dimensions(cfg: dict) -> str:
   <tbody>{reviewer_rows}</tbody></table></div>
 <div class="callout">{esc(L(cfg, "reviewer_callout", "D dimensions are candidate operational variables for trial design. Before entering primary budget, each must pass: deployable proxy, testable incrementality, stated mechanism, no compliance or margin risk."))}</div>""" if reviewer_rows else ""
     dim_chart = s_dimension_chart(cfg)
-    return f"""<section>
+    intro = _narrative_intro(cfg, "s5_intro",
+        "The channel screen tells us WHERE to reach buyers. The dimension table asks a different question: "
+        "within those channels, which buyer characteristics predict incremental response? "
+        "Each dimension must pass four criteria before entering budget: deployable proxy, testable incrementality, "
+        "stated mechanism, no compliance or margin risk.")
+    return f"""<section id=\"s5\">
   <h2>{esc(L(cfg, "dim_heading", "5 · D Dimension Table & Causal Activation Reviewer"))}</h2>
+  {intro}
   {dim_chart}
   <div class="table-wrap"><table>
     <thead><tr><th>{esc(L(cfg, "dt_th_dimension", "Dimension"))}</th><th>{esc(L(cfg, "dt_th_mechanism", "Mechanism"))}</th><th>{esc(L(cfg, "dt_th_proxy", "Platform proxy"))}</th><th>{esc(L(cfg, "dt_th_score", "Score"))}</th><th>{esc(L(cfg, "dt_th_verdict", "Verdict"))}</th><th>{esc(L(cfg, "dt_th_status", "Status"))}</th></tr></thead>
@@ -1142,8 +1311,13 @@ def s_heatmap(cfg: dict) -> str:
             cls = _score_cls.get(sc, "hm-none")
             rows += f'<div class="hm-cell {esc(cls)}">{esc(sc)}</div>'
     legend = " · ".join(f'<span class="hm-cell {_score_cls[s]}" style="display:inline-block;padding:2px 8px;border-radius:4px">{s}</span> {lbl.split("—")[1].strip()}' for s, lbl in score_labels.items())
-    return f"""<section>
+    intro = _narrative_intro(cfg, "s6_intro",
+        "The heatmap cross-references every dimension against every channel. "
+        "Cells marked H are the primary investment targets — where we expect the strongest positive uplift. "
+        "Cells marked A require active suppression: targeting these users would likely destroy margin, not grow it.")
+    return f"""<section id=\"s6\">
   <h2>{esc(L(cfg, "heatmap_heading", "6 · Semantic Heatmap (channel × dimension)"))}</h2>
+  {intro}
   <p style="font-size:13px">{L(cfg, "heatmap_intro", "Only channels that survived the viability screen appear. H = primary investment target; A = actively suppress.")}</p>
   <div class="heatmap" style="grid-template-columns:{esc(col_def)};margin:12px 0">
     {header}{rows}
@@ -1162,8 +1336,13 @@ def s_h_main(cfg: dict) -> str:
         f"<td style='font-size:12px'>{esc(h.get('notes',''))}</td></tr>"
         for h in h_cells
     )
-    return f"""<section>
+    intro = _narrative_intro(cfg, "s7_intro",
+        "The heatmap above identified all H and T cells. This section narrows to the H-main cells: "
+        "the specific channel-dimension combinations where we expect positive incremental lift. "
+        "Each row here maps directly to a Treatment Card in section 8. Priority runs top to bottom.")
+    return f"""<section id=\"s7\">
   <h2>{esc(L(cfg, "hmain_heading", "7 · H-Main Breakdown"))}</h2>
+  {intro}
   <p>{esc(L(cfg, "hmain_intro", "These are the cells where HTE is expected to be positive. Each maps to a Treatment Card in the Execution Gates section. Priority order: top to bottom."))}</p>
   <div class="table-wrap"><table>
     <thead><tr><th>{esc(L(cfg, "hmain_th_cell", "Channel × Dimension"))}</th><th>{esc(L(cfg, "hmain_th_hypothesis", "HTE hypothesis"))}</th><th>{esc(L(cfg, "hmain_th_tcard", "Treatment Card"))}</th><th>{esc(L(cfg, "hmain_th_notes", "Notes"))}</th></tr></thead>
@@ -1212,8 +1391,14 @@ def s_execution_gates(cfg: dict, numbers: dict, challenges_by_id: dict) -> str:
   </dl>
 </div>"""
     maturity = cfg.get("measurement_plan", {}).get("maturity", "L0")
-    return f"""<section>
+    intro = _narrative_intro(cfg, "s8_intro",
+        "Treatment Cards translate the H-main hypotheses from section 7 into operational plans. "
+        "Each card specifies who we reach (audience), what we do (mechanism), "
+        "what we protect against (guardrail), and how we measure (test). "
+        "Gates must be cleared before budget unlocks.")
+    return f"""<section id=\"s8\">
   <h2>{esc(L(cfg, "eg_heading", "8 · Execution Gates & Treatment Cards"))}</h2>
+  {intro}
   <p><strong>{esc(L(cfg, "maturity_label", "Maturity"))}: {esc(maturity)}</strong> — {esc(L(cfg, "eg_maturity_note", "this analysis supports trial design and channel screening, not CATE claims or policy optimization."))}</p>
   {gate_html}
   {power_bridge(cfg)}
@@ -1235,8 +1420,14 @@ def s_budget(cfg: dict, numbers: dict) -> str:
     )
     note = cfg.get("budget_note", "")
     budget_chart = s_budget_chart(cfg, numbers)
-    return f"""<section>
+    intro = _narrative_intro(cfg, "s10_intro",
+        "Budget allocation follows the channel screen and execution gates — not the reverse. "
+        "Only channels that survived the screen receive funds. "
+        "Each line is conditional on a gate from section 8 being cleared. "
+        "If the gate does not clear, the budget line remains locked.")
+    return f"""<section id=\"s10\">
   <h2>{esc(L(cfg, "budget_heading", "10 · Budget Allocation"))}</h2>
+  {intro}
   {budget_chart}
   <div class="table-wrap"><table>
     <thead><tr><th>{esc(L(cfg, "bg_th_phase", "Phase"))}</th><th>{esc(L(cfg, "bg_th_item", "Item"))}</th><th>{esc(L(cfg, "bg_th_budget", "Budget"))}</th><th>{esc(L(cfg, "bg_th_condition", "Condition"))}</th></tr></thead>
@@ -1264,8 +1455,14 @@ def s_priority_plays(cfg: dict, numbers: dict) -> str:
         for p in plays
     )
     auuc_note = cfg.get("auuc_note", "No uplift model scores available yet — AUUC gate will be applied when model predictions are generated after pilot data collection.")
-    return f"""<section>
+    intro = _narrative_intro(cfg, "s11_intro",
+        "Given the channel screen, dimension scores, and budget structure above, "
+        "these are the three moves with the highest expected return in the next 90 days. "
+        "Each play references the Treatment Card it activates and carries a kill line "
+        "that forces a decision before the next budget cycle.")
+    return f"""<section id=\"s11\">
   <h2>{esc(L(cfg, "plays_heading", "11 · Priority Plays & ROI Scenarios"))}</h2>
+  {intro}
   <div class="callout">{esc(auuc_note)}</div>
   <div class="cards">{cards}</div>
 </section>"""
@@ -1300,9 +1497,14 @@ def s_kol(cfg: dict, numbers: dict) -> str:
     <dd><span class="tag needs-test">{needstest_lbl}</span> {esc(c['incrementality_note'])}</dd>
   </dl>
 </div>"""
+    intro = _narrative_intro(cfg, "s12_intro",
+        "Creator sourcing follows the channel map: YouTube and social serve a content-asset role, not direct response. "
+        "A KOL post generates awareness and anchors the product story — it does not prove incrementality. "
+        "All creator attribution below is tagged Hypothesis until a holdout arm isolates the causal effect.")
     rule = kol.get("roi_rule", "KOL ROI is never Evidence without a holdout or credible identification strategy. All creator attribution is tagged Hypothesis until a holdout arm is designed.")
-    return f"""<section>
+    return f"""<section id=\"s12\">
   <h2>{esc(L(cfg, "kol_heading", "12 · KOL / Creator Sourcing"))}</h2>
+  {intro}
   <div class="callout">{esc(rule)}</div>
   {creator_html}
 </section>"""
@@ -1322,8 +1524,15 @@ def s_measurement(cfg: dict) -> str:
     hte_note = mp.get("hte_note", "")
     sec = mp.get("secondary_metrics", [])
     sec_items = "".join(f"<li>{esc(m)}</li>" for m in sec)
-    return f"""<section>
+    maturity_visual = s_maturity_visual(cfg)
+    intro = _narrative_intro(cfg, "s13_intro",
+        "The measurement plan connects directly to the D dimensions (section 5) and Treatment Cards (section 8). "
+        "Without the GCG specified here, there is no way to separate marketing-caused outcomes "
+        "from coincident trends. The maturity ladder below shows where this programme sits and what it takes to advance.")
+    return f"""<section id=\"s13\">
   <h2>{esc(L(cfg, "measurement_heading", "13 · Measurement Plan"))}</h2>
+  {intro}
+  {maturity_visual}
   <p><strong>{esc(L(cfg, "maturity_label", "Maturity"))}: {esc(maturity)}</strong></p>
   <p><strong>{esc(L(cfg, "mp_primary", "Primary metric:"))}</strong> {esc(primary)}</p>
   {"<p><strong>" + esc(L(cfg, "mp_secondary", "Secondary metrics:")) + "</strong></p><ul>" + sec_items + "</ul>" if sec_items else ""}
@@ -1344,8 +1553,13 @@ def s_suppression(cfg: dict) -> str:
         for r in rules
     )
     ope_note = cfg.get("ope_note", "OPE support check (ope_estimators.py) will run once propensity log P(t|x) is available. Gate: support check must pass before any scaled deployment.")
-    return f"""<section>
+    intro = _narrative_intro(cfg, "s15_intro",
+        "Suppression is as important as targeting. The rules below define who NOT to reach — "
+        "protecting margin, preventing regulatory exposure, and avoiding the adverse selection "
+        "that turns a positive CATE campaign into a negative-profit programme.")
+    return f"""<section id=\"s15\">
   <h2>{esc(L(cfg, "suppression_heading", "15 · Suppression & Risk Rules"))}</h2>
+  {intro}
   <div class="callout">{esc(ope_note)}</div>
   <div class="table-wrap"><table>
     <thead><tr><th>{esc(L(cfg, "sp_th_rule", "Rule"))}</th><th>{esc(L(cfg, "sp_th_dimension", "Dimension"))}</th><th>{esc(L(cfg, "sp_th_reason", "Reason"))}</th></tr></thead>
@@ -1363,8 +1577,13 @@ def s_checklist(cfg: dict) -> str:
         f'{esc(status_icons.get(i["status"],"○"))}</span> {esc(i["item"])}</li>'
         for i in items
     )
-    return f"""<section>
+    intro = _narrative_intro(cfg, "s17_intro",
+        "Pre-launch verification checklist. All items must reach Done before any budget is unlocked. "
+        "Pending items block the corresponding Treatment Cards. "
+        "This checklist is the operational translation of the Missing ledger above.")
+    return f"""<section id=\"s17\">
   <h2>{esc(L(cfg, "checklist_heading", "17 · Sources & Verification Checklist"))}</h2>
+  {intro}
   <ul class="checklist">{list_items}</ul>
 </section>"""
 
@@ -1419,6 +1638,40 @@ def generate_html(cfg: dict) -> str:
         ]
 
     title = f'{meta.get("product", "")} — {meta.get("market", "")} Decision Memo'
+
+    # Build sidebar TOC
+    _toc_items = [
+        ("s1",  L(cfg, "memo_heading",        "1 · Decision Memo")),
+        ("s2",  L(cfg, "math_heading",        "2 · The Math")),
+        ("s3",  L(cfg, "product_heading",     "3 · Product & Market Facts")),
+        ("s4",  L(cfg, "channel_heading",     "4 · Local Channel Map")),
+        ("s5",  L(cfg, "dim_heading",         "5 · D Dimensions")),
+        ("s6",  L(cfg, "heatmap_heading",     "6 · Heatmap")),
+        ("s7",  L(cfg, "hmain_heading",       "7 · H-Main")),
+        ("s8",  L(cfg, "eg_heading",          "8 · Execution Gates")),
+        ("s9",  L(cfg, "challenges_heading",  "9 · Challenges")),
+        ("s10", L(cfg, "budget_heading",      "10 · Budget")),
+        ("s11", L(cfg, "plays_heading",       "11 · Priority Plays")),
+        ("s12", L(cfg, "kol_heading",         "12 · KOL")),
+        ("s13", L(cfg, "measurement_heading", "13 · Measurement")),
+        ("s14", L(cfg, "testplan_heading",    "14 · Test Plan")),
+        ("s15", L(cfg, "suppression_heading", "15 · Suppression")),
+        ("s16", L(cfg, "evidence_heading",    "16 · Evidence")),
+        ("s17", L(cfg, "checklist_heading",   "17 · Checklist")),
+    ]
+    if short_mode:
+        _toc_items = [t for t in _toc_items if t[0] in ("s1", "s2", "s16")]
+
+    toc_links = "".join(
+        f'<a class="toc-link" href="#{sid}" id="toc-{sid}">{esc(label[:32])}</a>\n'
+        for sid, label in _toc_items
+    )
+    sidebar = f'''<aside class="sidebar">
+  <div class="toc-logo">{esc(meta.get("product","")[:20])}<br><span>{esc(meta.get("market",""))}</span></div>
+  <div class="toc-group-label">{esc(L(cfg, "toc_title", "CONTENTS"))}</div>
+  {toc_links}
+</aside>'''
+
     return f"""<!doctype html>
 <html lang="{esc(meta.get("lang", "hu"))}">
 <head>
@@ -1427,14 +1680,36 @@ def generate_html(cfg: dict) -> str:
 <style>{_CSS}</style>
 </head>
 <body>
+<div class="page-layout">
+{sidebar}
+<div class="content-col">
 <main>
-{''.join(parts)}
+{"".join(parts)}
 </main>
 <footer>
-  Generated {esc(meta.get("date", str(date.today())))} ·
-  Every number is sourced, assumed (basis stated), derived (chain shown), or missing (no value displayed) ·
-  <a href="https://github.com/alexwang91/scientific-marketing-personalized-attribution-hte">methodology</a>
+  {esc(meta.get("date", str(date.today())))} &nbsp;·&nbsp;
+  {esc(L(cfg, "footer_note", "Every number is sourced, assumed, derived, or missing — none invented"))} &nbsp;·&nbsp;
+  <a href="https://github.com/alexwang91/scientific-marketing-personalized-attribution-hte">{esc(L(cfg, "footer_method", "methodology"))}</a>
 </footer>
+</div>
+</div>
+<script>
+(function(){{
+  var links = document.querySelectorAll(".toc-link");
+  var secs = document.querySelectorAll("section[id]");
+  if(!secs.length) return;
+  var obs = new IntersectionObserver(function(entries){{
+    entries.forEach(function(e){{
+      if(e.isIntersecting){{
+        links.forEach(function(a){{
+          a.classList.toggle("active", a.getAttribute("href")==="#"+e.target.id);
+        }});
+      }}
+    }});
+  }}, {{threshold:0.15, rootMargin:"-8% 0px -75% 0px"}});
+  secs.forEach(function(s){{ obs.observe(s); }});
+}})();
+</script>
 </body>
 </html>"""
 
