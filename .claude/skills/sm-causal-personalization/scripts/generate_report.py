@@ -431,14 +431,15 @@ _CSS = """
   /* ── Heatmap: the hero visual ── */
   .heatmap{display:grid;gap:2px;background:var(--line);
     border:1px solid var(--line);border-radius:var(--radius);
-    overflow:hidden;font-size:12px;margin:14px 0}
+    overflow:hidden;font-size:11px;margin:14px 0;overflow-x:auto}
   .hm-header{background:#1a1f2e;color:#fff;font-weight:700;
-    padding:9px 11px;text-align:center;font-size:11px;
-    text-transform:uppercase;letter-spacing:.05em}
-  .hm-label{background:#f9fafb;font-weight:600;padding:9px 11px;
-    font-size:12px;color:var(--ink)}
-  .hm-cell{padding:9px 11px;text-align:center;font-weight:800;
-    font-size:12px;letter-spacing:.03em}
+    padding:7px 6px;text-align:center;font-size:10px;
+    text-transform:uppercase;letter-spacing:.03em;line-height:1.3;
+    word-break:break-all;min-width:36px}
+  .hm-label{background:#f9fafb;font-weight:600;padding:8px 10px;
+    font-size:11px;color:var(--ink);white-space:nowrap}
+  .hm-cell{padding:8px 4px;text-align:center;font-weight:800;
+    font-size:11px;letter-spacing:.03em;min-width:36px}
   .hm-high{background:#f04e23;color:#fff}
   .hm-test{background:#78350f;color:#fff}
   .hm-small{background:#e5e7eb;color:#4b5563}
@@ -785,8 +786,10 @@ def s_heatmap(cfg: dict) -> str:
     scores = hm["scores"]
     label_map = hm.get("dim_labels", {})
     score_labels = {"H": "H — Primary", "T": "T — Test", "S": "S — Small", "N": "N — None", "A": "A — Avoid"}
+    _score_cls = {"H": "hm-high", "T": "hm-test", "S": "hm-small", "N": "hm-none", "A": "hm-avoid"}
     n_cols = len(dims) + 1
-    col_def = f"repeat({n_cols}, 1fr)"
+    label_col = "2fr" if len(dims) > 8 else "1fr"
+    col_def = f"{label_col} repeat({len(dims)}, 1fr)"
     corner = esc(L(cfg, "heatmap_corner", "Channel / Dimension"))
     header = f'<div class="hm-header">{corner}</div>' + "".join(
         f'<div class="hm-header">{esc(label_map.get(d, d))}</div>' for d in dims
@@ -796,8 +799,9 @@ def s_heatmap(cfg: dict) -> str:
         rows += f'<div class="hm-label">{esc(ch)}</div>'
         for d in dims:
             sc = scores.get(ch, {}).get(d, "N")
-            rows += f'<div class="hm-cell hm-{esc(sc.lower())}">{esc(sc)}</div>'
-    legend = " · ".join(f'<span class="hm-cell hm-{s.lower()}" style="display:inline-block;padding:2px 8px;border-radius:4px">{s}</span> {lbl.split("—")[1].strip()}' for s, lbl in score_labels.items())
+            cls = _score_cls.get(sc, "hm-none")
+            rows += f'<div class="hm-cell {esc(cls)}">{esc(sc)}</div>'
+    legend = " · ".join(f'<span class="hm-cell {_score_cls[s]}" style="display:inline-block;padding:2px 8px;border-radius:4px">{s}</span> {lbl.split("—")[1].strip()}' for s, lbl in score_labels.items())
     return f"""<section>
   <h2>{esc(L(cfg, "heatmap_heading", "7 · Semantic Heatmap (channel × dimension)"))}</h2>
   <p style="font-size:13px">{L(cfg, "heatmap_intro", "Only channels that survived the viability screen appear. H = primary investment target; A = actively suppress.")}</p>
