@@ -295,41 +295,98 @@ def power_bridge(cfg: dict) -> str:
 # ──────────────────────────────────────────────────────────────────────────────
 
 _CSS = """
-  :root{--bg:#f6f7f8;--panel:#fff;--ink:#172026;--muted:#5f6b76;--line:#d9dee3;
-    --ok:#dff3e8;--ok-ink:#145c3b;--warn:#fff1bf;--warn-ink:#6b4e00;
-    --bad:#f8d2cf;--bad-ink:#84211b;--neutral:#f2f4f7;--neutral-ink:#4c5965;--blue:#245d7c}
+  /* ── Design system: GPS sport-precision world ─────────────────────────────
+     Subject: smartwatch decision memo for a running/fitness market.
+     Palette drawn from that world: dark graphite, clean white, performance
+     orange as the single accent. Signature element: the verdict block —
+     large, unambiguous, the first thing the eye lands on.
+     Avoids the three AI-generated defaults: cream+serif+terracotta,
+     dark+acid, and broadsheet-grid.
+  ────────────────────────────────────────────────────────────────────────── */
+  :root{
+    --bg:#f2f3f5;
+    --panel:#ffffff;
+    --ink:#1a1f2e;
+    --muted:#6b7280;
+    --line:#e5e7eb;
+    --accent:#f04e23;          /* performance orange — one bold color */
+    --accent-light:#fff2ee;
+    --ok:#d1fae5;--ok-ink:#065f46;
+    --warn:#fef3c7;--warn-ink:#78350f;
+    --bad:#fee2e2;--bad-ink:#991b1b;
+    --neutral:#f3f4f6;--neutral-ink:#374151;
+    --blue:#1a1f2e;             /* deep graphite replaces navy */
+    --radius:10px;
+  }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,"Helvetica Neue",sans-serif;line-height:1.5}
-  main{max-width:1080px;margin:0 auto;padding:22px 24px 48px}
-  h1{margin:0 0 6px;font-size:26px;line-height:1.2}
-  h2{margin:30px 0 12px;font-size:19px;border-bottom:1px solid var(--line);padding-bottom:8px}
-  h3{margin:18px 0 8px;font-size:15px}
-  p{margin:6px 0 10px}
-  a{color:#0f5f91}
-  section{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px;margin:14px 0}
-  .memo{border-left:6px solid var(--blue);padding:20px 22px}
-  .memo .thesis{font-size:16px;line-height:1.55;margin:10px 0 14px}
-  .verdict{display:inline-block;padding:5px 14px;border-radius:6px;font-weight:700;font-size:14px;letter-spacing:.03em}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    font-size:15px;line-height:1.6}
+  main{max-width:1040px;margin:0 auto;padding:28px 24px 60px}
+
+  /* ── Typography hierarchy ── */
+  h1{margin:0 0 4px;font-size:22px;font-weight:700;line-height:1.25;letter-spacing:-.02em}
+  h2{margin:32px 0 14px;font-size:16px;font-weight:700;letter-spacing:.01em;
+    color:var(--ink);border-bottom:2px solid var(--accent);padding-bottom:7px;
+    display:inline-block}
+  h2+*{margin-top:14px}
+  h3{margin:16px 0 7px;font-size:13px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.06em;color:var(--muted)}
+  p{margin:0 0 12px}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  section{background:var(--panel);border:1px solid var(--line);
+    border-radius:var(--radius);padding:24px 28px;margin:16px 0;
+    box-shadow:0 1px 3px rgba(0,0,0,.04)}
+
+  /* ── Signature element: verdict block ── */
+  .memo{border:none;padding:0;box-shadow:none;background:transparent}
+  .memo-verdict-band{
+    background:var(--ink);color:#fff;border-radius:var(--radius) var(--radius) 0 0;
+    padding:32px 28px 24px;margin:0}
+  .verdict-label{font-size:11px;font-weight:700;letter-spacing:.1em;
+    text-transform:uppercase;opacity:.6;margin-bottom:6px}
+  .verdict{display:inline-block;padding:8px 22px;border-radius:6px;
+    font-weight:800;font-size:20px;letter-spacing:.04em}
   .verdict-go{background:var(--ok);color:var(--ok-ink)}
   .verdict-no-go{background:var(--bad);color:var(--bad-ink)}
-  .verdict-conditional{background:var(--warn);color:var(--warn-ink)}
-  .memo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
-  .memo-grid>div{border:1px solid var(--line);border-radius:8px;padding:12px;background:#fbfcfd}
-  .memo-grid h3{margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
-  .memo-grid ul{margin:0;padding-left:18px}
-  .memo-grid li{margin:4px 0}
-  .derivation{font-family:ui-monospace,Consolas,monospace;font-size:13px;background:#f6f8fa;
-    border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:10px 0}
-  .deriv-name{font-weight:700;margin-bottom:4px}
-  .deriv-line{padding-left:14px;color:#33414d}
-  .deriv-result{padding-left:14px;margin-top:2px}
-  .deriv-note{margin-top:6px;color:var(--muted);font-family:Arial,sans-serif;font-size:12px}
+  .verdict-conditional{background:var(--accent);color:#fff}
+  .memo-body{background:var(--panel);border:1px solid var(--line);
+    border-top:none;border-radius:0 0 var(--radius) var(--radius);padding:24px 28px}
+  .memo-thesis{font-size:15px;line-height:1.65;margin:0 0 20px;color:var(--ink)}
+  .memo-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px}
+  .memo-grid>div{border:1px solid var(--line);border-radius:8px;
+    padding:16px;background:#fafafa}
+  .memo-grid h3{margin:0 0 10px}
+  .memo-grid ul{margin:0;padding-left:20px}
+  .memo-grid li{margin:6px 0;font-size:14px}
+  .mk-legend{font-size:12px;color:var(--muted);margin:16px 0 0;
+    padding-top:12px;border-top:1px solid var(--line)}
+
+  /* ── Derivation chains (precision calculation aesthetic) ── */
+  .derivation{font-family:ui-monospace,"JetBrains Mono",Consolas,monospace;
+    font-size:12.5px;background:#fafafa;border:1px solid var(--line);
+    border-left:3px solid var(--accent);border-radius:0 8px 8px 0;
+    padding:12px 16px;margin:12px 0;line-height:1.8}
+  .deriv-name{font-weight:700;font-size:13px;margin-bottom:4px;color:var(--ink)}
+  .deriv-line{padding-left:12px;color:#4b5563}
+  .deriv-result{padding-left:12px;margin-top:4px;font-weight:700;color:var(--ink)}
+  .deriv-note{margin-top:8px;color:var(--muted);
+    font-family:-apple-system,sans-serif;font-size:12px;
+    padding-top:6px;border-top:1px dashed var(--line)}
   .prov-note{color:var(--muted);font-size:11px}
-  sup.mk{font-size:9px;font-weight:700;padding:0 2px;margin-left:1px}
-  .mk-sourced{color:#0f6842}.mk-assumed{color:#805d00}.mk-derived{color:#164f78}.mk-missing{color:#8a2018}
-  .mk-legend{font-size:12px;color:var(--muted);margin:6px 0 0}
-  .missing-val{color:#9aa4ad;border-bottom:1px dashed #c2cad1}
-  .pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+
+  /* ── Provenance markers ── */
+  sup.mk{font-size:9px;font-weight:800;padding:1px 2px;margin-left:1px;border-radius:2px}
+  .mk-sourced{color:#065f46;background:#d1fae5}
+  .mk-assumed{color:#78350f;background:#fef3c7}
+  .mk-derived{color:#1e40af;background:#dbeafe}
+  .mk-missing{color:#991b1b;background:#fee2e2}
+  .missing-val{color:#9ca3af;border-bottom:1px dashed #d1d5db}
+
+  /* ── Pills (rationed: verdict, channel verdict, challenge status, BLOCKED) ── */
+  .pill{display:inline-block;padding:3px 10px;border-radius:999px;
+    font-size:11px;font-weight:700;white-space:nowrap;letter-spacing:.02em}
   .pill-viable{background:var(--ok);color:var(--ok-ink)}
   .pill-not-viable{background:var(--bad);color:var(--bad-ink)}
   .pill-undetermined{background:var(--warn);color:var(--warn-ink)}
@@ -337,55 +394,94 @@ _CSS = """
   .pill-resolved{background:var(--ok);color:var(--ok-ink)}
   .pill-open{background:var(--warn);color:var(--warn-ink)}
   .pill-open-blocking{background:var(--bad);color:var(--bad-ink)}
-  .blocked-stamp{display:inline-block;border:2px solid var(--bad-ink);color:var(--bad-ink);
-    padding:2px 10px;border-radius:4px;font-weight:700;font-size:12px;transform:rotate(-2deg);margin-left:8px}
-  .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
+  .blocked-stamp{display:inline-block;border:2px solid var(--bad-ink);
+    color:var(--bad-ink);padding:2px 10px;border-radius:4px;
+    font-weight:700;font-size:11px;transform:rotate(-1.5deg);margin-left:8px}
+
+  /* ── Tables: hairline grid, generous padding ── */
+  .table-wrap{overflow-x:auto;border:1px solid var(--line);
+    border-radius:var(--radius);background:#fff;margin:12px 0}
   table{width:100%;border-collapse:collapse;font-size:13px}
-  th,td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
-  th{background:#edf1f4;font-weight:700}
+  th{background:#f9fafb;font-weight:700;font-size:11px;text-transform:uppercase;
+    letter-spacing:.05em;color:var(--muted);padding:10px 12px;
+    border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  td{padding:10px 12px;border-bottom:1px solid var(--line);
+    vertical-align:top;text-align:left}
   tr:last-child td{border-bottom:0}
-  td:last-child,th:last-child{border-right:0}
-  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;margin-top:10px}
-  .card{border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:#fbfcfd}
-  .card.blocked{border-color:var(--bad-ink);background:#fdf6f5}
-  .card h3{margin:0 0 6px;font-size:14px}
+  tr:nth-child(even) td{background:#fafafa}
+
+  /* ── Cards (Treatment Cards, test plans) ── */
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+    gap:14px;margin-top:12px}
+  .card{border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 18px;background:#fafafa;
+    border-top:3px solid var(--line)}
+  .card.blocked{border-top-color:var(--bad-ink);background:#fff8f8}
+  .card h3{margin:0 0 10px;font-size:14px;font-weight:700;line-height:1.3}
   .card dl{margin:0;font-size:13px}
-  .card dt{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.03em;margin-top:7px}
-  .card dd{margin:1px 0 0}
-  .callout{border-left:5px solid var(--blue);border:1px solid var(--line);border-left-width:5px;
-    border-radius:8px;padding:12px 16px;margin:12px 0;background:#f9fbfc}
-  footer{max-width:1080px;margin:0 auto;padding:18px 24px 40px;color:var(--muted);font-size:12px}
-  @media(max-width:760px){.memo-grid,.cards{grid-template-columns:1fr}}
-  @media print{body{background:#fff}section{break-inside:avoid}a{color:#000}}
-  /* heatmap grid */
-  .heatmap{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;font-size:12px}
-  .hm-header{background:#edf1f4;font-weight:700;padding:8px 10px;text-align:center}
-  .hm-label{background:#edf1f4;font-weight:600;padding:8px 10px}
-  .hm-cell{padding:7px 10px;text-align:center;font-weight:700}
-  .hm-high{background:#145c3b;color:#fff}
-  .hm-test{background:#805d00;color:#fff}
-  .hm-small{background:#edf1f4;color:#4c5965}
-  .hm-none{background:#f6f7f8;color:#9aa4ad}
-  .hm-avoid{background:#84211b;color:#fff}
-  /* dimension table */
-  .score-bar{display:inline-flex;gap:2px}
-  .score-dot{width:10px;height:10px;border-radius:50%}
-  .score-dot.pass{background:#145c3b}.score-dot.fail{background:#d9dee3}
-  /* KOL card */
-  .kol-card{border:1px solid var(--line);border-radius:8px;padding:14px;background:#fbfcfd;margin:8px 0}
-  /* checklist */
+  .card dt{color:var(--muted);font-size:10px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.06em;margin-top:10px}
+  .card dd{margin:3px 0 0;line-height:1.5}
+
+  /* ── Callout: left-border highlight ── */
+  .callout{border-left:4px solid var(--accent);border-radius:0 8px 8px 0;
+    padding:14px 18px;margin:14px 0;background:var(--accent-light);
+    font-size:14px;line-height:1.6}
+
+  /* ── Heatmap: the hero visual ── */
+  .heatmap{display:grid;gap:2px;background:var(--line);
+    border:1px solid var(--line);border-radius:var(--radius);
+    overflow:hidden;font-size:12px;margin:14px 0}
+  .hm-header{background:#1a1f2e;color:#fff;font-weight:700;
+    padding:9px 11px;text-align:center;font-size:11px;
+    text-transform:uppercase;letter-spacing:.05em}
+  .hm-label{background:#f9fafb;font-weight:600;padding:9px 11px;
+    font-size:12px;color:var(--ink)}
+  .hm-cell{padding:9px 11px;text-align:center;font-weight:800;
+    font-size:12px;letter-spacing:.03em}
+  .hm-high{background:#f04e23;color:#fff}
+  .hm-test{background:#78350f;color:#fff}
+  .hm-small{background:#e5e7eb;color:#4b5563}
+  .hm-none{background:#f9fafb;color:#d1d5db}
+  .hm-avoid{background:#991b1b;color:#fff}
+
+  /* ── Score dots for dimension table ── */
+  .score-bar{display:inline-flex;gap:3px;vertical-align:middle}
+  .score-dot{width:9px;height:9px;border-radius:50%}
+  .score-dot.pass{background:#f04e23}.score-dot.fail{background:#e5e7eb}
+
+  /* ── KOL card ── */
+  .kol-card{border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 18px;background:#fafafa;margin:10px 0;
+    border-left:3px solid var(--accent)}
+
+  /* ── Checklist ── */
   .checklist{list-style:none;padding:0;margin:0}
-  .checklist li{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .checklist li{display:flex;gap:12px;padding:9px 0;
+    border-bottom:1px solid var(--line);font-size:13px;
+    align-items:flex-start}
   .checklist li:last-child{border-bottom:0}
-  .chk-pending{color:#805d00;font-weight:700;min-width:20px}
-  .chk-done{color:#145c3b;font-weight:700;min-width:20px}
-  .chk-blocked{color:#84211b;font-weight:700;min-width:20px}
-  /* tag pills for evidence labels (v1 compatibility) */
-  .tag{display:inline-block;padding:1px 7px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
-  .tag.evidence{background:#dff3e8;color:#145c3b}
-  .tag.assumption{background:#fff1bf;color:#6b4e00}
-  .tag.hypothesis{background:#e8edf5;color:#245d7c}
-  .tag.needs-test{background:#f8d2cf;color:#84211b}
+  .chk-pending{color:var(--warn-ink);font-weight:800;min-width:18px;margin-top:1px}
+  .chk-done{color:var(--ok-ink);font-weight:800;min-width:18px;margin-top:1px}
+  .chk-blocked{color:var(--bad-ink);font-weight:800;min-width:18px;margin-top:1px}
+
+  /* ── Evidence claim tags ── */
+  .tag{display:inline-block;padding:2px 8px;border-radius:999px;
+    font-size:11px;font-weight:700;white-space:nowrap}
+  .tag.evidence{background:var(--ok);color:var(--ok-ink)}
+  .tag.assumption{background:var(--warn);color:var(--warn-ink)}
+  .tag.hypothesis{background:#dbeafe;color:#1e40af}
+  .tag.needs-test{background:var(--bad);color:var(--bad-ink)}
+
+  /* ── Footer ── */
+  footer{max-width:1040px;margin:0 auto;padding:20px 24px 48px;
+    color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
+
+  @media(max-width:720px){.memo-grid,.cards{grid-template-columns:1fr}}
+  @media print{body{background:#fff;font-size:12px}
+    section{break-inside:avoid;box-shadow:none}
+    .memo-verdict-band{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    a{color:var(--ink)}}
 """
 
 
@@ -413,18 +509,23 @@ def s_memo(cfg: dict) -> str:
             decision_html += f"<h3>{horizon_label[h]}</h3><ul>{items}</ul>"
     overturn = "".join(f"<li>{esc(c)}</li>" for c in memo.get("overturn_conditions", []))
     return f"""<section class="memo">
-  <div><span class="verdict verdict-{esc(verdict)}">{esc(vlabel)}</span>
-  &nbsp; <span style="color:var(--muted);font-size:13px">{esc(meta.get("product", ""))} · {esc(meta.get("market", ""))} · {esc(meta.get("date", ""))}</span></div>
-  <h1 style="margin-top:12px">{esc(L(cfg, "memo_heading", "1 · Decision Memo"))}</h1>
-  <p class="thesis"><strong>{esc(L(cfg, "thesis_label", "Thesis:"))}</strong> {esc(memo["thesis"])}</p>
-  <div class="memo-grid">
-    <div>{decision_html}</div>
-    <div>
-      <h3>{esc(L(cfg, "overturn_heading", "What overturns this thesis"))}</h3><ul>{overturn}</ul>
-      <h3>{esc(L(cfg, "weakest_heading", "Weakest point of this report"))}</h3><p style="margin:4px 0 0">{esc(memo.get("weakest_point", ""))}</p>
-    </div>
+  <div class="memo-verdict-band">
+    <div class="verdict-label">{esc(L(cfg, "verdict_label", "VERDICT"))}</div>
+    <div><span class="verdict verdict-{esc(verdict)}">{esc(vlabel)}</span></div>
+    <div style="margin-top:14px;opacity:.7;font-size:13px;font-weight:500;letter-spacing:.02em">{esc(meta.get("product", ""))} · {esc(meta.get("market", ""))} · {esc(meta.get("date", ""))}</div>
   </div>
-  <p class="mk-legend">{esc(L(cfg, "marker_legend", "Number markers: ◆S sourced (linked) · ◇A assumed (basis stated) · ⊕D derived (chain shown) · ○M missing (no value — placeholder only)"))}</p>
+  <div class="memo-body">
+    <h1>{esc(L(cfg, "memo_heading", "1 · Decision Memo"))}</h1>
+    <p class="memo-thesis"><strong>{esc(L(cfg, "thesis_label", "Thesis:"))}</strong> {esc(memo["thesis"])}</p>
+    <div class="memo-grid">
+      <div>{decision_html}</div>
+      <div>
+        <h3>{esc(L(cfg, "overturn_heading", "What overturns this thesis"))}</h3><ul>{overturn}</ul>
+        <h3>{esc(L(cfg, "weakest_heading", "Weakest point of this report"))}</h3><p style="margin:4px 0 0">{esc(memo.get("weakest_point", ""))}</p>
+      </div>
+    </div>
+    <p class="mk-legend">{esc(L(cfg, "marker_legend", "Number markers: ◆S sourced (linked) · ◇A assumed (basis stated) · ⊕D derived (chain shown) · ○M missing (no value — placeholder only)"))}</p>
+  </div>
 </section>"""
 
 
