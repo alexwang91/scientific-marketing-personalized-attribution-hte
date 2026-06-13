@@ -232,7 +232,11 @@
     "cac_legend_viable": "可行（本地数据确认低于上限）",
     "cac_legend_undetermined": "待定（基准估算，无法据此判定可行）",
     "cac_legend_notviable": "不可行（最优情况仍超上限）",
-    "cac_chart_caption": "横条=基准 CAC 区间 · 竖线=上限 · 颜色=筛查结论。基准只能证伪（最优情况超上限即出局），无法证明可行——所以即便整条在上限左侧，未经本地数据确认前仍为「待定」。"
+    "cac_chart_caption": "横条=基准 CAC 区间 · 竖线=上限 · 颜色=筛查结论。基准只能证伪（最优情况超上限即出局），无法证明可行——所以即便整条在上限左侧，未经本地数据确认前仍为「待定」。",
+    "price_comparison_title": "竞品价格定位",
+    "dim_chart_title": "D 维度评分排名",
+    "budget_chart_title": "预算分配概览",
+    "sens_note": "按优先级顺序验证：P1 最先处理。"
   },
   "decision_memo": {
     "verdict": "conditional",
@@ -1687,5 +1691,15 @@
   ],
   "cac_chart": {
     "ceiling_id": "cac_ceiling"
+  },
+  "price_comparison": {
+    "own": "price_huf",
+    "competitors": [
+      {"name": "Xiaomi Watch S4", "id": "xiaomi_watchs4_price"},
+      {"name": "Samsung GW FE", "id": "samsung_gwfe_price"},
+      {"name": "Garmin Vivoactive 5", "id": "garmin_vivoactive5_price"},
+      {"name": "Garmin FR255", "id": "garmin_fr255_price"},
+      {"name": "Apple Watch SE 3", "id": "apple_watchse3_price"}
+    ]
   }
 }

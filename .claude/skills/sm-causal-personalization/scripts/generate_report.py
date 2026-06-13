@@ -295,140 +295,211 @@ def power_bridge(cfg: dict) -> str:
 # ──────────────────────────────────────────────────────────────────────────────
 
 _CSS = """
-  /* ── Design system: GPS sport-precision world ─────────────────────────────
-     Subject: smartwatch decision memo for a running/fitness market.
-     Palette drawn from that world: dark graphite, clean white, performance
-     orange as the single accent. Signature element: the verdict block —
-     large, unambiguous, the first thing the eye lands on.
-     Avoids the three AI-generated defaults: cream+serif+terracotta,
-     dark+acid, and broadsheet-grid.
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  /* ── Design system: GPS sport-precision · nexu-io/open-design inspired ────
+     Font: Inter Variable (Linear's choice) · Palette: dark graphite + performance
+     orange · Layout: 8px grid, 1040px content column · Surfaces: layered whites
+     with subtle shadows, not heavy borders.
   ────────────────────────────────────────────────────────────────────────── */
   :root{
-    --bg:#f2f3f5;
+    --bg:#eef0f3;
     --panel:#ffffff;
-    --ink:#1a1f2e;
+    --surface:#f8f9fa;
+    --ink:#0f1117;
+    --ink-2:#374151;
     --muted:#6b7280;
     --line:#e5e7eb;
-    --accent:#f04e23;          /* performance orange — one bold color */
+    --line-subtle:rgba(0,0,0,.06);
+    --accent:#f04e23;
     --accent-light:#fff2ee;
     --ok:#d1fae5;--ok-ink:#065f46;
     --warn:#fef3c7;--warn-ink:#78350f;
     --bad:#fee2e2;--bad-ink:#991b1b;
     --neutral:#f3f4f6;--neutral-ink:#374151;
-    --blue:#1a1f2e;             /* deep graphite replaces navy */
-    --radius:10px;
+    --radius:8px;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.05);
+    --shadow-md:0 2px 8px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+    --shadow-lg:0 4px 16px rgba(0,0,0,.1),0 1px 4px rgba(0,0,0,.06);
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-    font-size:15px;line-height:1.6}
-  main{max-width:1040px;margin:0 auto;padding:28px 24px 60px}
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;
+    font-feature-settings:'cv01','ss03'}
+  main{max-width:1040px;margin:0 auto;padding:32px 24px 72px}
 
-  /* ── Typography hierarchy (enlarged for readability) ── */
-  body{font-size:15.5px}
-  h1{margin:0 0 6px;font-size:28px;font-weight:800;line-height:1.2;letter-spacing:-.02em}
-  h2{margin:38px 0 16px;font-size:20px;font-weight:800;letter-spacing:-.01em;
-    color:var(--ink);border-bottom:3px solid var(--accent);padding-bottom:9px;
-    display:inline-block}
-  h2+*{margin-top:16px}
-  h3{margin:20px 0 8px;font-size:13px;font-weight:800;text-transform:uppercase;
-    letter-spacing:.07em;color:var(--accent)}
-  p{margin:0 0 13px}
-  strong{font-weight:700;color:var(--ink)}
+  /* ── Typography ── */
+  h1{margin:0 0 8px;font-size:26px;font-weight:800;line-height:1.2;
+    letter-spacing:-.025em;color:var(--ink)}
+  h2{margin:40px 0 16px;font-size:18px;font-weight:700;letter-spacing:-.01em;
+    color:var(--ink);display:flex;align-items:center;gap:10px}
+  h2::before{content:'';display:inline-block;width:4px;height:20px;
+    background:var(--accent);border-radius:2px;flex-shrink:0}
+  h2+*{margin-top:0}
+  h3{margin:20px 0 10px;font-size:11px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--accent)}
+  p{margin:0 0 12px}
+  strong{font-weight:600}
 
-  /* ── KPI stat strip (big numbers up top) ── */
-  .kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-    gap:12px;margin:20px 0 8px}
-  .kpi{background:#fff;border:1px solid var(--line);border-radius:12px;
-    padding:18px 20px;border-top:4px solid var(--accent)}
-  .kpi-num{font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.05;color:var(--ink)}
-  .kpi-num .kpi-unit{font-size:15px;font-weight:600;color:var(--muted);margin-left:3px}
-  .kpi-label{font-size:12px;color:var(--muted);margin-top:7px;
-    text-transform:uppercase;letter-spacing:.05em;font-weight:600}
-  .kpi-sub{font-size:11px;color:var(--muted);margin-top:3px}
+  /* ── Section card ── */
+  section{background:var(--panel);border:1px solid var(--line);
+    border-radius:12px;padding:28px 32px;margin:16px 0;
+    box-shadow:var(--shadow-md)}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
 
-  /* ── CAC bar chart (the hero decision visual) ── */
-  .cac-chart{margin:20px 0;background:#fff;border:1px solid var(--line);
-    border-radius:12px;padding:24px 24px 16px}
-  .cac-chart-title{font-size:13px;font-weight:800;text-transform:uppercase;
-    letter-spacing:.06em;color:var(--accent);margin-bottom:18px}
-  .cac-row{display:grid;grid-template-columns:130px 1fr;gap:14px;
-    align-items:center;margin:14px 0}
-  .cac-name{font-size:13px;font-weight:700;text-align:right;line-height:1.3}
-  .cac-track{position:relative;height:30px;background:#f3f4f6;border-radius:7px}
-  .cac-bar{position:absolute;height:100%;border-radius:7px;top:0;
+  /* ── KPI stat strip ── */
+  .kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:12px;margin:0 0 24px}
+  .kpi{background:var(--surface);border:1px solid var(--line);border-radius:10px;
+    padding:20px 22px;position:relative;overflow:hidden;
+    box-shadow:var(--shadow-sm)}
+  .kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+    background:var(--accent)}
+  .kpi-num{font-size:28px;font-weight:800;letter-spacing:-.04em;
+    line-height:1;color:var(--ink);margin-bottom:6px}
+  .kpi-num .kpi-unit{font-size:14px;font-weight:600;color:var(--muted);margin-left:2px}
+  .kpi-label{font-size:11px;color:var(--muted);text-transform:uppercase;
+    letter-spacing:.06em;font-weight:600}
+
+  /* ── CAC bar chart ── */
+  .cac-chart{margin:0 0 24px;background:var(--surface);border:1px solid var(--line);
+    border-radius:10px;padding:22px 24px 16px;box-shadow:var(--shadow-sm)}
+  .cac-chart-title{font-size:11px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--accent);margin-bottom:20px}
+  .cac-row{display:grid;grid-template-columns:140px 1fr;gap:14px;
+    align-items:center;margin:12px 0}
+  .cac-name{font-size:13px;font-weight:600;text-align:right;line-height:1.3;
+    color:var(--ink-2)}
+  .cac-track{position:relative;height:28px;background:#f0f1f3;border-radius:6px}
+  .cac-bar{position:absolute;height:100%;border-radius:6px;top:0;
     display:flex;align-items:center;padding:0 8px;
-    font-size:11px;font-weight:800;color:#fff;white-space:nowrap;min-width:2px}
+    font-size:10px;font-weight:700;color:#fff;white-space:nowrap;min-width:2px}
   .cac-bar.viable{background:#16a34a}
   .cac-bar.undetermined{background:#f59e0b}
   .cac-bar.not-viable{background:#dc2626}
   .cac-bar.role-only{background:#9ca3af}
-  .cac-ceiling{position:absolute;top:-8px;bottom:-8px;width:3px;
-    background:var(--ink);z-index:6;border-radius:2px}
-  .cac-ceiling-flag{position:absolute;top:-26px;transform:translateX(-50%);
-    background:var(--ink);color:#fff;font-size:10px;font-weight:800;
-    padding:2px 7px;border-radius:4px;white-space:nowrap;z-index:7}
-  .cac-axis{display:grid;grid-template-columns:130px 1fr;gap:14px;margin-top:10px}
+  .cac-ceiling{position:absolute;top:-8px;bottom:-8px;width:2px;
+    background:var(--ink);z-index:6;border-radius:1px}
+  .cac-ceiling-flag{position:absolute;top:-24px;transform:translateX(-50%);
+    background:var(--ink);color:#fff;font-size:10px;font-weight:700;
+    padding:2px 6px;border-radius:4px;white-space:nowrap;z-index:7}
+  .cac-axis{display:grid;grid-template-columns:140px 1fr;gap:14px;margin-top:8px}
   .cac-axis-labels{display:flex;justify-content:space-between;
     font-size:10px;color:var(--muted);font-weight:600}
-  .cac-legend{margin-top:14px;font-size:11px;color:var(--muted);
-    display:flex;gap:16px;flex-wrap:wrap}
+  .cac-legend{margin-top:12px;font-size:11px;color:var(--muted);
+    display:flex;gap:14px;flex-wrap:wrap}
   .cac-legend span{display:inline-flex;align-items:center;gap:5px}
-  .cac-legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
-  a{color:var(--accent);text-decoration:none}
-  a:hover{text-decoration:underline}
-  section{background:var(--panel);border:1px solid var(--line);
-    border-radius:var(--radius);padding:24px 28px;margin:16px 0;
-    box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .cac-legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
 
-  /* ── Signature element: verdict block ── */
+  /* ── Sensitivity priority cards ── */
+  .sens-chart{margin:0 0 24px}
+  .sens-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+    gap:10px;margin-top:10px}
+  .sens-card{background:var(--surface);border:1px solid var(--line);
+    border-radius:8px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;
+    box-shadow:var(--shadow-sm)}
+  .sens-badge{width:32px;height:32px;border-radius:50%;display:flex;
+    align-items:center;justify-content:center;font-size:12px;font-weight:800;
+    color:#fff;flex-shrink:0}
+  .sens-badge.p1{background:var(--accent)}
+  .sens-badge.p2{background:#f59e0b}
+  .sens-badge.p3{background:var(--ink)}
+  .sens-badge.pN{background:var(--muted)}
+  .sens-change{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px;line-height:1.4}
+  .sens-effect{font-size:11px;color:var(--muted);line-height:1.4}
+
+  /* ── Dimension score chart ── */
+  .dim-chart{margin:0 0 20px}
+  .dim-chart-row{display:grid;grid-template-columns:160px 1fr 36px;
+    gap:10px;align-items:center;margin:5px 0}
+  .dim-label-cell{font-size:11px;font-weight:600;color:var(--ink-2);
+    text-overflow:ellipsis;overflow:hidden;white-space:nowrap;text-align:right}
+  .dim-bar-track{background:#f0f1f3;border-radius:4px;height:14px}
+  .dim-bar{height:100%;border-radius:4px;transition:width .3s}
+  .dim-score-lbl{font-size:10px;font-weight:700;color:var(--muted);text-align:right}
+
+  /* ── Price comparison chart ── */
+  .price-chart{margin:0 0 24px;background:var(--surface);border:1px solid var(--line);
+    border-radius:10px;padding:22px 24px;box-shadow:var(--shadow-sm)}
+  .price-chart-title{font-size:11px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--accent);margin-bottom:20px}
+  .price-axis-wrap{position:relative;padding:36px 0 32px;margin:0 8px}
+  .price-axis-line{height:3px;background:#e5e7eb;border-radius:2px;position:relative}
+  .price-dot{position:absolute;transform:translateX(-50%) translateY(-50%);
+    top:50%;width:16px;height:16px;border-radius:50%;border:3px solid #fff;
+    box-shadow:0 2px 6px rgba(0,0,0,.2);z-index:2}
+  .price-dot.ours{background:var(--accent);width:22px;height:22px}
+  .price-dot.comp{background:var(--ink)}
+  .price-top-label{position:absolute;transform:translateX(-50%);
+    bottom:calc(100% + 14px);font-size:11px;font-weight:700;
+    white-space:nowrap;color:var(--ink)}
+  .price-top-label.ours{color:var(--accent);font-size:12px}
+  .price-bot-label{position:absolute;transform:translateX(-50%);
+    top:calc(100% + 14px);font-size:10px;color:var(--muted);white-space:nowrap}
+  .price-axis-ends{display:flex;justify-content:space-between;
+    font-size:10px;color:var(--muted);font-weight:600;margin-top:4px}
+
+  /* ── Budget allocation bar ── */
+  .budget-chart{margin:0 0 24px}
+  .budget-bar-row{display:flex;height:36px;border-radius:8px;overflow:hidden;
+    gap:2px;margin:12px 0;box-shadow:var(--shadow-sm)}
+  .budget-seg{display:flex;align-items:center;padding:0 10px;
+    font-size:10px;font-weight:700;color:#fff;white-space:nowrap;
+    overflow:hidden;min-width:24px;transition:opacity .2s}
+  .budget-legend{font-size:11px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;margin-top:8px}
+  .budget-legend span{display:inline-flex;align-items:center;gap:5px}
+  .budget-legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+
+  /* ── Signature element: verdict band ── */
   .memo{border:none;padding:0;box-shadow:none;background:transparent}
   .memo-verdict-band{
-    background:var(--ink);color:#fff;border-radius:var(--radius) var(--radius) 0 0;
-    padding:32px 28px 24px;margin:0}
-  .verdict-label{font-size:11px;font-weight:700;letter-spacing:.1em;
-    text-transform:uppercase;opacity:.6;margin-bottom:6px}
-  .verdict{display:inline-block;padding:8px 22px;border-radius:6px;
-    font-weight:800;font-size:20px;letter-spacing:.04em}
+    background:var(--ink);color:#fff;
+    border-radius:12px 12px 0 0;padding:36px 32px 28px}
+  .verdict-label{font-size:10px;font-weight:700;letter-spacing:.12em;
+    text-transform:uppercase;opacity:.5;margin-bottom:8px}
+  .verdict{display:inline-block;padding:8px 24px;border-radius:6px;
+    font-weight:800;font-size:22px;letter-spacing:.03em}
   .verdict-go{background:var(--ok);color:var(--ok-ink)}
   .verdict-no-go{background:var(--bad);color:var(--bad-ink)}
   .verdict-conditional{background:var(--accent);color:#fff}
   .memo-body{background:var(--panel);border:1px solid var(--line);
-    border-top:none;border-radius:0 0 var(--radius) var(--radius);padding:24px 28px}
-  .memo-thesis{font-size:15px;line-height:1.65;margin:0 0 20px;color:var(--ink)}
-  .memo-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px}
+    border-top:none;border-radius:0 0 12px 12px;padding:28px 32px}
+  .memo-thesis{font-size:15px;line-height:1.7;margin:0 0 22px;color:var(--ink)}
+  .memo-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px}
   .memo-grid>div{border:1px solid var(--line);border-radius:8px;
-    padding:16px;background:#fafafa}
+    padding:16px 18px;background:var(--surface)}
   .memo-grid h3{margin:0 0 10px}
-  .memo-grid ul{margin:0;padding-left:20px}
-  .memo-grid li{margin:6px 0;font-size:14px}
-  .mk-legend{font-size:12px;color:var(--muted);margin:16px 0 0;
+  .memo-grid ul{margin:0;padding-left:18px}
+  .memo-grid li{margin:6px 0;font-size:13.5px;line-height:1.5}
+  .mk-legend{font-size:11.5px;color:var(--muted);margin:16px 0 0;
     padding-top:12px;border-top:1px solid var(--line)}
 
-  /* ── Derivation chains (precision calculation aesthetic) ── */
+  /* ── Derivation chains ── */
   .derivation{font-family:ui-monospace,"JetBrains Mono",Consolas,monospace;
-    font-size:12.5px;background:#fafafa;border:1px solid var(--line);
+    font-size:12px;background:var(--surface);border:1px solid var(--line);
     border-left:3px solid var(--accent);border-radius:0 8px 8px 0;
-    padding:12px 16px;margin:12px 0;line-height:1.8}
+    padding:12px 16px;margin:10px 0;line-height:1.8}
   .deriv-name{font-weight:700;font-size:13px;margin-bottom:4px;color:var(--ink)}
   .deriv-line{padding-left:12px;color:#4b5563}
   .deriv-result{padding-left:12px;margin-top:4px;font-weight:700;color:var(--ink)}
   .deriv-note{margin-top:8px;color:var(--muted);
-    font-family:-apple-system,sans-serif;font-size:12px;
+    font-family:'Inter',sans-serif;font-size:12px;
     padding-top:6px;border-top:1px dashed var(--line)}
   .prov-note{color:var(--muted);font-size:11px}
 
   /* ── Provenance markers ── */
-  sup.mk{font-size:9px;font-weight:800;padding:1px 2px;margin-left:1px;border-radius:2px}
+  sup.mk{font-size:9px;font-weight:700;padding:1px 3px;margin-left:1px;border-radius:2px}
   .mk-sourced{color:#065f46;background:#d1fae5}
   .mk-assumed{color:#78350f;background:#fef3c7}
   .mk-derived{color:#1e40af;background:#dbeafe}
   .mk-missing{color:#991b1b;background:#fee2e2}
   .missing-val{color:#9ca3af;border-bottom:1px dashed #d1d5db}
 
-  /* ── Pills (rationed: verdict, channel verdict, challenge status, BLOCKED) ── */
-  .pill{display:inline-block;padding:3px 10px;border-radius:999px;
-    font-size:11px;font-weight:700;white-space:nowrap;letter-spacing:.02em}
+  /* ── Pills ── */
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;
+    font-size:11px;font-weight:700;white-space:nowrap;letter-spacing:.01em}
   .pill-viable{background:var(--ok);color:var(--ok-ink)}
   .pill-not-viable{background:var(--bad);color:var(--bad-ink)}
   .pill-undetermined{background:var(--warn);color:var(--warn-ink)}
@@ -437,45 +508,44 @@ _CSS = """
   .pill-open{background:var(--warn);color:var(--warn-ink)}
   .pill-open-blocking{background:var(--bad);color:var(--bad-ink)}
   .blocked-stamp{display:inline-block;border:2px solid var(--bad-ink);
-    color:var(--bad-ink);padding:2px 10px;border-radius:4px;
+    color:var(--bad-ink);padding:2px 9px;border-radius:4px;
     font-weight:700;font-size:11px;transform:rotate(-1.5deg);margin-left:8px}
 
-  /* ── Tables: hairline grid, generous padding ── */
+  /* ── Tables ── */
   .table-wrap{overflow-x:auto;border:1px solid var(--line);
-    border-radius:var(--radius);background:#fff;margin:12px 0}
+    border-radius:8px;background:#fff;margin:12px 0}
   table{width:100%;border-collapse:collapse;font-size:13px}
-  th{background:#f9fafb;font-weight:700;font-size:11px;text-transform:uppercase;
-    letter-spacing:.05em;color:var(--muted);padding:10px 12px;
+  th{background:var(--surface);font-weight:700;font-size:10.5px;text-transform:uppercase;
+    letter-spacing:.06em;color:var(--muted);padding:10px 14px;
     border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
-  td{padding:10px 12px;border-bottom:1px solid var(--line);
-    vertical-align:top;text-align:left}
+  td{padding:11px 14px;border-bottom:1px solid var(--line);
+    vertical-align:top;text-align:left;font-size:13px}
   tr:last-child td{border-bottom:0}
   tr:nth-child(even) td{background:#fafafa}
 
-  /* ── Cards (Treatment Cards, test plans) ── */
-  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
-    gap:14px;margin-top:12px}
-  .card{border:1px solid var(--line);border-radius:var(--radius);
-    padding:16px 18px;background:#fafafa;
-    border-top:3px solid var(--line)}
+  /* ── Cards ── */
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));
+    gap:14px;margin-top:14px}
+  .card{border:1px solid var(--line);border-radius:8px;
+    padding:16px 18px;background:var(--surface);border-top:3px solid var(--line)}
   .card.blocked{border-top-color:var(--bad-ink);background:#fff8f8}
-  .card h3{margin:0 0 10px;font-size:14px;font-weight:700;line-height:1.3}
+  .card h3{margin:0 0 10px;font-size:14px;font-weight:700;line-height:1.35}
   .card dl{margin:0;font-size:13px}
   .card dt{color:var(--muted);font-size:10px;font-weight:700;
     text-transform:uppercase;letter-spacing:.06em;margin-top:10px}
   .card dd{margin:3px 0 0;line-height:1.5}
 
-  /* ── Callout: left-border highlight ── */
+  /* ── Callout ── */
   .callout{border-left:4px solid var(--accent);border-radius:0 8px 8px 0;
     padding:14px 18px;margin:14px 0;background:var(--accent-light);
-    font-size:14px;line-height:1.6}
+    font-size:13.5px;line-height:1.6}
 
-  /* ── Heatmap: the hero visual ── */
+  /* ── Heatmap ── */
   .heatmap{display:grid;gap:2px;background:var(--line);
-    border:1px solid var(--line);border-radius:var(--radius);
+    border:1px solid var(--line);border-radius:8px;
     overflow:hidden;font-size:11px;margin:14px 0;overflow-x:auto}
-  .hm-header{background:#1a1f2e;color:#fff;font-weight:700;
-    padding:7px 6px;text-align:center;font-size:10px;
+  .hm-header{background:var(--ink);color:#fff;font-weight:700;
+    padding:7px 6px;text-align:center;font-size:9.5px;
     text-transform:uppercase;letter-spacing:.03em;line-height:1.3;
     word-break:break-all;min-width:36px}
   .hm-label{background:#f9fafb;font-weight:600;padding:8px 10px;
@@ -488,21 +558,20 @@ _CSS = """
   .hm-none{background:#f9fafb;color:#d1d5db}
   .hm-avoid{background:#991b1b;color:#fff}
 
-  /* ── Score dots for dimension table ── */
+  /* ── Score dots ── */
   .score-bar{display:inline-flex;gap:3px;vertical-align:middle}
-  .score-dot{width:9px;height:9px;border-radius:50%}
+  .score-dot{width:8px;height:8px;border-radius:50%}
   .score-dot.pass{background:#f04e23}.score-dot.fail{background:#e5e7eb}
 
   /* ── KOL card ── */
-  .kol-card{border:1px solid var(--line);border-radius:var(--radius);
-    padding:16px 18px;background:#fafafa;margin:10px 0;
+  .kol-card{border:1px solid var(--line);border-radius:8px;
+    padding:16px 18px;background:var(--surface);margin:10px 0;
     border-left:3px solid var(--accent)}
 
   /* ── Checklist ── */
   .checklist{list-style:none;padding:0;margin:0}
   .checklist li{display:flex;gap:12px;padding:9px 0;
-    border-bottom:1px solid var(--line);font-size:13px;
-    align-items:flex-start}
+    border-bottom:1px solid var(--line);font-size:13px;align-items:flex-start}
   .checklist li:last-child{border-bottom:0}
   .chk-pending{color:var(--warn-ink);font-weight:800;min-width:18px;margin-top:1px}
   .chk-done{color:var(--ok-ink);font-weight:800;min-width:18px;margin-top:1px}
@@ -520,7 +589,11 @@ _CSS = """
   footer{max-width:1040px;margin:0 auto;padding:20px 24px 48px;
     color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
 
-  @media(max-width:720px){.memo-grid,.cards{grid-template-columns:1fr}}
+  @media(max-width:720px){
+    .memo-grid,.cards{grid-template-columns:1fr}
+    .dim-chart-row{grid-template-columns:100px 1fr 32px}
+    .sens-grid{grid-template-columns:1fr}
+  }
   @media print{body{background:#fff;font-size:12px}
     section{break-inside:avoid;box-shadow:none}
     .memo-verdict-band{-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -658,22 +731,153 @@ def s_cac_chart(cfg: dict, numbers: dict) -> str:
 </div>"""
 
 
+def s_sensitivity_chart(cfg: dict) -> str:
+    """Sensitivity priority cards — visual alternative to the sensitivity table."""
+    items = sorted(cfg.get("sensitivity", []), key=lambda x: x["priority"])
+    if not items:
+        return ""
+    cards = ""
+    for s in items:
+        p = s["priority"]
+        pclass = "p1" if p == 1 else ("p2" if p == 2 else "p3" if p == 3 else "pN")
+        cards += (
+            f'<div class="sens-card">'
+            f'<div class="sens-badge {pclass}">P{p}</div>'
+            f'<div><div class="sens-change">{esc(s["change"])}</div>'
+            f'<div class="sens-effect">{esc(s["effect"])}</div></div>'
+            f'</div>'
+        )
+    title = esc(L(cfg, "sensitivity_heading", "Sensitivity — which assumption flips the conclusion"))
+    note = esc(L(cfg, "sens_note", "Verify in priority order: P1 first."))
+    return f"""<div class="sens-chart">
+  <h3>{title}</h3>
+  <div class="sens-grid">{cards}</div>
+  <p style="font-size:12px;color:var(--muted);margin-top:8px">{note}</p>
+</div>"""
+
+
+def s_dimension_chart(cfg: dict) -> str:
+    """Horizontal bar chart of D-dimension entry scores, sorted descending."""
+    dims = cfg.get("dimensions", [])
+    if not dims:
+        return ""
+    scored = []
+    for d in dims:
+        score_str = d.get("entry_score", "")
+        try:
+            filled, total = map(int, score_str.split("/"))
+            pct = (filled / max(total, 1)) * 100
+        except Exception:
+            filled, total, pct = 0, 5, 0
+        scored.append((d["id"], d.get("name", ""), pct, filled, total))
+    scored.sort(key=lambda x: -x[2])
+    rows = ""
+    for did, name, pct, filled, total in scored[:16]:
+        color = "var(--accent)" if pct >= 60 else ("#f59e0b" if pct >= 40 else "#9ca3af")
+        short = f"{did} {name}"[:22]
+        rows += (
+            f'<div class="dim-chart-row">'
+            f'<div class="dim-label-cell" title="{esc(did)} {esc(name)}">{esc(short)}</div>'
+            f'<div class="dim-bar-track"><div class="dim-bar" style="width:{pct:.0f}%;background:{color}"></div></div>'
+            f'<div class="dim-score-lbl">{filled}/{total}</div>'
+            f'</div>'
+        )
+    title = esc(L(cfg, "dim_chart_title", "D Dimension Score Ranking"))
+    return f'<div class="dim-chart"><h3>{title}</h3>{rows}</div>'
+
+
+def s_budget_chart(cfg: dict, numbers: dict) -> str:
+    """Proportional budget allocation bar — visual companion to the budget table."""
+    rows = cfg.get("budget_rows", [])
+    if not rows:
+        return ""
+    _COLORS = ["#f04e23", "#1a1f2e", "#f59e0b", "#16a34a", "#6b7280", "#7c3aed"]
+    segments = []
+    for i, r in enumerate(rows):
+        bid = r.get("budget_id")
+        if bid and bid in numbers:
+            v = numbers[bid].get("value")
+            if v is not None:
+                amt = float(v[1] if _is_range(v) else v)
+                unit = numbers[bid].get("unit", "")
+                segments.append((r.get("item", r.get("phase", "")), amt, unit, _COLORS[i % len(_COLORS)]))
+    if not segments:
+        return ""
+    total = sum(a for _, a, _, _ in segments)
+    if total <= 0:
+        return ""
+    bars = legend = ""
+    for name, amt, unit, color in segments:
+        pct = amt / total * 100
+        bars += f'<div class="budget-seg" style="width:{pct:.1f}%;background:{color}" title="{esc(name)}: {amt:,.0f} {esc(unit)}">{esc(name[:14])}</div>'
+        legend += f'<span><i style="background:{color}"></i>{esc(name)}: {amt:,.0f} {esc(unit)}</span>'
+    title = esc(L(cfg, "budget_chart_title", "Budget Split"))
+    return (f'<div class="budget-chart"><h3>{title}</h3>'
+            f'<div class="budget-bar-row">{bars}</div>'
+            f'<div class="budget-legend">{legend}</div></div>')
+
+
+def s_price_comparison(cfg: dict, numbers: dict) -> str:
+    """Horizontal price positioning axis: our product vs competitors."""
+    pc = cfg.get("price_comparison")
+    if not pc:
+        return ""
+    own_id = pc.get("own")
+    competitors = pc.get("competitors", [])
+    if not own_id or own_id not in numbers:
+        return ""
+    own_val = numbers[own_id].get("value")
+    own_price = _scalar_of(own_val)
+    if own_price is None:
+        return ""
+    comp_data = []
+    for c in competitors:
+        cid = c.get("id")
+        if cid and cid in numbers:
+            v = numbers[cid].get("value")
+            price = _scalar_of(v) if v is not None else None
+            if price is not None:
+                comp_data.append((c.get("name", cid), price))
+    if not comp_data:
+        return ""
+    all_prices = [own_price] + [p for _, p in comp_data]
+    max_p = max(all_prices) * 1.12
+    min_p = min(all_prices) * 0.88
+    span = max_p - min_p or 1
+
+    def pct(p):
+        return (p - min_p) / span * 100
+
+    own_pct = pct(own_price)
+    own_lbl = numbers[own_id].get("label", "")
+    unit = numbers[own_id].get("unit", "")
+    dots = (
+        f'<div class="price-dot ours" style="left:{own_pct:.1f}%"></div>'
+        f'<div class="price-top-label ours" style="left:{own_pct:.1f}%">{own_price:,.0f}</div>'
+        f'<div class="price-bot-label" style="left:{own_pct:.1f}%">{esc(own_lbl[:18])}</div>'
+    )
+    for name, price in comp_data:
+        p = pct(price)
+        dots += (
+            f'<div class="price-dot comp" style="left:{p:.1f}%"></div>'
+            f'<div class="price-top-label" style="left:{p:.1f}%">{price:,.0f}</div>'
+            f'<div class="price-bot-label" style="left:{p:.1f}%">{esc(name[:16])}</div>'
+        )
+    title = esc(L(cfg, "price_comparison_title", "Competitive Price Positioning"))
+    return f"""<div class="price-chart">
+  <div class="price-chart-title">{title} ({esc(unit)})</div>
+  <div class="price-axis-wrap">
+    <div class="price-axis-line">{dots}</div>
+    <div class="price-axis-ends"><span>{min_p:,.0f}</span><span>{max_p:,.0f} {esc(unit)}</span></div>
+  </div>
+</div>"""
+
+
 def s_math(cfg: dict, numbers: dict) -> str:
     kpi = s_kpi_strip(cfg, numbers)
     cac_chart = s_cac_chart(cfg, numbers)
     chains = "".join(render_derivation(nid, numbers) for nid in cfg.get("derivations", []))
-    sens_rows = "".join(
-        f"<tr><td>{esc(s['change'])}</td><td>{esc(s['effect'])}</td>"
-        f"<td style='text-align:center'>{esc(str(s['priority']))}</td></tr>"
-        for s in sorted(cfg.get("sensitivity", []), key=lambda x: x["priority"])
-    )
-    sens = ""
-    if sens_rows:
-        sens = f"""<h3>{esc(L(cfg, "sensitivity_heading", "Sensitivity — which assumption flips the conclusion"))}</h3>
-  <div class="table-wrap"><table>
-    <thead><tr><th>{esc(L(cfg, "sens_th_change", "Assumption change"))}</th><th>{esc(L(cfg, "sens_th_effect", "Effect on conclusion"))}</th><th>{esc(L(cfg, "sens_th_priority", "Verify priority"))}</th></tr></thead>
-    <tbody>{sens_rows}</tbody></table></div>
-  <p style="font-size:13px;color:var(--muted)">{esc(L(cfg, "sens_note", "Verification order below follows this table, not convenience."))}</p>"""
+    sens = s_sensitivity_chart(cfg)
 
     screen_rows = ""
     for ch in cfg.get("channel_screen", []):
@@ -811,8 +1015,8 @@ def s_evidence(cfg: dict, numbers: dict) -> str:
 </section>"""
 
 
-def s_product_facts(cfg: dict) -> str:
-    """Section 3 — Product & market facts."""
+def s_product_facts(cfg: dict, numbers: dict) -> str:
+    """Section 3 — Product & market facts, with price comparison chart."""
     features = cfg.get("product_facts", [])
     mfacts = cfg.get("market_facts", [])
     feat_rows = ""
@@ -833,8 +1037,10 @@ def s_product_facts(cfg: dict) -> str:
 <div class="table-wrap"><table>
   <thead><tr><th>{esc(L(cfg, "mf_th_fact", "Fact"))}</th><th>{esc(L(cfg, "mf_th_status", "Status"))}</th></tr></thead>
   <tbody>{mfact_rows}</tbody></table></div>""" if mfact_rows else ""
+    price_chart = s_price_comparison(cfg, numbers)
     return f"""<section>
   <h2>{esc(L(cfg, "product_heading", "3 · Product & Market Facts"))}</h2>
+  {price_chart}
   {feat_table}
   {mfact_table}
 </section>"""
@@ -898,8 +1104,10 @@ def s_dimensions(cfg: dict) -> str:
   <thead><tr><th>{esc(L(cfg, "rv_th_dimension", "Dimension"))}</th><th>{esc(L(cfg, "rv_th_challenge", "Challenge raised"))}</th><th>{esc(L(cfg, "rv_th_handling", "Current handling"))}</th><th>{esc(L(cfg, "rv_th_evidence", "Evidence needed"))}</th></tr></thead>
   <tbody>{reviewer_rows}</tbody></table></div>
 <div class="callout">{esc(L(cfg, "reviewer_callout", "D dimensions are candidate operational variables for trial design. Before entering primary budget, each must pass: deployable proxy, testable incrementality, stated mechanism, no compliance or margin risk."))}</div>""" if reviewer_rows else ""
+    dim_chart = s_dimension_chart(cfg)
     return f"""<section>
   <h2>{esc(L(cfg, "dim_heading", "5 · D Dimension Table & Causal Activation Reviewer"))}</h2>
+  {dim_chart}
   <div class="table-wrap"><table>
     <thead><tr><th>{esc(L(cfg, "dt_th_dimension", "Dimension"))}</th><th>{esc(L(cfg, "dt_th_mechanism", "Mechanism"))}</th><th>{esc(L(cfg, "dt_th_proxy", "Platform proxy"))}</th><th>{esc(L(cfg, "dt_th_score", "Score"))}</th><th>{esc(L(cfg, "dt_th_verdict", "Verdict"))}</th><th>{esc(L(cfg, "dt_th_status", "Status"))}</th></tr></thead>
     <tbody>{rows}</tbody></table></div>
@@ -1026,8 +1234,10 @@ def s_budget(cfg: dict, numbers: dict) -> str:
         for r in rows
     )
     note = cfg.get("budget_note", "")
+    budget_chart = s_budget_chart(cfg, numbers)
     return f"""<section>
   <h2>{esc(L(cfg, "budget_heading", "10 · Budget Allocation"))}</h2>
+  {budget_chart}
   <div class="table-wrap"><table>
     <thead><tr><th>{esc(L(cfg, "bg_th_phase", "Phase"))}</th><th>{esc(L(cfg, "bg_th_item", "Item"))}</th><th>{esc(L(cfg, "bg_th_budget", "Budget"))}</th><th>{esc(L(cfg, "bg_th_condition", "Condition"))}</th></tr></thead>
     <tbody>{row_html}</tbody></table></div>
@@ -1191,7 +1401,7 @@ def generate_html(cfg: dict) -> str:
         parts.append(s_evidence(cfg, numbers))   # short report: memo + math + evidence
     else:
         parts += [
-            s_product_facts(cfg),                              # 3
+            s_product_facts(cfg, numbers),                     # 3
             s_channel_map(cfg, numbers),                       # 4
             s_dimensions(cfg),                                 # 5
             s_heatmap(cfg),                                    # 6
