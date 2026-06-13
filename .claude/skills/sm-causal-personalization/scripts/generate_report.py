@@ -324,15 +324,57 @@ _CSS = """
     font-size:15px;line-height:1.6}
   main{max-width:1040px;margin:0 auto;padding:28px 24px 60px}
 
-  /* ── Typography hierarchy ── */
-  h1{margin:0 0 4px;font-size:22px;font-weight:700;line-height:1.25;letter-spacing:-.02em}
-  h2{margin:32px 0 14px;font-size:16px;font-weight:700;letter-spacing:.01em;
-    color:var(--ink);border-bottom:2px solid var(--accent);padding-bottom:7px;
+  /* ── Typography hierarchy (enlarged for readability) ── */
+  body{font-size:15.5px}
+  h1{margin:0 0 6px;font-size:28px;font-weight:800;line-height:1.2;letter-spacing:-.02em}
+  h2{margin:38px 0 16px;font-size:20px;font-weight:800;letter-spacing:-.01em;
+    color:var(--ink);border-bottom:3px solid var(--accent);padding-bottom:9px;
     display:inline-block}
-  h2+*{margin-top:14px}
-  h3{margin:16px 0 7px;font-size:13px;font-weight:700;text-transform:uppercase;
-    letter-spacing:.06em;color:var(--muted)}
-  p{margin:0 0 12px}
+  h2+*{margin-top:16px}
+  h3{margin:20px 0 8px;font-size:13px;font-weight:800;text-transform:uppercase;
+    letter-spacing:.07em;color:var(--accent)}
+  p{margin:0 0 13px}
+  strong{font-weight:700;color:var(--ink)}
+
+  /* ── KPI stat strip (big numbers up top) ── */
+  .kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:12px;margin:20px 0 8px}
+  .kpi{background:#fff;border:1px solid var(--line);border-radius:12px;
+    padding:18px 20px;border-top:4px solid var(--accent)}
+  .kpi-num{font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.05;color:var(--ink)}
+  .kpi-num .kpi-unit{font-size:15px;font-weight:600;color:var(--muted);margin-left:3px}
+  .kpi-label{font-size:12px;color:var(--muted);margin-top:7px;
+    text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .kpi-sub{font-size:11px;color:var(--muted);margin-top:3px}
+
+  /* ── CAC bar chart (the hero decision visual) ── */
+  .cac-chart{margin:20px 0;background:#fff;border:1px solid var(--line);
+    border-radius:12px;padding:24px 24px 16px}
+  .cac-chart-title{font-size:13px;font-weight:800;text-transform:uppercase;
+    letter-spacing:.06em;color:var(--accent);margin-bottom:18px}
+  .cac-row{display:grid;grid-template-columns:130px 1fr;gap:14px;
+    align-items:center;margin:14px 0}
+  .cac-name{font-size:13px;font-weight:700;text-align:right;line-height:1.3}
+  .cac-track{position:relative;height:30px;background:#f3f4f6;border-radius:7px}
+  .cac-bar{position:absolute;height:100%;border-radius:7px;top:0;
+    display:flex;align-items:center;padding:0 8px;
+    font-size:11px;font-weight:800;color:#fff;white-space:nowrap;min-width:2px}
+  .cac-bar.viable{background:#16a34a}
+  .cac-bar.undetermined{background:#f59e0b}
+  .cac-bar.not-viable{background:#dc2626}
+  .cac-bar.role-only{background:#9ca3af}
+  .cac-ceiling{position:absolute;top:-8px;bottom:-8px;width:3px;
+    background:var(--ink);z-index:6;border-radius:2px}
+  .cac-ceiling-flag{position:absolute;top:-26px;transform:translateX(-50%);
+    background:var(--ink);color:#fff;font-size:10px;font-weight:800;
+    padding:2px 7px;border-radius:4px;white-space:nowrap;z-index:7}
+  .cac-axis{display:grid;grid-template-columns:130px 1fr;gap:14px;margin-top:10px}
+  .cac-axis-labels{display:flex;justify-content:space-between;
+    font-size:10px;color:var(--muted);font-weight:600}
+  .cac-legend{margin-top:14px;font-size:11px;color:var(--muted);
+    display:flex;gap:16px;flex-wrap:wrap}
+  .cac-legend span{display:inline-flex;align-items:center;gap:5px}
+  .cac-legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
   a{color:var(--accent);text-decoration:none}
   a:hover{text-decoration:underline}
   section{background:var(--panel);border:1px solid var(--line);
@@ -530,7 +572,95 @@ def s_memo(cfg: dict) -> str:
 </section>"""
 
 
+def _scalar_of(v):
+    """Return a representative scalar (hi end for ranges) for chart scaling."""
+    if _is_range(v):
+        return v[1]
+    return v if _is_num(v) else None
+
+
+def s_kpi_strip(cfg: dict, numbers: dict) -> str:
+    """Big-number stat strip. Driven by cfg['kpi_strip'] = [number_id, ...]."""
+    ids = cfg.get("kpi_strip", [])
+    if not ids:
+        return ""
+    cells = ""
+    for nid in ids:
+        spec = numbers.get(nid)
+        if not spec:
+            continue
+        val = fmt_value(nid, numbers, marker=False)
+        label = esc(spec.get("label", nid))
+        cells += f'<div class="kpi"><div class="kpi-num">{val}</div><div class="kpi-label">{label}</div></div>'
+    if not cells:
+        return ""
+    return f'<div class="kpi-strip">{cells}</div>'
+
+
+def s_cac_chart(cfg: dict, numbers: dict) -> str:
+    """Horizontal bar chart: each channel's CAC interval vs the CAC ceiling.
+    The single most important decision visual — drawn from channel_screen."""
+    ceiling_id = cfg.get("cac_chart", {}).get("ceiling_id", "cac_ceiling")
+    cspec = numbers.get(ceiling_id)
+    if not cspec:
+        return ""
+    ceiling = _scalar_of(cspec.get("value"))
+    if ceiling is None:
+        return ""
+    bars = []
+    for ch in cfg.get("channel_screen", []):
+        cid = ch.get("cac_estimate")
+        if not cid or cid not in numbers:
+            continue
+        v = numbers[cid].get("value")
+        if v is None:
+            continue
+        lo = v[0] if _is_range(v) else v
+        hi = v[1] if _is_range(v) else v
+        bars.append((ch["channel"], lo, hi, ch.get("verdict", "undetermined")))
+    if not bars:
+        return ""
+    scale = max(max(hi for _, _, hi, _ in bars), ceiling) * 1.08
+    ceiling_pct = ceiling / scale * 100
+    rows = ""
+    for name, lo, hi, verdict in bars:
+        left = lo / scale * 100
+        width = max((hi - lo) / scale * 100, 1.2)
+        rng = (f"{lo:,.0f}–{hi:,.0f}" if hi != lo else f"{lo:,.0f}")
+        rows += (
+            f'<div class="cac-row"><div class="cac-name">{esc(name)}</div>'
+            f'<div class="cac-track">'
+            f'<div class="cac-bar {esc(verdict)}" style="left:{left:.1f}%;width:{width:.1f}%" title="{rng}">{rng}</div>'
+            f'<div class="cac-ceiling" style="left:{ceiling_pct:.1f}%"></div>'
+            f'</div></div>'
+        )
+    ceil_label = esc(L(cfg, "cac_chart_ceiling_label", "CAC ceiling"))
+    title = esc(L(cfg, "cac_chart_title", "Channel CAC interval vs ceiling (HUF)"))
+    unit = esc(cspec.get("unit", ""))
+    leg_v = esc(L(cfg, "cac_legend_viable", "viable (whole interval under ceiling)"))
+    leg_u = esc(L(cfg, "cac_legend_undetermined", "undetermined (interval spans ceiling)"))
+    leg_n = esc(L(cfg, "cac_legend_notviable", "not-viable (best case over ceiling)"))
+    flag = f"◄ {ceil_label} {ceiling:,.0f} {unit}"
+    return f"""<div class="cac-chart">
+  <div class="cac-chart-title">{title}</div>
+  <div class="cac-row"><div class="cac-name"></div><div class="cac-track" style="background:transparent;height:8px">
+    <div class="cac-ceiling-flag" style="left:{ceiling_pct:.1f}%">{esc(flag)}</div>
+    <div class="cac-ceiling" style="left:{ceiling_pct:.1f}%"></div>
+  </div></div>
+  {rows}
+  <div class="cac-axis"><div></div><div class="cac-axis-labels"><span>0</span><span>{scale:,.0f} {unit}</span></div></div>
+  <div class="cac-legend">
+    <span><i style="background:#16a34a"></i>{leg_v}</span>
+    <span><i style="background:#f59e0b"></i>{leg_u}</span>
+    <span><i style="background:#dc2626"></i>{leg_n}</span>
+  </div>
+  <p style="font-size:11px;color:var(--muted);margin:10px 0 0">{esc(L(cfg, "cac_chart_caption", "Bar = benchmark CAC interval · vertical line = ceiling · colour = screen verdict. A benchmark can only disprove viability (best case over ceiling) — it can never prove it, so a bar fully under the ceiling is still 'undetermined' until local data confirms."))}</p>
+</div>"""
+
+
 def s_math(cfg: dict, numbers: dict) -> str:
+    kpi = s_kpi_strip(cfg, numbers)
+    cac_chart = s_cac_chart(cfg, numbers)
     chains = "".join(render_derivation(nid, numbers) for nid in cfg.get("derivations", []))
     sens_rows = "".join(
         f"<tr><td>{esc(s['change'])}</td><td>{esc(s['effect'])}</td>"
@@ -562,6 +692,8 @@ def s_math(cfg: dict, numbers: dict) -> str:
 
     return f"""<section>
   <h2>{esc(L(cfg, "math_heading", "2 · The Math"))}</h2>
+  {kpi}
+  {cac_chart}
   {chains}
   {sens}
   {screen}
@@ -1139,6 +1271,8 @@ DEMO_CONFIG: dict[str, Any] = {
                              "inputs": ["bench_cpc", "bench_cvr"],
                              "note": "Interval spans the ceiling → verdict is undetermined, not a coin flip."},
     },
+    "kpi_strip": ["price", "unit_margin", "cac_ceiling"],
+    "cac_chart": {"ceiling_id": "cac_ceiling"},
     "derivations": ["unit_margin", "cac_ceiling", "search_cac_bench"],
     "sensitivity": [
         {"change": "margin 30% → 50%", "effect": "ceiling 18 → 30 USD; search may flip to viable", "priority": 1},

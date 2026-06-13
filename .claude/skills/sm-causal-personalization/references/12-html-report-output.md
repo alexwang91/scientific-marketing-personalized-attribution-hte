@@ -165,6 +165,44 @@ Rendering rules:
 
 ---
 
+## Visual Elements (readability is a requirement, not a nicety)
+
+A report that is a wall of tables fails its job. The generator renders three
+data visuals from the config; use them — do not bury the decision in prose.
+
+### KPI strip (`s_kpi_strip`)
+
+Big-number stat cards at the top of section 2. Config: `kpi_strip` = list of
+registry IDs. Each renders as a large value + its label, drawn straight from the
+number registry (so provenance still holds). Feature the 3–4 numbers that drive
+the verdict — typically price, unit margin, CAC ceiling, and the best channel's
+CAC. This is the "30-second read" in numeric form.
+
+### CAC bar chart (`s_cac_chart`) — the hero decision visual
+
+A horizontal bar chart in section 2: each channel's CAC interval as a bar, a
+vertical line at the CAC ceiling. Config: `cac_chart.ceiling_id` (defaults to
+`cac_ceiling`); bars are pulled automatically from `channel_screen` entries that
+carry a `cac_estimate`. Bar color = the channel's screen verdict
+(green/amber/red). **Mechanically honest:** a bar fully under the ceiling still
+renders amber if the verdict is `undetermined`, because a benchmark can disprove
+viability but never prove it. The caption states this so the reader is not
+confused by an amber bar that sits left of the line.
+
+This chart replaces the channel-screen *table* as the primary read; the table
+remains below as the auditable detail.
+
+### Semantic heatmap (`s_heatmap`)
+
+See below. Channel × dimension, color-coded cells.
+
+**Typography contract:** headings scale (h1 28px, h2 20px), section headings
+carry the accent color, KPI numbers are 30px. Size contrast — not bold alone —
+carries the hierarchy (frontend-design). Tables are the *detail* layer; lead
+each section with the finding or the visual, not the grid.
+
+---
+
 ## Heatmap Score Semantics
 
 | Score | CSS class | Meaning |

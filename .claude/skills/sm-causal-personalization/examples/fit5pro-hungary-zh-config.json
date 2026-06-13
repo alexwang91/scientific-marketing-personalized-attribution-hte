@@ -226,7 +226,13 @@
     "mechanism_label": "机制",
     "prediction_label": "预测",
     "test_label": "测试",
-    "unlocks_label": "解锁"
+    "unlocks_label": "解锁",
+    "cac_chart_title": "各渠道 CAC 区间 vs 上限（HUF）",
+    "cac_chart_ceiling_label": "CAC 上限",
+    "cac_legend_viable": "可行（本地数据确认低于上限）",
+    "cac_legend_undetermined": "待定（基准估算，无法据此判定可行）",
+    "cac_legend_notviable": "不可行（最优情况仍超上限）",
+    "cac_chart_caption": "横条=基准 CAC 区间 · 竖线=上限 · 颜色=筛查结论。基准只能证伪（最优情况超上限即出局），无法证明可行——所以即便整条在上限左侧，未经本地数据确认前仍为「待定」。"
   },
   "decision_memo": {
     "verdict": "conditional",
@@ -565,10 +571,10 @@
       "reasoning": "Shopping CPC 与搜索相近；意图匹配使 CVR 更高。结论待本地数据确认，与搜索相同。"
     },
     {
-      "channel": "零售媒体（eMAG）",
+      "channel": "零售媒体（Alza/eMAG）",
       "verdict": "undetermined",
       "cac_estimate": null,
-      "reasoning": "eMAG 赞助位 CPC 及 CVR 数据需开通账户方可获取。零成本申请可行。"
+      "reasoning": "Alza/eMAG 零售媒体赞助位 CPC 及 CVR 数据需开通账户方可获取。零成本申请可行。两家份额均待核实。"
     },
     {
       "channel": "Meta 前景广告",
@@ -637,8 +643,8 @@
       "tag": "evidence"
     },
     {
-      "fact": "主要电商平台：eMAG.hu（最大）、Alza.hu、MediaMarkt、Extreme Digital、Yettel、Telekom",
-      "tag": "evidence"
+      "fact": "电子产品零售渠道：Alza.hu、eMAG.hu、MediaMarkt（线下强）、Extreme Digital；运营商 Yettel/Telekom 有穿戴设备份额。各家「谁第一」缺公开份额数据——待 Stage 1 核实，不沿用罗马尼亚的 eMAG 排名",
+      "tag": "assumption"
     },
     {
       "fact": "主要比价网站：arukereso.hu + árgép.hu——电子产品购买决策关键触点；FIT 5 Pro 在 arukereso 最低上架 96,090 HUF",
@@ -683,7 +689,7 @@
       "note": "高意图，商品列表格式，直接与竞品比价"
     },
     {
-      "name": "零售媒体（eMAG）",
+      "name": "零售媒体（Alza/eMAG）",
       "task": "捕获意图",
       "proxy_quality": "中",
       "verdict": "undetermined",
@@ -968,7 +974,7 @@
     "channels": [
       "Google 搜索",
       "Google Shopping",
-      "零售媒体（eMAG）",
+      "零售媒体（Alza/eMAG）",
       "Meta",
       "再营销",
       "KOL"
@@ -1046,7 +1052,7 @@
         "D8": "A",
         "D9": "A"
       },
-      "零售媒体（eMAG）": {
+      "零售媒体（Alza/eMAG）": {
         "D1": "T",
         "D2": "T",
         "D3": "T",
@@ -1529,9 +1535,9 @@
       "accessed": "2026-06-13"
     },
     {
-      "fact": "eMAG 为匈牙利最大电商平台",
-      "source_url": "https://emag.hu",
-      "source_label": "eMAG 匈牙利",
+      "fact": "Alza.hu、eMAG.hu、MediaMarkt 同为匈牙利主要电子产品零售渠道；运营商 Yettel/Telekom 也有可观穿戴设备份额。各平台「谁第一」缺公开来源——标记为待验证，不假设",
+      "source_url": "https://www.similarweb.com/top-websites/hungary/e-commerce-and-shopping/",
+      "source_label": "SimilarWeb 匈牙利电商榜（用于交叉核对，非权威份额数据）",
       "accessed": "2026-06-13"
     },
     {
@@ -1672,5 +1678,14 @@
     "baseline_cvr": 0.015,
     "mde_abs": 0.003,
     "eligible_per_day": 500
+  },
+  "kpi_strip": [
+    "price_huf",
+    "unit_margin",
+    "cac_ceiling",
+    "rtg_cac_bench"
+  ],
+  "cac_chart": {
+    "ceiling_id": "cac_ceiling"
   }
 }
