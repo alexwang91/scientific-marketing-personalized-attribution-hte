@@ -312,7 +312,16 @@
     "chart_wf_sure": "− 本来就会买",
     "chart_wf_organic": "− 自然 / 季节",
     "chart_wf_incremental": "真实增量",
-    "chart_wf_axis": "收入（示意单位）"
+    "chart_wf_axis": "收入（示意单位）",
+    "tldr_heading": "0 · 总结",
+    "tldr_kicker": "一句话结论",
+    "tldr_why_label": "为什么",
+    "tldr_do": "要做",
+    "tldr_dont": "不要做",
+    "tldr_roi_label": "ROI",
+    "tldr_roi_cond": "未定——先完成零成本数据拉取再决定预算",
+    "tldr_do_empty": "— 暂无 —",
+    "tldr_dont_empty": "— 暂无 —"
   },
   "decision_memo": {
     "verdict": "conditional",
@@ -1792,5 +1801,20 @@
         "id": "apple_watchse3_price"
       }
     ]
+  },
+  "summary": {
+    "why": "单位利润 39,996 HUF，每获取一个客户最多能花 15,998 HUF。但目前没有任何渠道有本地数据证明能做到这个 CAC——所以先用零成本数据补上最大的未知量，再谈花不花钱。",
+    "do": [
+      "先拉两项零成本数据：搜索关键词量/CPC + 直接向 2–3 位达人询价（当天，1 小时）",
+      "若搜索 CAC 验证 < 16,000 HUF → 解锁 T01+T05 试点（合计 80,000 HUF）",
+      "再营销先做 holdout 验证增量，通过则解锁 T03+T04（30,000 HUF）——基准上风险最低的首选渠道",
+      "HTE 实验汇集 CEE 四国（匈+罗+捷+斯）→ 48 天可行，别只在匈牙利单做（需 473 天）"
+    ],
+    "dont": [
+      "现在不要分配任何媒体预算——数据还不足以支撑",
+      "不要做大规模 Meta 前景广告（CAC 远超上限），最多 5,000 HUF 微测建立本地 CVR 基准",
+      "不要签健美 hero 达人做跑步 GPS 内容——机制错配，增量不可信"
+    ],
+    "roi": "未定。利润空间存在（CAC 上限 15,998 HUF），但能否盈利取决于实测 CAC；当天的零成本数据就能把判断从「猜」变成「算」。"
   }
 }

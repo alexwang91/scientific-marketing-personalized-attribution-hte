@@ -756,6 +756,42 @@ _CSS = """
     min-height:300px;color:var(--muted);font-size:12px;text-align:center;
     padding:0 20px;line-height:1.6}
 
+  /* ── TL;DR summary page (s0) ── */
+  .tldr{background:var(--panel);border:1px solid var(--line-strong);
+    border-radius:12px;padding:24px 28px 26px;margin:14px 0 20px;
+    box-shadow:0 2px 10px rgba(0,0,0,.06)}
+  .tldr-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .tldr-kicker{font-size:10px;font-weight:800;text-transform:uppercase;
+    letter-spacing:.13em;color:var(--muted)}
+  .tldr-meta{font-size:11.5px;color:var(--muted);margin-left:auto}
+  .tldr-why{font-size:15.5px;line-height:1.6;color:var(--ink);
+    margin:0 0 18px;font-weight:600;letter-spacing:-.01em}
+  .tldr-why .tldr-why-lab{display:block;font-size:10px;font-weight:800;
+    text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:5px}
+  .tldr-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+  @media(max-width:640px){.tldr-cols{grid-template-columns:1fr}}
+  .tldr-col{border-radius:10px;padding:15px 17px}
+  .tldr-col.do{background:var(--ok)}
+  .tldr-col.dont{background:var(--bad)}
+  .tldr-col h4{margin:0 0 9px;font-size:12px;font-weight:800;
+    display:flex;align-items:center;gap:7px;letter-spacing:.01em}
+  .tldr-col.do h4{color:var(--ok-ink)}
+  .tldr-col.dont h4{color:var(--bad-ink)}
+  .tldr-col ul{margin:0;padding:0;list-style:none}
+  .tldr-col li{position:relative;padding:4px 0 4px 20px;font-size:13px;
+    line-height:1.5;color:var(--ink)}
+  .tldr-col li::before{position:absolute;left:0;top:4px;font-weight:800}
+  .tldr-col.do li::before{content:'✓';color:var(--ok-ink)}
+  .tldr-col.dont li::before{content:'✗';color:var(--bad-ink)}
+  .tldr-col li.empty{color:var(--muted);padding-left:0}
+  .tldr-col li.empty::before{content:''}
+  .tldr-roi{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:10px;padding:14px 18px}
+  .tldr-roi-lab{font-size:10px;font-weight:800;text-transform:uppercase;
+    letter-spacing:.1em;color:var(--muted);flex-shrink:0}
+  .tldr-roi-val{font-size:14px;font-weight:600;color:var(--ink);line-height:1.5}
+
 """
 
 
@@ -1100,6 +1136,65 @@ def s_play_timeline(cfg: dict) -> str:
                   f'{kill_html}'
                   f'</div>')
     return f'<div class="timeline">{items}</div>'
+
+def s_tldr(cfg: dict) -> str:
+    """Section 0 — one-glance plain-language summary: do / don't / ROI / why.
+
+    Reads cfg["summary"] when present; otherwise derives do/don't from the memo
+    decision horizons and the thesis. Goal: the reader who stops here leaves with
+    a correct, coarse picture (ref 15 Rule 3, decision-first)."""
+    memo = cfg.get("decision_memo", {})
+    summary = cfg.get("summary", {})
+    meta = cfg.get("meta", {})
+    verdict = memo.get("verdict", "conditional")
+    vlabel = {"go": "GO", "no-go": "NO-GO", "conditional": "CONDITIONAL"}.get(verdict, verdict.upper())
+
+    buckets: dict[str, list[str]] = {"now": [], "checkpoint": [], "never": []}
+    for d in memo.get("decisions", []):
+        buckets.setdefault(d["horizon"], []).append(d["text"])
+    do_items = summary.get("do") or (buckets["now"] + buckets["checkpoint"])
+    dont_items = summary.get("dont") or buckets["never"]
+    why = summary.get("why") or memo.get("thesis", "")
+
+    roi_default = {
+        "go": L(cfg, "tldr_roi_go", "Positive within the stated CAC ceiling — proceed."),
+        "no-go": L(cfg, "tldr_roi_nogo", "Negative under current unit economics — do not spend."),
+        "conditional": L(cfg, "tldr_roi_cond",
+                         "Undetermined — run the zero-cost data pulls before committing budget."),
+    }.get(verdict, "")
+    roi = summary.get("roi") or roi_default
+
+    def _list(items: list[str], empty_txt: str) -> str:
+        if not items:
+            return f'<li class="empty">{esc(empty_txt)}</li>'
+        return "".join(f"<li>{esc(t)}</li>" for t in items)
+
+    do_html = _list(do_items, L(cfg, "tldr_do_empty", "— nothing yet —"))
+    dont_html = _list(dont_items, L(cfg, "tldr_dont_empty", "— nothing flagged —"))
+
+    return f"""<section id="s0" class="tldr">
+  <div class="tldr-top">
+    <span class="tldr-kicker">{esc(L(cfg, "tldr_kicker", "Bottom line"))}</span>
+    <span class="verdict verdict-{esc(verdict)}">{esc(vlabel)}</span>
+    <span class="tldr-meta">{esc(meta.get("product", ""))} · {esc(meta.get("market", ""))} · {esc(meta.get("date", ""))}</span>
+  </div>
+  <p class="tldr-why"><span class="tldr-why-lab">{esc(L(cfg, "tldr_why_label", "Why"))}</span>{esc(why)}</p>
+  <div class="tldr-cols">
+    <div class="tldr-col do">
+      <h4>{esc(L(cfg, "tldr_do", "Do this"))}</h4>
+      <ul>{do_html}</ul>
+    </div>
+    <div class="tldr-col dont">
+      <h4>{esc(L(cfg, "tldr_dont", "Don't do this"))}</h4>
+      <ul>{dont_html}</ul>
+    </div>
+  </div>
+  <div class="tldr-roi">
+    <span class="tldr-roi-lab">{esc(L(cfg, "tldr_roi_label", "ROI"))}</span>
+    <span class="tldr-roi-val">{esc(roi)}</span>
+  </div>
+</section>"""
+
 
 def s_memo(cfg: dict) -> str:
     memo = cfg["decision_memo"]
@@ -2248,7 +2343,7 @@ def generate_html(cfg: dict) -> str:
 
     # Single monotonic section sequence. s_actions was removed: it duplicated
     # the Treatment Cards already rendered by s_execution_gates.
-    parts = [s_memo(cfg), s_termination(cfg), s_math(cfg, numbers)]
+    parts = [s_tldr(cfg), s_memo(cfg), s_termination(cfg), s_math(cfg, numbers)]
     if short_mode:
         parts.append(s_evidence(cfg, numbers))   # short report: memo + math + evidence
     else:
@@ -2277,6 +2372,7 @@ def generate_html(cfg: dict) -> str:
 
     # Build sidebar TOC
     _toc_items = [
+        ("s0",  L(cfg, "tldr_heading",        "0 · Summary")),
         ("s1",  L(cfg, "memo_heading",        "1 · Decision Memo")),
         ("s2",  L(cfg, "math_heading",        "2 · The Math")),
         ("s3",  L(cfg, "product_heading",     "3 · Product & Market Facts")),
@@ -2296,7 +2392,7 @@ def generate_html(cfg: dict) -> str:
         ("s17", L(cfg, "checklist_heading",   "17 · Checklist")),
     ]
     if short_mode:
-        _toc_items = [t for t in _toc_items if t[0] in ("s1", "s2", "s16")]
+        _toc_items = [t for t in _toc_items if t[0] in ("s0", "s1", "s2", "s16")]
 
     toc_links = "".join(
         f'<a class="toc-link" href="#{sid}" id="toc-{sid}">{esc(label[:32])}</a>\n'
