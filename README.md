@@ -9,6 +9,7 @@
 [![References](https://img.shields.io/badge/references-18-44883e)](#-参考库--reference-library)
 [![Scripts](https://img.shields.io/badge/scripts-5%20(validated)-blue)](#-脚本--scripts)
 [![Provenance contract](https://img.shields.io/badge/numbers-sourced%20%C2%B7%20assumed%20%C2%B7%20derived%20%C2%B7%20missing-orange)](#-方法论立场--methodology-stance)
+[![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
 
 **传统个性化问「谁最可能买」。因果个性化问「我的动作让谁*多*买了」。**
 *Traditional personalization asks who is likely to buy. Causal personalization asks who bought **more because of your action**.*
@@ -198,5 +199,5 @@ pip install numpy pandas scipy scikit-learn matplotlib
 
 ## 📄 License
 
-> ⚠️ **Needed to finish**: 本仓库尚未添加 LICENSE 文件。开源使用前请补充许可证。
-> *No license file yet — add one before public reuse.*
+[Apache License 2.0](LICENSE) © 2026 alexwang91.
+*Licensed under Apache-2.0 — free to use, modify, and distribute with attribution and the included patent grant.*
