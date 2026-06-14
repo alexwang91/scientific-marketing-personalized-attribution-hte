@@ -17,11 +17,18 @@ v2 design contract (references/12-html-report-output.md, 16-estimation-disciplin
      (config["termination"]), only memo + math + evidence render.
   5. READABILITY BUDGET. Tables are capped at 4 columns; treatment actions and
      test plans render as cards; provenance markers are superscripts, not pills.
+  6. DEPTH MODES. --depth quick renders only decision-critical sections;
+     standard (default) renders the full report; deep adds a consolidated
+     validation roadmap (§18) built purely from existing config data — open
+     challenges + missing numbers + test predictions, ranked by what would
+     change the decision. CLI --depth overrides config["depth"].
 
 Usage:
   python generate_report.py --config config.json --output report.html
   python generate_report.py --demo > report.html        # minimal schema demo
   python generate_report.py --config c.json --validate-only
+  python generate_report.py --config c.json --depth quick   # executive view
+  python generate_report.py --config c.json --depth deep    # + validation roadmap
 
 Config schema: see examples/ax3-romania-config.json and references/12.
 """
@@ -566,6 +573,18 @@ _CSS = """
   .blocked-stamp{display:inline-block;border:2px solid var(--bad-ink);
     color:var(--bad-ink);padding:2px 8px;border-radius:4px;
     font-weight:700;font-size:10.5px;transform:rotate(-1.5deg);margin-left:7px}
+
+  /* ── Depth banner (quick / deep modes) ── */
+  .depth-banner{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;
+    background:var(--accent-light);color:var(--accent);
+    border:1px solid var(--accent);border-radius:7px;
+    padding:9px 13px;margin:0 0 16px;font-size:11.5px;line-height:1.5}
+  .depth-banner b{font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+  .depth-banner span{color:var(--muted)}
+
+  /* ── Assumption → validation ledger (deep mode) ── */
+  .ledger-rank{font-weight:800;color:var(--muted);text-align:center;width:30px}
+  .ledger td .pill{margin:0}
 
   /* ── Tables ── */
   .table-wrap{overflow-x:auto;border:1px solid var(--line);
@@ -2159,6 +2178,98 @@ def s_termination(cfg: dict) -> str:
 
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Assumption → validation ledger (deep mode only). Pure consolidation: it
+# re-presents data already in the config — open challenges (ref 14), missing
+# numbers (ref 16), and test predictions (ref 03) — as one risk-ranked roadmap.
+# It invents nothing; if a row has no data, it does not appear.
+# ──────────────────────────────────────────────────────────────────────────────
+
+def s_assumption_ledger(cfg: dict, numbers: dict, challenges_by_id: dict) -> str:
+    def prov_pill(label, klass):
+        return f'<span class="pill {klass}">{esc(label)}</span>'
+
+    hyp = L(cfg, "lg_prov_hypothesis", "Hypothesis")
+    miss = L(cfg, "lg_prov_missing", "Missing")
+    rows = []  # (tier, html_cells)
+
+    # tier 0/3 — reviewer challenges (open-blocking first, then open)
+    for c in cfg.get("challenges", []):
+        status = c.get("status", "")
+        if status == "open-blocking":
+            tier, risk, klass = 0, L(cfg, "lg_risk_blocking", "Blocks dependent actions"), "pill-open-blocking"
+        elif status == "open":
+            tier, risk, klass = 3, L(cfg, "lg_risk_open", "Open challenge — not yet blocking"), "pill-open"
+        else:
+            continue  # resolved challenges are not pending validation
+        test = c.get("evidence_needed") or c.get("resolution") or "—"
+        rows.append((tier,
+            f"<td><strong>{esc(c.get('id',''))}</strong> · {esc(c.get('target',''))}<br>{esc(c.get('question',''))}</td>"
+            f"<td>{prov_pill(hyp, klass)}</td>"
+            f"<td>{esc(risk)}</td>"
+            f"<td>{esc(test)}</td>"
+            f"<td>{esc(L(cfg, 'lg_rule_challenge', 'Clears the challenge → action unblocks; otherwise stays BLOCKED'))}</td>"))
+
+    # tier 1/4 — missing numbers (blocking first, then sensitivity-only)
+    for nid, spec in numbers.items():
+        if spec.get("provenance") != "missing":
+            continue
+        blocks = [b for b in spec.get("blocks", []) if b]
+        if blocks:
+            tier, risk, klass = 1, L(cfg, "lg_blocks_prefix", "Blocks: ") + ", ".join(blocks), "pill-open-blocking"
+        else:
+            tier, risk, klass = 4, L(cfg, "lg_risk_sens", "Sensitivity input — no action blocked"), "pill-open"
+        cost = spec.get("cost_to_get", "—")
+        rule = L(cfg, "lg_rule_missing", "Obtain the value → promotes to Sourced / Assumed") + f" ({esc(cost)})"
+        rows.append((tier,
+            f"<td>{esc(spec.get('label', nid))}</td>"
+            f"<td>{prov_pill(miss, klass)}</td>"
+            f"<td>{esc(risk)}</td>"
+            f"<td>{esc(spec.get('needed_from', '—'))}</td>"
+            f"<td>{rule}</td>"))
+
+    # tier 2 — test plan predictions (already have a kill line + decision date)
+    for t in cfg.get("test_plan", []):
+        rule = f"{esc(t.get('kill_line',''))} — {esc(L(cfg, 'lg_by', 'by'))} {esc(t.get('decision_date',''))}"
+        rows.append((2,
+            f"<td><strong>{esc(t.get('name',''))}</strong><br>{esc(t.get('prediction',''))}</td>"
+            f"<td>{prov_pill(hyp, 'pill-role-only')}</td>"
+            f"<td>{esc(L(cfg, 'lg_risk_kill', 'Action killed if the prediction fails'))}</td>"
+            f"<td>{esc(t.get('test',''))}</td>"
+            f"<td>{rule}</td>"))
+
+    rows.sort(key=lambda r: r[0])
+    if not rows:
+        body = f'<p>{esc(L(cfg, "lg_empty", "No open assumptions, missing inputs, or pending tests — nothing left to validate."))}</p>'
+    else:
+        trs = "".join(
+            f'<tr><td class="ledger-rank">{i}</td>{cells}</tr>'
+            for i, (_, cells) in enumerate(rows, 1))
+        body = f'''<div class="table-wrap"><table class="ledger">
+    <thead><tr>
+      <th>{esc(L(cfg, "lg_th_rank", "#"))}</th>
+      <th>{esc(L(cfg, "lg_th_assumption", "Assumption / open question"))}</th>
+      <th>{esc(L(cfg, "lg_th_prov", "Provenance now"))}</th>
+      <th>{esc(L(cfg, "lg_th_risk", "If wrong"))}</th>
+      <th>{esc(L(cfg, "lg_th_test", "Minimum valid test"))}</th>
+      <th>{esc(L(cfg, "lg_th_rule", "Pass / fail rule"))}</th>
+    </tr></thead>
+    <tbody>{trs}</tbody></table></div>'''
+
+    intro = _narrative_intro(cfg, "s18_intro",
+        "One ranked list of everything the plan still rests on but has not proven. "
+        "It consolidates the open reviewer challenges, the Missing ledger, and the "
+        "test predictions into a single roadmap, ordered so the cheapest blocker is "
+        "tested first. Nothing here is new — it is the rest of the report, re-sorted "
+        "by what would change the decision.")
+    return f"""<section id=\"s18\">
+  <h2>{esc(L(cfg, "ledger_heading", "18 · Validation Roadmap"))}</h2>
+  {intro}
+  <p>{L(cfg, "ledger_intro", "Ranked by (blocking &times; cost-to-test): open-blocking challenges and budget-blocking gaps first, sensitivity-only inputs last. Each row carries a pre-committed pass/fail line — a Hypothesis is promoted to Sourced only when its test clears.")}</p>
+  {body}
+</section>"""
+
+
+# ──────────────────────────────────────────────────────────────────────────────
 # ECharts CDN + init. Plain string (NOT an f-string) so JS braces stay literal;
 # the localized label dict is spliced in at __CHART_L__. SVG renderer = crisp on
 # retina and in print. If the CDN script fails, init never runs and each
@@ -2332,7 +2443,7 @@ _ECHARTS_JS = r"""
 # Assembly
 # ──────────────────────────────────────────────────────────────────────────────
 
-def generate_html(cfg: dict) -> str:
+def generate_html(cfg: dict, depth: str = "standard") -> str:
     numbers = validate_and_resolve(cfg.get("numbers", {}))
     for w in lint_prose(cfg, numbers):
         print(f"LINT WARNING — {w}", file=sys.stderr)
@@ -2340,37 +2451,62 @@ def generate_html(cfg: dict) -> str:
     challenges_by_id = {c["id"]: c for c in cfg.get("challenges", [])}
     meta = cfg.get("meta", {})
     short_mode = bool(cfg.get("termination"))
+    depth = depth if depth in ("quick", "standard", "deep") else "standard"
 
-    # Single monotonic section sequence. s_actions was removed: it duplicated
-    # the Treatment Cards already rendered by s_execution_gates.
-    parts = [s_tldr(cfg), s_memo(cfg), s_termination(cfg), s_math(cfg, numbers)]
+    # Single monotonic section sequence as (section_id, html). s_actions was
+    # removed: it duplicated the Treatment Cards already in s_execution_gates.
+    parts_spec = [
+        ("s0",   s_tldr(cfg)),
+        ("s1",   s_memo(cfg)),
+        ("term", s_termination(cfg)),   # empty unless the pipeline terminated
+        ("s2",   s_math(cfg, numbers)),
+    ]
     if short_mode:
-        parts.append(s_evidence(cfg, numbers))   # short report: memo + math + evidence
+        parts_spec.append(("s16", s_evidence(cfg, numbers)))  # short: memo + math + evidence
     else:
-        parts += [
-            s_product_facts(cfg, numbers),                     # 3
-            s_channel_map(cfg, numbers),                       # 4
-            s_dimensions(cfg),                                 # 5
-            s_heatmap(cfg),                                    # 6
-            s_h_main(cfg),                                     # 7
-            s_execution_gates(cfg, numbers, challenges_by_id), # 8
-            s_challenges(cfg),                                 # 9
-            s_budget(cfg, numbers),                            # 10
-            s_priority_plays(cfg, numbers),                    # 11
-            s_kol(cfg, numbers),                               # 12
-            s_measurement(cfg),                                # 13
-            s_test_plan(cfg),                                  # 14
-            s_suppression(cfg),                                # 15
-            s_evidence(cfg, numbers),                          # 16
-            s_checklist(cfg),                                  # 17
+        parts_spec += [
+            ("s3",  s_product_facts(cfg, numbers)),
+            ("s4",  s_channel_map(cfg, numbers)),
+            ("s5",  s_dimensions(cfg)),
+            ("s6",  s_heatmap(cfg)),
+            ("s7",  s_h_main(cfg)),
+            ("s8",  s_execution_gates(cfg, numbers, challenges_by_id)),
+            ("s9",  s_challenges(cfg)),
+            ("s10", s_budget(cfg, numbers)),
+            ("s11", s_priority_plays(cfg, numbers)),
+            ("s12", s_kol(cfg, numbers)),
+            ("s13", s_measurement(cfg)),
+            ("s14", s_test_plan(cfg)),
+            ("s15", s_suppression(cfg)),
+            ("s16", s_evidence(cfg, numbers)),
+            ("s17", s_checklist(cfg)),
         ]
+    if depth == "deep":
+        parts_spec.append(("s18", s_assumption_ledger(cfg, numbers, challenges_by_id)))
+
+    # Quick mode keeps only the decision-critical sections.
+    if depth == "quick":
+        quick_ids = {"s0", "s1", "term", "s2", "s8", "s16"}
+        parts_spec = [(sid, html) for sid, html in parts_spec if sid in quick_ids]
+
+    active_ids = {sid for sid, html in parts_spec if html}
+    parts = [html for _, html in parts_spec if html]
+
+    # Banner when the report is not the full standard view.
+    depth_banner = ""
+    if depth == "quick":
+        depth_banner = (f'<div class="depth-banner"><b>{esc(L(cfg, "depth_label_quick", "Quick"))}</b>'
+                        f'<span>{esc(L(cfg, "depth_quick_banner", "Decision-critical sections only — summary, memo, the math, the gate, and the evidence. Re-run without --depth quick for the full analysis."))}</span></div>')
+    elif depth == "deep":
+        depth_banner = (f'<div class="depth-banner"><b>{esc(L(cfg, "depth_label_deep", "Deep"))}</b>'
+                        f'<span>{esc(L(cfg, "depth_deep_banner", "Full report plus the consolidated validation roadmap (§18) — every open assumption ranked by what would change the decision."))}</span></div>')
 
     title = f'{meta.get("product", "")} — {meta.get("market", "")} Decision Memo'
 
     echarts_block = _ECHARTS_JS.replace(
         "__CHART_L__", json.dumps(_chart_labels(cfg), ensure_ascii=False))
 
-    # Build sidebar TOC
+    # Build sidebar TOC, then keep only sections that actually rendered.
     _toc_items = [
         ("s0",  L(cfg, "tldr_heading",        "0 · Summary")),
         ("s1",  L(cfg, "memo_heading",        "1 · Decision Memo")),
@@ -2390,9 +2526,9 @@ def generate_html(cfg: dict) -> str:
         ("s15", L(cfg, "suppression_heading", "15 · Suppression")),
         ("s16", L(cfg, "evidence_heading",    "16 · Evidence")),
         ("s17", L(cfg, "checklist_heading",   "17 · Checklist")),
+        ("s18", L(cfg, "ledger_heading",      "18 · Validation Roadmap")),
     ]
-    if short_mode:
-        _toc_items = [t for t in _toc_items if t[0] in ("s0", "s1", "s2", "s16")]
+    _toc_items = [t for t in _toc_items if t[0] in active_ids]
 
     toc_links = "".join(
         f'<a class="toc-link" href="#{sid}" id="toc-{sid}">{esc(label[:32])}</a>\n'
@@ -2416,6 +2552,7 @@ def generate_html(cfg: dict) -> str:
 {sidebar}
 <div class="content-col">
 <main>
+{depth_banner}
 {"".join(parts)}
 </main>
 <footer>
@@ -2528,6 +2665,10 @@ def main():
     ap.add_argument("--config", help="JSON config path")
     ap.add_argument("--output", help="output HTML path (default stdout)")
     ap.add_argument("--validate-only", action="store_true", help="validate config, render nothing")
+    ap.add_argument("--depth", choices=["quick", "standard", "deep"], default=None,
+                    help="quick = decision-critical sections only; standard = full report (default); "
+                         "deep = full report + consolidated validation roadmap (§18). "
+                         "Overrides cfg['depth'] if set.")
     args = ap.parse_args()
 
     if args.demo:
@@ -2545,7 +2686,8 @@ def main():
                 print(f"LINT WARNING — {w}", file=sys.stderr)
             print("Config valid: provenance contract satisfied.", file=sys.stderr)
             return
-        html = generate_html(cfg)
+        depth = args.depth or cfg.get("depth", "standard")
+        html = generate_html(cfg, depth=depth)
     except ConfigError as e:
         print(f"BUILD FAILED — {e}", file=sys.stderr)
         sys.exit(2)

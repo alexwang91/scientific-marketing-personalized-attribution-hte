@@ -177,10 +177,49 @@ enables: (a) warm-start estimation for new experiments, (b) cross-scenario
 compounds across years of experiments. Build the archive from day one —
 retroactive reconstruction is expensive.
 
+## Assumption → Validation Ledger (decide what to test first)
+
+A power calculation tells you how big a test must be; it does not tell you
+*which* test to run first. Before committing experiment traffic, inventory every
+load-bearing assumption across the analysis and rank them — most teams test what
+is easy, not what is decisive.
+
+Build one table. Each row is an assumption the plan depends on:
+
+| Assumption | Provenance now | Risk if wrong | Minimum valid test | Pass / fail rule |
+|------------|----------------|---------------|--------------------|------------------|
+| the claim the budget rests on | Hypothesis / Assumed / Missing (ref 16) | what breaks downstream, and how much | smallest experiment that could falsify it (identification ladder above) | the pre-committed line that settles it — not "looks better" |
+
+**Ranking rule** (highest first):
+1. **Blocking + cheap to test** — gates budget *and* is cheap to falsify. Always
+   first; a zero-cost data pull beats a guess.
+2. **Blocking + expensive** — gates budget but needs a real experiment; this is
+   where the power calculation and duration above actually bind.
+3. **Non-blocking** — nice to know; defer until the blockers clear.
+
+**Three disciplines this enforces:**
+- **Separate what the test measures from what it cannot.** A survey measures
+  stated intent, not incremental sales; a landing-page A/B measures click-through,
+  not margin; sell-in is not sell-through. State the gap in the row, or the
+  ledger lies by omission.
+- **Every row needs a pre-committed pass/fail line.** "We'll see how it looks" is
+  not a rule — it is a license to rationalize after the fact (ref 04 multiple
+  testing; ref 15 falsifiability). Set the line before the data arrives.
+- **Hypothesis stays Hypothesis until a holdout moves it.** Customer voice
+  (ref 00b), elicited WTP (ref 01), and reviewer challenges (ref 14) all enter
+  this ledger as `Hypothesis`; the test is what promotes them to `Sourced`.
+
+The ledger is the bridge from the Missing register (ref 16, sorted by
+sensitivity) and the open-blocking challenges (ref 14) to a dated test roadmap.
+`generate_report.py --depth deep` renders exactly this consolidation from the
+config — missing numbers + open challenges + test predictions in one ranked list.
+
 ## Acceptance Checklist
 
 - [ ] Identification level confirmed; written assumption justification for
       anything below level 2
+- [ ] Assumption → validation ledger built; load-bearing assumptions ranked by
+      (blocking × cost-to-test), each with a pre-committed pass/fail rule
 - [ ] Power calculation done; sample and duration sufficient for the target MDE
 - [ ] Randomization unit matches interference structure
 - [ ] Propensity log instrumented at code-write time (not retrofitted later)
@@ -204,3 +243,7 @@ retroactive reconstruction is expensive.
   Policy Evaluation" — map of quasi-experimental methods
 - Xiong et al. (2024) "Optimal Switchback Experiment Design" — Empirical
   Bayes interval selection for switchback experiments
+- Pattern credit: the assumption → validation ledger adapts the
+  "plan-validation-experiments" (S13) move from the GTM-Master skill suite
+  (alexwang91/gtm-master), re-grounded on this skill's provenance contract so a
+  Hypothesis is promoted only by a holdout, not by survey intent.

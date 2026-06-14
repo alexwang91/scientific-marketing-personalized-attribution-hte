@@ -183,11 +183,13 @@ What is the user asking about?
 | `qini_auuc.py` | Qini curve, AUUC + bootstrap CI, decile calibration, two-model comparison | Section 11 AUUC launch gate |
 | `hte_starter.py` | T/X/DR-learner starter templates (sklearn, drop-in replaceable with EconML / CausalML) | — |
 | `ope_estimators.py` | IPS / SNIPS / Doubly Robust off-policy evaluation + support check | Section 14 OPE support check |
-| `generate_report.py` | Decision-memo HTML generator (v2). **Enforces the provenance contract**: build fails on any number that is not sourced / assumed / derived / missing; renders derivation chains; stamps BLOCKED on actions gated by open-blocking challenges; short-report mode when the pipeline terminates at the channel screen | **Entry point for HTML output** |
+| `generate_report.py` | Decision-memo HTML generator (v2). **Enforces the provenance contract**: build fails on any number that is not sourced / assumed / derived / missing; renders derivation chains; stamps BLOCKED on actions gated by open-blocking challenges; short-report mode when the pipeline terminates at the channel screen. **Depth modes**: `quick` (decision-critical sections only), `standard` (full report, default), `deep` (full + consolidated validation roadmap §18, built only from existing config data) | **Entry point for HTML output** |
 
 ```bash
 python scripts/generate_report.py --config config.json --validate-only  # contract check
 python scripts/generate_report.py --config config.json --output report.html
+python scripts/generate_report.py --config config.json --depth quick      # executive view: verdict + math + gate + evidence
+python scripts/generate_report.py --config config.json --depth deep       # full report + validation roadmap (§18)
 python scripts/generate_report.py --demo > demo.html
 # Worked example: examples/ax3-romania-config.json
 ```

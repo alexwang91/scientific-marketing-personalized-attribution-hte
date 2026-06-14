@@ -120,6 +120,38 @@ independently requires linearly growing sample. Solutions:
   (cross-campaign contamination is a persistent problem without global
   frequency control → ref 03 GCG).
 
+## Creator / KOL Selection as Treatment Design
+
+A creator *is* a treatment: the post is the content, the creator's audience is
+the channel, and the creator's credibility is the mechanism. So a creator gets a
+treatment card and names the force it moves — usually **Anxiety** (a trusted face
+reduces fear of a new or expensive product) or **Pull** (a demonstration makes a
+non-obvious benefit concrete). A creator who moves no force for the target
+segment is reach bought at a CPM, not a treatment.
+
+**Score the archetype before the person.** Decide the *kind* of creator the
+segment's trust and proof needs demand (domain expert / peer / aspirational /
+utility reviewer), then score candidates against that archetype — not the other
+way around. Picking a creator first and reverse-justifying the fit is how budget
+ends up following follower count instead of mechanism.
+
+**Score on evidence, not vanity:**
+- Audience–segment overlap (a *proxy* — label it as one)
+- Proof / trust match to the specific force being moved
+- Platform relevance to where the segment actually decides
+- Brand-safety screen — a pass/fail gate, not a score
+- Budget as a **range**, never a guaranteed CPA
+
+**Hard line — follower count ≠ influence ≠ incrementality.** Reach, engagement
+rate, and even a creator's past "conversions" are correlational; they do not
+prove this creator caused incremental buyers for *your* product. Creator fit is
+`Hypothesis`-grade (ref 00b): it tells you whom to pilot, not whom to scale. The
+only thing that promotes a creator to Sourced is a **creator pilot with a holdout
+or geo-control** (ref 03) — matched markets / audiences with and without the
+campaign, read on incremental conversion, not on the creator's own dashboard.
+Follower-weighted shortlists enter the experiment queue; they never go straight
+to a contract.
+
 ## Step-by-Step
 
 1. Write all existing actions as treatment cards; version and register them.
@@ -149,6 +181,9 @@ independently requires linearly growing sample. Solutions:
   manufacturing urgency / scarcity. This raises the Anxiety force, which can
   flip τ negative (lower conversion, higher post-purchase churn) and trips the
   red-team (ref 09 dark patterns).
+- **Creator chosen on reach, not mechanism**: a high-follower creator whose
+  audience already buys (Pull maxed) — high views, zero increment. Follower
+  count is not a force; a creator dashboard is observational, not a holdout.
 
 ## Acceptance Checklist
 
@@ -164,6 +199,9 @@ independently requires linearly growing sample. Solutions:
 - [ ] Every card names the force it moves (Push / Pull / Habit / Anxiety) and
       the segment for whom that force is currently unsettled; no card whose
       sole mechanism is manufactured Anxiety
+- [ ] Any creator / KOL action scored against a trust-proof archetype first,
+      budgeted as a range, and entered as a holdout / geo pilot — follower count
+      never used as proof of incrementality
 
 ## Literature
 
@@ -172,3 +210,7 @@ independently requires linearly growing sample. Solutions:
   Models* — partial pooling
 - Amazon Science: causal contextual bandits series — treatment featurization
   in industry
+- Pattern credit: the archetype-first creator scoring adapts the "score-kol-fit"
+  (S06) move from the GTM-Master skill suite (alexwang91/gtm-master), re-grounded
+  here so creator fit stays Hypothesis-grade until a holdout / geo pilot proves
+  incrementality — follower count is never proof.
