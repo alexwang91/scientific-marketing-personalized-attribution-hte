@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>华为 WATCH FIT 5 Pro — 匈牙利 Decision Memo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  /* ── Design system: GPS sport-precision · nexu-io/open-design inspired ────
+     Font: Inter Variable (Linear's choice) · Palette: dark graphite + performance
+     orange · Layout: 8px grid, 1040px content column · Surfaces: layered whites
+     with subtle shadows, not heavy borders.
+  ────────────────────────────────────────────────────────────────────────── */
+  :root{
+    --bg:#eef0f3;
+    --panel:#ffffff;
+    --surface:#f8f9fa;
+    --ink:#0f1117;
+    --ink-2:#374151;
+    --muted:#6b7280;
+    --line:#e5e7eb;
+    --line-subtle:rgba(0,0,0,.06);
+    --accent:#f04e23;
+    --accent-light:#fff2ee;
+    --ok:#d1fae5;--ok-ink:#065f46;
+    --warn:#fef3c7;--warn-ink:#78350f;
+    --bad:#fee2e2;--bad-ink:#991b1b;
+    --neutral:#f3f4f6;--neutral-ink:#374151;
+    --radius:8px;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.05);
+    --shadow-md:0 2px 8px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+    --shadow-lg:0 4px 16px rgba(0,0,0,.1),0 1px 4px rgba(0,0,0,.06);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;
+    font-feature-settings:'cv01','ss03'}
+  main{max-width:1040px;margin:0 auto;padding:32px 24px 72px}
+
+  /* ── Typography ── */
+  h1{margin:0 0 8px;font-size:26px;font-weight:800;line-height:1.2;
+    letter-spacing:-.025em;color:var(--ink)}
+  h2{margin:40px 0 16px;font-size:18px;font-weight:700;letter-spacing:-.01em;
+    color:var(--ink);display:flex;align-items:center;gap:10px}
+  h2::before{content:'';display:inline-block;width:4px;height:20px;
+    background:var(--accent);border-radius:2px;flex-shrink:0}
+  h2+*{margin-top:0}
+  h3{margin:20px 0 10px;font-size:11px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--accent)}
+  p{margin:0 0 12px}
+  strong{font-weight:600}
+
+  /* ── Section card ── */
+  section{background:var(--panel);border:1px solid var(--line);
+    border-radius:12px;padding:28px 32px;margin:16px 0;
+    box-shadow:var(--shadow-md)}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* ── KPI stat strip ── */
+  .kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:12px;margin:0 0 24px}
+  .kpi{background:var(--surface);border:1px solid var(--line);border-radius:10px;
+    padding:20px 22px;position:relative;overflow:hidden;
+    box-shadow:var(--shadow-sm)}
+  .kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+    background:var(--accent)}
+  .kpi-num{font-size:28px;font-weight:800;letter-spacing:-.04em;
+    line-height:1;color:var(--ink);margin-bottom:6px}
+  .kpi-num .kpi-unit{font-size:14px;font-weight:600;color:var(--muted);margin-left:2px}
+  .kpi-label{font-size:11px;color:var(--muted);text-transform:uppercase;
+    letter-spacing:.06em;font-weight:600}
+
+  /* ── CAC bar chart ── */
+  .cac-chart{margin:0 0 24px;background:var(--surface);border:1px solid var(--line);
+    border-radius:10px;padding:22px 24px 16px;box-shadow:var(--shadow-sm)}
+  .cac-chart-title{font-size:11px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--accent);margin-bottom:20px}
+  .cac-row{display:grid;grid-template-columns:140px 1fr;gap:14px;
+    align-items:center;margin:12px 0}
+  .cac-name{font-size:13px;font-weight:600;text-align:right;line-height:1.3;
+    color:var(--ink-2)}
+  .cac-track{position:relative;height:28px;background:#f0f1f3;border-radius:6px}
+  .cac-bar{position:absolute;height:100%;border-radius:6px;top:0;
+    display:flex;align-items:center;padding:0 8px;
+    font-size:10px;font-weight:700;color:#fff;white-space:nowrap;min-width:2px}
+  .cac-bar.viable{background:#16a34a}
+  .cac-bar.undetermined{background:#f59e0b}
+  .cac-bar.not-viable{background:#dc2626}
+  .cac-bar.role-only{background:#9ca3af}
+  .cac-ceiling{position:absolute;top:-8px;bottom:-8px;width:2px;
+    background:var(--ink);z-index:6;border-radius:1px}
+  .cac-ceiling-flag{position:absolute;top:-24px;transform:translateX(-50%);
+    background:var(--ink);color:#fff;font-size:10px;font-weight:700;
+    padding:2px 6px;border-radius:4px;white-space:nowrap;z-index:7}
+  .cac-axis{display:grid;grid-template-columns:140px 1fr;gap:14px;margin-top:8px}
+  .cac-axis-labels{display:flex;justify-content:space-between;
+    font-size:10px;color:var(--muted);font-weight:600}
+  .cac-legend{margin-top:12px;font-size:11px;color:var(--muted);
+    display:flex;gap:14px;flex-wrap:wrap}
+  .cac-legend span{display:inline-flex;align-items:center;gap:5px}
+  .cac-legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+
+  /* ── Sensitivity priority cards ── */
+  .sens-chart{margin:0 0 24px}
+  .sens-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+    gap:10px;margin-top:10px}
+  .sens-card{background:var(--surface);border:1px solid var(--line);
+    border-radius:8px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;
+    box-shadow:var(--shadow-sm)}
+  .sens-badge{width:32px;height:32px;border-radius:50%;display:flex;
+    align-items:center;justify-content:center;font-size:12px;font-weight:800;
+    color:#fff;flex-shrink:0}
+  .sens-badge.p1{background:var(--accent)}
+  .sens-badge.p2{background:#f59e0b}
+  .sens-badge.p3{background:var(--ink)}
+  .sens-badge.pN{background:var(--muted)}
+  .sens-change{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px;line-height:1.4}
+  .sens-effect{font-size:11px;color:var(--muted);line-height:1.4}
+
+  /* ── Dimension score chart ── */
+  .dim-chart{margin:0 0 20px}
+  .dim-chart-row{display:grid;grid-template-columns:160px 1fr 36px;
+    gap:10px;align-items:center;margin:5px 0}
+  .dim-label-cell{font-size:11px;font-weight:600;color:var(--ink-2);
+    text-overflow:ellipsis;overflow:hidden;white-space:nowrap;text-align:right}
+  .dim-bar-track{background:#f0f1f3;border-radius:4px;height:14px}
+  .dim-bar{height:100%;border-radius:4px;transition:width .3s}
+  .dim-score-lbl{font-size:10px;font-weight:700;color:var(--muted);text-align:right}
+
+  /* ── Price comparison chart ── */
+  .price-chart{margin:0 0 24px;background:var(--surface);border:1px solid var(--line);
+    border-radius:10px;padding:22px 24px;box-shadow:var(--shadow-sm)}
+  .price-chart-title{font-size:11px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--accent);margin-bottom:20px}
+  .price-axis-wrap{position:relative;padding:36px 0 32px;margin:0 8px}
+  .price-axis-line{height:3px;background:#e5e7eb;border-radius:2px;position:relative}
+  .price-dot{position:absolute;transform:translateX(-50%) translateY(-50%);
+    top:50%;width:16px;height:16px;border-radius:50%;border:3px solid #fff;
+    box-shadow:0 2px 6px rgba(0,0,0,.2);z-index:2}
+  .price-dot.ours{background:var(--accent);width:22px;height:22px}
+  .price-dot.comp{background:var(--ink)}
+  .price-top-label{position:absolute;transform:translateX(-50%);
+    bottom:calc(100% + 14px);font-size:11px;font-weight:700;
+    white-space:nowrap;color:var(--ink)}
+  .price-top-label.ours{color:var(--accent);font-size:12px}
+  .price-bot-label{position:absolute;transform:translateX(-50%);
+    top:calc(100% + 14px);font-size:10px;color:var(--muted);white-space:nowrap}
+  .price-axis-ends{display:flex;justify-content:space-between;
+    font-size:10px;color:var(--muted);font-weight:600;margin-top:4px}
+
+  /* ── Budget allocation bar ── */
+  .budget-chart{margin:0 0 24px}
+  .budget-bar-row{display:flex;height:36px;border-radius:8px;overflow:hidden;
+    gap:2px;margin:12px 0;box-shadow:var(--shadow-sm)}
+  .budget-seg{display:flex;align-items:center;padding:0 10px;
+    font-size:10px;font-weight:700;color:#fff;white-space:nowrap;
+    overflow:hidden;min-width:24px;transition:opacity .2s}
+  .budget-legend{font-size:11px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;margin-top:8px}
+  .budget-legend span{display:inline-flex;align-items:center;gap:5px}
+  .budget-legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+
+  /* ── Signature element: verdict band ── */
+  .memo{border:none;padding:0;box-shadow:none;background:transparent}
+  .memo-verdict-band{
+    background:var(--ink);color:#fff;
+    border-radius:12px 12px 0 0;padding:36px 32px 28px}
+  .verdict-label{font-size:10px;font-weight:700;letter-spacing:.12em;
+    text-transform:uppercase;opacity:.5;margin-bottom:8px}
+  .verdict{display:inline-block;padding:8px 24px;border-radius:6px;
+    font-weight:800;font-size:22px;letter-spacing:.03em}
+  .verdict-go{background:var(--ok);color:var(--ok-ink)}
+  .verdict-no-go{background:var(--bad);color:var(--bad-ink)}
+  .verdict-conditional{background:var(--accent);color:#fff}
+  .memo-body{background:var(--panel);border:1px solid var(--line);
+    border-top:none;border-radius:0 0 12px 12px;padding:28px 32px}
+  .memo-thesis{font-size:15px;line-height:1.7;margin:0 0 22px;color:var(--ink)}
+  .memo-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px}
+  .memo-grid>div{border:1px solid var(--line);border-radius:8px;
+    padding:16px 18px;background:var(--surface)}
+  .memo-grid h3{margin:0 0 10px}
+  .memo-grid ul{margin:0;padding-left:18px}
+  .memo-grid li{margin:6px 0;font-size:13.5px;line-height:1.5}
+  .mk-legend{font-size:11.5px;color:var(--muted);margin:16px 0 0;
+    padding-top:12px;border-top:1px solid var(--line)}
+
+  /* ── Derivation chains ── */
+  .derivation{font-family:ui-monospace,"JetBrains Mono",Consolas,monospace;
+    font-size:12px;background:var(--surface);border:1px solid var(--line);
+    border-left:3px solid var(--accent);border-radius:0 8px 8px 0;
+    padding:12px 16px;margin:10px 0;line-height:1.8}
+  .deriv-name{font-weight:700;font-size:13px;margin-bottom:4px;color:var(--ink)}
+  .deriv-line{padding-left:12px;color:#4b5563}
+  .deriv-result{padding-left:12px;margin-top:4px;font-weight:700;color:var(--ink)}
+  .deriv-note{margin-top:8px;color:var(--muted);
+    font-family:'Inter',sans-serif;font-size:12px;
+    padding-top:6px;border-top:1px dashed var(--line)}
+  .prov-note{color:var(--muted);font-size:11px}
+
+  /* ── Provenance markers ── */
+  sup.mk{font-size:9px;font-weight:700;padding:1px 3px;margin-left:1px;border-radius:2px}
+  .mk-sourced{color:#065f46;background:#d1fae5}
+  .mk-assumed{color:#78350f;background:#fef3c7}
+  .mk-derived{color:#1e40af;background:#dbeafe}
+  .mk-missing{color:#991b1b;background:#fee2e2}
+  .missing-val{color:#9ca3af;border-bottom:1px dashed #d1d5db}
+
+  /* ── Pills ── */
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;
+    font-size:11px;font-weight:700;white-space:nowrap;letter-spacing:.01em}
+  .pill-viable{background:var(--ok);color:var(--ok-ink)}
+  .pill-not-viable{background:var(--bad);color:var(--bad-ink)}
+  .pill-undetermined{background:var(--warn);color:var(--warn-ink)}
+  .pill-role-only{background:var(--neutral);color:var(--neutral-ink)}
+  .pill-resolved{background:var(--ok);color:var(--ok-ink)}
+  .pill-open{background:var(--warn);color:var(--warn-ink)}
+  .pill-open-blocking{background:var(--bad);color:var(--bad-ink)}
+  .blocked-stamp{display:inline-block;border:2px solid var(--bad-ink);
+    color:var(--bad-ink);padding:2px 9px;border-radius:4px;
+    font-weight:700;font-size:11px;transform:rotate(-1.5deg);margin-left:8px}
+
+  /* ── Tables ── */
+  .table-wrap{overflow-x:auto;border:1px solid var(--line);
+    border-radius:8px;background:#fff;margin:12px 0}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{background:var(--surface);font-weight:700;font-size:10.5px;text-transform:uppercase;
+    letter-spacing:.06em;color:var(--muted);padding:10px 14px;
+    border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  td{padding:11px 14px;border-bottom:1px solid var(--line);
+    vertical-align:top;text-align:left;font-size:13px}
+  tr:last-child td{border-bottom:0}
+  tr:nth-child(even) td{background:#fafafa}
+
+  /* ── Cards ── */
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));
+    gap:14px;margin-top:14px}
+  .card{border:1px solid var(--line);border-radius:8px;
+    padding:16px 18px;background:var(--surface);border-top:3px solid var(--line)}
+  .card.blocked{border-top-color:var(--bad-ink);background:#fff8f8}
+  .card h3{margin:0 0 10px;font-size:14px;font-weight:700;line-height:1.35}
+  .card dl{margin:0;font-size:13px}
+  .card dt{color:var(--muted);font-size:10px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.06em;margin-top:10px}
+  .card dd{margin:3px 0 0;line-height:1.5}
+
+  /* ── Callout ── */
+  .callout{border-left:4px solid var(--accent);border-radius:0 8px 8px 0;
+    padding:14px 18px;margin:14px 0;background:var(--accent-light);
+    font-size:13.5px;line-height:1.6}
+
+  /* ── Heatmap ── */
+  .heatmap{display:grid;gap:2px;background:var(--line);
+    border:1px solid var(--line);border-radius:8px;
+    overflow:hidden;font-size:11px;margin:14px 0;overflow-x:auto}
+  .hm-header{background:var(--ink);color:#fff;font-weight:700;
+    padding:7px 6px;text-align:center;font-size:9.5px;
+    text-transform:uppercase;letter-spacing:.03em;line-height:1.3;
+    word-break:break-all;min-width:36px}
+  .hm-label{background:#f9fafb;font-weight:600;padding:8px 10px;
+    font-size:11px;color:var(--ink);white-space:nowrap}
+  .hm-cell{padding:8px 4px;text-align:center;font-weight:800;
+    font-size:11px;letter-spacing:.03em;min-width:36px}
+  .hm-high{background:#f04e23;color:#fff}
+  .hm-test{background:#78350f;color:#fff}
+  .hm-small{background:#e5e7eb;color:#4b5563}
+  .hm-none{background:#f9fafb;color:#d1d5db}
+  .hm-avoid{background:#991b1b;color:#fff}
+
+  /* ── Score dots ── */
+  .score-bar{display:inline-flex;gap:3px;vertical-align:middle}
+  .score-dot{width:8px;height:8px;border-radius:50%}
+  .score-dot.pass{background:#f04e23}.score-dot.fail{background:#e5e7eb}
+
+  /* ── KOL card ── */
+  .kol-card{border:1px solid var(--line);border-radius:8px;
+    padding:16px 18px;background:var(--surface);margin:10px 0;
+    border-left:3px solid var(--accent)}
+
+  /* ── Checklist ── */
+  .checklist{list-style:none;padding:0;margin:0}
+  .checklist li{display:flex;gap:12px;padding:9px 0;
+    border-bottom:1px solid var(--line);font-size:13px;align-items:flex-start}
+  .checklist li:last-child{border-bottom:0}
+  .chk-pending{color:var(--warn-ink);font-weight:800;min-width:18px;margin-top:1px}
+  .chk-done{color:var(--ok-ink);font-weight:800;min-width:18px;margin-top:1px}
+  .chk-blocked{color:var(--bad-ink);font-weight:800;min-width:18px;margin-top:1px}
+
+  /* ── Evidence claim tags ── */
+  .tag{display:inline-block;padding:2px 8px;border-radius:999px;
+    font-size:11px;font-weight:700;white-space:nowrap}
+  .tag.evidence{background:var(--ok);color:var(--ok-ink)}
+  .tag.assumption{background:var(--warn);color:var(--warn-ink)}
+  .tag.hypothesis{background:#dbeafe;color:#1e40af}
+  .tag.needs-test{background:var(--bad);color:var(--bad-ink)}
+
+  /* ── Footer ── */
+  footer{max-width:1040px;margin:0 auto;padding:20px 24px 48px;
+    color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
+
+  @media(max-width:720px){
+    .memo-grid,.cards{grid-template-columns:1fr}
+    .dim-chart-row{grid-template-columns:100px 1fr 32px}
+    .sens-grid{grid-template-columns:1fr}
+  }
+  @media print{body{background:#fff;font-size:12px}
+    section{break-inside:avoid;box-shadow:none}
+    .memo-verdict-band{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    a{color:var(--ink)}}
+</style>
+</head>
+<body>
+<main>
+<section class="memo">
+  <div class="memo-verdict-band">
+    <div class="verdict-label">裁决</div>
+    <div><span class="verdict verdict-conditional">CONDITIONAL</span></div>
+    <div style="margin-top:14px;opacity:.7;font-size:13px;font-weight:500;letter-spacing:.02em">华为 WATCH FIT 5 Pro · 匈牙利 · 2026-06-13</div>
+  </div>
+  <div class="memo-body">
+    <h1>1 · 决策备忘</h1>
+    <p class="memo-thesis"><strong>论点：</strong> 单位利润 ⊕39,996 HUF；CAC 上限 ⊕15,998 HUF。无渠道有本地数据证明 CAC 低于上限——基准数据横跨搜索和 Meta 的上限区间。再营销基准区间（1,600–7,500 HUF）全部低于上限，是最具潜力渠道，但仍需 holdout 验证增量性。结论：CONDITIONAL。暂不分配媒体预算；先完成两项零成本数据拉取，再解锁试点投放。</p>
+    <div class="memo-grid">
+      <div><h3>现在（零成本）</h3><ul><li>拉取 Google Keyword Planner 数据：'GPS okosóra'、'futóóra'——解决最高敏感性未知量，零预算，1小时。</li><li>联系 2–3 位匈牙利跑步/运动达人直接询价——解决 KOL 费用缺口。</li><li>续航痛点关键词（'okosóra akkumulátor'）月搜索量核查（C3 阻塞，零成本）。</li></ul><h3>检查点时</h3><ul><li>若搜索 CAC 验证显示 CAC &lt; 16,000 HUF：解锁 T01 + T05 试点（合计 80,000 HUF）。</li><li>若再营销验证显示增量 CVR &gt; 0.5pp vs holdout：解锁 T03 + T04（30,000 HUF）。再营销基准整体低于上限 15,998 HUF——此渠道是基准上风险最低的首选。</li></ul><h3>此测算下不做</h3><ul><li>大规模 Meta 前景广告——基准区间上端（80,000 HUF CAC）远超上限 15,998 HUF；仅可做微型测试（5,000 HUF）以建立本地 CVR 基准。</li><li>签约单一 hero 健美达人做 D1 跑步 GPS 内容——机制错配，增量不可信（见 KOL 第12节）。</li><li>仅匈牙利 HTE 实验——power_analysis.py 显示需 473 天（500 人/天）；HTE 须汇集 CEE 市场（匈牙利+罗马尼亚+捷克+斯洛伐克）达 5,000 人/天→48 天可行。</li></ul></div>
+      <div>
+        <h3>什么会推翻这个论点</h3><ul><li>毛利率实为 50%+（非 40%）：上限升至 19,998 HUF；搜索基准中值明确可行</li><li>本地搜索 CPC 位于基准低端（120 HUF）且 CVR 3.5%：CAC = 3,429 HUF → 可行</li><li>匈牙利每日有效用户 2,000+（非 500）：ATE 实验从 114 天压缩至 29 天</li><li>达人报价落在基准低端（200,000 HUF）且 UTM CVR &gt; 0.8%：KOL 试点可行</li></ul>
+        <h3>本报告最薄弱处</h3><p style="margin:4px 0 0">所有渠道 CAC 估算均依赖基准区间，而非本地实测数据。搜索区间 3,429–23,333 HUF——7倍宽度使「可行」与「不可行」均合理。再营销基准虽全部低于上限，但增量性尚未经 holdout 验证（基准证明效率，不证明增量）。关键词量和 CPC 是最高优先级数据缺口，当天即可以零成本解决。</p>
+      </div>
+    </div>
+    <p class="mk-legend">数字标记：◆S 已溯源（带链接）· ◇A 假设（已述依据）· ⊕D 推导（展示链条）· ○M 缺失（无值，仅占位）</p>
+  </div>
+</section><section>
+  <h2>2 · 测算</h2>
+  <div class="kpi-strip"><div class="kpi"><div class="kpi-num">99,990 HUF</div><div class="kpi-label">零售价（FIT 5 Pro）</div></div><div class="kpi"><div class="kpi-num">39,996 HUF</div><div class="kpi-label">单位利润</div></div><div class="kpi"><div class="kpi-num">15,998 HUF</div><div class="kpi-label">CAC 上限</div></div><div class="kpi"><div class="kpi-num">1,600 HUF–7,500 HUF</div><div class="kpi-label">再营销 CAC（基准）</div></div></div>
+  <div class="cac-chart">
+  <div class="cac-chart-title">各渠道 CAC 区间 vs 上限（HUF）</div>
+  <div class="cac-row"><div class="cac-name"></div><div class="cac-track" style="background:transparent;height:8px">
+    <div class="cac-ceiling-flag" style="left:18.5%">◄ CAC 上限 15,998 HUF</div>
+    <div class="cac-ceiling" style="left:18.5%"></div>
+  </div></div>
+  <div class="cac-row"><div class="cac-name">Google 搜索</div><div class="cac-track"><div class="cac-bar undetermined" style="left:4.0%;width:23.0%" title="3,429–23,333">3,429–23,333</div><div class="cac-ceiling" style="left:18.5%"></div></div></div><div class="cac-row"><div class="cac-name">Meta 前景广告</div><div class="cac-track"><div class="cac-bar undetermined" style="left:4.6%;width:88.0%" title="4,000–80,000">4,000–80,000</div><div class="cac-ceiling" style="left:18.5%"></div></div></div><div class="cac-row"><div class="cac-name">再营销（Google/Meta）</div><div class="cac-track"><div class="cac-bar undetermined" style="left:1.9%;width:6.8%" title="1,600–7,500">1,600–7,500</div><div class="cac-ceiling" style="left:18.5%"></div></div></div>
+  <div class="cac-axis"><div></div><div class="cac-axis-labels"><span>0</span><span>86,400 HUF</span></div></div>
+  <div class="cac-legend">
+    <span><i style="background:#16a34a"></i>可行（本地数据确认低于上限）</span>
+    <span><i style="background:#f59e0b"></i>待定（基准估算，无法据此判定可行）</span>
+    <span><i style="background:#dc2626"></i>不可行（最优情况仍超上限）</span>
+  </div>
+  <p style="font-size:11px;color:var(--muted);margin:10px 0 0">横条=基准 CAC 区间 · 竖线=上限 · 颜色=筛查结论。基准只能证伪（最优情况超上限即出局），无法证明可行——所以即便整条在上限左侧，未经本地数据确认前仍为「待定」。</p>
+</div>
+  <div class="derivation">
+  <div class="deriv-name">单位利润</div>
+  <div class="deriv-line">= price_huf × margin_rate</div>
+  <div class="deriv-line">= 99,990 HUF<sup class="mk mk-sourced">S<÷sup> <span class="prov-note">(HVG.hu — 匈牙利官方售价公告)<÷span> × 40%<sup class="mk mk-assumed">A<÷sup> <span class="prov-note">(用户输入；未经华为财务团队确认)<÷span></div>
+  <div class="deriv-result">= <strong>39,996 HUF</strong></div>
+  
+</div><div class="derivation">
+  <div class="deriv-name">CAC 上限</div>
+  <div class="deriv-line">= unit_margin × cac_share</div>
+  <div class="deriv-line">= 39,996 HUF<sup class="mk mk-derived">D<÷sup> × 40%<sup class="mk mk-assumed">A<÷sup> <span class="prov-note">(惯例：获客成本 ≤ 首单单位利润的 40%；中档消费电子保守估算)<÷span></div>
+  <div class="deriv-result">= <strong>15,998 HUF</strong></div>
+  
+</div><div class="derivation">
+  <div class="deriv-name">搜索 CAC（基准）</div>
+  <div class="deriv-line">= search_cpc_bench ÷ search_cvr_bench</div>
+  <div class="deriv-line">= 120 HUF–350 HUF<sup class="mk mk-assumed">A<÷sup> <span class="prov-note">(消费电子 Google Ads EU 基准（2024–2025）；匈牙利低于西欧)<÷span> ÷ 1.5%–3.5%<sup class="mk mk-assumed">A<÷sup> <span class="prov-note">(中档电子产品类目搜索的电商 CVR 基准区间)<÷span></div>
+  <div class="deriv-result">= <strong>3,429 HUF–23,333 HUF</strong></div>
+  <div class="deriv-note">区间横跨上限 → 结论为 undetermined，不是硬币两面之一。</div>
+</div><div class="derivation">
+  <div class="deriv-name">再营销 CAC（基准）</div>
+  <div class="deriv-line">= rtg_cpc_bench ÷ rtg_cvr_bench</div>
+  <div class="deriv-line">= 80 HUF–150 HUF<sup class="mk mk-assumed">A<÷sup> <span class="prov-note">(匈牙利再营销 CPC 基准；受众质量高故低于前景广告)<÷span> ÷ 2%–5%<sup class="mk mk-assumed">A<÷sup> <span class="prov-note">(电子产品暖受众再营销 CVR 基准)<÷span></div>
+  <div class="deriv-result">= <strong>1,600 HUF–7,500 HUF</strong></div>
+  
+</div><div class="derivation">
+  <div class="deriv-name">Meta CAC（基准）</div>
+  <div class="deriv-line">= meta_cpc_bench ÷ meta_cvr_bench</div>
+  <div class="deriv-line">= 60 HUF–240 HUF<sup class="mk mk-derived">D<÷sup> ÷ 0.3%–1.5%<sup class="mk mk-assumed">A<÷sup> <span class="prov-note">(社交广告到购买的 CVR；中档电子产品意图低)<÷span></div>
+  <div class="deriv-result">= <strong>4,000 HUF–80,000 HUF</strong></div>
+  <div class="deriv-note">区间极宽——Meta 最优情况或可行，最差情况超上限 6 倍以上。</div>
+</div>
+  <div class="sens-chart">
+  <h3>敏感性分析 — 哪个假设会翻转结论</h3>
+  <div class="sens-grid"><div class="sens-card"><div class="sens-badge p1">P1</div><div><div class="sens-change">本地搜索 CPC 实测（当前缺失）</div><div class="sens-effect">若 CPC = 120 HUF（基准低端），搜索 CAC = 3,429 HUF → 可行。若 CPC = 350 HUF + CVR 1.5%，CAC = 23,333 HUF → 不可行。单一输入即可翻转结论。</div></div></div><div class="sens-card"><div class="sens-badge p2">P2</div><div><div class="sens-change">毛利率 40% → 50%</div><div class="sens-effect">CAC 上限从 15,998 升至 19,998 HUF；搜索基准中值（约 8,400 HUF）明确可行</div></div></div><div class="sens-card"><div class="sens-badge p3">P3</div><div><div class="sens-change">每日有效用户 500 → 2,000</div><div class="sens-effect">ATE 实验从 114 天压缩至 29 天</div></div></div><div class="sens-card"><div class="sens-badge pN">P4</div><div><div class="sens-change">价格 99,990 → 94,990 HUF（官方折扣码 AESPORTF5PRO）</div><div class="sens-effect">CAC 上限降至 15,196 HUF；轻微收紧，不翻转结论</div></div></div></div>
+  <p style="font-size:12px;color:var(--muted);margin-top:8px">按优先级顺序验证：P1 最先处理。</p>
+</div>
+  <h3>渠道可行性筛查（阈值：上方 CAC 上限）</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>渠道</th><th>结论</th><th>CAC 估算</th><th>原因 / 缺失数据</th></tr></thead>
+    <tbody><tr><td><strong>Google 搜索</strong></td><td><span class='pill pill-undetermined'>undetermined</span></td><td>3,429 HUF–23,333 HUF<sup class="mk mk-derived">D</sup></td><td>基准区间 3,429–23,333 HUF 横跨上限 15,998 HUF。需本地 CPC 数据（缺失）方可判断。Garmin Forerunner 255（103,420 HUF）是主要竞品词目标。</td></tr><tr><td><strong>Google Shopping</strong></td><td><span class='pill pill-undetermined'>undetermined</span></td><td>—</td><td>Shopping CPC 与搜索相近；意图匹配使 CVR 更高。结论待本地数据确认，与搜索相同。</td></tr><tr><td><strong>零售媒体（Alza/eMAG）</strong></td><td><span class='pill pill-undetermined'>undetermined</span></td><td>—</td><td>Alza/eMAG 零售媒体赞助位 CPC 及 CVR 数据需开通账户方可获取。零成本申请可行。两家份额均待核实。</td></tr><tr><td><strong>Meta 前景广告</strong></td><td><span class='pill pill-undetermined'>undetermined</span></td><td>4,000 HUF–80,000 HUF<sup class="mk mk-derived">D</sup></td><td>区间极宽，无法明确判定可行性。仅可做微型测试（5,000 HUF）以建立本地 CVR 基准。</td></tr><tr><td><strong>再营销（Google/Meta）</strong></td><td><span class='pill pill-undetermined'>undetermined</span></td><td>1,600 HUF–7,500 HUF<sup class="mk mk-derived">D</sup></td><td>暖受众基准区间 1,600–7,500 HUF——最优和最差情况均低于上限 15,998 HUF。这是唯一基准上最坏情况仍在上限以内的渠道。增量性仍需 holdout 验证。</td></tr><tr><td><strong>YouTube</strong></td><td><span class='pill pill-role-only'>role-only</span></td><td>—</td><td>按 CPV 计价；直接 CAC 不适用。角色：构建 GPS 精度证明内容和达人测评资产。</td></tr><tr><td><strong>KOL / 达人</strong></td><td><span class='pill pill-undetermined'>undetermined</span></td><td>—</td><td>达人费用缺失（待询价）。UTM 归因仅提供相关性；无 holdout 无增量数据。</td></tr></tbody></table></div>
+  <p style="font-size:13px;color:var(--muted)">规则：基准估算可以证明<em>不可行</em>（最优情况仍超上限），但<em>无法</em>证明可行——可行需要本地数据。<em>undetermined</em> 意味着区间横跨上限；行动是获取数据，而非选一个端点。</p>
+</section><section>
+  <h2>3 · 产品与市场事实</h2>
+  <div class="price-chart">
+  <div class="price-chart-title">竞品价格定位 (HUF)</div>
+  <div class="price-axis-wrap">
+    <div class="price-axis-line"><div class="price-dot ours" style="left:73.0%"></div><div class="price-top-label ours" style="left:73.0%">99,990</div><div class="price-bot-label" style="left:73.0%">零售价（FIT 5 Pro）</div><div class="price-dot comp" style="left:5.9%"></div><div class="price-top-label" style="left:5.9%">42,490</div><div class="price-bot-label" style="left:5.9%">Xiaomi Watch S4</div><div class="price-dot comp" style="left:20.5%"></div><div class="price-top-label" style="left:20.5%">55,000</div><div class="price-bot-label" style="left:20.5%">Samsung GW FE</div><div class="price-dot comp" style="left:52.0%"></div><div class="price-top-label" style="left:52.0%">81,980</div><div class="price-bot-label" style="left:52.0%">Garmin Vivoactiv</div><div class="price-dot comp" style="left:77.0%"></div><div class="price-top-label" style="left:77.0%">103,420</div><div class="price-bot-label" style="left:77.0%">Garmin FR255</div><div class="price-dot comp" style="left:84.6%"></div><div class="price-top-label" style="left:84.6%">109,990</div><div class="price-bot-label" style="left:84.6%">Apple Watch SE 3</div></div>
+    <div class="price-axis-ends"><span>37,391</span><span>123,189 HUF</span></div>
+  </div>
+</div>
+  <h3>与定向相关的产品功能</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>功能</th><th>定向相关性</th><th>状态</th></tr></thead>
+  <tbody><tr><td>双频 GPS（L1+L5）</td><td>路线精度主打卖点，适用于跑步/骑行 D1/D2 维度定向；解决手腕 GPS 漂移痛点</td><td><span class='tag evidence'>Evidence</span></td></tr><tr><td>10 天续航</td><td>对比 Samsung Galaxy Fit 3（8天）具有差异化优势；与多日户外行程（D3越野）机制直接挂钩</td><td><span class='tag evidence'>Evidence</span></td></tr><tr><td>ECG + SpO₂ + 压力监测</td><td>健康传感套件，启用 D6 睡眠/压力 和 D7 泛健康用户定向</td><td><span class='tag evidence'>Evidence</span></td></tr><tr><td>女性健康追踪</td><td>经期/孕期功能；D9 维度——激活前须完成合规审查（C4 阻塞）</td><td><span class='tag assumption'>Assumption</span></td></tr><tr><td>华为 Health 生态</td><td>与华为手机/手环/耳机联动；D16 生态用户定向依据</td><td><span class='tag evidence'>Evidence</span></td></tr><tr><td>价格与 Garmin FR55 持平</td><td>FIT 5 Pro 约 54,990 HUF vs Garmin FR55 约 54,990 HUF：同价位 GPS 运动表，可作竞品比较标题</td><td><span class='tag assumption'>Assumption</span></td></tr></tbody></table></div>
+  <h3>市场事实</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>事实</th><th>状态</th></tr></thead>
+  <tbody><tr><td>匈牙利人口约1000万；智能手机普及率约 85%；智能手表普及率 &lt;10% 且持续增长</td><td><span class='tag assumption'>Assumption</span></td></tr><tr><td>匈牙利增值税 27%（欧盟最高）——影响零售定价和利润测算</td><td><span class='tag evidence'>Evidence</span></td></tr><tr><td>电子产品零售渠道：Alza.hu、eMAG.hu、MediaMarkt（线下强）、Extreme Digital；运营商 Yettel/Telekom 有穿戴设备份额。各家「谁第一」缺公开份额数据——待 Stage 1 核实，不沿用罗马尼亚的 eMAG 排名</td><td><span class='tag assumption'>Assumption</span></td></tr><tr><td>主要比价网站：arukereso.hu + árgép.hu——电子产品购买决策关键触点；FIT 5 Pro 在 arukereso 最低上架 96,090 HUF</td><td><span class='tag evidence'>Evidence</span></td></tr><tr><td>Google 搜索占主导（市场份额 &gt;95%）；Meta/Instagram 对 18–45 岁消费电子人群覆盖强</td><td><span class='tag assumption'>Assumption</span></td></tr><tr><td>FIT 5 Pro 官方零售价 99,990 HUF（2026-05 上市）；现有 5,000 HUF 折扣码至 2026-06-30</td><td><span class='tag evidence'>Evidence</span></td></tr><tr><td>同价位竞品：Garmin Forerunner 255（103,420 HUF）、Apple Watch SE 3（109,990 HUF）、Samsung Galaxy Watch 7（~112,000 HUF）</td><td><span class='tag evidence'>Evidence</span></td></tr><tr><td>低价位威胁：Garmin Vivoactive 5（72,990–81,980 HUF）、Samsung Galaxy Watch FE（~55,000 HUF 促销价）、Xiaomi Watch S4（42,490 HUF）</td><td><span class='tag evidence'>Evidence</span></td></tr><tr><td>全球市场份额（2025）：华为 ~21%、Apple ~17%、Xiaomi ~9%；匈牙利本地数据不公开</td><td><span class='tag hypothesis'>Hypothesis</span></td></tr></tbody></table></div>
+</section><section>
+  <h2>4 · 本地渠道地图</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>渠道</th><th>任务</th><th>Proxy 质量</th><th>结论</th><th>CAC 估算</th><th>备注</th></tr></thead>
+    <tbody><tr><td><strong>Google 搜索</strong></td><td>捕获意图</td><td>高</td><td><span class='pill pill-undetermined'>undetermined</span></td><td>3,429 HUF–23,333 HUF<sup class="mk mk-derived">D</sup></td><td>类目词 + 竞品词双轨；品牌词需 holdout</td></tr><tr><td><strong>Google Shopping</strong></td><td>购买转化</td><td>高</td><td><span class='pill pill-undetermined'>undetermined</span></td><td>—</td><td>高意图，商品列表格式，直接与竞品比价</td></tr><tr><td><strong>零售媒体（Alza/eMAG）</strong></td><td>捕获意图</td><td>中</td><td><span class='pill pill-undetermined'>undetermined</span></td><td>—</td><td>需开通账户获取数据</td></tr><tr><td><strong>Meta 前景广告</strong></td><td>触达扩展</td><td>中</td><td><span class='pill pill-undetermined'>undetermined</span></td><td>4,000 HUF–80,000 HUF<sup class="mk mk-derived">D</sup></td><td>区间极宽；仅微型测试</td></tr><tr><td><strong>再营销（Google/Meta）</strong></td><td>再激活转化</td><td>高</td><td><span class='pill pill-undetermined'>undetermined</span></td><td>1,600 HUF–7,500 HUF<sup class="mk mk-derived">D</sup></td><td>暖受众；需 holdout 对照</td></tr><tr><td><strong>YouTube</strong></td><td>构建证明资产</td><td>中</td><td><span class='pill pill-role-only'>role-only</span></td><td>—</td><td>不做直接 CAC 测算；GPS 精度演示内容</td></tr><tr><td><strong>KOL / 达人</strong></td><td>社区背书</td><td>中</td><td><span class='pill pill-undetermined'>undetermined</span></td><td>—</td><td>垂直跑步/户外 micro 达人；费用待询价</td></tr></tbody></table></div>
+  <p style="font-size:13px;color:var(--muted)">基准可以证明<em>不可行</em>（最优情况仍超上限），但<em>无法</em>证明可行。<em>undetermined</em> = 区间横跨上限；需要获取数据。</p>
+</section><section>
+  <h2>5 · D 维度表与因果激活评审</h2>
+  <div class="dim-chart"><h3>D 维度评分排名</h3><div class="dim-chart-row"><div class="dim-label-cell" title="D1 跑步——GPS 精度">D1 跑步——GPS 精度</div><div class="dim-bar-track"><div class="dim-bar" style="width:100%;background:var(--accent)"></div></div><div class="dim-score-lbl">5/5</div></div><div class="dim-chart-row"><div class="dim-label-cell" title="D11 竞品比较者">D11 竞品比较者</div><div class="dim-bar-track"><div class="dim-bar" style="width:100%;background:var(--accent)"></div></div><div class="dim-score-lbl">5/5</div></div><div class="dim-chart-row"><div class="dim-label-cell" title="D13 加购未付/商详回访">D13 加购未付/商详回访</div><div class="dim-bar-track"><div class="dim-bar" style="width:100%;background:var(--accent)"></div></div><div class="dim-score-lbl">5/5</div></div><div class="dim-chart-row"><div class="dim-label-cell" title="D2 骑行——长距离 GPS">D2 骑行——长距离 GPS</div><div class="dim-bar-track"><div class="dim-bar" style="width:80%;background:var(--accent)"></div></div><div class="dim-score-lbl">4/5</div></div><div class="dim-chart-row"><div class="dim-label-cell" title="D3 徒步/越野——离线 GPS + 续航">D3 徒步/越野——离线 GPS + 续航</div><div class="dim-bar-track"><div class="dim-bar" style="width:80%;background:var(--accent)"></div></div><div class="dim-score-lbl">4/5</div></div><div class="dim-chart-row"><div class="dim-label-cell" title="D6 睡眠/压力追踪">D6 睡眠/压力追踪</div><div class="dim-bar-track"><div class="dim-bar" style="width:80%;background:var(--accent)"></div></div><div class="dim-score-lbl">4/5</div></div><div class="dim-chart-row"><div class="dim-label-cell" title="D7 泛健康习惯用户">D7 泛健康习惯用户</div><div class="dim-bar-track"><div class="dim-bar" style="width:80%;background:var(--accent)"></div></div><div class="dim-score-lbl">4/5</div></div><div class="dim-chart-row"><div class="dim-label-cell" title="D8 心脏/ECG 关注者">D8 心脏/ECG 关注者</div><div class="dim-bar-track"><div class="dim-bar" style="width:80%;background:var(--accent)"></div></div><div class="dim-score-lbl">4/5</div></div><div class="dim-chart-row"><div class="dim-label-cell" title="D9 女性健康追踪">D9 女性健康追踪</div><div class="dim-bar-track"><div class="dim-bar" style="width:80%;background:var(--accent)"></div></div><div class="dim-score-lbl">4/5</div></div><div class="dim-chart-row"><div class="dim-label-cell" title="D14 换机用户">D14 换机用户</div><div class="dim-bar-track"><div class="dim-bar" style="width:80%;background:var(--accent)"></div></div><div class="dim-score-lbl">4/5</div></div><div class="dim-chart-row"><div class="dim-label-cell" title="D15 升级党（从入门手环升级）">D15 升级党（从入门手环升级）</div><div class="dim-bar-track"><div class="dim-bar" style="width:80%;background:var(--accent)"></div></div><div class="dim-score-lbl">4/5</div></div><div class="dim-chart-row"><div class="dim-label-cell" title="D16 华为生态用户">D16 华为生态用户</div><div class="dim-bar-track"><div class="dim-bar" style="width:80%;background:var(--accent)"></div></div><div class="dim-score-lbl">4/5</div></div><div class="dim-chart-row"><div class="dim-label-cell" title="D20 测评读者/观众">D20 测评读者/观众</div><div class="dim-bar-track"><div class="dim-bar" style="width:80%;background:var(--accent)"></div></div><div class="dim-score-lbl">4/5</div></div><div class="dim-chart-row"><div class="dim-label-cell" title="D4 游泳——防水识别">D4 游泳——防水识别</div><div class="dim-bar-track"><div class="dim-bar" style="width:60%;background:var(--accent)"></div></div><div class="dim-score-lbl">3/5</div></div><div class="dim-chart-row"><div class="dim-label-cell" title="D5 铁三/多项运动">D5 铁三/多项运动</div><div class="dim-bar-track"><div class="dim-bar" style="width:60%;background:var(--accent)"></div></div><div class="dim-score-lbl">3/5</div></div><div class="dim-chart-row"><div class="dim-label-cell" title="D10 续航痛点用户">D10 续航痛点用户</div><div class="dim-bar-track"><div class="dim-bar" style="width:60%;background:var(--accent)"></div></div><div class="dim-score-lbl">3/5</div></div></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>维度</th><th>机制</th><th>平台 Proxy</th><th>评分</th><th>判定</th><th>状态</th></tr></thead>
+    <tbody><tr><td><strong>D1</strong> 跑步——GPS 精度</td><td style='font-size:12px'>追踪路线精度的跑者对双频 GPS 声明响应更强——手腕计步漂移是他们在跑步社区中明确表达的痛点，FIT 5 Pro 的 L1+L5 双频 GPS 直接回应这一需求</td><td style='font-size:12px'>Google 搜索：'futóóra GPS'、'GPS okosóra'、'útvonal pontosság óra'；Facebook 跑步兴趣</td><td><span class="score-bar"><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span></span> 5/5</td><td>Retain</td><td><span class='pill pill-resolved'>resolved</span></td></tr><tr><td><strong>D2</strong> 骑行——长距离 GPS</td><td style='font-size:12px'>骑行者需要爬升数据和长距离 GPS 精度，且内容格式/出价/关键词与跑步完全不同；FIT 5 Pro 的多运动切换是对接这一需求的机制</td><td style='font-size:12px'>Google 搜索：'kerékpár GPS óra'、'bicikli okosóra'；Facebook 骑行兴趣</td><td><span class="score-bar"><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot fail"></span></span> 4/5</td><td>Retain (test)</td><td><span class='pill pill-open'>open</span></td></tr><tr><td><strong>D3</strong> 徒步/越野——离线 GPS + 续航</td><td style='font-size:12px'>多日徒步者对离线 GPS 和超长续航响应更强——10 天续航让多日行程无需充电，这两个功能的机制在徒步场景中叠加</td><td style='font-size:12px'>Instagram #hegyfutás #túrázás；搜索 'túra óra' 'outdoor okosóra'；@turafuggo.vagyok 达人受众</td><td><span class="score-bar"><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot fail"></span></span> 4/5</td><td>Retain (test)</td><td><span class='pill pill-open'>open</span></td></tr><tr><td><strong>D4</strong> 游泳——防水识别</td><td style='font-size:12px'>游泳者对防水深度和划水识别功能响应——需核实 FIT 5 Pro 的防水等级和游泳识别规格是否满足这一机制</td><td style='font-size:12px'>搜索：'úszás okosóra'；Facebook 游泳/水上运动兴趣</td><td><span class="score-bar"><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot fail"></span><span class="score-dot fail"></span></span> 3/5</td><td>Demote S</td><td><span class='pill pill-open'>open</span></td></tr><tr><td><strong>D5</strong> 铁三/多项运动</td><td style='font-size:12px'>铁三运动员需要在跑/骑/游三项之间一键切换，减少操作摩擦；多项运动切换是直接响应机制</td><td style='font-size:12px'>搜索：'multisport óra'、'triatlon okosóra'；Facebook 铁三/多项运动兴趣</td><td><span class="score-bar"><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot fail"></span><span class="score-dot fail"></span></span> 3/5</td><td>Demote S</td><td><span class='pill pill-open'>open</span></td></tr><tr><td><strong>D6</strong> 睡眠/压力追踪</td><td style='font-size:12px'>有睡眠质量困扰的用户对睡眠分追踪和压力监测响应——产品主打卖点，明确的痛点机制</td><td style='font-size:12px'>Facebook 睡眠健康内容受众；搜索：'alvásfigyelés okosóra'</td><td><span class="score-bar"><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot fail"></span></span> 4/5</td><td>Retain</td><td><span class='pill pill-resolved'>resolved</span></td></tr><tr><td><strong>D7</strong> 泛健康习惯用户</td><td style='font-size:12px'>已有每日健康追踪习惯的用户可从更丰富的传感器（ECG、SpO₂）即时获益，对健康功能深度展示响应更强</td><td style='font-size:12px'>Facebook 健身 app 兴趣；健康内容消费受众</td><td><span class="score-bar"><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot fail"></span></span> 4/5</td><td>Retain</td><td><span class='pill pill-resolved'>resolved</span></td></tr><tr><td><strong>D8</strong> 心脏/ECG 关注者</td><td style='font-size:12px'>有家族心脏病史或关注心率异常的中老年用户对 ECG 监测功能响应——但这涉及健康状况推断，属敏感属性</td><td style='font-size:12px'>健康内容受众（广义代理）</td><td><span class="score-bar"><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot fail"></span></span> 4/5</td><td>Suppression only — 合规待审</td><td><span class='pill pill-open-blocking'>open-blocking</span></td></tr><tr><td><strong>D9</strong> 女性健康追踪</td><td style='font-size:12px'>追踪经期/孕期的女性用户对专项女性健康功能响应——Garmin FR55 和 Samsung Fit 3 在该功能上明显薄弱</td><td style='font-size:12px'>Facebook 女性健康内容；孕期 app 兴趣</td><td><span class="score-bar"><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot fail"></span></span> 4/5</td><td>Suppression only — 合规待审</td><td><span class='pill pill-open-blocking'>open-blocking</span></td></tr><tr><td><strong>D10</strong> 续航痛点用户</td><td style='font-size:12px'>每日给智能手表充电的用户对 10 天续航声明响应——充电摩擦是明确表达的痛点</td><td style='font-size:12px'>搜索：'okosóra akkumulátor'、'okosóra töltés'——月搜索量待核实</td><td><span class="score-bar"><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot fail"></span><span class="score-dot fail"></span></span> 3/5</td><td>Retain (test)</td><td><span class='pill pill-open-blocking'>open-blocking</span></td></tr><tr><td><strong>D11</strong> 竞品比较者</td><td style='font-size:12px'>决策期品牌未定的用户对价格+功能直接对比内容响应——购买意图高但品牌忠诚度低，FIT 5 Pro 对比 Garmin 同价位 GPS 功能形成直接切入点</td><td style='font-size:12px'>Google 竞品品牌词：'Garmin okosóra'、'Samsung Watch alternatíva'；árgép.hu 智能手表类目访客</td><td><span class="score-bar"><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span></span> 5/5</td><td>Retain</td><td><span class='pill pill-open'>open</span></td></tr><tr><td><strong>D12</strong> 价格比较者</td><td style='font-size:12px'>árgép.hu 重度访客以价格为唯一决策依据；增量风险高——折扣驱动用户贡献负边际利润</td><td style='font-size:12px'>árgép.hu 类目访客；优惠券关键词搜索者</td><td><span class="score-bar"><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot fail"></span><span class="score-dot fail"></span></span> 3/5</td><td>Demote S</td><td><span class='pill pill-open'>open</span></td></tr><tr><td><strong>D13</strong> 加购未付/商详回访</td><td style='font-size:12px'>近购买行为是最强意图信号；商详页回访用户在 3–14 天窗口内有高转化倾向，再营销直接触发决策</td><td style='font-size:12px'>再营销：产品详情页回访（3–14 天窗口）</td><td><span class="score-bar"><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span></span> 5/5</td><td>Retain</td><td><span class='pill pill-resolved'>resolved</span></td></tr><tr><td><strong>D14</strong> 换机用户</td><td style='font-size:12px'>旧表损坏/电池老化的用户处于高紧迫近购买状态；对「立即入手」框架响应更强</td><td style='font-size:12px'>搜索：'okosóra csere'、'okosóra meghibásodott'</td><td><span class="score-bar"><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot fail"></span></span> 4/5</td><td>Retain (test)</td><td><span class='pill pill-open'>open</span></td></tr><tr><td><strong>D15</strong> 升级党（从入门手环升级）</td><td style='font-size:12px'>小米手环/华为手环老用户有「升一档」的需求，对 FIT 5 Pro 的全功能 GPS + 健康传感套件响应——这是跨品类升级机制，而非竞品品牌切换</td><td style='font-size:12px'>Facebook 入门手环品牌兴趣（小米、Huawei Band）；搜索 'fitnesz karkötő váltás'</td><td><span class="score-bar"><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot fail"></span></span> 4/5</td><td>Retain (test)</td><td><span class='pill pill-open'>open</span></td></tr><tr><td><strong>D16</strong> 华为生态用户</td><td style='font-size:12px'>已有华为手机的用户对华为 Health 生态联动（数据互通、无缝切换）有即时收益——但须排除「必然购买」用户（sure-thing 风险）</td><td style='font-size:12px'>Facebook 华为品牌兴趣；Android 华为设备定向</td><td><span class="score-bar"><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot fail"></span></span> 4/5</td><td>Retain (test)</td><td><span class='pill pill-open'>open</span></td></tr><tr><td><strong>D17</strong> 安卓兼容性焦虑</td><td style='font-size:12px'>非华为安卓用户对「第三方兼容」存在顾虑；机制是通过兼容性证明内容打消购买障碍，而非功能本身</td><td style='font-size:12px'>搜索：'Huawei Health kompatibilitás'、'Android nem Huawei okosóra'</td><td><span class="score-bar"><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot fail"></span><span class="score-dot fail"></span></span> 3/5</td><td>Retain (test)</td><td><span class='pill pill-open'>open</span></td></tr><tr><td><strong>D18</strong> 送礼场景</td><td style='font-size:12px'>节日/父亲节/生日购礼者对「好礼物」框架响应，而非功能深度——这是完全不同的内容机制</td><td style='font-size:12px'>节日礼物类目；搜索 'ajándék okosóra' 'okosóra ajándék férfinak'</td><td><span class="score-bar"><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot fail"></span><span class="score-dot fail"></span></span> 3/5</td><td>Demote S</td><td><span class='pill pill-open'>open</span></td></tr><tr><td><strong>D19</strong> 首次购表用户</td><td style='font-size:12px'>从未使用智能手表的用户对「入门友好 + 全功能」框架响应——强调低学习曲线和全场景覆盖</td><td style='font-size:12px'>搜索：'első okosóra'；泛智能手表类目入门词</td><td><span class="score-bar"><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot fail"></span><span class="score-dot fail"></span></span> 3/5</td><td>Retain (test)</td><td><span class='pill pill-open'>open</span></td></tr><tr><td><strong>D20</strong> 测评读者/观众</td><td style='font-size:12px'>购买前寻找第三方评测的用户对专业测评内容响应——测评内容构建信任，推动决策阶段转化</td><td style='font-size:12px'>科技测评 YouTube 受众；搜索 'okosóra teszt' 'okosóra vélemény'</td><td><span class="score-bar"><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot fail"></span></span> 4/5</td><td>Retain (test)</td><td><span class='pill pill-resolved'>resolved</span></td></tr><tr><td><strong>D21</strong> 仅折扣买家（抑制）</td><td style='font-size:12px'>以价格促销为唯一购买驱动的用户在折扣后贡献负增量边际，且复购率低</td><td style='font-size:12px'>árgép.hu 重度访客 + 优惠券关键词搜索行为组合</td><td><span class="score-bar"><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot fail"></span><span class="score-dot fail"></span></span> 3/5</td><td>Suppression only</td><td><span class='pill pill-resolved'>resolved</span></td></tr><tr><td><strong>D22</strong> 广告疲劳用户（抑制）</td><td style='font-size:12px'>≥5 次曝光 0 转化的用户已饱和，继续投放为浪费或 sleeping-dog 伤害</td><td style='font-size:12px'>再营销频次过滤：≥5 次曝光且 0 点击/转化</td><td><span class="score-bar"><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot fail"></span><span class="score-dot fail"></span></span> 3/5</td><td>Suppression only</td><td><span class='pill pill-resolved'>resolved</span></td></tr><tr><td><strong>D23</strong> 铁粉「必然购买」（抑制）</td><td style='font-size:12px'>无论是否投放都会购买的重度品牌粉丝——holdout 中转化率与投放组相同，广告成本为纯浪费</td><td style='font-size:12px'>华为铁粉信号：复购/华为全系产品用户</td><td><span class="score-bar"><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot pass"></span><span class="score-dot fail"></span><span class="score-dot fail"></span></span> 3/5</td><td>Suppression only — 需 holdout 核实</td><td><span class='pill pill-open'>open</span></td></tr></tbody></table></div>
+  <p style="font-size:13px;color:var(--muted)">结论说明：Retain = 热力图 H 或 T · Retain (test) = T 或 S · Demote S = 仅 S · Suppression = 抑制目标 · Delete = 剔除。</p>
+  <h3>因果激活评审 — 维度挑战</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>维度</th><th>提出的挑战</th><th>当前处理</th><th>所需证据</th></tr></thead>
+  <tbody><tr><td>D16 华为生态用户</td><td>Sure-thing：华为手机用户是否无论广告与否都会购买 FIT 5 Pro？生态联动是购买理由，不一定是广告响应机制——holdout 显示增量为零的概率很高。</td><td>在华为设备受众内强制设置 holdout 对照组；不将自然转化计入广告贡献。将 D16 降级为 T 槽，不进 H。</td><td>在华为手机用户细分内设计 GCG holdout（2周），对比投放组 vs 自然组转化率</td></tr><tr><td>D11 竞品比较者</td><td>相关≠机制：搜索 'Garmin okosóra' 是否预示对华为广告的响应？还是仅反映高智能手表购买意图（最终购买 Garmin）？若后者，我们在为 Garmin 买家付费投放。</td><td>列为 T 槽而非 H，小预算验证。在竞品关键词投放中加入 holdout 对照；监测 Garmin 购买量作为负向指标。</td><td>A/B 测试：竞品关键词访客 → 华为广告 vs 不投广告；测量增量华为（而非总智能手表）转化率</td></tr><tr><td>D10 续航痛点</td><td>Proxy 现实性：匈牙利 'okosóra akkumulátor' 及相关关键词月搜索量可能 &lt; 500——在此市场规模下可能无法购买到足够受众进行定向投放。</td><td>C3 open-blocking 已标记。T02（续航）不激活，直到量级核查完成。</td><td>Google Keyword Planner 拉取（匈牙利，零成本，1小时）——截止 2026-06-20；&lt; 500/月则 D10 从计划中移除</td></tr><tr><td>D8 心脏/ECG + D9 女性健康</td><td>合规：基于行为信号推断健康状况（心脏风险、生育状态）需要在匈牙利广告标准和 GDPR 框架下进行人工合规审查。默认：在法律团队签字前排除在计划之外。</td><td>C4 open-blocking 已阻塞 D8、D9 和对应 Treatment Cards。</td><td>法律/合规团队对定向逻辑和创意声明的书面审核</td></tr><tr><td>D23 铁粉「必然购买」</td><td>Sure-thing：华为重度粉丝是否无论广告与否都会购买？这类用户被纳入受众时会人为拉高 ROAS，但 holdout 中增量为零。</td><td>标记为抑制维度；在华为复购用户受众中构建 holdout 验证。</td><td>RCT holdout 对比：华为铁粉受众投放组 vs 不投放组；核实增量净额</td></tr></tbody></table></div>
+<div class="callout">D 维度是试验设计的候选操作变量。进入主预算前，每个维度都须通过：可部署 Proxy、可测增量、有明确机制、无合规或利润风险。</div>
+</section><section>
+  <h2>6 · 语义热力图（渠道 × 维度）</h2>
+  <p style="font-size:13px">仅通过可行性筛查的渠道出现在此。H = 主要投资目标；A = 主动抑制。</p>
+  <div class="heatmap" style="grid-template-columns:2fr repeat(16, 1fr);margin:12px 0">
+    <div class="hm-header">渠道 / 维度</div><div class="hm-header">D1跑步GPS</div><div class="hm-header">D2骑行</div><div class="hm-header">D3徒步</div><div class="hm-header">D6睡眠</div><div class="hm-header">D7泛健康</div><div class="hm-header">D10续航</div><div class="hm-header">D11竞品</div><div class="hm-header">D13回访</div><div class="hm-header">D14换机</div><div class="hm-header">D15升级</div><div class="hm-header">D16华为生态</div><div class="hm-header">D17安卓</div><div class="hm-header">D19首表</div><div class="hm-header">D20测评</div><div class="hm-header">D8 ECG⚠</div><div class="hm-header">D9女性⚠</div><div class="hm-label">Google 搜索</div><div class="hm-cell hm-high">H</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-small">S</div><div class="hm-cell hm-high">H</div><div class="hm-cell hm-high">H</div><div class="hm-cell hm-none">N</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-small">S</div><div class="hm-cell hm-none">N</div><div class="hm-cell hm-avoid">A</div><div class="hm-cell hm-avoid">A</div><div class="hm-label">Google Shopping</div><div class="hm-cell hm-high">H</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-small">S</div><div class="hm-cell hm-small">S</div><div class="hm-cell hm-high">H</div><div class="hm-cell hm-high">H</div><div class="hm-cell hm-none">N</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-small">S</div><div class="hm-cell hm-small">S</div><div class="hm-cell hm-small">S</div><div class="hm-cell hm-none">N</div><div class="hm-cell hm-avoid">A</div><div class="hm-cell hm-avoid">A</div><div class="hm-label">零售媒体（Alza/eMAG）</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-high">H</div><div class="hm-cell hm-high">H</div><div class="hm-cell hm-high">H</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-small">S</div><div class="hm-cell hm-avoid">A</div><div class="hm-cell hm-avoid">A</div><div class="hm-label">Meta</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-high">H</div><div class="hm-cell hm-high">H</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-small">S</div><div class="hm-cell hm-small">S</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-avoid">A</div><div class="hm-cell hm-avoid">A</div><div class="hm-label">再营销</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-small">S</div><div class="hm-cell hm-small">S</div><div class="hm-cell hm-high">H</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-high">H</div><div class="hm-cell hm-high">H</div><div class="hm-cell hm-high">H</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-small">S</div><div class="hm-cell hm-small">S</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-small">S</div><div class="hm-cell hm-avoid">A</div><div class="hm-cell hm-avoid">A</div><div class="hm-label">KOL</div><div class="hm-cell hm-high">H</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-high">H</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-none">N</div><div class="hm-cell hm-none">N</div><div class="hm-cell hm-none">N</div><div class="hm-cell hm-none">N</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-none">N</div><div class="hm-cell hm-test">T</div><div class="hm-cell hm-high">H</div><div class="hm-cell hm-avoid">A</div><div class="hm-cell hm-avoid">A</div>
+  </div>
+  <p style="font-size:12px;color:var(--muted);margin-top:8px">图例: <span class="hm-cell hm-high" style="display:inline-block;padding:2px 8px;border-radius:4px">H</span> Primary · <span class="hm-cell hm-test" style="display:inline-block;padding:2px 8px;border-radius:4px">T</span> Test · <span class="hm-cell hm-small" style="display:inline-block;padding:2px 8px;border-radius:4px">S</span> Small · <span class="hm-cell hm-none" style="display:inline-block;padding:2px 8px;border-radius:4px">N</span> None · <span class="hm-cell hm-avoid" style="display:inline-block;padding:2px 8px;border-radius:4px">A</span> Avoid</p>
+</section><section>
+  <h2>7 · H-Main 拆解</h2>
+  <p>以下是预期 HTE 为正的单元。每个对应执行门禁节中的一张 Treatment Card。优先级自上而下。</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>渠道 × 维度</th><th>HTE 假设</th><th>Treatment Card</th><th>备注</th></tr></thead>
+    <tbody><tr><td><strong>Google 搜索 × D1 跑步 GPS</strong></td><td style='font-size:12px'>GPS 精度搜索词（'futóóra GPS'）投放专项创意，转化 CAC &lt; 15,998 HUF——较通用广告提升 0.5pp CVR</td><td>T01</td><td style='font-size:12px'>品牌词需 10% holdout 不出价对照组</td></tr><tr><td><strong>Google 搜索 × D11 竞品比较</strong></td><td style='font-size:12px'>竞品品牌词访客看到华为 FIT 5 Pro 价格+功能对比创意，华为增量 CVR &gt; 1%</td><td>T02</td><td style='font-size:12px'>C2（相关≠机制）挑战悬而未决——列为 T 不列为 H</td></tr><tr><td><strong>Google Shopping × D1 跑步</strong></td><td style='font-size:12px'>Shopping 广告覆盖 GPS 运动手表高意图购买时刻，CAC 基准中值可达上限内</td><td>T05</td><td style='font-size:12px'>CAC undetermined；本地数据出来前不扩量</td></tr><tr><td><strong>再营销 × D6 睡眠/压力</strong></td><td style='font-size:12px'>看过健康功能页的访客经睡眠/压力证明内容再营销，增量 CVR &gt; 0.5pp vs holdout</td><td>T03</td><td style='font-size:12px'>第1天起设 5% holdout 对照组</td></tr><tr><td><strong>再营销 × D11 竞品比较 + D13 回访</strong></td><td style='font-size:12px'>访问过竞品页面的回访者看到直接比较广告，华为增量 CVR &gt; 0.5pp</td><td>T04</td><td style='font-size:12px'>频次上限 3 次；排除 Garmin 强品牌忠诚信号</td></tr><tr><td><strong>KOL × D1 跑步 + D20 测评</strong></td><td style='font-size:12px'>2–3 位匈牙利跑步/越野 micro 达人 GPS 路线精度演示视频，UTM CVR &gt; 0.8% 且促销码核销 &gt; 50</td><td>T06</td><td style='font-size:12px'>KOL ROI 为 Hypothesis 直至 holdout 设计完成；micro 达人机制相关度优于百万级健美账号</td></tr></tbody></table></div>
+</section><section>
+  <h2>8 · 执行门禁与 Treatment Cards</h2>
+  <p><strong>成熟度: L0</strong> — 本分析支持试验设计与渠道筛查，不支持 CATE 断言或策略优化。</p>
+  <div class="table-wrap"><table>
+  <thead><tr><th>门禁</th><th>所需输入</th><th>状态</th><th>备注</th></tr></thead>
+  <tbody><tr><td><strong>搜索 CPC 本地数据</strong></td><td>Google Keyword Planner 拉取</td><td><span class='pill pill-pending'>pending</span></td><td>零成本，1小时——2026-06-20 前完成</td></tr><tr><td><strong>续航痛点 Proxy 量级核查（C3）</strong></td><td>Keyword Planner：'okosóra akkumulátor' 月搜索量</td><td><span class='pill pill-pending'>pending</span></td><td>D10 维度有效性核查——阻塞 T-续航</td></tr><tr><td><strong>达人报价询价</strong></td><td>直接联系 2–3 位跑步/运动达人</td><td><span class='pill pill-pending'>pending</span></td><td>验证 KOL 预算可行性所需</td></tr><tr><td><strong>D8/D9 合规审查（C4）</strong></td><td>法律/合规团队对健康相关定向和创意的书面确认</td><td><span class='pill pill-blocked'>blocked</span></td><td>C4 open-blocking——D8、D9 及 T07 均无法推进</td></tr><tr><td><strong>Propensity Log P(t|x)</strong></td><td>含分配概率的曝光日志（任何 ML 模型前必备）</td><td><span class='pill pill-pending'>pending</span></td><td>OPE 支持核查（ope_estimators.py）的前提</td></tr><tr><td><strong>样本量门控（ATE）</strong></td><td>power_analysis.py：28,304/组，56,608 总量，500人/天 → 114天</td><td><span class='pill pill-pending'>pending</span></td><td>已由 power_analysis.py 确认——见下方 callout</td></tr></tbody></table></div>
+  <div class="callout"><strong>power_analysis.py</strong> — baseline CVR 1.5%, MDE 0.30%: ATE needs <strong>28,304/arm</strong>; an uplift-difference (HTE) test needs <strong>59,116/cell (236,464 total)</strong> ≈ <strong>473 days</strong> at 500 eligible/day. First round therefore runs coarse cells only (channel × primary message), not per-dimension HTE.</div>
+  <h3>Treatment Cards（仅 H-main 单元）</h3>
+  <div class="cards"><div class="card">
+  <h3>T01 · 类目搜索 × D1 跑步 GPS 精度创意 </h3>
+  <dl>
+    <dt>受众</dt><dd>D1——跑步意图关键词搜索者（'futóóra GPS'、'GPS okosóra'、'útvonal pontosság óra'）</dd>
+    <dt>基线</dt><dd>无付费搜索；自然产品页每日约 200 次访问</dd>
+    <dt>机制</dt><dd>主动寻找 GPS 精度的跑者的搜索词与 FIT 5 Pro 双频 GPS 主打卖点直接匹配，意图极高</dd>
+    <dt>护栏</dt><dd>品牌词设 10% 不出价 holdout 对照组；若增量 CVR &lt; 0.3pp vs holdout，暂停并重新审视</dd>
+    <dt>测量</dt><dd>holdout 对照组（10% 不出价）；测量增量转化率和收入 vs 自然基线</dd>
+    <dt>预算额度</dt><dd>50,000 HUF<sup class="mk mk-assumed">A</sup></dd>
+  </dl>
+</div><div class="card">
+  <h3>T02 · 竞品关键词 × D11 切换者落地页 </h3>
+  <dl>
+    <dt>受众</dt><dd>D11——主动搜索竞品品牌词的用户（'Garmin okosóra'、'Samsung Watch alternatíva'）</dd>
+    <dt>基线</dt><dd>无竞品词覆盖；竞品品牌流量流向竞品页面</dd>
+    <dt>机制</dt><dd>处于品牌未定决策阶段的比较者，看到 FIT 5 Pro 价格+GPS 功能直接对比可切换决策</dd>
+    <dt>护栏</dt><dd>保守出价；CVR &lt; 0.8% 时说明竞品词受众品牌忠诚度过高（负增量）。C2 挑战悬而未决——仅做 T 预算。</dd>
+    <dt>测量</dt><dd>独立广告系列；UTM 按关键词组追踪；对比华为 CVR vs 无广告对照</dd>
+    <dt>预算额度</dt><dd>50,000 HUF<sup class="mk mk-assumed">A</sup></dd>
+  </dl>
+</div><div class="card">
+  <h3>T03 · 再营销 × D6 睡眠/压力健康证明创意 </h3>
+  <dl>
+    <dt>受众</dt><dd>浏览过产品健康功能页的访客；3–14 天时效窗口</dd>
+    <dt>基线</dt><dd>无再营销；暖受众在考虑期后流失</dd>
+    <dt>机制</dt><dd>有健康追踪意图的用户已发出信号；睡眠分/压力监测演示内容将考虑转化为购买决策</dd>
+    <dt>护栏</dt><dd>频次上限：每周最多 5 次曝光；14 天后排除（边际效用递减）</dd>
+    <dt>测量</dt><dd>Cookie 基础 holdout 10% 不触达；测量再营销池内增量 CVR</dd>
+    <dt>预算额度</dt><dd>30,000 HUF<sup class="mk mk-assumed">A</sup></dd>
+  </dl>
+</div><div class="card">
+  <h3>T04 · 再营销 × D11/D13 竞品页访客比较卡片 </h3>
+  <dl>
+    <dt>受众</dt><dd>过去 7 天内访问过 Garmin.hu、Samsung 智能手表页、árgép.hu 智能手表类目的用户</dd>
+    <dt>基线</dt><dd>无跟进；用户继续在竞品购买漏斗中推进</dd>
+    <dt>机制</dt><dd>决策期比较购物者看到直接价格+功能对比卡，GPS 精度 vs Garmin 同价位是核心信息</dd>
+    <dt>护栏</dt><dd>上限 3 次曝光；排除 Garmin 强品牌忠诚信号；C2 悬而未决——密切监测</dd>
+    <dt>测量</dt><dd>UTM + 再营销 holdout；对比增量华为转化 vs 不触达对照</dd>
+    <dt>预算额度</dt><dd>30,000 HUF<sup class="mk mk-assumed">A</sup></dd>
+  </dl>
+</div><div class="card">
+  <h3>T05 · Google Shopping × D1 GPS 运动手表类目 </h3>
+  <dl>
+    <dt>受众</dt><dd>D1 类目意图（智能手表、GPS 手表、运动手表）Google Shopping 高意图用户</dd>
+    <dt>基线</dt><dd>无 Shopping 投放；类目流量流向 Garmin、Samsung、Apple 商品列表</dd>
+    <dt>机制</dt><dd>Shopping 格式服务于高意图购买时刻；FIT 5 Pro 与 Garmin FR55 同价位是商品列表标题主张</dd>
+    <dt>护栏</dt><dd>监测 ROAS vs 增量利润；排除 Apple 生态强信号（切换概率低）</dd>
+    <dt>测量</dt><dd>Google Ads 实验（处理 vs 对照受众）；测量高于 Shopping 自然基线的增量收入</dd>
+    <dt>预算额度</dt><dd>50,000 HUF<sup class="mk mk-assumed">A</sup></dd>
+  </dl>
+</div><div class="card">
+  <h3>T06 · KOL × D1/D20 跑步 micro 达人 GPS 精度演示 </h3>
+  <dl>
+    <dt>受众</dt><dd>D1 跑步社区（通过达人受众触达）；每位达人约 2,000–150,000 人</dd>
+    <dt>基线</dt><dd>无达人合作；跑步社区认知仅靠华为 Health 自有内容</dd>
+    <dt>机制</dt><dd>跑步社区信任达人测评而非品牌广告；真实路线中手腕 GPS vs 手机对比演示直接回应 D1 痛点</dd>
+    <dt>护栏</dt><dd>达人费用为 Assumption——待报价确认。每位达人独立 UTM + 专属促销码。止损线：4 周内促销码核销 &lt; 50 则不扩展。KOL ROI 为 Hypothesis 直至 holdout 设计完成。</dd>
+    <dt>测量</dt><dd>UTM 流量 CVR vs 站内平均；促销码核销量；合同中加入 holdout 设计</dd>
+    
+  </dl>
+</div><div class="card blocked">
+  <h3>T07 · 女性健康功能 × D9 女性健康受众 <span class="blocked-stamp">&#8856; 被阻塞，来自 C4</span></h3>
+  <dl>
+    <dt>受众</dt><dd>D9——女性健康内容受众，生活方式+健康兴趣</dd>
+    <dt>基线</dt><dd>无女性专项广告系列</dd>
+    <dt>机制</dt><dd>FIT 5 Pro 经期/孕期追踪功能填补 Garmin FR55 和 Samsung Fit 3 的空缺</dd>
+    <dt>护栏</dt><dd>合规审查完成前 BLOCKED——不可激活</dd>
+    <dt>测量</dt><dd>含/不含女性健康文案的对比测试；测量目标细分增量 CVR</dd>
+    
+  </dl>
+</div></div>
+</section><section>
+  <h2>9 · 因果激活评审（campaign 级）</h2>
+  <p>挑战由独立评审过程提出，不可更改——分析方可回应但不得改写。<strong>open-blocking</strong> 挑战为每个依赖它的行动打上标记。公开展示未解决的挑战是信任机制；"resolved" 需要数据，而非说辞。</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>挑战</th><th>问题</th><th>状态</th><th>解决 / 所需证据</th></tr></thead>
+    <tbody><tr><td><strong>C1</strong> · D16 华为生态用户</td><td>Sure-thing：华为手机用户是否无论广告与否都会购买 FIT 5 Pro？生态联动是购买理由，不一定是广告响应机制——holdout 内增量为零的概率很高。</td><td><span class='pill pill-open'>open</span></td><td>在华为手机用户细分内设 GCG holdout（2周），对比投放组 vs 自然组转化率</td></tr><tr><td><strong>C2</strong> · D11 竞品比较</td><td>搜索 'Garmin okosóra' 是否预示对华为广告的响应？还是仅反映高智能手表购买意图（最终购买 Garmin）？若后者，我们在为 Garmin 买家付费投放。</td><td><span class='pill pill-open'>open</span></td><td>A/B 测试：竞品关键词访客 → 华为广告 vs 不投广告；测量增量华为（而非总智能手表）转化率</td></tr><tr><td><strong>C3</strong> · D10 续航痛点</td><td>匈牙利 'okosóra akkumulátor' 及相关续航痛点关键词月搜索量可能 &lt; 500——在此市场规模下无法购买到足够受众进行定向投放。此维度在匈牙利可能不具可操作性。</td><td><span class='pill pill-open-blocking'>open-blocking</span></td><td>Google Keyword Planner 拉取（匈牙利，零成本，1小时）——截止 2026-06-20；&lt; 500/月则 D10 从计划中移除</td></tr><tr><td><strong>C4</strong> · D8 心脏/ECG + D9 女性健康</td><td>基于行为信号推断健康状况（心脏风险、生育状态）需要在匈牙利广告标准和 GDPR 框架下进行人工合规审查。健康相关创意（'经期追踪'、'孕期模式'）在匈牙利存在合规风险。默认：审查完成前排除。</td><td><span class='pill pill-open-blocking'>open-blocking</span></td><td>法律/合规团队对定向逻辑和创意声明的书面审核</td></tr><tr><td><strong>C5</strong> · KOL / 达人</td><td>机构宣称的达人 ROAS 将自然购买意图与广告驱动的增量混为一谈。无达人合同中的 holdout 设计，T06 ROI 是 Hypothesis，不是证据。此外：匈牙利尚未关注科技达人但有智能手表购买倾向的用户有多少？</td><td><span class='pill pill-open'>open</span></td><td>达人合同中嵌入 holdout 设计（10% 无促销码对照组）；UTM CVR 基线 vs 站内平均，以界定增量上界</td></tr></tbody></table></div>
+</section><section>
+  <h2>10 · 预算分配</h2>
+  <div class="budget-chart"><h3>预算分配概览</h3><div class="budget-bar-row"><div class="budget-seg" style="width:62.5%;background:#f59e0b" title="搜索类目试点 T01 + T02 + T05——3周: 50,000 HUF">搜索类目试点 T01 + T</div><div class="budget-seg" style="width:37.5%;background:#16a34a" title="再营销 holdout 测试 T03 + T04——2周: 30,000 HUF">再营销 holdout 测试</div></div><div class="budget-legend"><span><i style="background:#f59e0b"></i>搜索类目试点 T01 + T02 + T05——3周: 50,000 HUF</span><span><i style="background:#16a34a"></i>再营销 holdout 测试 T03 + T04——2周: 30,000 HUF</span></div></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>阶段</th><th>项目</th><th>预算</th><th>解锁条件</th></tr></thead>
+    <tbody><tr><td>数据采集（现在）</td><td>Google Keyword Planner CPC + 量级拉取</td><td>0 HUF</td><td>试点投放前必须完成</td></tr><tr><td>数据采集（现在）</td><td>2–3 位达人询价外联</td><td>0 HUF</td><td>KOL 试点预算审批前必须完成</td></tr><tr><td>试点第一阶段（有条件）</td><td>搜索类目试点 T01 + T02 + T05——3周</td><td>50,000 HUF<sup class="mk mk-assumed">A</sup></td><td>解锁条件：搜索 CPC 数据显示预测 CAC &lt; 16,000 HUF</td></tr><tr><td>试点第一阶段（有条件）</td><td>再营销 holdout 测试 T03 + T04——2周</td><td>30,000 HUF<sup class="mk mk-assumed">A</sup></td><td>解锁条件：确认再营销池每周 ≥ 500 访客</td></tr><tr><td>试点第二阶段（有条件）</td><td>达人试点——1位达人，4周</td><td>待报价（估算 200,000–500,000 HUF）</td><td>解锁条件：直接报价已收到且预算已审批</td></tr><tr><td>放量（检查点）</td><td>通过验证渠道扩量至完整试点预算</td><td>检查点时确定</td><td>解锁条件：≥ 1 个渠道通过 holdout 验证，CAC &lt; 上限</td></tr></tbody></table></div>
+  <p class="callout">目前无媒体预算承诺。试点投放仅在前期数据采集确认至少一个渠道 CAC 在上限以内后方可解锁。预算表为有条件路线图，不是承诺。</p>
+</section><section>
+  <h2>11 · 优先打法与 ROI 情景</h2>
+  <div class="callout">暂无 uplift 模型分数（试验前阶段）。AUUC 门控（qini_auuc.py）将在试点数据采集后应用。前提：任何扩量部署前必须建立 Propensity Log P(t|x)。</div>
+  <div class="cards"><div class="card">
+  <h3>P1 — T01 — GPS 精度搜索广告</h3>
+  <dl>
+    <dt>为何现在</dt><dd>跑步意图机制最清晰，Proxy 最强；搜索数据拉取（第1天）可在一周内确定可行性</dd>
+    <dt>预期增量 CAC</dt><dd><span class="tag needs-test">待测试</span> 3,400–23,300 HUF（基准区间——undetermined，待本地数据）</dd>
+    <dt>止损线</dt><dd>3 周检查点 CAC &gt; 17,600 HUF → 暂停</dd>
+  </dl>
+</div><div class="card">
+  <h3>P2 — T03 — 再营销健康暖受众</h3>
+  <dl>
+    <dt>为何现在</dt><dd>成本最低的有效测试：再营销池已在自然流量中积累；holdout 设置成本接近零</dd>
+    <dt>预期增量 CAC</dt><dd><span class="tag needs-test">待测试</span> 1,600–7,500 HUF（基准区间——最优情况可行）</dd>
+    <dt>止损线</dt><dd>vs holdout 增量 CVR &lt; 0.3pp → 再营销池意图不足</dd>
+  </dl>
+</div><div class="card">
+  <h3>P3 — T06 — 跑步 micro 达人 GPS 演示（2–3 位）</h3>
+  <dl>
+    <dt>为何现在</dt><dd>垂直机制最清晰（D1 GPS 痛点）；达人内容可复用为 YouTube 证明资产；micro 达人增量质量优于机制错配的百万级账号</dd>
+    <dt>预期增量 CAC</dt><dd><span class="tag needs-test">待测试</span> undetermined——取决于报价和 holdout CVR</dd>
+    <dt>止损线</dt><dd>每位达人 4 周内促销码核销 &lt; 50 → 不扩展达人计划</dd>
+  </dl>
+</div></div>
+</section><section>
+  <h2>12 · KOL / 达人采购</h2>
+  <div class="callout">KOL ROI 无 holdout 不是证据。以下姓名/平台/粉丝数均可公开查证（标 sourced），报价为 missing（只能直接询价），增量为 Hypothesis（无 holdout 控制不构成因果证据）。</div>
+  <div class="kol-card">
+  <strong>Anita Herbert（@anita_herbert）— 健美/健身</strong>
+  <dl style="margin:6px 0 0;font-size:13px">
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase">形式</dt>
+    <dd>品牌曝光（若有），不做 GPS 测评内容</dd>
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">费用估算</dt>
+    <dd><span class="tag assumption">假设</span> 200,000 HUF–500,000 HUF<sup class="mk mk-assumed">A</sup> — 待直接报价</dd>
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">归因</dt>
+    <dd>纯曝光追踪；不做 UTM 增量测算</dd>
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">增量性</dt>
+    <dd><span class="tag needs-test">待测试</span> 不做增量测算——机制错配。</dd>
+  </dl>
+</div><div class="kol-card">
+  <strong>@maratonmanversenysorozat — 跑步赛事系列</strong>
+  <dl style="margin:6px 0 0;font-size:13px">
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase">形式</dt>
+    <dd>GPS 路线精度演示视频（真实赛道手腕 vs 手机对比）</dd>
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">费用估算</dt>
+    <dd><span class="tag assumption">假设</span> 200,000 HUF–500,000 HUF<sup class="mk mk-assumed">A</sup> — 待直接报价</dd>
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">归因</dt>
+    <dd>UTM 链接 + 专属促销码</dd>
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">增量性</dt>
+    <dd><span class="tag needs-test">待测试</span> Hypothesis；micro 但垂直——增量质量可能高于大账号</dd>
+  </dl>
+</div><div class="kol-card">
+  <strong>@daniramirezcoach — 跑步教练/马拉松运动员</strong>
+  <dl style="margin:6px 0 0;font-size:13px">
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase">形式</dt>
+    <dd>训练中 GPS 精度测评 + 配速追踪对比</dd>
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">费用估算</dt>
+    <dd><span class="tag assumption">假设</span> 200,000 HUF–500,000 HUF<sup class="mk mk-assumed">A</sup> — 待直接报价</dd>
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">归因</dt>
+    <dd>UTM 链接 + 专属促销码</dd>
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">增量性</dt>
+    <dd><span class="tag needs-test">待测试</span> Hypothesis；教练型内容适合做 GPS 精度实测，可信度高于纯娱乐博主</dd>
+  </dl>
+</div><div class="kol-card">
+  <strong>@turafuggo.vagyok — 徒步/户外博主</strong>
+  <dl style="margin:6px 0 0;font-size:13px">
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase">形式</dt>
+    <dd>多日徒步续航测试视频：全程 GPS 导航 + 电量记录</dd>
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">费用估算</dt>
+    <dd><span class="tag assumption">假设</span> 200,000 HUF–500,000 HUF<sup class="mk mk-assumed">A</sup> — 待直接报价</dd>
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">归因</dt>
+    <dd>UTM 链接 + 专属促销码</dd>
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">增量性</dt>
+    <dd><span class="tag needs-test">待测试</span> Hypothesis；D10 续航通过 C3 量级核查后方可合并续航卖点</dd>
+  </dl>
+</div><div class="kol-card">
+  <strong>Strenner Jázmin — YouTube 健身测评博主</strong>
+  <dl style="margin:6px 0 0;font-size:13px">
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase">形式</dt>
+    <dd>FIT 5 Pro 全功能测评（GPS 精度、续航、健康传感套件），视频可复用为广告素材</dd>
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">费用估算</dt>
+    <dd><span class="tag assumption">假设</span> 200,000 HUF–500,000 HUF<sup class="mk mk-assumed">A</sup> — 待直接报价</dd>
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">归因</dt>
+    <dd>YouTube UTM + 独立促销码</dd>
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">增量性</dt>
+    <dd><span class="tag needs-test">待测试</span> Hypothesis；测评内容价值不止在自身转化，更在于构建跨渠道的「第三方证明资产」</dd>
+  </dl>
+</div>
+</section><section>
+  <h2>13 · 测量计划</h2>
+  <p><strong>成熟度: L0</strong></p>
+  <p><strong>主指标：</strong> 增量转化量（holdout 验证）——无法设置 holdout 对照的渠道只贡献 Hypothesis 级指标</p>
+  <p><strong>次级指标：</strong></p><ul><li>分渠道增量 CAC</li><li>holdout 调整后的转化率提升</li><li>达人 UTM CVR（仅相关性代理，非因果）</li></ul>
+  <h3>扩量规则</h3><p>仅在以下条件同时满足时放量：（1）holdout 验证增量 CVR &gt; 0.5pp，（2）holdout 验证增量 CAC &lt; 8,800 HUF，（3）≥ 100 次增量转化观测</p>
+  <h3>暂停规则</h3><p>以下情况立即暂停任何渠道：holdout 验证增量 CAC &gt; 17,600 HUF（2倍上限）连续 7 天，或频次 &gt; 8 次且 CVR &lt; 0.2pp</p>
+  <h3>GCG 设计</h3><p>全局对照组（GCG）：5% 有效受众全程排除在所有付费触达之外。按用户 ID 哈希分组——跨渠道稳定。用于事后 ATE 估算。</p>
+  <div class='callout'>匈牙利单市场无法支撑 HTE 实验（500人/天时需 473 天）。HTE 须汇集 CEE 市场（匈牙利+罗马尼亚+捷克+斯洛伐克：估算合计 5,000人/天 → 48 天 HTE 可行）。HTE 激活为 L2+ 里程碑，在 ATE 验证完成后推进。</div>
+</section><section>
+  <h2>14 · 测试计划</h2>
+  <p>每个进入预算的主张都带有可证伪的预测、止损线和决策日期。在该日期，该线要么成为已溯源数据，要么被宣告无效。</p>
+  <div class="callout"><strong>power_analysis.py</strong> — baseline CVR 1.5%, MDE 0.30%: ATE needs <strong>28,304/arm</strong>; an uplift-difference (HTE) test needs <strong>59,116/cell (236,464 total)</strong> ≈ <strong>473 days</strong> at 500 eligible/day. First round therefore runs coarse cells only (channel × primary message), not per-dimension HTE.</div>
+  <div class="cards"><div class="card">
+  <h3>搜索 CAC 验证</h3>
+  <dl>
+    <dt>预测</dt><dd>类目搜索词（'GPS okosóra'）CAC 将落在 3,400–23,000 HUF 基准区间内</dd>
+    <dt>测试</dt><dd>3 周试点：50,000 HUF 精准匹配类目词；测量归因 + holdout 调整后转化量</dd>
+    <dt>止损线</dt><dd>3 周内 ≥ 30 次转化后 CAC &gt; 17,600 HUF（2倍上限）→ 暂停搜索并重审利润假设</dd>
+    <dt>决策日期</dt><dd>2026-07-04</dd>
+  </dl>
+</div><div class="card">
+  <h3>再营销 CVR 核查</h3>
+  <dl>
+    <dt>预测</dt><dd>再营销增量 CVR（vs holdout）将超过 0.5pp（暖产品页访客）</dd>
+    <dt>测试</dt><dd>2 周再营销广告（30,000 HUF），含 10% 不触达 holdout 对照组；测量增量 CVR</dd>
+    <dt>止损线</dt><dd>2 周后 holdout 增量 CVR（处理-对照）&lt; 0.3pp → 再营销池缺乏紧迫性；缩减频次、延长窗口</dd>
+    <dt>决策日期</dt><dd>2026-06-27</dd>
+  </dl>
+</div><div class="card">
+  <h3>达人试点</h3>
+  <dl>
+    <dt>预测</dt><dd>跑步达人 UTM 流量 CVR &gt; 0.8%，且促销码核销 &gt; 50（4周内，每位达人）</dd>
+    <dt>测试</dt><dd>1位达人试点合作（需先收到直接报价）；4周内容投放，含 UTM + 专属促销码</dd>
+    <dt>止损线</dt><dd>促销码核销 &lt; 50 或 UTM CVR &lt; 0.3%（4周后）→ 不扩展达人计划</dd>
+    <dt>决策日期</dt><dd>2026-07-13</dd>
+  </dl>
+</div><div class="card">
+  <h3>续航痛点 Proxy 量级核查</h3>
+  <dl>
+    <dt>预测</dt><dd>匈牙利续航痛点关键词月搜索量 &lt; 500——D10 维度在此市场不具可操作性</dd>
+    <dt>测试</dt><dd>Google Keyword Planner 拉取 'okosóra akkumulátor'、'okosóra töltés'、'okosóra akkumulátor tartam'（零成本，1小时）</dd>
+    <dt>止损线</dt><dd>月搜索量 &lt; 500 → D10 从计划移除。月搜索量 ≥ 2,000 → D10 升至 T 槽</dd>
+    <dt>决策日期</dt><dd>2026-06-20</dd>
+  </dl>
+</div></div>
+</section><section>
+  <h2>15 · 抑制与风险规则</h2>
+  <div class="callout">OPE 支持核查（ope_estimators.py）将在试点 Propensity Log P(t|x) 采集完成后运行。门控：支持核查通过后方可进行任何超出试点范围的策略优化或扩量部署。</div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>规则</th><th>维度</th><th>原因</th></tr></thead>
+    <tbody><tr><td>首次折扣购买后排除 D21 仅折扣买家</td><td>D21</td><td>折扣驱动买家在复购时贡献负增量边际；排除保护同期群组贡献利润</td></tr><tr><td>排除曝光 ≥ 5 次且零互动（0 点击、0 视频播放）的用户</td><td>D22 广告疲劳</td><td>饱和受众；继续投放是浪费，或对品牌情感产生 sleeping-dog 伤害</td></tr><tr><td>全渠道合并频次上限：每用户每周最多 5 次曝光</td><td>跨渠道</td><td>防止渠道组合下的频次累积疲劳；再营销+搜索同时曝光时尤为关键</td></tr><tr><td>D9 女性健康定向在 C4（合规审查）解决前持续排除</td><td>D9</td><td>GDPR 及匈牙利广告标准——无法律签字前默认排除健康相关定向</td></tr><tr><td>D8 心脏/ECG 定向在合规审查完成前排除</td><td>D8</td><td>推断健康状况属于敏感属性推断——同上，合规 first</td></tr><tr><td>全局对照组（GCG，5% 有效受众）排除在所有付费触达之外</td><td>GCG</td><td>保留 ATE 估算能力；GCG 是任何因果声明的不可妥协前提</td></tr></tbody></table></div>
+</section><section>
+  <h2>16 · 证据与缺口</h2>
+  <h3>已溯源事实</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>事实</th><th>来源</th><th>访问日期</th></tr></thead>
+    <tbody><tr><td>匈牙利增值税率 27%（欧盟最高；长期稳定）</td><td><a href='https://ec.europa.eu/taxation_customs/tedb/splSearchResult.html'>EU VAT 数据库</a></td><td>2026-06-13</td></tr><tr><td>Alza.hu、eMAG.hu、MediaMarkt 同为匈牙利主要电子产品零售渠道；运营商 Yettel/Telekom 也有可观穿戴设备份额。各平台「谁第一」缺公开来源——标记为待验证，不假设</td><td><a href='https://www.similarweb.com/top-websites/hungary/e-commerce-and-shopping/'>SimilarWeb 匈牙利电商榜（用于交叉核对，非权威份额数据）</a></td><td>2026-06-13</td></tr><tr><td>@maratonmanversenysorozat — 匈牙利跑步赛事系列 Instagram 账号</td><td><a href='https://www.instagram.com/maratonmanversenysorozat/'>Instagram 主页（2026-06-13 采集）</a></td><td>2026-06-13</td></tr><tr><td>Anita Herbert (@anita_herbert) — 匈牙利健美/健身博主，约 300 万粉</td><td><a href='https://www.instagram.com/anita_herbert/'>Instagram 主页（2026-06-13 采集）</a></td><td>2026-06-13</td></tr><tr><td>@turafuggo.vagyok — 匈牙利徒步/户外博主，约 1,656 粉</td><td><a href='https://www.instagram.com/turafuggo.vagyok/'>Instagram 主页（2026-06-13 采集）</a></td><td>2026-06-13</td></tr><tr><td>华为 WATCH FIT 5 Pro 匈牙利官方售价 99,990 HUF（2026-05 上市）</td><td><a href='https://hvg.hu/tudomany/20260518_huawei-watch-fit-5-watch-fit-5-pro-okoskarkoto-specifikacio-magyar-ar'>HVG.hu — 匈牙利发布价格公告</a></td><td>2026-06-13</td></tr><tr><td>arukereso.hu FIT 5 Pro 最低上架价 96,090 HUF（2026-06-13）</td><td><a href='https://okosora-aktivitasmero.arukereso.hu/huawei/watch-fit-5-pro-p1337206633/'>arukereso.hu — FIT 5 Pro 比价页面</a></td><td>2026-06-13</td></tr><tr><td>华为官方网店折扣码 AESPORTF5PRO：立减 5,000 HUF，有效期至 2026-06-30</td><td><a href='https://consumer.huawei.com/hu/wearables/watch-fit5-pro/buy/'>consumer.huawei.com/hu — FIT 5 Pro 购买页</a></td><td>2026-06-13</td></tr><tr><td>Garmin Forerunner 255 匈牙利价格 103,420 HUF（ÁrGép，2026-06-13）</td><td><a href='https://www.argep.hu/product_3079424.html'>ÁrGép — Garmin Forerunner 255</a></td><td>2026-06-13</td></tr><tr><td>Garmin Vivoactive 5 匈牙利价格 72,990–81,980 HUF（ÁrGép，2026-06-13）</td><td><a href='https://www.argep.hu/product_3158906.html'>ÁrGép — Garmin Vivoactive 5</a></td><td>2026-06-13</td></tr><tr><td>Samsung Galaxy Watch FE 匈牙利价格：促销 ~55,000 HUF / 官方建议 89,990 HUF</td><td><a href='https://www.emag.hu/samsung-galaxy-watch-fe-okosora-fekete-sm-r861nzkaeue/pd/DYN41JYBM/'>eMAG.hu — Samsung Galaxy Watch FE</a></td><td>2026-06-13</td></tr><tr><td>Xiaomi Watch S4 匈牙利价格 42,490 HUF（ÁrGép，2026-06-13）</td><td><a href='https://www.argep.hu/product_3277843.html'>ÁrGép — Xiaomi Watch S4</a></td><td>2026-06-13</td></tr><tr><td>Apple Watch SE 3 匈牙利价格 109,990 HUF（Notebook.hu，2026-06-13）</td><td><a href='https://www.notebook.hu/apple/elorendelheto-apple-watch-se-3'>Notebook.hu — Apple Watch SE 3</a></td><td>2026-06-13</td></tr></tbody></table></div>
+  <h3>假设登记表</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>假设</th><th>值</th><th>依据</th></tr></thead>
+    <tbody><tr><td>毛利率</td><td>40%</td><td>用户输入；未经华为财务团队确认</td></tr><tr><td>CAC 占利润比例</td><td>40%</td><td>惯例：获客成本 ≤ 首单单位利润的 40%；中档消费电子保守估算</td></tr><tr><td>搜索 CPC 基准</td><td>120 HUF–350 HUF</td><td>消费电子 Google Ads EU 基准（2024–2025）；匈牙利低于西欧</td></tr><tr><td>搜索 CVR 基准</td><td>1.5%–3.5%</td><td>中档电子产品类目搜索的电商 CVR 基准区间</td></tr><tr><td>再营销 CPC 基准</td><td>80 HUF–150 HUF</td><td>匈牙利再营销 CPC 基准；受众质量高故低于前景广告</td></tr><tr><td>再营销 CVR 基准</td><td>2%–5%</td><td>电子产品暖受众再营销 CVR 基准</td></tr><tr><td>Meta CPM 基准</td><td>1,200 HUF–2,400 HUF</td><td>匈牙利消费电子 Meta CPM 基准（2024–2025）</td></tr><tr><td>Meta CTR 基准</td><td>1%–2%</td><td>消费电子轮播/单图 Meta CTR 基准</td></tr><tr><td>Meta CVR 基准</td><td>0.3%–1.5%</td><td>社交广告到购买的 CVR；中档电子产品意图低</td></tr><tr><td>达人合作费用（估算）</td><td>200,000 HUF–500,000 HUF</td><td>匈牙利中量级跑步/运动达人估算费用区间；待直接询价确认</td></tr><tr><td>搜索试点预算（3周）</td><td>50,000 HUF</td><td>类目搜索词精准匹配最小验证投放（3周）</td></tr><tr><td>再营销试点预算（2周）</td><td>30,000 HUF</td><td>含 holdout 对照组的再营销验证投放（2周）</td></tr></tbody></table></div>
+  <h3>缺失账本 — 按敏感性排序，这就是工作计划</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>内容</th><th>从何获取</th><th>成本</th><th>阻塞</th></tr></thead>
+    <tbody></tbody></table></div>
+</section><section>
+  <h2>17 · 来源与核验清单</h2>
+  <ul class="checklist"><li><span class="chk-pending">○</span> 启动前将 Propensity Log P(t|x) 纳入实验设计</li><li><span class="chk-pending">○</span> 全局对照组（GCG，5% 不触达）在整个试点期间设置并保持稳定</li><li><span class="chk-pending">○</span> 所有试点广告系列确认设置 holdout 对照组（T01、T03、T04、T05）</li><li><span class="chk-pending">○</span> 完成 Keyword Planner CPC + 量级拉取（'GPS okosóra' 及 D10 续航痛点词）</li><li><span class="chk-pending">○</span> 从 ≥ 2 位匈牙利跑步/运动达人收到直接报价</li><li><span class="chk-blocked">⊘</span> D9 女性健康 + D8 心脏 ECG：合规审查完成并签字</li><li><span class="chk-pending">○</span> D10 续航痛点：Proxy 量级 &gt; 500/月确认，或维度从计划中移除</li><li><span class="chk-blocked">⊘</span> C4（合规）挑战解决后方可激活 T07</li><li><span class="chk-done">✓</span> 所有货币数字均已打 claim tag（Evidence / Assumption / Hypothesis / Needs test）</li><li><span class="chk-done">✓</span> KOL / 达人费用无直接报价不标为 Evidence</li><li><span class="chk-done">✓</span> 基准 CAC 区间已标 Assumption；无任何基准被视为本地证据</li><li><span class="chk-done">✓</span> HTE 实验范围已记录为须 CEE 市场汇集（不支持单匈牙利）</li><li><span class="chk-done">✓</span> power_analysis.py 确认：ATE 28,304/组，HTE 59,116/格，500人/天→114天 ATE</li><li><span class="chk-done">✓</span> 热力图仅呈现通过筛查的渠道（不含所有 23 个 D 维度——避免 v1 错误）</li><li><span class="chk-done">✓</span> 匈牙利单市场 HTE 不可行已明确记录（473天）；CEE 汇集方案（48天）已列入 L2 规划</li></ul>
+</section>
+</main>
+<footer>
+  Generated 2026-06-13 ·
+  Every number is sourced, assumed (basis stated), derived (chain shown), or missing (no value displayed) ·
+  <a href="https://github.com/alexwang91/scientific-marketing-personalized-attribution-hte">methodology</a>
+</footer>
+</body>
+</html>

@@ -39,6 +39,11 @@ from typing import Any
 
 _HERE = Path(__file__).parent
 
+
+def L(cfg, key, default):
+    return cfg.get("labels", {}).get(key, default)
+
+
 PROVENANCES = {"sourced", "assumed", "derived", "missing"}
 CHALLENGE_STATUSES = {"resolved", "open", "open-blocking"}
 CHANNEL_VERDICTS = {"viable", "not-viable", "undetermined", "role-only"}
@@ -290,41 +295,267 @@ def power_bridge(cfg: dict) -> str:
 # ──────────────────────────────────────────────────────────────────────────────
 
 _CSS = """
-  :root{--bg:#f6f7f8;--panel:#fff;--ink:#172026;--muted:#5f6b76;--line:#d9dee3;
-    --ok:#dff3e8;--ok-ink:#145c3b;--warn:#fff1bf;--warn-ink:#6b4e00;
-    --bad:#f8d2cf;--bad-ink:#84211b;--neutral:#f2f4f7;--neutral-ink:#4c5965;--blue:#245d7c}
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  /* ── Design system · nexu-io/open-design (Linear palette) ─────────────────
+     Palette: dark graphite ink, warm neutral surfaces, muted performance orange.
+     Layout: fixed 210px sidebar TOC + fluid content column.
+  ────────────────────────────────────────────────────────────────────────── */
+  :root{
+    --bg:#f0f2f5;
+    --panel:#ffffff;
+    --surface:#f6f7fb;
+    --ink:#0f172a;
+    --ink-2:#334155;
+    --muted:#64748b;
+    --muted-2:#94a3b8;
+    --line:#e2e8f0;
+    --line-strong:#cbd5e1;
+    --accent:#4f46e5;
+    --accent-light:#eef2ff;
+    --ok:#dcfce7;--ok-ink:#166534;
+    --warn:#fef9c3;--warn-ink:#854d0e;
+    --bad:#fee2e2;--bad-ink:#991b1b;
+    --neutral:#f1f5f9;--neutral-ink:#475569;
+    --radius:8px;
+    --sidebar-w:220px;
+  }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,"Helvetica Neue",sans-serif;line-height:1.5}
-  main{max-width:1080px;margin:0 auto;padding:22px 24px 48px}
-  h1{margin:0 0 6px;font-size:26px;line-height:1.2}
-  h2{margin:30px 0 12px;font-size:19px;border-bottom:1px solid var(--line);padding-bottom:8px}
-  h3{margin:18px 0 8px;font-size:15px}
-  p{margin:6px 0 10px}
-  a{color:#0f5f91}
-  section{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px;margin:14px 0}
-  .memo{border-left:6px solid var(--blue);padding:20px 22px}
-  .memo .thesis{font-size:16px;line-height:1.55;margin:10px 0 14px}
-  .verdict{display:inline-block;padding:5px 14px;border-radius:6px;font-weight:700;font-size:14px;letter-spacing:.03em}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    font-size:14.5px;line-height:1.65;-webkit-font-smoothing:antialiased;
+    font-feature-settings:'cv01','ss03'}
+
+  /* ── Two-column layout: sidebar + content ── */
+  .page-layout{display:grid;grid-template-columns:var(--sidebar-w) 1fr;
+    max-width:1200px;margin:0 auto;min-height:100vh}
+  .content-col{min-width:0}
+  main{padding:32px 32px 72px;max-width:960px}
+  footer{padding:20px 32px 48px;color:var(--muted);font-size:12px;
+    border-top:1px solid var(--line);max-width:960px}
+
+  /* ── Sidebar TOC ── */
+  .sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;
+    background:var(--panel);border-right:1px solid var(--line);
+    padding:24px 0 32px;display:flex;flex-direction:column}
+  .toc-logo{padding:0 18px 16px;font-size:11px;font-weight:800;
+    letter-spacing:.04em;color:var(--ink);border-bottom:1px solid var(--line);
+    margin-bottom:6px}
+  .toc-logo span{color:var(--accent)}
+  .toc-group-label{padding:12px 18px 4px;font-size:9.5px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.1em;color:var(--muted-2)}
+  .toc-link{display:block;padding:5px 18px 5px 16px;font-size:12px;
+    color:var(--muted);text-decoration:none;line-height:1.4;
+    border-left:2px solid transparent;transition:color .12s,border-color .12s,background .12s;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .toc-link:hover{color:var(--ink);background:rgba(0,0,0,.03)}
+  .toc-link.active{color:var(--accent);border-left-color:var(--accent);
+    background:var(--accent-light);font-weight:600}
+
+  /* ── Typography ── */
+  h1{margin:0 0 8px;font-size:24px;font-weight:800;line-height:1.2;
+    letter-spacing:-.025em;color:var(--ink)}
+  h2{margin:36px 0 14px;font-size:17px;font-weight:700;letter-spacing:-.01em;
+    color:var(--ink);display:flex;align-items:center;gap:9px}
+  h2::before{content:'';display:inline-block;width:3px;height:18px;
+    background:var(--accent);border-radius:2px;flex-shrink:0}
+  h2+*{margin-top:0}
+  h3{margin:18px 0 8px;font-size:10.5px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--accent)}
+  p{margin:0 0 11px}
+  strong{font-weight:600}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* ── Narrative intro (section connective paragraph) ── */
+  .section-intro{font-size:13.5px;color:var(--ink-2);line-height:1.75;
+    margin:0 0 18px;padding:13px 16px;background:var(--surface);
+    border-radius:6px;border-left:3px solid var(--line-strong)}
+
+  /* ── Section card ── */
+  section{background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:26px 30px;margin:14px 0;
+    box-shadow:0 1px 3px rgba(0,0,0,.04)}
+
+  /* ── KPI stat strip ── */
+  .kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));
+    gap:10px;margin:0 0 20px}
+  .kpi{background:var(--surface);border:1px solid var(--line);border-radius:8px;
+    padding:18px 20px;position:relative;overflow:hidden}
+  .kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+    background:var(--accent)}
+  .kpi-num{font-size:26px;font-weight:800;letter-spacing:-.04em;
+    line-height:1;color:var(--ink);margin-bottom:6px}
+  .kpi-num .kpi-unit{font-size:13px;font-weight:600;color:var(--muted);margin-left:2px}
+  .kpi-label{font-size:10.5px;color:var(--muted);text-transform:uppercase;
+    letter-spacing:.06em;font-weight:600}
+
+  /* ── CAC bar chart ── */
+  .cac-chart{margin:0 0 20px;background:var(--surface);border:1px solid var(--line);
+    border-radius:8px;padding:20px 22px 14px}
+  .cac-chart-title{font-size:10.5px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--accent);margin-bottom:18px}
+  .cac-row{display:grid;grid-template-columns:140px 1fr;gap:12px;
+    align-items:center;margin:10px 0}
+  .cac-name{font-size:12px;font-weight:600;text-align:right;line-height:1.3;
+    color:var(--ink-2)}
+  .cac-track{position:relative;height:26px;background:#e9eaec;border-radius:5px}
+  .cac-bar{position:absolute;height:100%;border-radius:5px;top:0;
+    display:flex;align-items:center;padding:0 7px;
+    font-size:10px;font-weight:700;color:#fff;white-space:nowrap;min-width:2px}
+  .cac-bar.viable{background:#16a34a}
+  .cac-bar.undetermined{background:#d97706}
+  .cac-bar.not-viable{background:#dc2626}
+  .cac-bar.role-only{background:#9ca3af}
+  .cac-ceiling{position:absolute;top:-7px;bottom:-7px;width:2px;
+    background:var(--ink);z-index:6;border-radius:1px}
+  .cac-ceiling-flag{position:absolute;top:-22px;transform:translateX(-50%);
+    background:var(--ink);color:#fff;font-size:9.5px;font-weight:700;
+    padding:2px 6px;border-radius:4px;white-space:nowrap;z-index:7}
+  .cac-axis{display:grid;grid-template-columns:140px 1fr;gap:12px;margin-top:6px}
+  .cac-axis-labels{display:flex;justify-content:space-between;
+    font-size:10px;color:var(--muted);font-weight:600}
+  .cac-legend{margin-top:10px;font-size:11px;color:var(--muted);
+    display:flex;gap:12px;flex-wrap:wrap}
+  .cac-legend span{display:inline-flex;align-items:center;gap:5px}
+  .cac-legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+
+  /* ── Sensitivity priority cards ── */
+  .sens-chart{margin:0 0 20px}
+  .sens-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+    gap:9px;margin-top:10px}
+  .sens-card{background:var(--surface);border:1px solid var(--line);
+    border-radius:7px;padding:13px 15px;display:flex;gap:11px;align-items:flex-start}
+  .sens-badge{width:28px;height:28px;border-radius:50%;display:flex;
+    align-items:center;justify-content:center;font-size:11px;font-weight:800;
+    color:#fff;flex-shrink:0;margin-top:1px}
+  .sens-badge.p1{background:var(--accent)}
+  .sens-badge.p2{background:#d97706}
+  .sens-badge.p3{background:var(--ink-2)}
+  .sens-badge.pN{background:var(--muted)}
+  .sens-change{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px;line-height:1.4}
+  .sens-effect{font-size:11px;color:var(--muted);line-height:1.45}
+
+  /* ── Dimension score chart ── */
+  .dim-chart{margin:0 0 18px}
+  .dim-chart-row{display:grid;grid-template-columns:155px 1fr 34px;
+    gap:9px;align-items:center;margin:4px 0}
+  .dim-label-cell{font-size:11px;font-weight:600;color:var(--ink-2);
+    text-overflow:ellipsis;overflow:hidden;white-space:nowrap;text-align:right}
+  .dim-bar-track{background:#e5e7eb;border-radius:3px;height:12px}
+  .dim-bar{height:100%;border-radius:3px}
+  .dim-score-lbl{font-size:10px;font-weight:700;color:var(--muted);text-align:right}
+
+  /* ── Price comparison chart ── */
+  .price-chart{margin:0 0 20px;background:var(--surface);border:1px solid var(--line);
+    border-radius:8px;padding:20px 22px}
+  .price-chart-title{font-size:10.5px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--accent);margin-bottom:18px}
+  .price-axis-wrap{position:relative;padding:34px 0 30px;margin:0 8px}
+  .price-axis-line{height:3px;background:#dde1e7;border-radius:2px;position:relative}
+  .price-dot{position:absolute;transform:translateX(-50%) translateY(-50%);
+    top:50%;width:14px;height:14px;border-radius:50%;border:2.5px solid #fff;
+    box-shadow:0 1px 5px rgba(0,0,0,.18);z-index:2}
+  .price-dot.ours{background:var(--accent);width:20px;height:20px}
+  .price-dot.comp{background:var(--ink-2)}
+  .price-top-label{position:absolute;transform:translateX(-50%);
+    bottom:calc(100% + 12px);font-size:11px;font-weight:700;
+    white-space:nowrap;color:var(--ink)}
+  .price-top-label.ours{color:var(--accent)}
+  .price-bot-label{position:absolute;transform:translateX(-50%);
+    top:calc(100% + 12px);font-size:9.5px;color:var(--muted);white-space:nowrap}
+  .price-axis-ends{display:flex;justify-content:space-between;
+    font-size:10px;color:var(--muted);font-weight:600;margin-top:4px}
+
+  /* ── Budget allocation bar ── */
+  .budget-chart{margin:0 0 20px}
+  .budget-bar-row{display:flex;height:32px;border-radius:7px;overflow:hidden;
+    gap:2px;margin:10px 0}
+  .budget-seg{display:flex;align-items:center;padding:0 9px;
+    font-size:10px;font-weight:700;color:#fff;white-space:nowrap;
+    overflow:hidden;min-width:20px}
+  .budget-legend{font-size:11px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
+  .budget-legend span{display:inline-flex;align-items:center;gap:5px}
+  .budget-legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+
+  /* ── Channel verdict strip ── */
+  .cv-strip{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+  .cv-badge{display:inline-flex;align-items:center;gap:7px;
+    padding:8px 12px;border-radius:7px;border:1px solid var(--line);
+    background:var(--surface);font-size:12px}
+  .cv-badge-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .cv-name{font-weight:700;color:var(--ink);font-size:12px}
+  .cv-task{color:var(--muted);font-size:11px}
+
+  /* ── Challenge traffic lights ── */
+  .ch-visual{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+    gap:8px;margin:0 0 18px}
+  .ch-card{background:var(--surface);border:1px solid var(--line);
+    border-radius:7px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start}
+  .ch-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-top:3px}
+  .ch-dot.resolved{background:#16a34a}
+  .ch-dot.open{background:#d97706}
+  .ch-dot.open-blocking{background:#dc2626}
+  .ch-title{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px;line-height:1.35}
+  .ch-target{font-size:11px;color:var(--muted)}
+
+  /* ── Maturity ladder ── */
+  .maturity-ladder{display:flex;gap:2px;margin:0 0 18px;border-radius:7px;
+    overflow:hidden;border:1px solid var(--line)}
+  .ml-step{flex:1;padding:12px 14px;background:var(--surface);
+    font-size:11px;line-height:1.4;text-align:center;position:relative}
+  .ml-step.active{background:var(--accent);color:#fff}
+  .ml-step.done{background:var(--ok);color:var(--ok-ink)}
+  .ml-step-label{font-weight:700;font-size:12px;display:block;margin-bottom:2px}
+  .ml-step-desc{font-size:10.5px;opacity:.8}
+
+  /* ── Signature: verdict band ── */
+  .memo{border:none;padding:0;box-shadow:none;background:transparent}
+  .memo-verdict-band{background:#1a202c;color:#fff;
+    border-radius:10px 10px 0 0;padding:32px 30px 26px}
+  .verdict-label{font-size:10px;font-weight:700;letter-spacing:.12em;
+    text-transform:uppercase;opacity:.45;margin-bottom:8px}
+  .verdict{display:inline-block;padding:7px 22px;border-radius:6px;
+    font-weight:800;font-size:20px;letter-spacing:.03em}
   .verdict-go{background:var(--ok);color:var(--ok-ink)}
   .verdict-no-go{background:var(--bad);color:var(--bad-ink)}
-  .verdict-conditional{background:var(--warn);color:var(--warn-ink)}
-  .memo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
-  .memo-grid>div{border:1px solid var(--line);border-radius:8px;padding:12px;background:#fbfcfd}
-  .memo-grid h3{margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
-  .memo-grid ul{margin:0;padding-left:18px}
-  .memo-grid li{margin:4px 0}
-  .derivation{font-family:ui-monospace,Consolas,monospace;font-size:13px;background:#f6f8fa;
-    border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:10px 0}
-  .deriv-name{font-weight:700;margin-bottom:4px}
-  .deriv-line{padding-left:14px;color:#33414d}
-  .deriv-result{padding-left:14px;margin-top:2px}
-  .deriv-note{margin-top:6px;color:var(--muted);font-family:Arial,sans-serif;font-size:12px}
-  .prov-note{color:var(--muted);font-size:11px}
-  sup.mk{font-size:9px;font-weight:700;padding:0 2px;margin-left:1px}
-  .mk-sourced{color:#0f6842}.mk-assumed{color:#805d00}.mk-derived{color:#164f78}.mk-missing{color:#8a2018}
-  .mk-legend{font-size:12px;color:var(--muted);margin:6px 0 0}
-  .missing-val{color:#9aa4ad;border-bottom:1px dashed #c2cad1}
-  .pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+  .verdict-conditional{background:var(--accent);color:#fff}
+  .memo-body{background:var(--panel);border:1px solid var(--line);
+    border-top:none;border-radius:0 0 10px 10px;padding:26px 30px}
+  .memo-thesis{font-size:14.5px;line-height:1.75;margin:0 0 20px;color:var(--ink)}
+  .memo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
+  .memo-grid>div{border:1px solid var(--line);border-radius:7px;
+    padding:15px 17px;background:var(--surface)}
+  .memo-grid h3{margin:0 0 9px}
+  .memo-grid ul{margin:0;padding-left:17px}
+  .memo-grid li{margin:5px 0;font-size:13.5px;line-height:1.55}
+  .mk-legend{font-size:11px;color:var(--muted);margin:14px 0 0;
+    padding-top:11px;border-top:1px solid var(--line)}
+
+  /* ── Derivation chains ── */
+  .derivation{font-family:ui-monospace,"JetBrains Mono",Consolas,monospace;
+    font-size:11.5px;background:var(--surface);border:1px solid var(--line);
+    border-left:3px solid var(--accent);border-radius:0 7px 7px 0;
+    padding:11px 15px;margin:10px 0;line-height:1.8}
+  .deriv-name{font-weight:700;font-size:12.5px;margin-bottom:4px;color:var(--ink)}
+  .deriv-line{padding-left:11px;color:#4b5563}
+  .deriv-result{padding-left:11px;margin-top:4px;font-weight:700;color:var(--ink)}
+  .deriv-note{margin-top:7px;color:var(--muted);
+    font-family:'Inter',sans-serif;font-size:11.5px;
+    padding-top:6px;border-top:1px dashed var(--line)}
+  .prov-note{color:var(--muted);font-size:10.5px}
+
+  /* ── Provenance markers ── */
+  sup.mk{font-size:9px;font-weight:700;padding:1px 3px;margin-left:1px;border-radius:2px}
+  .mk-sourced{color:#065f46;background:#d1fae5}
+  .mk-assumed{color:#78350f;background:#fef3c7}
+  .mk-derived{color:#1e40af;background:#dbeafe}
+  .mk-missing{color:#991b1b;background:#fee2e2}
+  .missing-val{color:#9ca3af;border-bottom:1px dashed #d1d5db}
+
+  /* ── Pills ── */
+  .pill{display:inline-block;padding:2px 8px;border-radius:999px;
+    font-size:10.5px;font-weight:700;white-space:nowrap}
   .pill-viable{background:var(--ok);color:var(--ok-ink)}
   .pill-not-viable{background:var(--bad);color:var(--bad-ink)}
   .pill-undetermined{background:var(--warn);color:var(--warn-ink)}
@@ -332,26 +563,177 @@ _CSS = """
   .pill-resolved{background:var(--ok);color:var(--ok-ink)}
   .pill-open{background:var(--warn);color:var(--warn-ink)}
   .pill-open-blocking{background:var(--bad);color:var(--bad-ink)}
-  .blocked-stamp{display:inline-block;border:2px solid var(--bad-ink);color:var(--bad-ink);
-    padding:2px 10px;border-radius:4px;font-weight:700;font-size:12px;transform:rotate(-2deg);margin-left:8px}
-  .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th,td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
-  th{background:#edf1f4;font-weight:700}
+  .blocked-stamp{display:inline-block;border:2px solid var(--bad-ink);
+    color:var(--bad-ink);padding:2px 8px;border-radius:4px;
+    font-weight:700;font-size:10.5px;transform:rotate(-1.5deg);margin-left:7px}
+
+  /* ── Tables ── */
+  .table-wrap{overflow-x:auto;border:1px solid var(--line);
+    border-radius:7px;background:#fff;margin:10px 0}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{background:var(--surface);font-weight:700;font-size:10px;text-transform:uppercase;
+    letter-spacing:.06em;color:var(--muted);padding:9px 13px;
+    border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  td{padding:10px 13px;border-bottom:1px solid var(--line);
+    vertical-align:top;text-align:left;font-size:12.5px}
   tr:last-child td{border-bottom:0}
-  td:last-child,th:last-child{border-right:0}
-  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;margin-top:10px}
-  .card{border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:#fbfcfd}
-  .card.blocked{border-color:var(--bad-ink);background:#fdf6f5}
-  .card h3{margin:0 0 6px;font-size:14px}
-  .card dl{margin:0;font-size:13px}
-  .card dt{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.03em;margin-top:7px}
-  .card dd{margin:1px 0 0}
-  .callout{border-left:5px solid var(--blue);border:1px solid var(--line);border-left-width:5px;
-    border-radius:8px;padding:12px 16px;margin:12px 0;background:#f9fbfc}
-  footer{max-width:1080px;margin:0 auto;padding:18px 24px 40px;color:var(--muted);font-size:12px}
-  @media(max-width:760px){.memo-grid,.cards{grid-template-columns:1fr}}
-  @media print{body{background:#fff}section{break-inside:avoid}a{color:#000}}
+  tr:nth-child(even) td{background:#fafafa}
+
+  /* ── Cards ── */
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+    gap:12px;margin-top:12px}
+  .card{border:1px solid var(--line);border-radius:7px;
+    padding:15px 17px;background:var(--surface);border-top:2px solid var(--line)}
+  .card.blocked{border-top-color:var(--bad-ink);background:#fff8f8}
+  .card h3{margin:0 0 9px;font-size:13.5px;font-weight:700;line-height:1.35}
+  .card dl{margin:0;font-size:12.5px}
+  .card dt{color:var(--muted);font-size:9.5px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.06em;margin-top:9px}
+  .card dd{margin:3px 0 0;line-height:1.5}
+
+  /* ── Callout ── */
+  .callout{border-left:3px solid var(--accent);border-radius:0 7px 7px 0;
+    padding:13px 17px;margin:12px 0;background:var(--accent-light);
+    font-size:13px;line-height:1.65}
+
+  /* ── Heatmap ── */
+  .heatmap{display:grid;gap:2px;background:var(--line);
+    border:1px solid var(--line);border-radius:7px;
+    overflow:hidden;font-size:11px;margin:12px 0;overflow-x:auto}
+  .hm-header{background:#1f2937;color:#fff;font-weight:700;
+    padding:7px 6px;text-align:center;font-size:9px;
+    text-transform:uppercase;letter-spacing:.03em;line-height:1.3;
+    word-break:break-all;min-width:36px}
+  .hm-label{background:#f9fafb;font-weight:600;padding:8px 10px;
+    font-size:11px;color:var(--ink);white-space:nowrap}
+  .hm-cell{padding:7px 4px;text-align:center;font-weight:800;
+    font-size:10.5px;letter-spacing:.03em;min-width:36px}
+  .hm-high{background:#4338ca;color:#fff}
+  .hm-test{background:#1e3a8a;color:#fff}
+  .hm-small{background:#e0e7ff;color:#3730a3}
+  .hm-none{background:#f9fafb;color:#d1d5db}
+  .hm-avoid{background:#991b1b;color:#fff}
+
+  /* ── Score dots ── */
+  .score-bar{display:inline-flex;gap:2px;vertical-align:middle}
+  .score-dot{width:7px;height:7px;border-radius:50%}
+  .score-dot.pass{background:var(--accent)}.score-dot.fail{background:#e5e7eb}
+
+  /* ── KOL card ── */
+  .kol-card{border:1px solid var(--line);border-radius:7px;
+    padding:15px 17px;background:var(--surface);margin:9px 0;
+    border-left:3px solid var(--accent)}
+
+  /* ── Checklist ── */
+  .checklist{list-style:none;padding:0;margin:0}
+  .checklist li{display:flex;gap:11px;padding:8px 0;
+    border-bottom:1px solid var(--line);font-size:13px;align-items:flex-start}
+  .checklist li:last-child{border-bottom:0}
+  .chk-pending{color:var(--warn-ink);font-weight:800;min-width:18px;margin-top:1px}
+  .chk-done{color:var(--ok-ink);font-weight:800;min-width:18px;margin-top:1px}
+  .chk-blocked{color:var(--bad-ink);font-weight:800;min-width:18px;margin-top:1px}
+
+  /* ── Evidence tags ── */
+  .tag{display:inline-block;padding:2px 7px;border-radius:999px;
+    font-size:10.5px;font-weight:700;white-space:nowrap}
+  .tag.evidence{background:var(--ok);color:var(--ok-ink)}
+  .tag.assumption{background:var(--warn);color:var(--warn-ink)}
+  .tag.hypothesis{background:#dbeafe;color:#1e40af}
+  .tag.needs-test{background:var(--bad);color:var(--bad-ink)}
+
+  @media(max-width:760px){
+    .page-layout{grid-template-columns:1fr}
+    .sidebar{display:none}
+    .memo-grid,.cards,.sens-grid,.ch-visual,.cv-strip{grid-template-columns:1fr}
+    .dim-chart-row{grid-template-columns:90px 1fr 30px}
+    .maturity-ladder{flex-direction:column}
+  }
+  @media print{body{background:#fff;font-size:12px}
+    .sidebar{display:none}
+    .page-layout{grid-template-columns:1fr}
+    section{break-inside:avoid;box-shadow:none}
+    .memo-verdict-band{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    a{color:var(--ink)}}
+  /* ── Decision horizon strip ── */
+  .hz-bar{display:flex;height:28px;border-radius:6px;overflow:hidden;margin:14px 0;gap:1px}
+  .hz-seg{display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:700;color:#fff;overflow:hidden;
+    white-space:nowrap;padding:0 8px;min-width:40px}
+
+  /* ── H-main opportunity bars ── */
+  .hm-bars{margin:14px 0}
+  .hm-bar-row{display:grid;grid-template-columns:150px 1fr auto;
+    gap:8px;align-items:center;margin:5px 0}
+  .hm-bar-label{font-size:11.5px;font-weight:600;color:var(--ink-2);text-align:right;line-height:1.3}
+  .hm-bar-track{height:18px;background:var(--surface);border-radius:4px;
+    border:1px solid var(--line);overflow:hidden}
+  .hm-bar-fill{height:100%;background:var(--accent);border-radius:4px;opacity:.8}
+  .hm-bar-card{font-size:10px;color:var(--muted);font-weight:600;white-space:nowrap}
+
+  /* ── Vertical timeline ── */
+  .timeline{position:relative;margin:16px 0 8px;padding-left:20px}
+  .timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;
+    width:2px;background:var(--line-strong);border-radius:1px}
+  .tl-item{position:relative;margin-bottom:14px}
+  .tl-item::before{content:'';position:absolute;left:-13px;top:5px;
+    width:10px;height:10px;border-radius:50%;background:var(--accent);
+    border:2px solid var(--panel)}
+  .tl-name{font-size:12.5px;font-weight:700;color:var(--ink);line-height:1.35}
+  .tl-date{font-size:10.5px;color:var(--muted);margin-top:2px}
+  .tl-desc{font-size:12px;color:var(--ink-2);margin-top:3px;line-height:1.5}
+
+  /* ── Suppression rule cards ── */
+  .supp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:10px;margin:12px 0}
+  .supp-card{background:var(--surface);border:1px solid var(--line);
+    border-radius:7px;padding:13px 14px;border-left:3px solid var(--bad-ink)}
+  .supp-dim{font-size:9.5px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.07em;color:var(--muted);margin-bottom:4px}
+  .supp-rule{font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.4;margin-bottom:4px}
+  .supp-reason{font-size:11.5px;color:var(--muted);line-height:1.45}
+
+  /* ── Provenance donut ── */
+  .prov-donut-wrap{display:flex;align-items:center;gap:24px;margin:14px 0}
+  .prov-donut{width:100px;height:100px;border-radius:50%;flex-shrink:0}
+  .prov-legend{display:flex;flex-direction:column;gap:7px}
+  .prov-leg-item{display:flex;align-items:center;gap:8px;font-size:12.5px}
+  .prov-leg-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+  .prov-leg-count{font-weight:700;color:var(--ink);margin-left:auto;padding-left:14px}
+
+  /* ── Checklist progress ── */
+  .chk-summary{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));
+    gap:8px;margin:12px 0}
+  .chk-stat{background:var(--surface);border:1px solid var(--line);border-radius:7px;
+    padding:11px 13px;text-align:center}
+  .chk-stat-num{font-size:22px;font-weight:800;letter-spacing:-.03em}
+  .chk-stat-label{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-top:3px}
+  .chk-progress-bar{height:7px;background:var(--surface);border-radius:4px;
+    border:1px solid var(--line);overflow:hidden;margin:6px 0 16px}
+  .chk-progress-fill{height:100%;background:var(--ok-ink);border-radius:4px}
+
+  /* ── KOL tier cards ── */
+  .kol-tiers{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+    gap:10px;margin:14px 0}
+  .kol-tier-card{border:1px solid var(--line);border-radius:7px;
+    padding:12px 14px;background:var(--surface);text-align:center}
+  .kol-tier-label{font-size:9.5px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--accent);margin-bottom:6px}
+  .kol-tier-name{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px;line-height:1.3}
+  .kol-tier-meta{font-size:11px;color:var(--muted);line-height:1.5}
+
+  /* ── Budget phase diagram ── */
+  .budget-phases{display:flex;flex-direction:column;gap:4px;margin:14px 0}
+  .bp-phase{display:grid;grid-template-columns:20px 1fr;gap:10px;align-items:start}
+  .bp-line{display:flex;flex-direction:column;align-items:center}
+  .bp-dot{width:12px;height:12px;border-radius:50%;background:var(--accent);
+    border:2px solid var(--panel);flex-shrink:0;margin-top:3px}
+  .bp-connector{width:2px;flex:1;background:var(--line-strong);margin:2px 0;min-height:14px}
+  .bp-body{background:var(--surface);border:1px solid var(--line);
+    border-radius:6px;padding:9px 12px;margin-bottom:2px}
+  .bp-name{font-size:12.5px;font-weight:700;color:var(--ink)}
+  .bp-cond{font-size:11px;color:var(--muted);margin-top:3px}
+  .bp-amt{font-size:11px;font-weight:700;color:var(--accent);margin-top:3px}
+
 """
 
 
@@ -359,12 +741,213 @@ _CSS = """
 # Sections
 # ──────────────────────────────────────────────────────────────────────────────
 
+
+def s_horizon_visual(cfg: dict) -> str:
+    memo = cfg.get("decision_memo", {})
+    counts: dict = {"now": 0, "checkpoint": 0, "never": 0}
+    for d in memo.get("decisions", []):
+        counts[d.get("horizon", "checkpoint")] += 1
+    total = sum(counts.values())
+    if total == 0:
+        return ""
+    _color = {"now": "#166534", "checkpoint": "#854d0e", "never": "#991b1b"}
+    _lbl = {
+        "now": L(cfg, "horizon_now", "Now"),
+        "checkpoint": L(cfg, "horizon_checkpoint", "Checkpoint"),
+        "never": L(cfg, "horizon_never", "Never"),
+    }
+    segs = ""
+    for k in ("now", "checkpoint", "never"):
+        if counts[k]:
+            pct = counts[k] / total * 100
+            segs += (f'<div class="hz-seg" style="width:{pct:.1f}%;background:{_color[k]}"'
+                     f' title="{esc(_lbl[k])}: {counts[k]}">'
+                     f'<span>{esc(_lbl[k][:10])} {counts[k]}</span></div>')
+    return f'<div class="hz-bar">{segs}</div>'
+
+
+def s_hmain_bars(cfg: dict) -> str:
+    cells = cfg.get("h_main_breakdown", [])
+    if not cells:
+        return ""
+    rows = ""
+    n = len(cells)
+    for i, h in enumerate(cells):
+        pct = 100 - (i / max(n - 1, 1)) * 55
+        rows += (f'<div class="hm-bar-row">'
+                 f'<div class="hm-bar-label">{esc(h["channel_dim"][:24])}</div>'
+                 f'<div class="hm-bar-track">'
+                 f'<div class="hm-bar-fill" style="width:{pct:.0f}%"></div></div>'
+                 f'<div class="hm-bar-card">{esc(h.get("t_card",""))}</div>'
+                 f'</div>')
+    return f'<div class="hm-bars">{rows}</div>'
+
+
+def s_test_timeline(cfg: dict) -> str:
+    tests = cfg.get("test_plan", [])
+    if not tests:
+        return ""
+    items = ""
+    for t in tests:
+        kill = t.get("kill_line", "")
+        items += (f'<div class="tl-item">'
+                  f'<div class="tl-name">{esc(t.get("name",""))}</div>'
+                  f'<div class="tl-date">&#128197; {esc(t.get("decision_date",""))}</div>'
+                  f'<div class="tl-desc">{esc(kill[:80])}{"…" if len(kill) > 80 else ""}</div>'
+                  f'</div>')
+    return f'<div class="timeline">{items}</div>'
+
+
+def s_suppression_cards(cfg: dict) -> str:
+    rules = cfg.get("suppression_rules", [])
+    if not rules:
+        return ""
+    cards = ""
+    for r in rules:
+        cards += (f'<div class="supp-card">'
+                  f'<div class="supp-dim">{esc(r.get("dimension",""))}</div>'
+                  f'<div class="supp-rule">{esc(r.get("rule",""))}</div>'
+                  f'<div class="supp-reason">{esc(r.get("reason",""))}</div>'
+                  f'</div>')
+    return f'<div class="supp-grid">{cards}</div>'
+
+
+def s_provenance_donut(numbers: dict) -> str:
+    counts: dict = {"sourced": 0, "assumed": 0, "derived": 0, "missing": 0}
+    for spec in numbers.values():
+        p = spec.get("provenance", "missing")
+        counts[p] = counts.get(p, 0) + 1
+    total = sum(counts.values())
+    if total == 0:
+        return ""
+    colors = {"sourced": "#166534", "assumed": "#854d0e",
+               "derived": "#1e40af", "missing": "#991b1b"}
+    labels = {"sourced": "Sourced", "assumed": "Assumed",
+               "derived": "Derived", "missing": "Missing"}
+    stops, deg = [], 0.0
+    for key in ("sourced", "assumed", "derived", "missing"):
+        if counts[key]:
+            end = deg + counts[key] / total * 360
+            stops.append(f"{colors[key]} {deg:.1f}deg {end:.1f}deg")
+            deg = end
+    gradient = ",".join(stops)
+    legend = ""
+    for key in ("sourced", "assumed", "derived", "missing"):
+        if counts[key]:
+            legend += (f'<div class="prov-leg-item">'
+                       f'<div class="prov-leg-dot" style="background:{colors[key]}"></div>'
+                       f'<span>{esc(labels[key])}</span>'
+                       f'<span class="prov-leg-count">{counts[key]}</span>'
+                       f'</div>')
+    donut = (f'<div class="prov-donut" '
+             f'style="background:conic-gradient({gradient})"></div>')
+    return (f'<div class="prov-donut-wrap">'
+            f'{donut}<div class="prov-legend">{legend}</div></div>')
+
+
+def s_checklist_progress(cfg: dict) -> str:
+    items = cfg.get("checklist", [])
+    if not items:
+        return ""
+    by_status: dict = {}
+    for i in items:
+        s = i.get("status", "pending")
+        by_status[s] = by_status.get(s, 0) + 1
+    done = by_status.get("done", 0)
+    pending = by_status.get("pending", 0)
+    blocked = by_status.get("blocked", 0)
+    total = len(items)
+    pct = done / total * 100 if total else 0
+    stats = ""
+    for label, val, color in [
+        ("Done", done, "var(--ok-ink)"),
+        ("Pending", pending, "var(--warn-ink)"),
+        ("Blocked", blocked, "var(--bad-ink)"),
+        ("Total", total, "var(--ink)"),
+    ]:
+        stats += (f'<div class="chk-stat">'
+                  f'<div class="chk-stat-num" style="color:{color}">{val}</div>'
+                  f'<div class="chk-stat-label">{esc(label)}</div>'
+                  f'</div>')
+    bar = (f'<div class="chk-progress-bar">'
+           f'<div class="chk-progress-fill" style="width:{pct:.0f}%"></div></div>')
+    return f'<div class="chk-summary">{stats}</div>{bar}'
+
+
+def s_kol_tier(cfg: dict) -> str:
+    kol = cfg.get("kol", {})
+    creators = kol.get("creators", [])
+    if not creators:
+        return ""
+    cards = ""
+    for c in creators:
+        tier = c.get("tier", "")
+        profile = c.get("profile", "")
+        fmt = c.get("format", "")
+        subs = c.get("subscribers", c.get("followers", ""))
+        cards += (f'<div class="kol-tier-card">'
+                  f'<div class="kol-tier-label">{esc(tier.upper()) if tier else "KOL"}</div>'
+                  f'<div class="kol-tier-name">{esc(profile[:30])}</div>'
+                  f'<div class="kol-tier-meta">{esc(fmt)}'
+                  f'{"<br>" + esc(str(subs)) if subs else ""}</div>'
+                  f'</div>')
+    return f'<div class="kol-tiers">{cards}</div>'
+
+
+def s_budget_phases(cfg: dict, numbers: dict) -> str:
+    rows = cfg.get("budget_rows", [])
+    if not rows:
+        return ""
+    items = ""
+    for i, r in enumerate(rows):
+        phase = r.get("phase", "")
+        item = r.get("item", "")
+        name = f"{phase} — {item}" if phase and item else (item or phase or f"Phase {i+1}")
+        cond = r.get("condition", "")
+        amt_id = r.get("budget_id", "")
+        amt = (fmt_value(amt_id, numbers) if amt_id and amt_id in numbers
+               else r.get("budget_display", r.get("amount_text", "")))
+        connector = '<div class="bp-connector"></div>' if i < len(rows) - 1 else ""
+        cond_html = f'<div class="bp-cond">{esc(cond[:80])}</div>' if cond else ""
+        amt_html = f'<div class="bp-amt">{amt}</div>' if amt else ""
+        items += (f'<div class="bp-phase">'
+                  f'<div class="bp-line"><div class="bp-dot"></div>{connector}</div>'
+                  f'<div class="bp-body">'
+                  f'<div class="bp-name">{esc(name)}</div>'
+                  f'{cond_html}'
+                  f'{amt_html}'
+                  f'</div></div>')
+    return f'<div class="budget-phases">{items}</div>'
+
+
+def s_play_timeline(cfg: dict) -> str:
+    plays = cfg.get("priority_plays", [])
+    if not plays:
+        return ""
+    items = ""
+    for p in plays:
+        name = p.get("action", p.get("play", ""))
+        channel = p.get("channel", "")
+        kill = p.get("kill_line", "")
+        ch_html = f'<div class="tl-date">{esc(channel)}</div>' if channel else ""
+        kill_html = f'<div class="tl-desc">Kill: {esc(kill[:70])}</div>' if kill else ""
+        items += (f'<div class="tl-item">'
+                  f'<div class="tl-name">{esc(name[:60])}</div>'
+                  f'{ch_html}'
+                  f'{kill_html}'
+                  f'</div>')
+    return f'<div class="timeline">{items}</div>'
+
 def s_memo(cfg: dict) -> str:
     memo = cfg["decision_memo"]
     meta = cfg.get("meta", {})
     verdict = memo.get("verdict", "conditional")
     vlabel = {"go": "GO", "no-go": "NO-GO", "conditional": "CONDITIONAL"}.get(verdict, verdict.upper())
-    horizon_label = {"now": "Now (zero cost)", "checkpoint": "At checkpoint", "never": "Not under this math"}
+    horizon_label = {
+        "now": L(cfg, "horizon_now", "Now (zero cost)"),
+        "checkpoint": L(cfg, "horizon_checkpoint", "At checkpoint"),
+        "never": L(cfg, "horizon_never", "Not under this math"),
+    }
     buckets: dict[str, list[str]] = {"now": [], "checkpoint": [], "never": []}
     for d in memo.get("decisions", []):
         buckets.setdefault(d["horizon"], []).append(d["text"])
@@ -374,39 +957,333 @@ def s_memo(cfg: dict) -> str:
             items = "".join(f"<li>{esc(t)}</li>" for t in buckets[h])
             decision_html += f"<h3>{horizon_label[h]}</h3><ul>{items}</ul>"
     overturn = "".join(f"<li>{esc(c)}</li>" for c in memo.get("overturn_conditions", []))
-    return f"""<section class="memo">
-  <div><span class="verdict verdict-{esc(verdict)}">{esc(vlabel)}</span>
-  &nbsp; <span style="color:var(--muted);font-size:13px">{esc(meta.get("product", ""))} · {esc(meta.get("market", ""))} · {esc(meta.get("date", ""))}</span></div>
-  <h1 style="margin-top:12px">1 · Decision Memo</h1>
-  <p class="thesis"><strong>Thesis:</strong> {esc(memo["thesis"])}</p>
-  <div class="memo-grid">
-    <div>{decision_html}</div>
-    <div>
-      <h3>What overturns this thesis</h3><ul>{overturn}</ul>
-      <h3>Weakest point of this report</h3><p style="margin:4px 0 0">{esc(memo.get("weakest_point", ""))}</p>
-    </div>
+    hz = s_horizon_visual(cfg)
+    return f"""<section id="s1" class="memo">
+  <div class="memo-verdict-band">
+    <div class="verdict-label">{esc(L(cfg, "verdict_label", "VERDICT"))}</div>
+    <div><span class="verdict verdict-{esc(verdict)}">{esc(vlabel)}</span></div>
+    <div style="margin-top:14px;opacity:.7;font-size:13px;font-weight:500;letter-spacing:.02em">{esc(meta.get("product", ""))} · {esc(meta.get("market", ""))} · {esc(meta.get("date", ""))}</div>
   </div>
-  <p class="mk-legend">Number markers: <sup class="mk mk-sourced">S</sup> sourced (linked)
-  · <sup class="mk mk-assumed">A</sup> assumed (basis stated)
-  · <sup class="mk mk-derived">D</sup> derived (chain shown)
-  · <sup class="mk mk-missing">M</sup> missing (no value — placeholder only)</p>
+  <div class="memo-body">
+    <h1>{esc(L(cfg, "memo_heading", "1 · Decision Memo"))}</h1>
+    <p class="memo-thesis"><strong>{esc(L(cfg, "thesis_label", "Thesis:"))}</strong> {esc(memo["thesis"])}</p>
+    {hz}
+    <div class="memo-grid">
+      <div>{decision_html}</div>
+      <div>
+        <h3>{esc(L(cfg, "overturn_heading", "What overturns this thesis"))}</h3><ul>{overturn}</ul>
+        <h3>{esc(L(cfg, "weakest_heading", "Weakest point of this report"))}</h3><p style="margin:4px 0 0">{esc(memo.get("weakest_point", ""))}</p>
+      </div>
+    </div>
+    <p class="mk-legend">{esc(L(cfg, "marker_legend", "Number markers: ◆S sourced (linked) · ◇A assumed (basis stated) · ⊕D derived (chain shown) · ○M missing (no value — placeholder only)"))}</p>
+  </div>
 </section>"""
 
 
-def s_math(cfg: dict, numbers: dict) -> str:
-    chains = "".join(render_derivation(nid, numbers) for nid in cfg.get("derivations", []))
-    sens_rows = "".join(
-        f"<tr><td>{esc(s['change'])}</td><td>{esc(s['effect'])}</td>"
-        f"<td style='text-align:center'>{esc(str(s['priority']))}</td></tr>"
-        for s in sorted(cfg.get("sensitivity", []), key=lambda x: x["priority"])
+def _scalar_of(v):
+    """Return a representative scalar (hi end for ranges) for chart scaling."""
+    if _is_range(v):
+        return v[1]
+    return v if _is_num(v) else None
+
+
+def s_kpi_strip(cfg: dict, numbers: dict) -> str:
+    """Big-number stat strip. Driven by cfg['kpi_strip'] = [number_id, ...]."""
+    ids = cfg.get("kpi_strip", [])
+    if not ids:
+        return ""
+    cells = ""
+    for nid in ids:
+        spec = numbers.get(nid)
+        if not spec:
+            continue
+        val = fmt_value(nid, numbers, marker=False)
+        label = esc(spec.get("label", nid))
+        cells += f'<div class="kpi"><div class="kpi-num">{val}</div><div class="kpi-label">{label}</div></div>'
+    if not cells:
+        return ""
+    return f'<div class="kpi-strip">{cells}</div>'
+
+
+def s_cac_chart(cfg: dict, numbers: dict) -> str:
+    """Horizontal bar chart: each channel's CAC interval vs the CAC ceiling.
+    The single most important decision visual — drawn from channel_screen."""
+    ceiling_id = cfg.get("cac_chart", {}).get("ceiling_id", "cac_ceiling")
+    cspec = numbers.get(ceiling_id)
+    if not cspec:
+        return ""
+    ceiling = _scalar_of(cspec.get("value"))
+    if ceiling is None:
+        return ""
+    bars = []
+    for ch in cfg.get("channel_screen", []):
+        cid = ch.get("cac_estimate")
+        if not cid or cid not in numbers:
+            continue
+        v = numbers[cid].get("value")
+        if v is None:
+            continue
+        lo = v[0] if _is_range(v) else v
+        hi = v[1] if _is_range(v) else v
+        bars.append((ch["channel"], lo, hi, ch.get("verdict", "undetermined")))
+    if not bars:
+        return ""
+    scale = max(max(hi for _, _, hi, _ in bars), ceiling) * 1.08
+    ceiling_pct = ceiling / scale * 100
+    rows = ""
+    for name, lo, hi, verdict in bars:
+        left = lo / scale * 100
+        width = max((hi - lo) / scale * 100, 1.2)
+        rng = (f"{lo:,.0f}–{hi:,.0f}" if hi != lo else f"{lo:,.0f}")
+        rows += (
+            f'<div class="cac-row"><div class="cac-name">{esc(name)}</div>'
+            f'<div class="cac-track">'
+            f'<div class="cac-bar {esc(verdict)}" style="left:{left:.1f}%;width:{width:.1f}%" title="{rng}">{rng}</div>'
+            f'<div class="cac-ceiling" style="left:{ceiling_pct:.1f}%"></div>'
+            f'</div></div>'
+        )
+    ceil_label = esc(L(cfg, "cac_chart_ceiling_label", "CAC ceiling"))
+    title = esc(L(cfg, "cac_chart_title", "Channel CAC interval vs ceiling (HUF)"))
+    unit = esc(cspec.get("unit", ""))
+    leg_v = esc(L(cfg, "cac_legend_viable", "viable (whole interval under ceiling)"))
+    leg_u = esc(L(cfg, "cac_legend_undetermined", "undetermined (interval spans ceiling)"))
+    leg_n = esc(L(cfg, "cac_legend_notviable", "not-viable (best case over ceiling)"))
+    flag = f"◄ {ceil_label} {ceiling:,.0f} {unit}"
+    return f"""<div class="cac-chart">
+  <div class="cac-chart-title">{title}</div>
+  <div class="cac-row"><div class="cac-name"></div><div class="cac-track" style="background:transparent;height:8px">
+    <div class="cac-ceiling-flag" style="left:{ceiling_pct:.1f}%">{esc(flag)}</div>
+    <div class="cac-ceiling" style="left:{ceiling_pct:.1f}%"></div>
+  </div></div>
+  {rows}
+  <div class="cac-axis"><div></div><div class="cac-axis-labels"><span>0</span><span>{scale:,.0f} {unit}</span></div></div>
+  <div class="cac-legend">
+    <span><i style="background:#16a34a"></i>{leg_v}</span>
+    <span><i style="background:#f59e0b"></i>{leg_u}</span>
+    <span><i style="background:#dc2626"></i>{leg_n}</span>
+  </div>
+  <p style="font-size:11px;color:var(--muted);margin:10px 0 0">{esc(L(cfg, "cac_chart_caption", "Bar = benchmark CAC interval · vertical line = ceiling · colour = screen verdict. A benchmark can only disprove viability (best case over ceiling) — it can never prove it, so a bar fully under the ceiling is still 'undetermined' until local data confirms."))}</p>
+</div>"""
+
+
+def s_sensitivity_chart(cfg: dict) -> str:
+    """Sensitivity priority cards — visual alternative to the sensitivity table."""
+    items = sorted(cfg.get("sensitivity", []), key=lambda x: x["priority"])
+    if not items:
+        return ""
+    cards = ""
+    for s in items:
+        p = s["priority"]
+        pclass = "p1" if p == 1 else ("p2" if p == 2 else "p3" if p == 3 else "pN")
+        cards += (
+            f'<div class="sens-card">'
+            f'<div class="sens-badge {pclass}">P{p}</div>'
+            f'<div><div class="sens-change">{esc(s["change"])}</div>'
+            f'<div class="sens-effect">{esc(s["effect"])}</div></div>'
+            f'</div>'
+        )
+    title = esc(L(cfg, "sensitivity_heading", "Sensitivity — which assumption flips the conclusion"))
+    note = esc(L(cfg, "sens_note", "Verify in priority order: P1 first."))
+    return f"""<div class="sens-chart">
+  <h3>{title}</h3>
+  <div class="sens-grid">{cards}</div>
+  <p style="font-size:12px;color:var(--muted);margin-top:8px">{note}</p>
+</div>"""
+
+
+def s_dimension_chart(cfg: dict) -> str:
+    """Horizontal bar chart of D-dimension entry scores, sorted descending."""
+    dims = cfg.get("dimensions", [])
+    if not dims:
+        return ""
+    scored = []
+    for d in dims:
+        score_str = d.get("entry_score", "")
+        try:
+            filled, total = map(int, score_str.split("/"))
+            pct = (filled / max(total, 1)) * 100
+        except Exception:
+            filled, total, pct = 0, 5, 0
+        scored.append((d["id"], d.get("name", ""), pct, filled, total))
+    scored.sort(key=lambda x: -x[2])
+    rows = ""
+    for did, name, pct, filled, total in scored[:16]:
+        color = "var(--accent)" if pct >= 60 else ("#f59e0b" if pct >= 40 else "#9ca3af")
+        short = f"{did} {name}"[:22]
+        rows += (
+            f'<div class="dim-chart-row">'
+            f'<div class="dim-label-cell" title="{esc(did)} {esc(name)}">{esc(short)}</div>'
+            f'<div class="dim-bar-track"><div class="dim-bar" style="width:{pct:.0f}%;background:{color}"></div></div>'
+            f'<div class="dim-score-lbl">{filled}/{total}</div>'
+            f'</div>'
+        )
+    title = esc(L(cfg, "dim_chart_title", "D Dimension Score Ranking"))
+    return f'<div class="dim-chart"><h3>{title}</h3>{rows}</div>'
+
+
+def s_budget_chart(cfg: dict, numbers: dict) -> str:
+    """Proportional budget allocation bar — visual companion to the budget table."""
+    rows = cfg.get("budget_rows", [])
+    if not rows:
+        return ""
+    _COLORS = ["#f04e23", "#1a1f2e", "#f59e0b", "#16a34a", "#6b7280", "#7c3aed"]
+    segments = []
+    for i, r in enumerate(rows):
+        bid = r.get("budget_id")
+        if bid and bid in numbers:
+            v = numbers[bid].get("value")
+            if v is not None:
+                amt = float(v[1] if _is_range(v) else v)
+                unit = numbers[bid].get("unit", "")
+                segments.append((r.get("item", r.get("phase", "")), amt, unit, _COLORS[i % len(_COLORS)]))
+    if not segments:
+        return ""
+    total = sum(a for _, a, _, _ in segments)
+    if total <= 0:
+        return ""
+    bars = legend = ""
+    for name, amt, unit, color in segments:
+        pct = amt / total * 100
+        bars += f'<div class="budget-seg" style="width:{pct:.1f}%;background:{color}" title="{esc(name)}: {amt:,.0f} {esc(unit)}">{esc(name[:14])}</div>'
+        legend += f'<span><i style="background:{color}"></i>{esc(name)}: {amt:,.0f} {esc(unit)}</span>'
+    title = esc(L(cfg, "budget_chart_title", "Budget Split"))
+    return (f'<div class="budget-chart"><h3>{title}</h3>'
+            f'<div class="budget-bar-row">{bars}</div>'
+            f'<div class="budget-legend">{legend}</div></div>')
+
+
+def s_price_comparison(cfg: dict, numbers: dict) -> str:
+    """Horizontal price positioning axis: our product vs competitors."""
+    pc = cfg.get("price_comparison")
+    if not pc:
+        return ""
+    own_id = pc.get("own")
+    competitors = pc.get("competitors", [])
+    if not own_id or own_id not in numbers:
+        return ""
+    own_val = numbers[own_id].get("value")
+    own_price = _scalar_of(own_val)
+    if own_price is None:
+        return ""
+    comp_data = []
+    for c in competitors:
+        cid = c.get("id")
+        if cid and cid in numbers:
+            v = numbers[cid].get("value")
+            price = _scalar_of(v) if v is not None else None
+            if price is not None:
+                comp_data.append((c.get("name", cid), price))
+    if not comp_data:
+        return ""
+    all_prices = [own_price] + [p for _, p in comp_data]
+    max_p = max(all_prices) * 1.12
+    min_p = min(all_prices) * 0.88
+    span = max_p - min_p or 1
+
+    def pct(p):
+        return (p - min_p) / span * 100
+
+    own_pct = pct(own_price)
+    own_lbl = numbers[own_id].get("label", "")
+    unit = numbers[own_id].get("unit", "")
+    dots = (
+        f'<div class="price-dot ours" style="left:{own_pct:.1f}%"></div>'
+        f'<div class="price-top-label ours" style="left:{own_pct:.1f}%">{own_price:,.0f}</div>'
+        f'<div class="price-bot-label" style="left:{own_pct:.1f}%">{esc(own_lbl[:18])}</div>'
     )
-    sens = ""
-    if sens_rows:
-        sens = f"""<h3>Sensitivity — which assumption flips the conclusion</h3>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Assumption change</th><th>Effect on conclusion</th><th>Verify priority</th></tr></thead>
-    <tbody>{sens_rows}</tbody></table></div>
-  <p style="font-size:13px;color:var(--muted)">Verification order below follows this table, not convenience.</p>"""
+    for name, price in comp_data:
+        p = pct(price)
+        dots += (
+            f'<div class="price-dot comp" style="left:{p:.1f}%"></div>'
+            f'<div class="price-top-label" style="left:{p:.1f}%">{price:,.0f}</div>'
+            f'<div class="price-bot-label" style="left:{p:.1f}%">{esc(name[:16])}</div>'
+        )
+    title = esc(L(cfg, "price_comparison_title", "Competitive Price Positioning"))
+    return f"""<div class="price-chart">
+  <div class="price-chart-title">{title} ({esc(unit)})</div>
+  <div class="price-axis-wrap">
+    <div class="price-axis-line">{dots}</div>
+    <div class="price-axis-ends"><span>{min_p:,.0f}</span><span>{max_p:,.0f} {esc(unit)}</span></div>
+  </div>
+</div>"""
+
+
+def _narrative_intro(cfg: dict, key: str, default: str = "") -> str:
+    text = L(cfg, key, default)
+    if not text:
+        return ""
+    return f'<p class="section-intro">{text}</p>'
+
+
+def s_channel_verdict_visual(cfg: dict) -> str:
+    """Visual strip of channel verdict badges before the detail table."""
+    channels = cfg.get("channel_screen", [])
+    if not channels:
+        return ""
+    _dot = {"viable": "#16a34a", "undetermined": "#d97706",
+             "not-viable": "#dc2626", "role-only": "#9ca3af"}
+    badges = ""
+    for ch in channels:
+        v = ch.get("verdict", "undetermined")
+        color = _dot.get(v, "#9ca3af")
+        task = ch.get("reasoning", "")[:60] + ("…" if len(ch.get("reasoning", "")) > 60 else "")
+        badges += (
+            f'<div class="cv-badge">'
+            f'<div class="cv-badge-dot" style="background:{color}"></div>'
+            f'<div><div class="cv-name">{esc(ch["channel"])}</div>'
+            f'<div class="cv-task">{esc(task)}</div></div>'
+            f'</div>'
+        )
+    return f'<div class="cv-strip">{badges}</div>'
+
+
+def s_challenge_visual(cfg: dict) -> str:
+    """Traffic-light card grid for challenges — rendered above the detail table."""
+    challenges = cfg.get("challenges", [])
+    if not challenges:
+        return ""
+    cards = ""
+    for c in challenges:
+        status = c.get("status", "open")
+        cards += (
+            f'<div class="ch-card">'
+            f'<div class="ch-dot {esc(status)}"></div>'
+            f'<div><div class="ch-title">{esc(c["id"])} · {esc(c["target"])}</div>'
+            f'<div class="ch-target">{esc(c["question"][:80])}{"…" if len(c["question"]) > 80 else ""}</div></div>'
+            f'</div>'
+        )
+    return f'<div class="ch-visual">{cards}</div>'
+
+
+def s_maturity_visual(cfg: dict) -> str:
+    """Visual L0→L1→L2→L3 maturity ladder with current step highlighted."""
+    mp = cfg.get("measurement_plan", {})
+    current = mp.get("maturity", "L0")
+    steps = [
+        ("L0", L(cfg, "ml_l0", "Pre-experiment"), L(cfg, "ml_l0_desc", "No holdout yet")),
+        ("L1", L(cfg, "ml_l1", "GCG + retrospective"), L(cfg, "ml_l1_desc", "Randomized holdout")),
+        ("L2", L(cfg, "ml_l2", "Policy learning + OPE"), L(cfg, "ml_l2_desc", "Offline validation")),
+        ("L3", L(cfg, "ml_l3", "Contextual bandit"), L(cfg, "ml_l3_desc", "Online learning")),
+    ]
+    order = [s[0] for s in steps]
+    current_idx = order.index(current) if current in order else 0
+    items = ""
+    for i, (level, label, desc) in enumerate(steps):
+        cls = "active" if i == current_idx else ("done" if i < current_idx else "")
+        items += (
+            f'<div class="ml-step {cls}">'
+            f'<span class="ml-step-label">{esc(level)} · {esc(label)}</span>'
+            f'<span class="ml-step-desc">{esc(desc)}</span>'
+            f'</div>'
+        )
+    return f'<div class="maturity-ladder">{items}</div>'
+
+
+def s_math(cfg: dict, numbers: dict) -> str:
+    kpi = s_kpi_strip(cfg, numbers)
+    cac_chart = s_cac_chart(cfg, numbers)
+    chains = "".join(render_derivation(nid, numbers) for nid in cfg.get("derivations", []))
+    sens = s_sensitivity_chart(cfg)
 
     screen_rows = ""
     for ch in cfg.get("channel_screen", []):
@@ -417,16 +1294,21 @@ def s_math(cfg: dict, numbers: dict) -> str:
                         f"<td>{cac}</td><td>{esc(ch['reasoning'])}</td></tr>")
     screen = ""
     if screen_rows:
-        screen = f"""<h3>Channel viability screen (threshold: CAC ceiling above)</h3>
+        screen = f"""<h3>{esc(L(cfg, "screen_heading", "Channel viability screen (threshold: CAC ceiling above)"))}</h3>
   <div class="table-wrap"><table>
-    <thead><tr><th>Channel</th><th>Verdict</th><th>CAC estimate</th><th>Reasoning / what's missing</th></tr></thead>
+    <thead><tr><th>{esc(L(cfg, "screen_th_channel", "Channel"))}</th><th>{esc(L(cfg, "screen_th_verdict", "Verdict"))}</th><th>{esc(L(cfg, "screen_th_cac", "CAC estimate"))}</th><th>{esc(L(cfg, "screen_th_reasoning", "Reasoning / what's missing"))}</th></tr></thead>
     <tbody>{screen_rows}</tbody></table></div>
-  <p style="font-size:13px;color:var(--muted)">Rules: a benchmark-based estimate can prove
-  <em>not-viable</em> (best case still fails) but never <em>viable</em> — that requires local data.
-  <em>undetermined</em> means the interval spans the ceiling; the action is to get data, not to pick an endpoint.</p>"""
+  <p style="font-size:13px;color:var(--muted)">{L(cfg, "screen_note", "Rules: a benchmark-based estimate can prove <em>not-viable</em> (best case still fails) but never <em>viable</em> — that requires local data. <em>undetermined</em> means the interval spans the ceiling; the action is to get data, not to pick an endpoint.")}</p>"""
 
-    return f"""<section>
-  <h2>2 · The Math</h2>
+    intro = _narrative_intro(cfg, "s2_intro",
+        "The verdict above rests on a single economic logic: unit margin sets the ceiling on how much we can spend to acquire one customer. "
+        "Every channel and every action in this report is evaluated against that ceiling. "
+        "A benchmark can only disprove viability — it cannot confirm it.")
+    return f"""<section id="s2">
+  <h2>{esc(L(cfg, "math_heading", "2 · The Math"))}</h2>
+  {intro}
+  {kpi}
+  {cac_chart}
   {chains}
   {sens}
   {screen}
@@ -445,14 +1327,14 @@ def s_actions(cfg: dict, numbers: dict, challenges_by_id: dict) -> str:
         stamp = "".join(f'<span class="blocked-stamp">⊘ BLOCKED by {esc(b)}</span>' for b in blockers)
         budget = ""
         if a.get("budget"):
-            budget = f"<dt>Budget envelope</dt><dd>{fmt_value(a['budget'], numbers)}</dd>"
-        gate = f"<dt>Unlocks</dt><dd>{esc(a['gate'])}</dd>" if a.get("gate") else ""
+            budget = f"<dt>{esc(L(cfg, 'budget_envelope_label', 'Budget envelope'))}</dt><dd>{fmt_value(a['budget'], numbers)}</dd>"
+        gate = f"<dt>{esc(L(cfg, 'unlocks_label', 'Unlocks'))}</dt><dd>{esc(a['gate'])}</dd>" if a.get("gate") else ""
         cards += f"""<div class="card{' blocked' if blockers else ''}">
   <h3>{esc(a['id'])} · {esc(a['action'])} {stamp}</h3>
   <dl>
-    <dt>Mechanism</dt><dd>{esc(a['mechanism'])}</dd>
-    <dt>Guardrail</dt><dd>{esc(a['guardrail'])}</dd>
-    <dt>Test</dt><dd>{esc(a['test'])}</dd>
+    <dt>{esc(L(cfg, 'mechanism_label', 'Mechanism'))}</dt><dd>{esc(a['mechanism'])}</dd>
+    <dt>{esc(L(cfg, 'guardrail_label', 'Guardrail'))}</dt><dd>{esc(a['guardrail'])}</dd>
+    <dt>{esc(L(cfg, 'test_label', 'Test'))}</dt><dd>{esc(a.get('test', a.get('measurement', '')))}</dd>
     {budget}{gate}
   </dl>
 </div>"""
@@ -462,15 +1344,13 @@ def s_actions(cfg: dict, numbers: dict, challenges_by_id: dict) -> str:
     )
     rej_html = ""
     if rejected:
-        rej_html = f"""<h3>Rejected options (and why)</h3>
+        rej_html = f"""<h3>{esc(L(cfg, "rejected_heading", "Rejected options (and why)"))}</h3>
   <div class="table-wrap"><table>
-    <thead><tr><th>Option</th><th>Rejection reason</th></tr></thead>
+    <thead><tr><th>{esc(L(cfg, "rejected_th_option", "Option"))}</th><th>{esc(L(cfg, "rejected_th_reason", "Rejection reason"))}</th></tr></thead>
     <tbody>{rejected}</tbody></table></div>"""
     return f"""<section>
-  <h2>3 · Actions</h2>
-  <p>Only options that survived the viability screen appear as cards. A card stamped
-  <strong>⊘ BLOCKED</strong> references an unresolved blocking challenge (section 4) and
-  must not receive budget until that challenge is resolved.</p>
+  <h2>{esc(L(cfg, "actions_heading", "3 · Actions"))}</h2>
+  <p>{L(cfg, "actions_intro", "Only options that survived the viability screen appear as cards. A card stamped <strong>⊘ BLOCKED</strong> references an unresolved blocking challenge (section 4) and must not receive budget until that challenge is resolved.")}</p>
   <div class="cards">{cards}</div>
   {rej_html}
 </section>"""
@@ -483,14 +1363,19 @@ def s_challenges(cfg: dict) -> str:
                  f"<td>{esc(c['question'])}</td>"
                  f"<td><span class='pill pill-{esc(c['status'])}'>{esc(c['status'])}</span></td>"
                  f"<td>{esc(c.get('resolution') or c.get('evidence_needed', ''))}</td></tr>")
-    return f"""<section>
-  <h2>4 · Adversarial Review</h2>
-  <p>Challenges are raised by an independent review pass and are immutable — the analysis
-  may respond but not rewrite them. <strong>open-blocking</strong> challenges stamp every
-  action that depends on them. An unresolved challenge displayed openly is the trust
-  mechanism; "resolved" requires data, not rhetoric.</p>
+    ch_visual = s_challenge_visual(cfg)
+    intro = _narrative_intro(cfg, "s9_intro",
+        "An independent review pass raised these challenges after the initial analysis was complete. "
+        "They are immutable — the analysis may respond but cannot rewrite them. "
+        "Open-blocking challenges stamp every dependent action with a BLOCKED notice. "
+        "Displaying unresolved challenges openly is the trust mechanism of this framework.")
+    return f"""<section id=\"s9\">
+  <h2>{esc(L(cfg, "challenges_heading", "9 · Causal Activation Reviewer (campaign-level)"))}</h2>
+  {intro}
+  {ch_visual}
+  <p>{L(cfg, "challenges_intro", 'Challenges are raised by an independent review pass and are immutable — the analysis may respond but not rewrite them. <strong>open-blocking</strong> challenges stamp every action that depends on them. An unresolved challenge displayed openly is the trust mechanism; "resolved" requires data, not rhetoric.')}</p>
   <div class="table-wrap"><table>
-    <thead><tr><th>Challenge</th><th>Question</th><th>Status</th><th>Resolution / evidence needed</th></tr></thead>
+    <thead><tr><th>{esc(L(cfg, "ch_th_challenge", "Challenge"))}</th><th>{esc(L(cfg, "ch_th_question", "Question"))}</th><th>{esc(L(cfg, "ch_th_status", "Status"))}</th><th>{esc(L(cfg, "ch_th_resolution", "Resolution / evidence needed"))}</th></tr></thead>
     <tbody>{rows}</tbody></table></div>
 </section>"""
 
@@ -501,16 +1386,22 @@ def s_test_plan(cfg: dict) -> str:
         cards += f"""<div class="card">
   <h3>{esc(t['name'])}</h3>
   <dl>
-    <dt>Prediction</dt><dd>{esc(t['prediction'])}</dd>
-    <dt>Test</dt><dd>{esc(t['test'])}</dd>
-    <dt>Kill line</dt><dd>{esc(t['kill_line'])}</dd>
-    <dt>Decision date</dt><dd>{esc(t['decision_date'])}</dd>
+    <dt>{esc(L(cfg, 'prediction_label', 'Prediction'))}</dt><dd>{esc(t['prediction'])}</dd>
+    <dt>{esc(L(cfg, 'test_label', 'Test'))}</dt><dd>{esc(t['test'])}</dd>
+    <dt>{esc(L(cfg, 'kill_line_label', 'Kill line'))}</dt><dd>{esc(t['kill_line'])}</dd>
+    <dt>{esc(L(cfg, 'decision_date_label', 'Decision date'))}</dt><dd>{esc(t['decision_date'])}</dd>
   </dl>
 </div>"""
-    return f"""<section>
-  <h2>5 · Test Plan</h2>
-  <p>Every claim that survives to budget carries a falsifiable prediction, a kill line,
-  and a decision date. On that date the line either becomes Sourced or is declared dead.</p>
+    test_tl = s_test_timeline(cfg)
+    intro = _narrative_intro(cfg, "s14_intro",
+        "Every Treatment Card from section 8 carries a falsifiable prediction and a kill line. "
+        "These are not milestones — they are decision gates. On the decision date, "
+        "the prediction either becomes Sourced evidence or the action is killed and the budget is returned.")
+    return f"""<section id=\"s14\">
+  <h2>{esc(L(cfg, "testplan_heading", "14 · Test Plan"))}</h2>
+  {intro}
+  {test_tl}
+  <p>{L(cfg, "testplan_intro", "Every claim that survives to budget carries a falsifiable prediction, a kill line, and a decision date. On that date the line either becomes Sourced or is declared dead.")}</p>
   {power_bridge(cfg)}
   <div class="cards">{cards}</div>
 </section>"""
@@ -533,20 +1424,462 @@ def s_evidence(cfg: dict, numbers: dict) -> str:
         f"<td>{esc(spec.get('cost_to_get', '—'))}</td><td>{esc(', '.join(spec.get('blocks', [])) or '—')}</td></tr>"
         for nid, spec in numbers.items() if spec["provenance"] == "missing"
     )
-    return f"""<section>
-  <h2>6 · Evidence &amp; Gaps</h2>
-  <h3>Sourced facts</h3>
+    prov_donut = s_provenance_donut(numbers)
+    intro = _narrative_intro(cfg, "s16_intro",
+        "This is the audit trail for every number in the report. "
+        "Every value above is either Sourced (linked to a URL), Assumed (basis explicitly stated), "
+        "Derived (formula shown with inputs), or Missing (placeholder — no value was invented). "
+        "The Missing ledger is ordered by sensitivity: the top items are the work plan.")
+    return f"""<section id=\"s16\">
+  <h2>{esc(L(cfg, "evidence_heading", "16 · Evidence & Gaps"))}</h2>
+  {intro}
+  {prov_donut}
+  <h3>{esc(L(cfg, "sourced_facts_heading", "Sourced facts"))}</h3>
   <div class="table-wrap"><table>
-    <thead><tr><th>Fact</th><th>Source</th><th>Accessed</th></tr></thead>
+    <thead><tr><th>{esc(L(cfg, "ev_th_fact", "Fact"))}</th><th>{esc(L(cfg, "ev_th_source", "Source"))}</th><th>{esc(L(cfg, "ev_th_accessed", "Accessed"))}</th></tr></thead>
     <tbody>{facts}</tbody></table></div>
-  <h3>Assumption register</h3>
+  <h3>{esc(L(cfg, "assumption_register_heading", "Assumption register"))}</h3>
   <div class="table-wrap"><table>
-    <thead><tr><th>Assumption</th><th>Value</th><th>Basis</th></tr></thead>
+    <thead><tr><th>{esc(L(cfg, "ev_th_assumption", "Assumption"))}</th><th>{esc(L(cfg, "ev_th_value", "Value"))}</th><th>{esc(L(cfg, "ev_th_basis", "Basis"))}</th></tr></thead>
     <tbody>{assumed_rows}</tbody></table></div>
-  <h3>Missing ledger — sorted by sensitivity, this is the work plan</h3>
+  <h3>{esc(L(cfg, "missing_ledger_heading", "Missing ledger — sorted by sensitivity, this is the work plan"))}</h3>
   <div class="table-wrap"><table>
-    <thead><tr><th>What</th><th>Where to get it</th><th>Cost</th><th>Blocks</th></tr></thead>
+    <thead><tr><th>{esc(L(cfg, "ev_th_what", "What"))}</th><th>{esc(L(cfg, "ev_th_where", "Where to get it"))}</th><th>{esc(L(cfg, "ev_th_cost", "Cost"))}</th><th>{esc(L(cfg, "ev_th_blocks", "Blocks"))}</th></tr></thead>
     <tbody>{missing_rows}</tbody></table></div>
+</section>"""
+
+
+def s_product_facts(cfg: dict, numbers: dict) -> str:
+    """Section 3 — Product & market facts, with price comparison chart."""
+    features = cfg.get("product_facts", [])
+    mfacts = cfg.get("market_facts", [])
+    feat_rows = ""
+    for f in features:
+        tag = f.get("tag", "evidence")
+        feat_rows += (f"<tr><td>{esc(f['label'])}</td><td>{esc(f['detail'])}</td>"
+                      f"<td><span class='tag {esc(tag)}'>{esc(tag.title())}</span></td></tr>")
+    mfact_rows = ""
+    for m in mfacts:
+        tag = m.get("tag", "evidence")
+        mfact_rows += (f"<tr><td>{esc(m['fact'])}</td>"
+                       f"<td><span class='tag {esc(tag)}'>{esc(tag.title())}</span></td></tr>")
+    feat_table = f"""<h3>{esc(L(cfg, "product_features_heading", "Product features relevant to targeting"))}</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>{esc(L(cfg, "pf_th_feature", "Feature"))}</th><th>{esc(L(cfg, "pf_th_relevance", "Targeting relevance"))}</th><th>{esc(L(cfg, "pf_th_status", "Status"))}</th></tr></thead>
+  <tbody>{feat_rows}</tbody></table></div>""" if feat_rows else ""
+    mfact_table = f"""<h3>{esc(L(cfg, "market_facts_heading", "Market facts"))}</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>{esc(L(cfg, "mf_th_fact", "Fact"))}</th><th>{esc(L(cfg, "mf_th_status", "Status"))}</th></tr></thead>
+  <tbody>{mfact_rows}</tbody></table></div>""" if mfact_rows else ""
+    price_chart = s_price_comparison(cfg, numbers)
+    intro = _narrative_intro(cfg, "s3_intro",
+        "The economics establish the ceiling. This section grounds the analysis in product reality: "
+        "which features carry differentiation value, how the product is positioned against competitors, "
+        "and which market facts constrain the channel and audience strategy.")
+    return f"""<section id=\"s3\">
+  <h2>{esc(L(cfg, "product_heading", "3 · Product & Market Facts"))}</h2>
+  {intro}
+  {price_chart}
+  {feat_table}
+  {mfact_table}
+</section>"""
+
+
+def s_channel_map(cfg: dict, numbers: dict) -> str:
+    """Section 5 — Local channel map."""
+    channels = cfg.get("channels", [])
+    rows = ""
+    for ch in channels:
+        v = ch.get("verdict", "undetermined")
+        cac_est = fmt_value(ch["cac_estimate"], numbers) if ch.get("cac_estimate") and ch["cac_estimate"] in numbers else "—"
+        rows += (f"<tr><td><strong>{esc(ch['name'])}</strong></td>"
+                 f"<td>{esc(ch.get('task','—'))}</td>"
+                 f"<td>{esc(ch.get('proxy_quality','—'))}</td>"
+                 f"<td><span class='pill pill-{esc(v)}'>{esc(v)}</span></td>"
+                 f"<td>{cac_est}</td>"
+                 f"<td>{esc(ch.get('note',''))}</td></tr>")
+    cv_visual = s_channel_verdict_visual(cfg)
+    intro = _narrative_intro(cfg, "s4_intro",
+        "With the CAC ceiling set above, each channel is now screened: can its cost-per-acquisition "
+        "interval fall under the ceiling? The verdict strip below gives the quick answer; "
+        "the table below it provides the reasoning. Remember: a benchmark can only rule a channel OUT.")
+    return f"""<section id=\"s4\">
+  <h2>{esc(L(cfg, "channel_heading", "4 · Local Channel Map"))}</h2>
+  {intro}
+  {cv_visual}
+  <div class="table-wrap"><table>
+    <thead><tr><th>{esc(L(cfg, "cm_th_channel", "Channel"))}</th><th>{esc(L(cfg, "cm_th_task", "Task"))}</th><th>{esc(L(cfg, "cm_th_proxy", "Proxy quality"))}</th><th>{esc(L(cfg, "cm_th_verdict", "Verdict"))}</th><th>{esc(L(cfg, "cm_th_cac", "CAC estimate"))}</th><th>{esc(L(cfg, "cm_th_note", "Note"))}</th></tr></thead>
+    <tbody>{rows}</tbody></table></div>
+  <p style="font-size:13px;color:var(--muted)">{L(cfg, "channel_note", "Benchmarks may prove <em>not-viable</em> (best case still fails ceiling) but never <em>viable</em>. <em>undetermined</em> = interval spans ceiling; data acquisition required.")}</p>
+</section>"""
+
+
+def _score_dots(score_str: str) -> str:
+    """Render '4/5' as filled/empty dots."""
+    try:
+        filled, total = map(int, score_str.split("/"))
+    except Exception:
+        return esc(score_str)
+    dots = "".join(
+        f'<span class="score-dot {"pass" if i < filled else "fail"}"></span>'
+        for i in range(total)
+    )
+    return f'<span class="score-bar">{dots}</span> {esc(score_str)}'
+
+
+def s_dimensions(cfg: dict) -> str:
+    """Section 6 — D dimension table + Causal Activation Reviewer."""
+    dims = cfg.get("dimensions", [])
+    rows = ""
+    for d in dims:
+        status = d.get("resolution_status", "open")
+        v = d.get("verdict", "Retain")
+        rows += (f"<tr><td><strong>{esc(d['id'])}</strong> {esc(d['name'])}</td>"
+                 f"<td style='font-size:12px'>{esc(d['mechanism'])}</td>"
+                 f"<td style='font-size:12px'>{esc(d['proxy'])}</td>"
+                 f"<td>{_score_dots(d.get('entry_score','—'))}</td>"
+                 f"<td>{esc(v)}</td>"
+                 f"<td><span class='pill pill-{esc(status)}'>{esc(status)}</span></td></tr>")
+    reviewer_rows = "".join(
+        f"<tr><td>{esc(r['dimension'])}</td><td>{esc(r['challenge'])}</td>"
+        f"<td>{esc(r['handling'])}</td><td>{esc(r.get('evidence_needed',''))}</td></tr>"
+        for r in cfg.get("reviewer_table", [])
+    )
+    reviewer = f"""<h3>{esc(L(cfg, "reviewer_heading", "Causal Activation Reviewer — dimension challenges"))}</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>{esc(L(cfg, "rv_th_dimension", "Dimension"))}</th><th>{esc(L(cfg, "rv_th_challenge", "Challenge raised"))}</th><th>{esc(L(cfg, "rv_th_handling", "Current handling"))}</th><th>{esc(L(cfg, "rv_th_evidence", "Evidence needed"))}</th></tr></thead>
+  <tbody>{reviewer_rows}</tbody></table></div>
+<div class="callout">{esc(L(cfg, "reviewer_callout", "D dimensions are candidate operational variables for trial design. Before entering primary budget, each must pass: deployable proxy, testable incrementality, stated mechanism, no compliance or margin risk."))}</div>""" if reviewer_rows else ""
+    dim_chart = s_dimension_chart(cfg)
+    intro = _narrative_intro(cfg, "s5_intro",
+        "The channel screen tells us WHERE to reach buyers. The dimension table asks a different question: "
+        "within those channels, which buyer characteristics predict incremental response? "
+        "Each dimension must pass four criteria before entering budget: deployable proxy, testable incrementality, "
+        "stated mechanism, no compliance or margin risk.")
+    return f"""<section id=\"s5\">
+  <h2>{esc(L(cfg, "dim_heading", "5 · D Dimension Table & Causal Activation Reviewer"))}</h2>
+  {intro}
+  {dim_chart}
+  <div class="table-wrap"><table>
+    <thead><tr><th>{esc(L(cfg, "dt_th_dimension", "Dimension"))}</th><th>{esc(L(cfg, "dt_th_mechanism", "Mechanism"))}</th><th>{esc(L(cfg, "dt_th_proxy", "Platform proxy"))}</th><th>{esc(L(cfg, "dt_th_score", "Score"))}</th><th>{esc(L(cfg, "dt_th_verdict", "Verdict"))}</th><th>{esc(L(cfg, "dt_th_status", "Status"))}</th></tr></thead>
+    <tbody>{rows}</tbody></table></div>
+  <p style="font-size:13px;color:var(--muted)">{esc(L(cfg, "dim_verdict_legend", "Verdicts: Retain = H or T in heatmap · Retain (test) = T or S · Demote S = S only · Suppression = exclude not target · Delete = remove."))}</p>
+  {reviewer}
+</section>"""
+
+
+def s_heatmap(cfg: dict) -> str:
+    """Section 7 — Semantic heatmap (channel × dimension)."""
+    hm = cfg.get("heatmap")
+    if not hm:
+        return ""
+    channels = hm["channels"]
+    dims = hm["dimensions"]
+    scores = hm["scores"]
+    label_map = hm.get("dim_labels", {})
+    score_labels = {"H": "H — Primary", "T": "T — Test", "S": "S — Small", "N": "N — None", "A": "A — Avoid"}
+    _score_cls = {"H": "hm-high", "T": "hm-test", "S": "hm-small", "N": "hm-none", "A": "hm-avoid"}
+    n_cols = len(dims) + 1
+    label_col = "2fr" if len(dims) > 8 else "1fr"
+    col_def = f"{label_col} repeat({len(dims)}, 1fr)"
+    corner = esc(L(cfg, "heatmap_corner", "Channel / Dimension"))
+    header = f'<div class="hm-header">{corner}</div>' + "".join(
+        f'<div class="hm-header">{esc(label_map.get(d, d))}</div>' for d in dims
+    )
+    rows = ""
+    for ch in channels:
+        rows += f'<div class="hm-label">{esc(ch)}</div>'
+        for d in dims:
+            sc = scores.get(ch, {}).get(d, "N")
+            cls = _score_cls.get(sc, "hm-none")
+            rows += f'<div class="hm-cell {esc(cls)}">{esc(sc)}</div>'
+    legend = " · ".join(f'<span class="hm-cell {_score_cls[s]}" style="display:inline-block;padding:2px 8px;border-radius:4px">{s}</span> {lbl.split("—")[1].strip()}' for s, lbl in score_labels.items())
+    intro = _narrative_intro(cfg, "s6_intro",
+        "The heatmap cross-references every dimension against every channel. "
+        "Cells marked H are the primary investment targets — where we expect the strongest positive uplift. "
+        "Cells marked A require active suppression: targeting these users would likely destroy margin, not grow it.")
+    return f"""<section id=\"s6\">
+  <h2>{esc(L(cfg, "heatmap_heading", "6 · Semantic Heatmap (channel × dimension)"))}</h2>
+  {intro}
+  <p style="font-size:13px">{L(cfg, "heatmap_intro", "Only channels that survived the viability screen appear. H = primary investment target; A = actively suppress.")}</p>
+  <div class="heatmap" style="grid-template-columns:{esc(col_def)};margin:12px 0">
+    {header}{rows}
+  </div>
+  <p style="font-size:12px;color:var(--muted);margin-top:8px">{esc(L(cfg, "heatmap_legend_label", "Legend"))}: {legend}</p>
+</section>"""
+
+
+def s_h_main(cfg: dict) -> str:
+    """Section 8 — H-main breakdown."""
+    h_cells = cfg.get("h_main_breakdown", [])
+    rows = "".join(
+        f"<tr><td><strong>{esc(h['channel_dim'])}</strong></td>"
+        f"<td style='font-size:12px'>{esc(h['hypothesis'])}</td>"
+        f"<td>{esc(h.get('t_card','—'))}</td>"
+        f"<td style='font-size:12px'>{esc(h.get('notes',''))}</td></tr>"
+        for h in h_cells
+    )
+    hm_bars = s_hmain_bars(cfg)
+    intro = _narrative_intro(cfg, "s7_intro",
+        "The heatmap above identified all H and T cells. This section narrows to the H-main cells: "
+        "the specific channel-dimension combinations where we expect positive incremental lift. "
+        "Each row here maps directly to a Treatment Card in section 8. Priority runs top to bottom.")
+    return f"""<section id=\"s7\">
+  <h2>{esc(L(cfg, "hmain_heading", "7 · H-Main Breakdown"))}</h2>
+  {intro}
+  {hm_bars}
+  <p>{esc(L(cfg, "hmain_intro", "These are the cells where HTE is expected to be positive. Each maps to a Treatment Card in the Execution Gates section. Priority order: top to bottom."))}</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>{esc(L(cfg, "hmain_th_cell", "Channel × Dimension"))}</th><th>{esc(L(cfg, "hmain_th_hypothesis", "HTE hypothesis"))}</th><th>{esc(L(cfg, "hmain_th_tcard", "Treatment Card"))}</th><th>{esc(L(cfg, "hmain_th_notes", "Notes"))}</th></tr></thead>
+    <tbody>{rows}</tbody></table></div>
+</section>"""
+
+
+def s_execution_gates(cfg: dict, numbers: dict, challenges_by_id: dict) -> str:
+    """Section 9 — Execution gates + Treatment Cards (full T-card format)."""
+    gates = cfg.get("execution_gates", [])
+    gate_rows = ""
+    for g in gates:
+        gstatus = g["status"]
+        gate_rows += (f"<tr><td><strong>{esc(g['gate'])}</strong></td>"
+                      f"<td>{esc(g.get('input_needed',''))}</td>"
+                      f"<td><span class='pill pill-{esc(gstatus)}'>{esc(gstatus)}</span></td>"
+                      f"<td>{esc(g.get('note',''))}</td></tr>")
+    gate_html = f"""<div class="table-wrap"><table>
+  <thead><tr><th>{esc(L(cfg, "eg_th_gate", "Gate"))}</th><th>{esc(L(cfg, "eg_th_input", "Input needed"))}</th><th>{esc(L(cfg, "eg_th_status", "Status"))}</th><th>{esc(L(cfg, "eg_th_note", "Note"))}</th></tr></thead>
+  <tbody>{gate_rows}</tbody></table></div>""" if gate_rows else ""
+
+    audience_lbl = esc(L(cfg, "tc_audience", "Audience"))
+    baseline_lbl = esc(L(cfg, "tc_baseline", "Baseline"))
+    mechanism_lbl = esc(L(cfg, "tc_mechanism", "Mechanism"))
+    guardrail_lbl = esc(L(cfg, "tc_guardrail", "Guardrail"))
+    measurement_lbl = esc(L(cfg, "tc_measurement", "Measurement"))
+    budget_lbl = esc(L(cfg, "tc_budget", "Budget envelope"))
+    blocked_lbl = esc(L(cfg, "tc_blocked_by", "BLOCKED by"))
+    cards = ""
+    for a in cfg.get("actions", []):
+        blockers = _blocked_by(a, challenges_by_id)
+        stamp = "".join(f'<span class="blocked-stamp">&#8856; {blocked_lbl} {esc(b)}</span>' for b in blockers)
+        audience = f"<dt>{audience_lbl}</dt><dd>{esc(a['audience'])}</dd>" if a.get("audience") else ""
+        baseline = f"<dt>{baseline_lbl}</dt><dd>{esc(a['baseline'])}</dd>" if a.get("baseline") else ""
+        budget = (f"<dt>{budget_lbl}</dt><dd>{fmt_value(a['budget'], numbers)}</dd>"
+                  if a.get("budget") and a["budget"] in numbers else "")
+        cards += f"""<div class="card{' blocked' if blockers else ''}">
+  <h3>{esc(a['id'])} · {esc(a['action'])} {stamp}</h3>
+  <dl>
+    {audience}
+    {baseline}
+    <dt>{mechanism_lbl}</dt><dd>{esc(a.get('mechanism', '—'))}</dd>
+    <dt>{guardrail_lbl}</dt><dd>{esc(a.get('guardrail', '—'))}</dd>
+    <dt>{measurement_lbl}</dt><dd>{esc(a.get('measurement', a.get('test', '—')))}</dd>
+    {budget}
+  </dl>
+</div>"""
+    maturity = cfg.get("measurement_plan", {}).get("maturity", "L0")
+    intro = _narrative_intro(cfg, "s8_intro",
+        "Treatment Cards translate the H-main hypotheses from section 7 into operational plans. "
+        "Each card specifies who we reach (audience), what we do (mechanism), "
+        "what we protect against (guardrail), and how we measure (test). "
+        "Gates must be cleared before budget unlocks.")
+    return f"""<section id=\"s8\">
+  <h2>{esc(L(cfg, "eg_heading", "8 · Execution Gates & Treatment Cards"))}</h2>
+  {intro}
+  <p><strong>{esc(L(cfg, "maturity_label", "Maturity"))}: {esc(maturity)}</strong> — {esc(L(cfg, "eg_maturity_note", "this analysis supports trial design and channel screening, not CATE claims or policy optimization."))}</p>
+  {gate_html}
+  {power_bridge(cfg)}
+  <h3>{esc(L(cfg, "eg_tcards_heading", "Treatment Cards (H-main cells only)"))}</h3>
+  <div class="cards">{cards}</div>
+</section>"""
+
+
+def s_budget(cfg: dict, numbers: dict) -> str:
+    """Section 10 — Budget allocation."""
+    rows = cfg.get("budget_rows", [])
+    if not rows:
+        return ""
+    row_html = "".join(
+        f"<tr><td>{esc(r['phase'])}</td><td>{esc(r['item'])}</td>"
+        f"<td>{fmt_value(r['budget_id'], numbers) if r.get('budget_id') and r['budget_id'] in numbers else esc(r.get('budget_display','—'))}</td>"
+        f"<td>{esc(r.get('condition',''))}</td></tr>"
+        for r in rows
+    )
+    note = cfg.get("budget_note", "")
+    budget_chart = s_budget_chart(cfg, numbers)
+    bphases = s_budget_phases(cfg, numbers)
+    intro = _narrative_intro(cfg, "s10_intro",
+        "Budget allocation follows the channel screen and execution gates — not the reverse. "
+        "Only channels that survived the screen receive funds. "
+        "Each line is conditional on a gate from section 8 being cleared. "
+        "If the gate does not clear, the budget line remains locked.")
+    return f"""<section id=\"s10\">
+  <h2>{esc(L(cfg, "budget_heading", "10 · Budget Allocation"))}</h2>
+  {intro}
+  {bphases}
+  {budget_chart}
+  <div class="table-wrap"><table>
+    <thead><tr><th>{esc(L(cfg, "bg_th_phase", "Phase"))}</th><th>{esc(L(cfg, "bg_th_item", "Item"))}</th><th>{esc(L(cfg, "bg_th_budget", "Budget"))}</th><th>{esc(L(cfg, "bg_th_condition", "Condition"))}</th></tr></thead>
+    <tbody>{row_html}</tbody></table></div>
+  {f'<p class="callout">{esc(note)}</p>' if note else ""}
+</section>"""
+
+
+def s_priority_plays(cfg: dict, numbers: dict) -> str:
+    """Section 11 — Priority plays."""
+    plays = cfg.get("priority_plays", [])
+    whynow_lbl = esc(L(cfg, "pp_why_now", "Why now"))
+    cac_lbl = esc(L(cfg, "pp_expected_cac", "Expected incremental CAC"))
+    needstest_lbl = esc(L(cfg, "tag_needs_test", "Needs test"))
+    killline_lbl = esc(L(cfg, "pp_kill_line", "Kill line"))
+    cards = "".join(
+        f"""<div class="card">
+  <h3>{esc(p['play'])} — {esc(p['action'])}</h3>
+  <dl>
+    <dt>{whynow_lbl}</dt><dd>{esc(p['why_now'])}</dd>
+    <dt>{cac_lbl}</dt><dd><span class="tag needs-test">{needstest_lbl}</span> {esc(p.get('expected_cac','undetermined'))}</dd>
+    <dt>{killline_lbl}</dt><dd>{esc(p.get('kill_line',''))}</dd>
+  </dl>
+</div>"""
+        for p in plays
+    )
+    play_tl = s_play_timeline(cfg)
+    auuc_note = cfg.get("auuc_note", "No uplift model scores available yet — AUUC gate will be applied when model predictions are generated after pilot data collection.")
+    intro = _narrative_intro(cfg, "s11_intro",
+        "Given the channel screen, dimension scores, and budget structure above, "
+        "these are the three moves with the highest expected return in the next 90 days. "
+        "Each play references the Treatment Card it activates and carries a kill line "
+        "that forces a decision before the next budget cycle.")
+    return f"""<section id=\"s11\">
+  <h2>{esc(L(cfg, "plays_heading", "11 · Priority Plays & ROI Scenarios"))}</h2>
+  {intro}
+  {play_tl}
+  <div class="callout">{esc(auuc_note)}</div>
+  <div class="cards">{cards}</div>
+</section>"""
+
+
+def s_kol(cfg: dict, numbers: dict) -> str:
+    """Section 12 — KOL / Creator sourcing."""
+    kol = cfg.get("kol")
+    if not kol or not kol.get("enabled"):
+        return ""
+    creators = kol.get("creators", [])
+    creator_html = ""
+    for c in creators:
+        fee = fmt_value(c["fee_id"], numbers) if c.get("fee_id") and c["fee_id"] in numbers else "—"
+        format_lbl = esc(L(cfg, "kol_format", "Format"))
+        fee_lbl = esc(L(cfg, "kol_fee", "Fee estimate"))
+        assumption_lbl = esc(L(cfg, "tag_assumption", "Assumption"))
+        pending_lbl = esc(L(cfg, "kol_fee_pending", "pending direct quote"))
+        attribution_lbl = esc(L(cfg, "kol_attribution", "Attribution"))
+        incrementality_lbl = esc(L(cfg, "kol_incrementality", "Incrementality"))
+        needstest_lbl = esc(L(cfg, "tag_needs_test", "Needs test"))
+        creator_html += f"""<div class="kol-card">
+  <strong>{esc(c['profile'])}</strong>
+  <dl style="margin:6px 0 0;font-size:13px">
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase">{format_lbl}</dt>
+    <dd>{esc(c['format'])}</dd>
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">{fee_lbl}</dt>
+    <dd><span class="tag assumption">{assumption_lbl}</span> {fee} — {pending_lbl}</dd>
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">{attribution_lbl}</dt>
+    <dd>{esc(c['attribution'])}</dd>
+    <dt style="color:var(--muted);font-size:11px;text-transform:uppercase;margin-top:6px">{incrementality_lbl}</dt>
+    <dd><span class="tag needs-test">{needstest_lbl}</span> {esc(c['incrementality_note'])}</dd>
+  </dl>
+</div>"""
+    kol_tier_vis = s_kol_tier(cfg)
+    intro = _narrative_intro(cfg, "s12_intro",
+        "Creator sourcing follows the channel map: YouTube and social serve a content-asset role, not direct response. "
+        "A KOL post generates awareness and anchors the product story — it does not prove incrementality. "
+        "All creator attribution below is tagged Hypothesis until a holdout arm isolates the causal effect.")
+    rule = kol.get("roi_rule", "KOL ROI is never Evidence without a holdout or credible identification strategy. All creator attribution is tagged Hypothesis until a holdout arm is designed.")
+    return f"""<section id=\"s12\">
+  <h2>{esc(L(cfg, "kol_heading", "12 · KOL / Creator Sourcing"))}</h2>
+  {intro}
+  {kol_tier_vis}
+  <div class="callout">{esc(rule)}</div>
+  {creator_html}
+</section>"""
+
+
+def s_measurement(cfg: dict) -> str:
+    """Section 13 — Measurement plan."""
+    mp = cfg.get("measurement_plan", {})
+    if not mp:
+        return ""
+    maturity = mp.get("maturity", "L0")
+    primary = mp.get("primary_metric", "")
+    secondary = mp.get("secondary_metrics", [])
+    scale_up = mp.get("scale_up_rule", "")
+    pause_rule = mp.get("pause_rule", "")
+    gcg = mp.get("gcg_design", "")
+    hte_note = mp.get("hte_note", "")
+    sec = mp.get("secondary_metrics", [])
+    sec_items = "".join(f"<li>{esc(m)}</li>" for m in sec)
+    maturity_visual = s_maturity_visual(cfg)
+    intro = _narrative_intro(cfg, "s13_intro",
+        "The measurement plan connects directly to the D dimensions (section 5) and Treatment Cards (section 8). "
+        "Without the GCG specified here, there is no way to separate marketing-caused outcomes "
+        "from coincident trends. The maturity ladder below shows where this programme sits and what it takes to advance.")
+    return f"""<section id=\"s13\">
+  <h2>{esc(L(cfg, "measurement_heading", "13 · Measurement Plan"))}</h2>
+  {intro}
+  {maturity_visual}
+  <p><strong>{esc(L(cfg, "maturity_label", "Maturity"))}: {esc(maturity)}</strong></p>
+  <p><strong>{esc(L(cfg, "mp_primary", "Primary metric:"))}</strong> {esc(primary)}</p>
+  {"<p><strong>" + esc(L(cfg, "mp_secondary", "Secondary metrics:")) + "</strong></p><ul>" + sec_items + "</ul>" if sec_items else ""}
+  {"<h3>" + esc(L(cfg, "mp_scaleup", "Scale-up rule")) + "</h3><p>" + esc(scale_up) + "</p>" if scale_up else ""}
+  {"<h3>" + esc(L(cfg, "mp_pause", "Pause rule")) + "</h3><p>" + esc(pause_rule) + "</p>" if pause_rule else ""}
+  {"<h3>" + esc(L(cfg, "mp_gcg", "GCG design")) + "</h3><p>" + esc(gcg) + "</p>" if gcg else ""}
+  {"<div class='callout'>" + esc(hte_note) + "</div>" if hte_note else ""}
+</section>"""
+
+
+def s_suppression(cfg: dict) -> str:
+    """Section 14 — Suppression & risk rules."""
+    rules = cfg.get("suppression_rules", [])
+    if not rules:
+        return ""
+    rows = "".join(
+        f"<tr><td>{esc(r['rule'])}</td><td>{esc(r['dimension'])}</td><td>{esc(r['reason'])}</td></tr>"
+        for r in rules
+    )
+    ope_note = cfg.get("ope_note", "OPE support check (ope_estimators.py) will run once propensity log P(t|x) is available. Gate: support check must pass before any scaled deployment.")
+    supp_vis = s_suppression_cards(cfg)
+    intro = _narrative_intro(cfg, "s15_intro",
+        "Suppression is as important as targeting. The rules below define who NOT to reach — "
+        "protecting margin, preventing regulatory exposure, and avoiding the adverse selection "
+        "that turns a positive CATE campaign into a negative-profit programme.")
+    return f"""<section id=\"s15\">
+  <h2>{esc(L(cfg, "suppression_heading", "15 · Suppression & Risk Rules"))}</h2>
+  {intro}
+  {supp_vis}
+  <div class="callout">{esc(ope_note)}</div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>{esc(L(cfg, "sp_th_rule", "Rule"))}</th><th>{esc(L(cfg, "sp_th_dimension", "Dimension"))}</th><th>{esc(L(cfg, "sp_th_reason", "Reason"))}</th></tr></thead>
+    <tbody>{rows}</tbody></table></div>
+</section>"""
+
+
+def s_checklist(cfg: dict) -> str:
+    """Section 15 — Sources + Verification checklist."""
+    items = cfg.get("checklist", [])
+    status_icons = {"done": "✓", "pending": "○", "blocked": "⊘", "na": "—"}
+    status_cls = {"done": "chk-done", "pending": "chk-pending", "blocked": "chk-blocked", "na": "chk-pending"}
+    list_items = "".join(
+        f'<li><span class="{esc(status_cls.get(i["status"],"chk-pending"))}">'
+        f'{esc(status_icons.get(i["status"],"○"))}</span> {esc(i["item"])}</li>'
+        for i in items
+    )
+    chk_prog = s_checklist_progress(cfg)
+    intro = _narrative_intro(cfg, "s17_intro",
+        "Pre-launch verification checklist. All items must reach Done before any budget is unlocked. "
+        "Pending items block the corresponding Treatment Cards. "
+        "This checklist is the operational translation of the Missing ledger above.")
+    return f"""<section id=\"s17\">
+  <h2>{esc(L(cfg, "checklist_heading", "17 · Sources & Verification Checklist"))}</h2>
+  {intro}
+  {chk_prog}
+  <ul class="checklist">{list_items}</ul>
 </section>"""
 
 
@@ -554,12 +1887,11 @@ def s_termination(cfg: dict) -> str:
     term = cfg.get("termination")
     if not term:
         return ""
+    term_heading = L(cfg, "termination_heading", "Pipeline terminated at stage {stage}").format(stage=esc(str(term["stage"])))
     return f"""<section style="border-left:6px solid var(--bad-ink)">
-  <h2>Pipeline terminated at stage {esc(str(term["stage"]))}</h2>
+  <h2>{term_heading}</h2>
   <p>{esc(term["reason"])}</p>
-  <p>This report is intentionally short: the math does not support a media plan.
-  The levers that would change the math are listed in the sensitivity table and the
-  Missing ledger. Re-run the pipeline when one of them moves.</p>
+  <p>{esc(L(cfg, "termination_note", "This report is intentionally short: the math does not support a media plan. The levers that would change the math are listed in the sensitivity table and the Missing ledger. Re-run the pipeline when one of them moves."))}</p>
 </section>"""
 
 
@@ -576,30 +1908,103 @@ def generate_html(cfg: dict) -> str:
     meta = cfg.get("meta", {})
     short_mode = bool(cfg.get("termination"))
 
+    # Single monotonic section sequence. s_actions was removed: it duplicated
+    # the Treatment Cards already rendered by s_execution_gates.
     parts = [s_memo(cfg), s_termination(cfg), s_math(cfg, numbers)]
-    if not short_mode:
-        parts += [s_actions(cfg, numbers, challenges_by_id),
-                  s_challenges(cfg),
-                  s_test_plan(cfg)]
-    parts.append(s_evidence(cfg, numbers))
+    if short_mode:
+        parts.append(s_evidence(cfg, numbers))   # short report: memo + math + evidence
+    else:
+        parts += [
+            s_product_facts(cfg, numbers),                     # 3
+            s_channel_map(cfg, numbers),                       # 4
+            s_dimensions(cfg),                                 # 5
+            s_heatmap(cfg),                                    # 6
+            s_h_main(cfg),                                     # 7
+            s_execution_gates(cfg, numbers, challenges_by_id), # 8
+            s_challenges(cfg),                                 # 9
+            s_budget(cfg, numbers),                            # 10
+            s_priority_plays(cfg, numbers),                    # 11
+            s_kol(cfg, numbers),                               # 12
+            s_measurement(cfg),                                # 13
+            s_test_plan(cfg),                                  # 14
+            s_suppression(cfg),                                # 15
+            s_evidence(cfg, numbers),                          # 16
+            s_checklist(cfg),                                  # 17
+        ]
 
-    title = f'{meta.get("product", "")} {meta.get("market", "")} — Decision Memo'
+    title = f'{meta.get("product", "")} — {meta.get("market", "")} Decision Memo'
+
+    # Build sidebar TOC
+    _toc_items = [
+        ("s1",  L(cfg, "memo_heading",        "1 · Decision Memo")),
+        ("s2",  L(cfg, "math_heading",        "2 · The Math")),
+        ("s3",  L(cfg, "product_heading",     "3 · Product & Market Facts")),
+        ("s4",  L(cfg, "channel_heading",     "4 · Local Channel Map")),
+        ("s5",  L(cfg, "dim_heading",         "5 · D Dimensions")),
+        ("s6",  L(cfg, "heatmap_heading",     "6 · Heatmap")),
+        ("s7",  L(cfg, "hmain_heading",       "7 · H-Main")),
+        ("s8",  L(cfg, "eg_heading",          "8 · Execution Gates")),
+        ("s9",  L(cfg, "challenges_heading",  "9 · Challenges")),
+        ("s10", L(cfg, "budget_heading",      "10 · Budget")),
+        ("s11", L(cfg, "plays_heading",       "11 · Priority Plays")),
+        ("s12", L(cfg, "kol_heading",         "12 · KOL")),
+        ("s13", L(cfg, "measurement_heading", "13 · Measurement")),
+        ("s14", L(cfg, "testplan_heading",    "14 · Test Plan")),
+        ("s15", L(cfg, "suppression_heading", "15 · Suppression")),
+        ("s16", L(cfg, "evidence_heading",    "16 · Evidence")),
+        ("s17", L(cfg, "checklist_heading",   "17 · Checklist")),
+    ]
+    if short_mode:
+        _toc_items = [t for t in _toc_items if t[0] in ("s1", "s2", "s16")]
+
+    toc_links = "".join(
+        f'<a class="toc-link" href="#{sid}" id="toc-{sid}">{esc(label[:32])}</a>\n'
+        for sid, label in _toc_items
+    )
+    sidebar = f'''<aside class="sidebar">
+  <div class="toc-logo">{esc(meta.get("product","")[:20])}<br><span>{esc(meta.get("market",""))}</span></div>
+  <div class="toc-group-label">{esc(L(cfg, "toc_title", "CONTENTS"))}</div>
+  {toc_links}
+</aside>'''
+
     return f"""<!doctype html>
-<html lang="{esc(meta.get("lang", "en"))}">
+<html lang="{esc(meta.get("lang", "hu"))}">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(title)}</title>
 <style>{_CSS}</style>
 </head>
 <body>
+<div class="page-layout">
+{sidebar}
+<div class="content-col">
 <main>
-{''.join(parts)}
+{"".join(parts)}
 </main>
 <footer>
-  Generated {esc(meta.get("date", str(date.today())))} ·
-  Every number is sourced, assumed (basis stated), derived (chain shown), or missing (no value displayed) ·
-  <a href="https://github.com/alexwang91/scientific-marketing-personalized-attribution-hte">methodology</a>
+  {esc(meta.get("date", str(date.today())))} &nbsp;·&nbsp;
+  {esc(L(cfg, "footer_note", "Every number is sourced, assumed, derived, or missing — none invented"))} &nbsp;·&nbsp;
+  <a href="https://github.com/alexwang91/scientific-marketing-personalized-attribution-hte">{esc(L(cfg, "footer_method", "methodology"))}</a>
 </footer>
+</div>
+</div>
+<script>
+(function(){{
+  var links = document.querySelectorAll(".toc-link");
+  var secs = document.querySelectorAll("section[id]");
+  if(!secs.length) return;
+  var obs = new IntersectionObserver(function(entries){{
+    entries.forEach(function(e){{
+      if(e.isIntersecting){{
+        links.forEach(function(a){{
+          a.classList.toggle("active", a.getAttribute("href")==="#"+e.target.id);
+        }});
+      }}
+    }});
+  }}, {{threshold:0.15, rootMargin:"-8% 0px -75% 0px"}});
+  secs.forEach(function(s){{ obs.observe(s); }});
+}})();
+</script>
 </body>
 </html>"""
 
@@ -646,6 +2051,8 @@ DEMO_CONFIG: dict[str, Any] = {
                              "inputs": ["bench_cpc", "bench_cvr"],
                              "note": "Interval spans the ceiling → verdict is undetermined, not a coin flip."},
     },
+    "kpi_strip": ["price", "unit_margin", "cac_ceiling"],
+    "cac_chart": {"ceiling_id": "cac_ceiling"},
     "derivations": ["unit_margin", "cac_ceiling", "search_cac_bench"],
     "sensitivity": [
         {"change": "margin 30% → 50%", "effect": "ceiling 18 → 30 USD; search may flip to viable", "priority": 1},
