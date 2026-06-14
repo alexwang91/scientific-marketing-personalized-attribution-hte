@@ -54,11 +54,37 @@ feature. High predictive accuracy → route to manual review before use.
 - [ ] **False claims**: does AI-generated copy exaggerate efficacy, fabricate
       scarcity ("only 3 left" — is it?), or manufacture social proof?
 
-- [ ] **Dark patterns**: countdown clocks that create artificial urgency,
-      buried unsubscribe paths, confirm-shaming.
+- [ ] **Dark patterns / manufactured anxiety**: countdown clocks that create
+      artificial urgency, buried unsubscribe paths, confirm-shaming. Recast
+      causally, these all inflate the **Anxiety force** (ref 02). Beyond the
+      compliance exposure, anxiety-inflation can drive *negative* incremental
+      effect — lower conversion or higher post-purchase churn. A treatment
+      whose only mechanism is manufactured anxiety fails both the red-team and
+      the τ(x) test; there is no version of it that is merely "aggressive but
+      effective."
 
 - [ ] **Frequency harm**: after stacking all campaigns, does any user's
       aggregate contact frequency exceed the guardrail cap?
+
+## Suppression Is a Governed Decision (the anti-persona list)
+
+"Who *not* to target" is as much a governed artifact as who to target. Two
+distinct reasons to suppress, with different owners and different failure modes:
+
+| Reason | Basis | Owner | Risk if ungoverned |
+|--------|-------|-------|--------------------|
+| **Won't move** (effectiveness) | Resistance forces dominate — Habit-bound, or already-decided with Pull maxed; the treatment yields τ ≈ 0 | Policy (ref 06) + Reviewer (ref 14) | Wasted budget, attribution credit for sure-things |
+| **Must not move** (compliance) | Vulnerable population, protected-attribute proxy, or only-available lever is manufactured Anxiety | This doc | Regulatory action, real-world harm |
+
+The **anti-persona list** is the operational union of the two — the people the
+program deliberately leaves alone. It is a **structured input** produced during
+dimension generation (ref 14, Step 6), not a leftover of margin arithmetic.
+
+But suppression is not automatically safe: run the **discriminatory-exclusion
+check** (above) on the anti-persona list itself. A do-not-disturb rule that
+systematically removes a protected group from *beneficial* offers is a fairness
+failure even when every individual rule looked locally reasonable. Suppression
+decisions enter the same audit log as targeting decisions.
 
 ## AI Role Hard Lines (enforce in system permissions, not just in prompts)
 

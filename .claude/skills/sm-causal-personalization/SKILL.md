@@ -9,6 +9,12 @@ description: >
   bandit, attribution vs incrementality, lead routing, discount approval,
   ABM experiments, or mentions "scientific marketing", "causal inference in
   marketing", or "personalized attribution".
+  Also trigger on the plain-language versions a founder or marketer would
+  actually type: "should I give this customer a discount / coupon", "is my
+  campaign / ad actually working", "who should I target — and who should I
+  skip", "is this channel worth the spend", "did the promo really drive sales
+  or would they have bought anyway", "which customers deserve a retention
+  offer", "why isn't my targeting working".
   Covers the full chain: problem framing → experiment design → HTE estimation →
   uplift segmentation → policy optimization → governance / compliance.
 ---

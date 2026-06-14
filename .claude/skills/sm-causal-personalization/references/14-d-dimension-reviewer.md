@@ -51,6 +51,15 @@ Write the mechanism explicitly. "Runners respond to GPS" is not a mechanism.
 "Runners who track route accuracy respond to GPS precision claims because their
 current pain is pace drift on wrist-worn devices" is a mechanism.
 
+**Name the force (mechanism vocabulary).** A mechanism is sharper when it names
+*which force the action moves* for this person (ref 02): Push (an unspoken
+pain), Pull (a benefit they don't yet know), Habit (switching inertia to
+lower), or Anxiety (a fear to reduce). The GPS example is a **Pull** mechanism —
+it works only for runners who don't *already* believe the watch is accurate.
+State the force and the segment for whom it is still unsettled. A dimension
+whose force is already settled (Pull maxed) is a sure-thing, not an incremental
+opportunity — and is caught at Step 6 and by challenge 8 below.
+
 **Step 2: Market path mapping**
 
 For each mechanism, identify the local purchase path: how does this person search,
@@ -84,6 +93,24 @@ Check for:
 
 Send any dimension that touches these to the Reviewer with a compliance flag before
 including in the heatmap.
+
+**Step 6: Anti-persona pass (the suppression output)**
+
+The same scan, inverted. For each mechanism ask: "for whom is this force
+*already settled*, or moving the *wrong way*?" These people are anti-personas,
+and they are a first-class output of generation — not a remainder left after
+targeting:
+
+- **Pull already maxed** → sure-thing (brand-searcher, repeat buyer): suppress
+  or holdout-only; never primary budget.
+- **Habit immovable** → the treatment yields τ ≈ 0: suppress to save spend.
+- **Anxiety-dominant where the only available lever inflates it** → compliance
+  *and* negative-τ risk (ref 09): exclude.
+
+Anti-personas feed the suppression rules (report section 15) and the policy's
+do-not-target set (ref 06). Hand the list to ref 09 for the discriminatory-
+exclusion check before it ships — suppressing a protected group from beneficial
+offers is itself a fairness failure.
 
 ---
 
@@ -237,6 +264,21 @@ viewer") not inferred attribute (e.g., "overweight user").
 
 *Canonical question*: Does a structural fact (e.g., ISPs give routers away free) cap the addressable market below plan?
 *Typical resolution path*: Size the ceiling before scaling claims.
+
+**8. Force check (mechanism synthesis for challenges 1 and 2)**
+
+> "Which of the four forces (ref 02) does targeting this dimension assume the
+>  treatment moves — and is that force still *unsettled* for this segment, or
+>  already settled?"
+
+Challenges 1 and 2 ask *whether* incremental response exists; the force check
+asks *through which lever* — and a dimension that cannot name an unsettled force
+fails both. Pull already maxed (brand search, repeat buyer) = sure-thing (#1);
+a "force" that is really just purchase propensity = correlation (#2).
+
+*Most common for*: brand search, warm-cart retargeting, lookalikes of converters.
+*Canonical question*: Does the treatment move a still-unsettled force for this segment, or merely amplify one already maxed?
+*Typical resolution path*: Name the force and the segment it's unsettled for; if none, demote to S or Suppression only.
 
 ### Anti-Theater Checks
 
