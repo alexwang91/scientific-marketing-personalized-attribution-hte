@@ -734,12 +734,175 @@ _CSS = """
   .bp-cond{font-size:11px;color:var(--muted);margin-top:3px}
   .bp-amt{font-size:11px;font-weight:700;color:var(--accent);margin-top:3px}
 
+  /* ── ECharts interactive figure ── */
+  .echart-wrap{background:var(--surface);border:1px solid var(--line);
+    border-radius:8px;padding:16px 18px 14px;margin:16px 0}
+  .echart-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
+    margin-bottom:4px}
+  .echart-title{font-size:13px;font-weight:700;color:var(--ink);
+    letter-spacing:-.01em;line-height:1.4}
+  .echart-badge{font-size:9px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.07em;padding:2px 7px;border-radius:4px;white-space:nowrap;
+    background:var(--accent-light);color:var(--accent)}
+  .echart-badge.illustrative{background:var(--warn);color:var(--warn-ink)}
+  .echart-sub{font-size:11.5px;color:var(--muted);margin:0 0 8px;line-height:1.5}
+  .echart{width:100%;height:330px}
+  @media(max-width:560px){.echart{height:300px}}
+  .echart-rebuttal{font-size:11px;color:var(--ink-2);line-height:1.55;
+    margin-top:8px;padding:8px 11px;background:var(--panel);
+    border-left:3px solid var(--warn-ink);border-radius:4px}
+  .echart-rebuttal strong{color:var(--warn-ink)}
+  .echart-fallback{display:flex;align-items:center;justify-content:center;
+    min-height:300px;color:var(--muted);font-size:12px;text-align:center;
+    padding:0 20px;line-height:1.6}
+
 """
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Sections
+# Interactive figures (ECharts) — conceptual / schematic / illustrative.
+# These carry causal LOGIC, not measured data. No figure here pulls from the
+# number registry: each is badged Conceptual / Schematic / Illustrative, and the
+# illustrative ones (Qini, waterfall) state their own overturn condition inline
+# (ref 15 Rule 2b + 10b). If ECharts (CDN) fails to load, each container shows a
+# text fallback instead of a blank box.
 # ──────────────────────────────────────────────────────────────────────────────
+
+def _echart(cfg: dict, chart_id: str, title_key: str, title_def: str,
+            sub_key: str, sub_def: str, badge_key: str, badge_def: str,
+            illustrative: bool = False,
+            reb_key: str | None = None, reb_def: str = "") -> str:
+    """Render one ECharts figure container with localized framing text."""
+    badge_cls = " illustrative" if illustrative else ""
+    sub = L(cfg, sub_key, sub_def)
+    sub_html = f'<p class="echart-sub">{esc(sub)}</p>' if sub else ""
+    reb_html = ""
+    if reb_key:
+        reb = L(cfg, reb_key, reb_def)
+        if reb:
+            reb_html = (f'<div class="echart-rebuttal"><strong>'
+                        f'{esc(L(cfg, "echart_reb_label", "Overturn condition"))}:</strong> '
+                        f'{esc(reb)}</div>')
+    fallback = esc(L(cfg, "echart_fallback",
+                     "Interactive chart requires ECharts (loaded over the network). "
+                     "Reconnect and refresh to view."))
+    return (f'<div class="echart-wrap">'
+            f'<div class="echart-head">'
+            f'<span class="echart-title">{esc(L(cfg, title_key, title_def))}</span>'
+            f'<span class="echart-badge{badge_cls}">{esc(L(cfg, badge_key, badge_def))}</span>'
+            f'</div>{sub_html}'
+            f'<div class="echart" id="{chart_id}">'
+            f'<div class="echart-fallback">{fallback}</div></div>'
+            f'{reb_html}</div>')
+
+
+def s_quadrant_chart(cfg: dict) -> str:
+    """Persuadables 2×2 — the signature concept chart of uplift. Conceptual."""
+    return _echart(
+        cfg, "ec-quadrant",
+        "ec_quad_title", "Who is worth treating: the four response types",
+        "ec_quad_sub",
+        "Targeting by purchase probability hits Sure Things; targeting by uplift "
+        "finds Persuadables — the only group whose purchase is caused by the action.",
+        "ec_quad_badge", "Conceptual")
+
+
+def s_cate_chart(cfg: dict) -> str:
+    """CATE distribution shapes — answers 'should we personalize at all'. Schematic."""
+    return _echart(
+        cfg, "ec-cate",
+        "ec_cate_title", "Should you personalize? Read the shape of τ(x)",
+        "ec_cate_sub",
+        "A single spike means everyone responds alike — do not personalize. "
+        "A wide or bimodal spread means uplift is heterogeneous and segmentation pays.",
+        "ec_cate_badge", "Schematic")
+
+
+def s_forces_chart(cfg: dict) -> str:
+    """Four Forces balance — the mechanism behind τ(x). Mechanism diagram."""
+    return _echart(
+        cfg, "ec-forces",
+        "ec_forces_title", "What the treatment must move: the four forces",
+        "ec_forces_sub",
+        "Push and Pull drive toward the purchase; Habit and Anxiety hold it back. "
+        "Lift comes only when the treatment shifts a force that is still unsettled.",
+        "ec_forces_badge", "Mechanism")
+
+
+def s_qini_chart(cfg: dict) -> str:
+    """Qini / AUUC curve — template + benchmark band, model curve to be filled."""
+    return _echart(
+        cfg, "ec-qini",
+        "ec_qini_title", "Does the model beat random targeting? (Qini curve)",
+        "ec_qini_sub",
+        "Area between the model curve and the random line is the value the model "
+        "adds. The band shows the e-commerce benchmark range; your curve is filled "
+        "by running qini_auuc.py on holdout data.",
+        "ec_qini_badge", "Illustrative",
+        illustrative=True,
+        reb_key="ec_qini_reb",
+        reb_def="If measured Qini < 0.15 the curve collapses onto the random line — "
+                "the features carry no uplift signal and personalization should be "
+                "dropped for a single uniform policy.")
+
+
+def s_waterfall_chart(cfg: dict) -> str:
+    """Attributed → incremental bridge — the gap-stat visual (ref 15 Rule 10b)."""
+    return _echart(
+        cfg, "ec-waterfall",
+        "ec_wf_title", "From attributed revenue to true incremental",
+        "ec_wf_sub",
+        "Platform attribution credits every conversion it touched. Strip out the "
+        "buyers who would have converted anyway, plus organic and seasonal demand, "
+        "and only the remainder is caused by the spend.",
+        "ec_wf_badge", "Illustrative",
+        illustrative=True,
+        reb_key="ec_wf_reb",
+        reb_def="Proportions are illustrative; the real split requires a holdout. "
+                "If the holdout incremental is within 5% of platform-attributed, "
+                "this decomposition is wrong and attribution can be trusted as-is.")
+
+
+def _chart_labels(cfg: dict) -> dict:
+    """In-figure strings (axis / series / region names), localized via L()."""
+    keys = {
+        # quadrant
+        "q_x": "Would buy WITHOUT the action",
+        "q_y": "Would buy WITH the action",
+        "q_no": "No", "q_yes": "Yes",
+        "q_persuadable": "Persuadables\n✓ target these",
+        "q_sure": "Sure Things\nwasted spend",
+        "q_lost": "Lost Causes\nwasted spend",
+        "q_sleeping": "Sleeping Dogs\naction repels them",
+        "q_persona": "high Push + high Anxiety",
+        # cate
+        "cate_x": "Estimated uplift  τ(x)  →",
+        "cate_y": "Customers",
+        "cate_spike": "Spike — no heterogeneity (don't personalize)",
+        "cate_wide": "Wide — worth segmenting",
+        "cate_bimodal": "Bimodal — two distinct groups",
+        "cate_zero": "τ = 0",
+        # forces
+        "f_push": "Push · pain with status quo",
+        "f_pull": "Pull · attraction of product",
+        "f_habit": "Habit · inertia of routine",
+        "f_anxiety": "Anxiety · fear of switching",
+        "f_toward": "raises τ  →",
+        "f_against": "←  lowers τ",
+        # qini
+        "qini_x": "% of audience targeted (ranked by predicted uplift)",
+        "qini_y": "Cumulative incremental conversions (%)",
+        "qini_random": "Random targeting",
+        "qini_perfect": "Perfect model (ceiling)",
+        "qini_band": "Industry benchmark (Qini ≈ 0.25–0.40)",
+        # waterfall
+        "wf_attributed": "Platform-attributed",
+        "wf_sure": "− would-buy-anyway",
+        "wf_organic": "− organic / seasonal",
+        "wf_incremental": "True incremental",
+        "wf_axis": "Revenue (illustrative units)",
+    }
+    return {k: L(cfg, f"chart_{k}", v) for k, v in keys.items()}
 
 
 def s_horizon_visual(cfg: dict) -> str:
@@ -1307,6 +1470,7 @@ def s_math(cfg: dict, numbers: dict) -> str:
     return f"""<section id="s2">
   <h2>{esc(L(cfg, "math_heading", "2 · The Math"))}</h2>
   {intro}
+  {s_waterfall_chart(cfg)}
   {kpi}
   {cac_chart}
   {chains}
@@ -1559,6 +1723,8 @@ def s_dimensions(cfg: dict) -> str:
     return f"""<section id=\"s5\">
   <h2>{esc(L(cfg, "dim_heading", "5 · D Dimension Table & Causal Activation Reviewer"))}</h2>
   {intro}
+  {s_quadrant_chart(cfg)}
+  {s_cate_chart(cfg)}
   {dim_chart}
   <div class="table-wrap"><table>
     <thead><tr><th>{esc(L(cfg, "dt_th_dimension", "Dimension"))}</th><th>{esc(L(cfg, "dt_th_mechanism", "Mechanism"))}</th><th>{esc(L(cfg, "dt_th_proxy", "Platform proxy"))}</th><th>{esc(L(cfg, "dt_th_score", "Score"))}</th><th>{esc(L(cfg, "dt_th_verdict", "Verdict"))}</th><th>{esc(L(cfg, "dt_th_status", "Status"))}</th></tr></thead>
@@ -1627,6 +1793,7 @@ def s_h_main(cfg: dict) -> str:
     return f"""<section id=\"s7\">
   <h2>{esc(L(cfg, "hmain_heading", "7 · H-Main Breakdown"))}</h2>
   {intro}
+  {s_forces_chart(cfg)}
   {hm_bars}
   <p>{esc(L(cfg, "hmain_intro", "These are the cells where HTE is expected to be positive. Each maps to a Treatment Card in the Execution Gates section. Priority order: top to bottom."))}</p>
   <div class="table-wrap"><table>
@@ -1824,6 +1991,7 @@ def s_measurement(cfg: dict) -> str:
   <h2>{esc(L(cfg, "measurement_heading", "13 · Measurement Plan"))}</h2>
   {intro}
   {maturity_visual}
+  {s_qini_chart(cfg)}
   <p><strong>{esc(L(cfg, "maturity_label", "Maturity"))}: {esc(maturity)}</strong></p>
   <p><strong>{esc(L(cfg, "mp_primary", "Primary metric:"))}</strong> {esc(primary)}</p>
   {"<p><strong>" + esc(L(cfg, "mp_secondary", "Secondary metrics:")) + "</strong></p><ul>" + sec_items + "</ul>" if sec_items else ""}
@@ -1896,6 +2064,176 @@ def s_termination(cfg: dict) -> str:
 
 
 # ──────────────────────────────────────────────────────────────────────────────
+# ECharts CDN + init. Plain string (NOT an f-string) so JS braces stay literal;
+# the localized label dict is spliced in at __CHART_L__. SVG renderer = crisp on
+# retina and in print. If the CDN script fails, init never runs and each
+# container keeps its text fallback. Theme tracks the report's indigo palette.
+# ──────────────────────────────────────────────────────────────────────────────
+
+_ECHARTS_JS = r"""
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script>
+(function(){
+  if (typeof echarts === 'undefined') return;   // CDN blocked → fallbacks stay
+  var L = __CHART_L__;
+  var INK='#0f172a', INK2='#334155', MUT='#64748b', LINE='#e2e8f0';
+  var ACC='#4f46e5', ACC2='#4338ca', DEEP='#1e3a8a', SOFT='#a5b4fc', SLATE='#94a3b8';
+  var BAD='#ef4444';
+  var charts = [];
+  function mount(id, opt){
+    var el = document.getElementById(id);
+    if(!el) return;
+    el.innerHTML='';
+    var c = echarts.init(el, null, {renderer:'svg'});
+    c.setOption(opt);
+    charts.push(c);
+  }
+  function gauss(x,mu,sd){ return Math.exp(-0.5*Math.pow((x-mu)/sd,2)); }
+
+  /* 1 · Persuadables 2×2 (conceptual) */
+  function rgba(c,a){
+    var m={'#4f46e5':[79,70,229],'#94a3b8':[148,163,184],'#ef4444':[239,68,68]};
+    var v=m[c]; return 'rgba('+v[0]+','+v[1]+','+v[2]+','+a+')';
+  }
+  mount('ec-quadrant', {
+    grid:{left:10,right:24,top:20,bottom:26,containLabel:true},
+    tooltip:{show:false},
+    xAxis:{type:'value',min:0,max:1,name:L.q_x,nameLocation:'middle',nameGap:30,
+      nameTextStyle:{color:MUT,fontSize:11},axisTick:{show:false},
+      axisLine:{lineStyle:{color:LINE}},
+      axisLabel:{color:INK,fontSize:11,formatter:function(v){return v===0.25?L.q_no:(v===0.75?L.q_yes:'');}},
+      splitLine:{show:false}},
+    yAxis:{type:'value',min:0,max:1,name:L.q_y,nameLocation:'middle',nameGap:14,
+      nameTextStyle:{color:MUT,fontSize:11},axisTick:{show:false},
+      axisLine:{lineStyle:{color:LINE}},
+      axisLabel:{color:INK,fontSize:11,formatter:function(v){return v===0.25?L.q_no:(v===0.75?L.q_yes:'');}},
+      splitLine:{show:false}},
+    series:[
+      {type:'scatter',symbolSize:0,silent:true,data:[],
+       markArea:{silent:true,data:[
+         [{itemStyle:{color:rgba(ACC,0.12)},coord:[0,0.5]},{coord:[0.5,1]}],
+         [{itemStyle:{color:rgba(SLATE,0.12)},coord:[0.5,0.5]},{coord:[1,1]}],
+         [{itemStyle:{color:rgba(SLATE,0.12)},coord:[0,0]},{coord:[0.5,0.5]}],
+         [{itemStyle:{color:rgba(BAD,0.12)},coord:[0.5,0]},{coord:[1,0.5]}]
+       ]},
+       markLine:{silent:true,symbol:'none',label:{show:false},
+         lineStyle:{color:LINE,type:'solid',width:1},data:[{xAxis:0.5},{yAxis:0.5}]}},
+      {type:'scatter',symbolSize:0,silent:true,
+       label:{show:true,formatter:function(p){return p.data[2];},color:INK,
+         fontSize:12,fontWeight:700,lineHeight:15,align:'center'},
+       data:[[0.25,0.78,L.q_persuadable],[0.75,0.78,L.q_sure],
+             [0.25,0.30,L.q_lost],[0.75,0.30,L.q_sleeping]]},
+      {type:'scatter',symbolSize:13,itemStyle:{color:ACC,borderColor:'#fff',borderWidth:2},
+       label:{show:true,position:'right',formatter:L.q_persona,color:ACC2,
+         fontSize:10,fontWeight:600},data:[[0.20,0.58]]}
+    ]
+  });
+
+  /* 2 · CATE distribution shapes (schematic) */
+  var xs=[]; for(var i=0;i<=60;i++){xs.push(i/60);}
+  function curve(mu,sd,amp){return xs.map(function(x){return [x, amp*gauss(x,mu,sd)];});}
+  var bim=xs.map(function(x){return [x, 0.55*gauss(x,0.18,0.05)+0.62*gauss(x,0.62,0.08)];});
+  mount('ec-cate', {
+    grid:{left:8,right:18,top:20,bottom:54,containLabel:true},
+    legend:{bottom:0,icon:'roundRect',itemWidth:11,itemHeight:11,itemGap:16,
+      textStyle:{color:INK2,fontSize:10.5}},
+    tooltip:{show:false},
+    xAxis:{type:'value',min:0,max:1,name:L.cate_x,nameLocation:'middle',nameGap:26,
+      nameTextStyle:{color:MUT,fontSize:11},axisLabel:{show:false},axisTick:{show:false},
+      axisLine:{lineStyle:{color:LINE}},splitLine:{show:false}},
+    yAxis:{type:'value',name:L.cate_y,nameLocation:'middle',nameGap:14,
+      nameTextStyle:{color:MUT,fontSize:11},axisLabel:{show:false},axisTick:{show:false},
+      axisLine:{show:false},splitLine:{show:false}},
+    series:[
+      {name:L.cate_spike,type:'line',smooth:true,symbol:'none',data:curve(0.18,0.022,1.0),
+       lineStyle:{color:DEEP,width:2},areaStyle:{color:rgba('#4f46e5',0.05)},z:3,
+       markLine:{silent:true,symbol:'none',label:{show:true,formatter:L.cate_zero,
+         color:MUT,fontSize:10,position:'start'},lineStyle:{color:SLATE,type:'dashed',width:1},
+         data:[{xAxis:0.18}]}},
+      {name:L.cate_wide,type:'line',smooth:true,symbol:'none',data:curve(0.5,0.17,0.4),
+       lineStyle:{color:ACC,width:2},areaStyle:{color:rgba('#4f46e5',0.08)}},
+      {name:L.cate_bimodal,type:'line',smooth:true,symbol:'none',data:bim,
+       lineStyle:{color:SOFT,width:2},areaStyle:{color:rgba('#4f46e5',0.05)}}
+    ]
+  });
+
+  /* 3 · Four Forces balance (mechanism) */
+  mount('ec-forces', {
+    grid:{left:10,right:80,top:14,bottom:24,containLabel:true},
+    tooltip:{trigger:'item',formatter:function(p){return p.name;}},
+    xAxis:{type:'value',min:-1,max:1,axisLabel:{show:false},axisTick:{show:false},
+      axisLine:{show:false},splitLine:{show:false},
+      name:L.f_toward,nameLocation:'end',nameTextStyle:{color:ACC2,fontSize:10,fontWeight:600}},
+    yAxis:{type:'category',data:[L.f_anxiety,L.f_habit,L.f_pull,L.f_push],
+      axisLabel:{color:INK,fontSize:11.5,fontWeight:600,width:150,overflow:'truncate'},
+      axisTick:{show:false},axisLine:{show:false}},
+    series:[{type:'bar',barWidth:'52%',
+      label:{show:false},
+      data:[
+        {value:-0.62,itemStyle:{color:SLATE,borderRadius:[3,0,0,3]}},
+        {value:-0.42,itemStyle:{color:SLATE,borderRadius:[3,0,0,3]}},
+        {value:0.52,itemStyle:{color:ACC,borderRadius:[0,3,3,0]}},
+        {value:0.72,itemStyle:{color:ACC,borderRadius:[0,3,3,0]}}
+      ],
+      markLine:{silent:true,symbol:'none',label:{show:false},
+        lineStyle:{color:INK2,width:1.5},data:[{xAxis:0}]}}]
+  });
+
+  /* 4 · Qini / AUUC curve (illustrative template + benchmark band) */
+  var qx=[]; for(var j=0;j<=100;j+=5){qx.push(j);}
+  var rnd=qx.map(function(x){return [x,x];});
+  var perfect=qx.map(function(x){return [x, Math.min(100, x*100/30)];});
+  var bench=qx.map(function(x){return [x, Math.round(100*(1-Math.pow(1-x/100,2.2)))];});
+  mount('ec-qini', {
+    grid:{left:8,right:22,top:18,bottom:54,containLabel:true},
+    legend:{bottom:0,icon:'roundRect',itemWidth:14,itemHeight:4,itemGap:16,
+      textStyle:{color:INK2,fontSize:10.5}},
+    tooltip:{trigger:'axis',valueFormatter:function(v){return v+'%';}},
+    xAxis:{type:'value',min:0,max:100,name:L.qini_x,nameLocation:'middle',nameGap:30,
+      nameTextStyle:{color:MUT,fontSize:11},axisLabel:{color:MUT,fontSize:10,formatter:'{value}%'},
+      axisLine:{lineStyle:{color:LINE}},splitLine:{show:false},axisTick:{show:false}},
+    yAxis:{type:'value',min:0,max:100,name:L.qini_y,nameLocation:'middle',nameGap:34,
+      nameTextStyle:{color:MUT,fontSize:11},axisLabel:{color:MUT,fontSize:10,formatter:'{value}'},
+      axisLine:{show:false},splitLine:{lineStyle:{color:LINE,type:'dashed'}},axisTick:{show:false}},
+    series:[
+      {name:L.qini_band,type:'line',smooth:true,symbol:'none',data:bench,
+       lineStyle:{color:ACC,width:2.5},areaStyle:{color:rgba('#4f46e5',0.12)},z:3},
+      {name:L.qini_perfect,type:'line',smooth:true,symbol:'none',data:perfect,
+       lineStyle:{color:SOFT,width:1.5,type:'dashed'}},
+      {name:L.qini_random,type:'line',symbol:'none',data:rnd,
+       lineStyle:{color:SLATE,width:1.5,type:'dashed'}}
+    ]
+  });
+
+  /* 5 · Attributed → incremental waterfall (illustrative) */
+  var base=[0,40,20,0], val=[100,60,20,20];
+  var wfColor=[ACC2,SLATE,SLATE,ACC];
+  mount('ec-waterfall', {
+    grid:{left:8,right:18,top:28,bottom:8,containLabel:true},
+    tooltip:{trigger:'axis',axisPointer:{type:'shadow'},
+      formatter:function(ps){var p=ps[ps.length-1];return p.name+': '+p.value;}},
+    xAxis:{type:'category',data:[L.wf_attributed,L.wf_sure,L.wf_organic,L.wf_incremental],
+      axisLabel:{color:INK,fontSize:10.5,interval:0,width:90,overflow:'break',lineHeight:13},
+      axisTick:{show:false},axisLine:{lineStyle:{color:LINE}}},
+    yAxis:{type:'value',name:L.wf_axis,nameTextStyle:{color:MUT,fontSize:10,align:'left'},
+      axisLabel:{color:MUT,fontSize:10},axisLine:{show:false},
+      splitLine:{lineStyle:{color:LINE,type:'dashed'}},axisTick:{show:false}},
+    series:[
+      {type:'bar',stack:'t',silent:true,itemStyle:{color:'transparent'},
+       emphasis:{itemStyle:{color:'transparent'}},data:base},
+      {type:'bar',stack:'t',barWidth:'48%',
+       label:{show:true,position:'top',color:INK,fontSize:11,fontWeight:700},
+       data:val.map(function(v,k){return {value:v,itemStyle:{color:wfColor[k],borderRadius:[3,3,0,0]}};})}
+    ]
+  });
+
+  window.addEventListener('resize', function(){ charts.forEach(function(c){c.resize();}); });
+})();
+</script>
+"""
+
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Assembly
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -1933,6 +2271,9 @@ def generate_html(cfg: dict) -> str:
         ]
 
     title = f'{meta.get("product", "")} — {meta.get("market", "")} Decision Memo'
+
+    echarts_block = _ECHARTS_JS.replace(
+        "__CHART_L__", json.dumps(_chart_labels(cfg), ensure_ascii=False))
 
     # Build sidebar TOC
     _toc_items = [
@@ -2005,6 +2346,7 @@ def generate_html(cfg: dict) -> str:
   secs.forEach(function(s){{ obs.observe(s); }});
 }})();
 </script>
+{echarts_block}
 </body>
 </html>"""
 
