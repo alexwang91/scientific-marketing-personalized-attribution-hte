@@ -156,6 +156,12 @@ What is the user asking about?
 │   → 00-local-market-intelligence  (dynamic 5-move scoping kernel: characterize
 │       cell on 7 axes → transfer-assumption ledger → distinctiveness hypotheses
 │       → rank plan → re-orchestrate; generates a custom plan per cell, not a list)
+├─ "Where do the four forces / D dimensions actually come from; mine real
+│   customer reviews, social, competitor sentiment instead of inventing them"
+│   → 00b-customer-voice-competitor-scan  (engagement-ranked listening: resolve
+│       posts → extract verbatim quotes into Push/Pull/Habit/Anxiety + candidate
+│       dimensions + competitor map; hard line: voice is Hypothesis-grade, it
+│       generates what to TEST, never proves incrementality)
 ├─ "How to generate / challenge D dimensions; adversarial review"
 │   → 14-d-dimension-reviewer  (generation gate; independent review pass,
 │       immutable challenges, open-blocking → BLOCKED budget linkage)

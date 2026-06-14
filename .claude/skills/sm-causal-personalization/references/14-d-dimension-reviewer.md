@@ -51,6 +51,13 @@ Write the mechanism explicitly. "Runners respond to GPS" is not a mechanism.
 "Runners who track route accuracy respond to GPS precision claims because their
 current pain is pace drift on wrist-worn devices" is a mechanism.
 
+**Source candidate dimensions and their mechanisms from real customer voice
+(ref 00b), not invention.** The recurring, high-engagement themes in reviews and
+threads are the strongest dimension candidates — but voice prevalence is *not* a
+free pass through this reviewer. A dimension that arrives well-evidenced as
+*widespread* still has to survive every challenge below before it earns budget;
+prevalence sizes the pain, it does not prove the lift.
+
 **Name the force (mechanism vocabulary).** A mechanism is sharper when it names
 *which force the action moves* for this person (ref 02): Push (an unspoken
 pain), Pull (a benefit they don't yet know), Habit (switching inertia to

@@ -38,6 +38,13 @@ core question (ref 14: "response to this action" vs "purchase propensity").
 Push / Pull / Habit / Anxiety is how you *state which lever* the treatment
 pulls; the reviewer then tests whether that lever is real.
 
+**Where the force comes from**: source it from real customer voice (ref 00b),
+not from desk intuition. Buyers name their own Push, Pull, Habit, and Anxiety in
+reviews and threads — mine and weight them by prevalence. A `force_targeted`
+value that was guessed is a guess with a yaml schema around it. Voice is
+`Hypothesis`-grade: it tells you which force to aim at; only a holdout tells you
+whether aiming there produces lift.
+
 ## Treatment Card Template (one card per action in the library)
 
 ```yaml
