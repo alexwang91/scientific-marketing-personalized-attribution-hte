@@ -59,11 +59,11 @@ Claude Code auto-loads skills in `.claude/skills/`. Ask anything about **marketi
 
 ```bash
 cd .claude/skills/sm-causal-personalization/scripts
-python generate_report.py --config ../examples/ax3-romania-config.json --output report.html
-python generate_report.py --config ../examples/ax3-romania-config.json --validate-only   # provenance contract check only
-python generate_report.py --config ../examples/ax3-romania-config.json --depth quick      # executive view: verdict + math + gate + evidence
-python generate_report.py --config ../examples/ax3-romania-config.json --depth deep       # full report + validation roadmap (§18)
-python generate_report.py --config ../examples/aurora-airpurifier-category-config.json     # category portfolio diagnostic (ref 17)
+python generate_report.py --config ../examples/sample-sku-en-config.json --output report.html
+python generate_report.py --config ../examples/sample-sku-en-config.json --validate-only   # provenance contract check only
+python generate_report.py --config ../examples/sample-sku-en-config.json --depth quick      # executive view: verdict + math + gate + evidence
+python generate_report.py --config ../examples/sample-sku-en-config.json --depth deep       # full report + validation roadmap (§18)
+python generate_report.py --config ../examples/aurora-airpurifier-category-config.json      # category portfolio diagnostic (ref 17)
 python generate_report.py --demo > demo.html                                              # minimal schema demo
 ```
 
@@ -191,9 +191,9 @@ For production, swap in [EconML](https://github.com/py-why/EconML) / [CausalML](
 
 **Example configs** (`.claude/skills/sm-causal-personalization/examples/`):
 
-- `ax3-romania-config.json` — English, standard single-SKU report
-- `fit5pro-hungary-config.json` / `fit5pro-hungary-zh-config.json` — Hungary market, English / Chinese versions (Chinese version includes localized chart labels and a TL;DR summary page)
-- `aurora-airpurifier-category-config.json` — category portfolio diagnostic (ref 17), fictional brand / SKUs for illustration: `report_type=category_portfolio`
+- `sample-sku-en-config.json` — English, standard single-SKU report (fictional brand / product)
+- `sample-sku-zh-config.json` — Chinese version with full UI label overrides, TL;DR page, and ECharts localization (fictional brand / product)
+- `aurora-airpurifier-category-config.json` — category portfolio diagnostic (ref 17), fictional brand / SKUs: `report_type=category_portfolio`
 
 **中文说明 / Chinese README** → [`README.zh.md`](README.zh.md)
 
