@@ -1,0 +1,58 @@
+name: validate
+
+# Turns the "scripts (validated)" claim from a doc statement into an
+# automatically-enforced fact: every push and PR re-runs the full skill toolchain.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .claude/skills/sm-causal-personalization/scripts
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install numpy pandas scipy scikit-learn matplotlib
+
+      # ── Provenance contract (hard gate) ──────────────────────────────────
+      # Build fails on any number not tagged sourced / assumed / derived / missing.
+      - name: Validate provenance contract for every example config
+        run: |
+          for cfg in ../examples/*-config.json; do
+            echo "::group::validate $cfg"
+            python generate_report.py --config "$cfg" --validate-only
+            echo "::endgroup::"
+          done
+
+      # ── Renderer (every config must render to HTML; demo + depth modes) ───
+      - name: Render every example config + demo + depth modes
+        run: |
+          for cfg in ../examples/*-config.json; do
+            echo "::group::render $cfg"
+            python generate_report.py --config "$cfg" --output "/tmp/$(basename "$cfg" .json).html"
+            echo "::endgroup::"
+          done
+          python generate_report.py --demo > /tmp/demo.html
+          python generate_report.py --config ../examples/ax3-romania-config.json --depth quick --output /tmp/quick.html
+          python generate_report.py --config ../examples/ax3-romania-config.json --depth deep  --output /tmp/deep.html
+
+      # ── Core scripts (each must run end-to-end and exit 0) ────────────────
+      - name: Run core scripts
+        run: |
+          python power_analysis.py
+          python qini_auuc.py
+          python ope_estimators.py
+          python hte_starter.py
+          rm -f qini_curve.png   # artifact dropped in cwd; canonical copy lives at repo root
