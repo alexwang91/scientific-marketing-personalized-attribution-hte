@@ -1,5 +1,7 @@
 <div align="center">
 
+![Scientific Marketing — Causal Personalization](assets/hero.png)
+
 # Scientific Marketing · Causal Personalization
 
 ### HTE / Uplift / Incrementality — packaged as a Claude Code skill
@@ -194,6 +196,8 @@ For production, swap in [EconML](https://github.com/py-why/EconML) / [CausalML](
 - `sample-sku-en-config.json` — English, standard single-SKU report (fictional brand / product)
 - `sample-sku-zh-config.json` — Chinese version with full UI label overrides, TL;DR page, and ECharts localization (fictional brand / product)
 - `aurora-airpurifier-category-config.json` — category portfolio diagnostic (ref 17), fictional brand / SKUs: `report_type=category_portfolio`
+
+Pre-rendered HTML of each config lives in [`examples/rendered/`](.claude/skills/sm-causal-personalization/examples/rendered) — open them to preview the deliverable without running anything.
 
 **中文说明 / Chinese README** → [`README.zh.md`](README.zh.md)
 

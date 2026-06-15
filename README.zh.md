@@ -1,5 +1,7 @@
 <div align="center">
 
+![营销因果个性化 — Scientific Marketing](assets/hero.png)
+
 # 营销因果个性化 · Scientific Marketing
 
 ### HTE / Uplift / Incrementality — 打包为 Claude Code skill
@@ -196,6 +198,8 @@ pip install numpy pandas scipy scikit-learn matplotlib
 - `sample-sku-en-config.json` — 英文，标准单品报告（虚构品牌与产品）
 - `sample-sku-zh-config.json` — 中文版，含完整 UI 标签覆盖、TL;DR 总结页和 ECharts 本地化（虚构品牌与产品）
 - `aurora-airpurifier-category-config.json` — 类目货盘诊断（ref 17），虚构品牌/型号示例：`report_type=category_portfolio`
+
+每个 config 的预渲染 HTML 放在 [`examples/rendered/`](.claude/skills/sm-causal-personalization/examples/rendered) — 不跑脚本即可预览交付物长什么样。
 
 ---
 

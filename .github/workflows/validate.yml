@@ -56,3 +56,7 @@ jobs:
           python ope_estimators.py
           python hte_starter.py
           rm -f qini_curve.png   # artifact dropped in cwd; canonical copy lives at repo root
+
+      # ── Asset generator (KV banner must regenerate cleanly) ──────────────
+      - name: Regenerate KV banner
+        run: python make_kv.py /tmp/hero.png
