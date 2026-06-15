@@ -1,49 +1,204 @@
-# Scientific Marketing · 因果个性化 / Personalized Attribution / HTE
+<div align="center">
 
-营销与销售场景下的因果个性化（causal personalization）方法论知识库，
-打包为 Claude Code agent skill。
+# Scientific Marketing · Causal Personalization
 
-**核心问题**：传统个性化问"谁最可能买"，因果个性化问"我的动作让谁多买了"
-（τ(x) = E[Y(1)−Y(0)|X=x]）。这是一个 AI-assisted causal decisioning system：
-AI 生成动作、提取上下文，因果方法判增量，实验制度兜底。
+### HTE / Uplift / Incrementality — packaged as a Claude Code skill
 
-## 结构
+[![Claude Code skill](https://img.shields.io/badge/Claude%20Code-skill-6E56CF)](https://claude.ai/code)
+[![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)](#-dependencies--examples)
+[![References](https://img.shields.io/badge/references-19-44883e)](#-reference-library)
+[![Scripts](https://img.shields.io/badge/scripts-5%20(validated)-blue)](#-scripts)
+[![Provenance contract](https://img.shields.io/badge/numbers-sourced%20%C2%B7%20assumed%20%C2%B7%20derived%20%C2%B7%20missing-orange)](#-methodology-stance)
+[![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
+
+**Traditional personalization asks who is likely to buy. Causal personalization asks who bought *more* because of your action.**
+
+τ(x) = E[Y(1) − Y(0) | X = x]
+
+[Quickstart](#-quickstart) · [What it does](#-what-it-does) · [How it works](#-how-it-works) · [References](#-reference-library) · [Methodology](#-methodology-stance)
+
+</div>
+
+---
+
+## ✨ What it does
+
+A knowledge base that turns marketing causal inference into an **executable decision process**, packaged as a Claude Code agent skill. Not a model — a system:
+
+- **AI generates** — treatment variants, context extracted from unstructured data (reviews / support logs / sales calls), experiment docs, model explanations, drift monitoring.
+- **Causal methods judge** — whether actions have *incremental* value (τ(x)), not correlation.
+- **Institutional rules keep it honest** — experiment-first, a number provenance contract, adversarial review, compliance red lines.
+
+---
+
+## 🖼 Proof
+
+The scripts run. The chart below is real output from `scripts/qini_auuc.py`, not a mockup:
+
+<div align="center">
+
+![Qini / AUUC curve — real output of scripts/qini_auuc.py](qini_curve.png)
+
+*Qini curve: x-axis = share of population reached (sorted by predicted uplift), y-axis = cumulative incremental lift. The area between the model curve and the random line is the value the model creates.*
+
+</div>
+
+---
+
+## 🚀 Quickstart
+
+```bash
+git clone https://github.com/alexwang91/scientific-marketing-personalized-attribution-hte.git
+cd scientific-marketing-personalized-attribution-hte
+```
+
+Claude Code auto-loads skills in `.claude/skills/`. Ask anything about **marketing lift, uplift modeling, discount strategy, experiment design, attribution vs incrementality, lead routing** — or plain-language versions like "should I give this customer a coupon", "is my ad actually working", "who should I target and who should I skip".
+
+**Generate a decision report:**
+
+```bash
+cd .claude/skills/sm-causal-personalization/scripts
+python generate_report.py --config ../examples/ax3-romania-config.json --output report.html
+python generate_report.py --config ../examples/ax3-romania-config.json --validate-only   # provenance contract check only
+python generate_report.py --config ../examples/ax3-romania-config.json --depth quick      # executive view: verdict + math + gate + evidence
+python generate_report.py --config ../examples/ax3-romania-config.json --depth deep       # full report + validation roadmap (§18)
+python generate_report.py --config ../examples/aurora-airpurifier-category-config.json     # category portfolio diagnostic (ref 17)
+python generate_report.py --demo > demo.html                                              # minimal schema demo
+```
+
+Three depth modes (`--depth`): `quick` renders decision-critical sections only; `standard` (default) renders the full report; `deep` appends a **validation roadmap** (§18) — all open challenges, missing inputs, and test predictions consolidated into one list ranked by what would change the decision. Builds only from existing config data, invents nothing.
+
+**Run the core scripts:**
+
+```bash
+python power_analysis.py    # uplift experiment power: sample size to detect incremental difference (~4× a standard A/B)
+python qini_auuc.py         # Qini / AUUC + bootstrap CI + decile calibration
+python ope_estimators.py    # IPS / SNIPS / Doubly-Robust off-policy evaluation + support check
+python hte_starter.py       # T / X / DR-learner starter templates (sklearn, swappable with EconML / CausalML)
+```
+
+---
+
+## 🏗️ How it works
+
+**Four-layer production architecture:**
 
 ```
-.claude/skills/sm-causal-personalization/
-├── SKILL.md                  # 路由：心智模型、成熟度三级（L1/L2/L3）、决策树
-├── references/
-│   ├── 01-problem-framing.md       # 利润口径；attribution × incrementality × MMM 三角
-│   ├── 02-treatment-design.md      # 动作库、treatment card、LLM 变体爆炸的应对
-│   ├── 03-experiments.md           # 识别阶梯、GCG 制度、HTE 功效、倾向性日志
-│   ├── 04-hte-estimation.md        # learner 选型默认路径；Qini/AUUC 验证三件套
-│   ├── 05-uplift-segmentation.md   # 四象限（沟通用）、Ascarza 教训、sleeping dogs
-│   ├── 06-policy-nbt.md            # 策略价值、预算约束 λ*、OPE 上线流程
-│   ├── 07-bandits-online.md        # L3 准入四问、Thompson Sampling、漂移与回路
-│   ├── 08-long-term-value.md       # surrogate index、pull-forward、长期 holdout
-│   ├── 09-governance.md            # 特征四问、红队清单、AI 角色红线（前置）
-│   └── 10-org-playbook.md          # 营销侧 + 销售侧（线索/折扣/ABM）落地
-└── scripts/                  # 全部跑通验证
-    ├── power_analysis.py     # uplift 功效计算（HTE ≈ 4× A/B 样本）
-    ├── qini_auuc.py          # Qini / AUUC / 分桶校准
-    ├── hte_starter.py        # T / X / DR-learner 起手式（sklearn）
-    └── ope_estimators.py     # IPS / SNIPS / DR + support 检查
+Layer 1 · Data & Experiment Assets    RCT logs + propensity P(t|x) + GCG + historical experiments
+                                       (each experiment is a reusable evaluation asset)
+Layer 2 · Effect Estimation           τ̂(x) via DR-learner / Causal Forest / X-learner
+                                       (calibrated AND ranked; ZILN loss for revenue Y)
+Layer 3 · Decision & Allocation       Policy π(x): argmax + λ* budget constraint + OPE gate
+                                       (large action space: MIPS / OffCEM)
+Layer 4 · Generation & Serving        LLM embeddings as features (not in the decision loop);
+          (optional)                   GenAI serving layer for copy personalization
 ```
 
-## 使用
+**Maturity ladder — do not skip levels:**
 
-克隆本仓库后，Claude Code 自动加载 `.claude/skills/` 下的 skill。
-问任何营销增量、uplift、实验设计、发券策略、线索路由相关问题即触发。
+| Level | Content | Most teams |
+|-------|---------|-----------|
+| **L1** | Global Control Group (GCG) + retrospective uplift analysis | Starting point for everyone |
+| **L2** | Offline policy learning + OPE validation + periodic retraining | **Stay here for a long time** |
+| **L3** | Contextual bandit with online learning | Only when actions are numerous and the environment changes fast |
 
-脚本依赖：`pip install numpy pandas scipy scikit-learn matplotlib`
-（生产建议换 [EconML](https://github.com/py-why/EconML) /
-[CausalML](https://github.com/uber/causalml)）。
+**Product × country pipeline** (ref 13): Stage 0 local market intelligence → evidence → unit economics → channel screen (may terminate here) → dimensions → review → tests → render report.
 
-## 方法论立场（写进规则的六条）
+---
 
-1. 实验优先是硬规则：没有随机化数据先建 GCG/geo，不拿观察性数据硬估 CATE
-2. 估计器走窄默认路径，不做综述；验证只认 Qini/AUUC + 分桶校准
-3. 四象限是沟通工具，线上决策用连续 τ̂ − 成本 + 预算约束
-4. 成熟度分级 L1→L2→L3，防跳级；多数团队应长期停在 L2
-5. AI 角色有红线：不得在无实验支撑时宣布动作有效，LLM 评估不替代 holdout
-6. 每个 reference 固定模板：决策树 → 公式 → 步骤 → 常见死法 → 验收清单 → 文献
+## 📚 Reference library
+
+Each reference follows a fixed template: **when to use → decision tree → minimum necessary math → step-by-step → common failure modes → acceptance checklist → literature**. Decision guide, not textbook.
+
+<details>
+<summary><b>Expand all 19 references</b></summary>
+
+**Research & framing**
+| Ref | Topic |
+|-----|-------|
+| `00` local-market-intelligence | Dynamic market scan: 7-axis positioning → transfer-assumption ledger → distinctiveness hypotheses → ranking → re-orchestration |
+| `00b` customer-voice-competitor-scan | Engagement-ranked mining of real reviews / competitors, populating Push / Pull / Habit / Anxiety and candidate dimensions (voice = Hypothesis-grade: generates what to test, never proves incrementality) |
+| `01` problem-framing | Profit metric; attribution × incrementality × MMM triangle; WTP → discount window (τ(discount) only lives between discounted price and WTP) |
+
+**Core causal chain**
+| Ref | Topic |
+|-----|-------|
+| `02` treatment-design | Action library, treatment card, four-force mechanism, LLM variant explosion, archetype-first creator/KOL scoring |
+| `03` experiments | Identification ladder, GCG infrastructure, HTE power, propensity log, assumption → validation ledger |
+| `04` hte-estimation | Learner selection default path; Qini/AUUC validation trio |
+| `05` uplift-segmentation | Four-quadrant (communication tool), Ascarza lesson, sleeping dogs |
+| `06` policy-nbt | Policy value, budget constraint λ*, OPE launch process |
+| `07` bandits-online | L3 admission four questions, Thompson Sampling, drift and feedback loops |
+| `08` long-term-value | Surrogate index, pull-forward, long-term holdout |
+
+**Governance & rollout**
+| Ref | Topic |
+|-----|-------|
+| `09` governance | Feature four questions, red-team checklist, anti-persona, AI role red lines (run at kickoff) |
+| `10` org-playbook | Marketing side + sales side (lead routing / discount / ABM) rollout |
+| `11` production-architecture | Data engineering, retraining, serving, CPOG-style architecture |
+
+**Output & delivery**
+| Ref | Topic |
+|-----|-------|
+| `12` html-report-output | 6-element decision memo + 17-section analysis, provenance rendering |
+| `13` product-country-pipeline | 8-stage product × country pipeline |
+| `14` d-dimension-reviewer | D-dimension generation gate + independent adversarial review; open-blocking → BLOCKED budget linkage |
+| `15` writing-rules | Language policy, falsifiability obligation, honest-state vocabulary, anti-slop, narrative and theory-usability principles |
+| `16` estimation-discipline | Four provenance states, Fermi chains, benchmark asymmetry, sensitivity-sorted Missing ledger |
+| `17` category-portfolio-diagnostic | Whole-category line-up audit upstream of the SKU pipeline: 6 audit lenses (2 market + 4 audited-P), severity capped by evidence grade, SKU verdicts (Grow / Hold / Harvest / Exit), 4P matrix; feeds confirmed Grow SKUs into ref 13 → 04 |
+
+</details>
+
+---
+
+## 🔧 Scripts
+
+All validated. Each script maps to a gating step in the report.
+
+| Script | Purpose | Report bridge |
+|--------|---------|--------------|
+| `power_analysis.py` | Uplift experiment power: sample size to detect incremental difference (~4× a standard A/B) | §9 gate + §13 duration |
+| `qini_auuc.py` | Qini curve, AUUC + bootstrap CI, decile calibration, two-model comparison | §11 AUUC launch gate |
+| `ope_estimators.py` | IPS / SNIPS / DR off-policy evaluation + support check | §14 OPE support check |
+| `hte_starter.py` | T / X / DR-learner starter templates (sklearn, drop-in replaceable with EconML / CausalML) | — |
+| `generate_report.py` | Decision-memo HTML generator (v2). **Enforces the provenance contract**: build fails on any number not tagged sourced / assumed / derived / missing; 5 interactive causal-logic charts (ECharts); three depth modes `--depth quick / standard / deep` (deep adds §18 validation roadmap) | **HTML output entry point** |
+
+---
+
+## 🧭 Methodology stance
+
+Hard constraints, written into the rules and enforced by the tooling:
+
+1. **Experiment-first is a hard rule** — without randomized data, build GCG / geo infrastructure first. Do not estimate CATE from observational logs.
+2. **Honest blanks beat fabricated completeness** — every number is sourced, assumed (basis stated), derived (chain shown), or missing (placeholder). There is no fifth state. `generate_report.py` enforces this at build time.
+3. **Estimators follow a narrow default path** — no surveys; validation accepts only Qini/AUUC + decile calibration.
+4. **The four-quadrant is a communication tool** — live decisions use continuous τ̂ − cost + budget constraint.
+5. **Maturity ladder L1→L2→L3, no skipping** — most teams should stay at L2 indefinitely.
+6. **AI has a hard role boundary** — it cannot declare an action effective without experimental support. LLM evaluation (including multi-agent simulation) does not replace a holdout.
+7. **Customer voice is Hypothesis-grade** — reviews and sentiment generate what to test, never prove incrementality (ref 00b).
+
+---
+
+## 📦 Dependencies & Examples
+
+```bash
+pip install numpy pandas scipy scikit-learn matplotlib
+```
+
+For production, swap in [EconML](https://github.com/py-why/EconML) / [CausalML](https://github.com/uber/causalml).
+
+**Example configs** (`.claude/skills/sm-causal-personalization/examples/`):
+
+- `ax3-romania-config.json` — English, standard single-SKU report
+- `fit5pro-hungary-config.json` / `fit5pro-hungary-zh-config.json` — Hungary market, English / Chinese versions (Chinese version includes localized chart labels and a TL;DR summary page)
+- `aurora-airpurifier-category-config.json` — category portfolio diagnostic (ref 17), fictional brand / SKUs for illustration: `report_type=category_portfolio`
+
+**中文说明 / Chinese README** → [`README.zh.md`](README.zh.md)
+
+---
+
+## 📄 License
+
+[Apache License 2.0](LICENSE) © 2026 alexwang91.
+*Free to use, modify, and distribute with attribution and the included patent grant.*

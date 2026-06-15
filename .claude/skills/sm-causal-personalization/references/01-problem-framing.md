@@ -61,6 +61,38 @@ first-party experiments only grows.
 5. **Decision unit**: individual user / account (B2B → ref 10) / store /
    geography.
 
+## Willingness-to-Pay → the Discount Window (where τ(discount) lives)
+
+A discount only has incremental value for the slice of buyers whose
+willingness-to-pay (WTP) sits *between* the discounted price and the full price.
+Outside that window the coupon is wasted margin:
+
+```
+WTP ≥ full_price                       → buys anyway      → τ(discount) ≈ 0  (sure-thing; coupon is pure give-away)
+WTP < discounted_price                 → still won't buy  → τ(discount) ≈ 0  (lost cause; discount too small to matter)
+discounted_price ≤ WTP < full_price    → the persuadable window → τ(discount) > 0
+```
+
+This is the price-axis statement of the persuadables quadrant (ref 05): the
+people worth discounting are the ones a discount actually *moves across their own
+WTP line*. It also explains why blanket coupons destroy margin — most redeemers
+are sure-things sitting above the line.
+
+**Sizing the window before you have τ data.** WTP is not directly observable but
+can be *elicited* to bound the window:
+- **Van Westendorp** (four price-perception questions) → a plausible price band
+  and the share of demand inside it.
+- **Gabor-Granger** (purchase intent at stepped prices) → a demand curve and a
+  first cut at price sensitivity by segment.
+
+**Hard line — elicited WTP is `Hypothesis`-grade.** Survey WTP, conjoint
+utilities, and stated intent size *who might be in the window*; they never prove
+a discount produces lift. Public anchor price ≠ transaction price ≠ WTP. Treat
+the WTP window as a targeting hypothesis that enters the experiment queue
+(ref 03) — only a holdout converts "looks persuadable at this price" into a
+Sourced τ(discount). Plugging stated WTP straight into the profit equation as if
+it were realized demand is the classic way to over-promise on a discount plan.
+
 ## Step-by-Step
 
 1. Use the decision tree to confirm the problem layer. Write a one-sentence
@@ -108,3 +140,7 @@ first-party experiments only grows.
 - Gordon et al. (2019, *Marketing Science*) — large-scale comparison of
   Facebook experiments vs observational methods; observational methods
   systematically mis-estimate
+- Van Westendorp (1976) "NSS Price Sensitivity Meter" — eliciting an acceptable
+  price band from perception questions (Hypothesis-grade demand sizing)
+- Gabor & Granger (1966) "Price as an Indicator of Quality" — stepped purchase
+  intent as an early read on price sensitivity

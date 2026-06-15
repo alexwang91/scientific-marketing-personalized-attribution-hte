@@ -17,11 +17,18 @@ v2 design contract (references/12-html-report-output.md, 16-estimation-disciplin
      (config["termination"]), only memo + math + evidence render.
   5. READABILITY BUDGET. Tables are capped at 4 columns; treatment actions and
      test plans render as cards; provenance markers are superscripts, not pills.
+  6. DEPTH MODES. --depth quick renders only decision-critical sections;
+     standard (default) renders the full report; deep adds a consolidated
+     validation roadmap (§18) built purely from existing config data — open
+     challenges + missing numbers + test predictions, ranked by what would
+     change the decision. CLI --depth overrides config["depth"].
 
 Usage:
   python generate_report.py --config config.json --output report.html
   python generate_report.py --demo > report.html        # minimal schema demo
   python generate_report.py --config c.json --validate-only
+  python generate_report.py --config c.json --depth quick   # executive view
+  python generate_report.py --config c.json --depth deep    # + validation roadmap
 
 Config schema: see examples/ax3-romania-config.json and references/12.
 """
@@ -567,6 +574,43 @@ _CSS = """
     color:var(--bad-ink);padding:2px 8px;border-radius:4px;
     font-weight:700;font-size:10.5px;transform:rotate(-1.5deg);margin-left:7px}
 
+  /* ── Depth banner (quick / deep modes) ── */
+  .depth-banner{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;
+    background:var(--accent-light);color:var(--accent);
+    border:1px solid var(--accent);border-radius:7px;
+    padding:9px 13px;margin:0 0 16px;font-size:11.5px;line-height:1.5}
+  .depth-banner b{font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+  .depth-banner span{color:var(--muted)}
+
+  /* ── Assumption → validation ledger (deep mode) ── */
+  .ledger-rank{font-weight:800;color:var(--muted);text-align:center;width:30px}
+  .ledger td .pill{margin:0}
+
+  /* ── Category portfolio: severity, verdict, findings ── */
+  .sev{display:inline-block;padding:2px 8px;border-radius:999px;
+    font-size:10px;font-weight:800;white-space:nowrap;text-transform:uppercase;letter-spacing:.03em}
+  .sev-critical{background:var(--bad);color:var(--bad-ink)}
+  .sev-major{background:var(--warn);color:var(--warn-ink)}
+  .sev-watch{background:var(--neutral);color:var(--neutral-ink)}
+  .verdict{display:inline-block;padding:2px 9px;border-radius:6px;
+    font-size:11px;font-weight:800;white-space:nowrap}
+  .verdict-grow{background:var(--ok);color:var(--ok-ink)}
+  .verdict-hold{background:var(--neutral);color:var(--neutral-ink)}
+  .verdict-harvest{background:var(--warn);color:var(--warn-ink)}
+  .verdict-exit{background:var(--bad);color:var(--bad-ink)}
+  .finding{border:1px solid var(--line);border-left:4px solid var(--line-strong);
+    border-radius:7px;padding:11px 14px;margin:10px 0;background:var(--panel)}
+  .finding.sv-critical{border-left-color:var(--bad-ink)}
+  .finding.sv-major{border-left-color:var(--warn-ink)}
+  .finding.sv-watch{border-left-color:var(--neutral-ink)}
+  .finding-head{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:6px}
+  .finding-title{font-weight:700;font-size:13px;color:var(--ink)}
+  .finding-meta{font-size:11.5px;color:var(--muted);margin:4px 0;line-height:1.6}
+  .finding-rec{font-size:12.5px;margin-top:7px;padding-top:7px;border-top:1px dashed var(--line);color:var(--ink)}
+  .lens-tag{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.04em;
+    padding:1px 6px;border-radius:4px;background:var(--accent-light);color:var(--accent)}
+  table.fourp th:first-child,table.fourp td:first-child{position:sticky;left:0;background:var(--surface)}
+
   /* ── Tables ── */
   .table-wrap{overflow-x:auto;border:1px solid var(--line);
     border-radius:7px;background:#fff;margin:10px 0}
@@ -734,12 +778,211 @@ _CSS = """
   .bp-cond{font-size:11px;color:var(--muted);margin-top:3px}
   .bp-amt{font-size:11px;font-weight:700;color:var(--accent);margin-top:3px}
 
+  /* ── ECharts interactive figure ── */
+  .echart-wrap{background:var(--surface);border:1px solid var(--line);
+    border-radius:8px;padding:16px 18px 14px;margin:16px 0}
+  .echart-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
+    margin-bottom:4px}
+  .echart-title{font-size:13px;font-weight:700;color:var(--ink);
+    letter-spacing:-.01em;line-height:1.4}
+  .echart-badge{font-size:9px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.07em;padding:2px 7px;border-radius:4px;white-space:nowrap;
+    background:var(--accent-light);color:var(--accent)}
+  .echart-badge.illustrative{background:var(--warn);color:var(--warn-ink)}
+  .echart-sub{font-size:11.5px;color:var(--muted);margin:0 0 8px;line-height:1.5}
+  .echart{width:100%;height:330px}
+  @media(max-width:560px){.echart{height:300px}}
+  .echart-rebuttal{font-size:11px;color:var(--ink-2);line-height:1.55;
+    margin-top:8px;padding:8px 11px;background:var(--panel);
+    border-left:3px solid var(--warn-ink);border-radius:4px}
+  .echart-rebuttal strong{color:var(--warn-ink)}
+  .echart-fallback{display:flex;align-items:center;justify-content:center;
+    min-height:300px;color:var(--muted);font-size:12px;text-align:center;
+    padding:0 20px;line-height:1.6}
+
+  /* ── TL;DR summary page (s0) ── */
+  .tldr{background:var(--panel);border:1px solid var(--line-strong);
+    border-radius:12px;padding:24px 28px 26px;margin:14px 0 20px;
+    box-shadow:0 2px 10px rgba(0,0,0,.06)}
+  .tldr-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .tldr-kicker{font-size:10px;font-weight:800;text-transform:uppercase;
+    letter-spacing:.13em;color:var(--muted)}
+  .tldr-meta{font-size:11.5px;color:var(--muted);margin-left:auto}
+  .tldr-why{font-size:15.5px;line-height:1.6;color:var(--ink);
+    margin:0 0 18px;font-weight:600;letter-spacing:-.01em}
+  .tldr-why .tldr-why-lab{display:block;font-size:10px;font-weight:800;
+    text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:5px}
+  .tldr-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+  @media(max-width:640px){.tldr-cols{grid-template-columns:1fr}}
+  .tldr-col{border-radius:10px;padding:15px 17px}
+  .tldr-col.do{background:var(--ok)}
+  .tldr-col.dont{background:var(--bad)}
+  .tldr-col h4{margin:0 0 9px;font-size:12px;font-weight:800;
+    display:flex;align-items:center;gap:7px;letter-spacing:.01em}
+  .tldr-col.do h4{color:var(--ok-ink)}
+  .tldr-col.dont h4{color:var(--bad-ink)}
+  .tldr-col ul{margin:0;padding:0;list-style:none}
+  .tldr-col li{position:relative;padding:4px 0 4px 20px;font-size:13px;
+    line-height:1.5;color:var(--ink)}
+  .tldr-col li::before{position:absolute;left:0;top:4px;font-weight:800}
+  .tldr-col.do li::before{content:'✓';color:var(--ok-ink)}
+  .tldr-col.dont li::before{content:'✗';color:var(--bad-ink)}
+  .tldr-col li.empty{color:var(--muted);padding-left:0}
+  .tldr-col li.empty::before{content:''}
+  .tldr-roi{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:10px;padding:14px 18px}
+  .tldr-roi-lab{font-size:10px;font-weight:800;text-transform:uppercase;
+    letter-spacing:.1em;color:var(--muted);flex-shrink:0}
+  .tldr-roi-val{font-size:14px;font-weight:600;color:var(--ink);line-height:1.5}
+
 """
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Sections
+# Interactive figures (ECharts) — conceptual / schematic / illustrative.
+# These carry causal LOGIC, not measured data. No figure here pulls from the
+# number registry: each is badged Conceptual / Schematic / Illustrative, and the
+# illustrative ones (Qini, waterfall) state their own overturn condition inline
+# (ref 15 Rule 2b + 10b). If ECharts (CDN) fails to load, each container shows a
+# text fallback instead of a blank box.
 # ──────────────────────────────────────────────────────────────────────────────
+
+def _echart(cfg: dict, chart_id: str, title_key: str, title_def: str,
+            sub_key: str, sub_def: str, badge_key: str, badge_def: str,
+            illustrative: bool = False,
+            reb_key: str | None = None, reb_def: str = "") -> str:
+    """Render one ECharts figure container with localized framing text."""
+    badge_cls = " illustrative" if illustrative else ""
+    sub = L(cfg, sub_key, sub_def)
+    sub_html = f'<p class="echart-sub">{esc(sub)}</p>' if sub else ""
+    reb_html = ""
+    if reb_key:
+        reb = L(cfg, reb_key, reb_def)
+        if reb:
+            reb_html = (f'<div class="echart-rebuttal"><strong>'
+                        f'{esc(L(cfg, "echart_reb_label", "Overturn condition"))}:</strong> '
+                        f'{esc(reb)}</div>')
+    fallback = esc(L(cfg, "echart_fallback",
+                     "Interactive chart requires ECharts (loaded over the network). "
+                     "Reconnect and refresh to view."))
+    return (f'<div class="echart-wrap">'
+            f'<div class="echart-head">'
+            f'<span class="echart-title">{esc(L(cfg, title_key, title_def))}</span>'
+            f'<span class="echart-badge{badge_cls}">{esc(L(cfg, badge_key, badge_def))}</span>'
+            f'</div>{sub_html}'
+            f'<div class="echart" id="{chart_id}">'
+            f'<div class="echart-fallback">{fallback}</div></div>'
+            f'{reb_html}</div>')
+
+
+def s_quadrant_chart(cfg: dict) -> str:
+    """Persuadables 2×2 — the signature concept chart of uplift. Conceptual."""
+    return _echart(
+        cfg, "ec-quadrant",
+        "ec_quad_title", "Who is worth treating: the four response types",
+        "ec_quad_sub",
+        "Targeting by purchase probability hits Sure Things; targeting by uplift "
+        "finds Persuadables — the only group whose purchase is caused by the action.",
+        "ec_quad_badge", "Conceptual")
+
+
+def s_cate_chart(cfg: dict) -> str:
+    """CATE distribution shapes — answers 'should we personalize at all'. Schematic."""
+    return _echart(
+        cfg, "ec-cate",
+        "ec_cate_title", "Should you personalize? Read the shape of τ(x)",
+        "ec_cate_sub",
+        "A single spike means everyone responds alike — do not personalize. "
+        "A wide or bimodal spread means uplift is heterogeneous and segmentation pays.",
+        "ec_cate_badge", "Schematic")
+
+
+def s_forces_chart(cfg: dict) -> str:
+    """Four Forces balance — the mechanism behind τ(x). Mechanism diagram."""
+    return _echart(
+        cfg, "ec-forces",
+        "ec_forces_title", "What the treatment must move: the four forces",
+        "ec_forces_sub",
+        "Push and Pull drive toward the purchase; Habit and Anxiety hold it back. "
+        "Lift comes only when the treatment shifts a force that is still unsettled.",
+        "ec_forces_badge", "Mechanism")
+
+
+def s_qini_chart(cfg: dict) -> str:
+    """Qini / AUUC curve — template + benchmark band, model curve to be filled."""
+    return _echart(
+        cfg, "ec-qini",
+        "ec_qini_title", "Does the model beat random targeting? (Qini curve)",
+        "ec_qini_sub",
+        "Area between the model curve and the random line is the value the model "
+        "adds. The band shows the e-commerce benchmark range; your curve is filled "
+        "by running qini_auuc.py on holdout data.",
+        "ec_qini_badge", "Illustrative",
+        illustrative=True,
+        reb_key="ec_qini_reb",
+        reb_def="If measured Qini < 0.15 the curve collapses onto the random line — "
+                "the features carry no uplift signal and personalization should be "
+                "dropped for a single uniform policy.")
+
+
+def s_waterfall_chart(cfg: dict) -> str:
+    """Attributed → incremental bridge — the gap-stat visual (ref 15 Rule 10b)."""
+    return _echart(
+        cfg, "ec-waterfall",
+        "ec_wf_title", "From attributed revenue to true incremental",
+        "ec_wf_sub",
+        "Platform attribution credits every conversion it touched. Strip out the "
+        "buyers who would have converted anyway, plus organic and seasonal demand, "
+        "and only the remainder is caused by the spend.",
+        "ec_wf_badge", "Illustrative",
+        illustrative=True,
+        reb_key="ec_wf_reb",
+        reb_def="Proportions are illustrative; the real split requires a holdout. "
+                "If the holdout incremental is within 5% of platform-attributed, "
+                "this decomposition is wrong and attribution can be trusted as-is.")
+
+
+def _chart_labels(cfg: dict) -> dict:
+    """In-figure strings (axis / series / region names), localized via L()."""
+    keys = {
+        # quadrant
+        "q_x": "Would buy WITHOUT the action",
+        "q_y": "Would buy WITH the action",
+        "q_no": "No", "q_yes": "Yes",
+        "q_persuadable": "Persuadables\n✓ target these",
+        "q_sure": "Sure Things\nwasted spend",
+        "q_lost": "Lost Causes\nwasted spend",
+        "q_sleeping": "Sleeping Dogs\naction repels them",
+        "q_persona": "high Push + high Anxiety",
+        # cate
+        "cate_x": "Estimated uplift  τ(x)  →",
+        "cate_y": "Customers",
+        "cate_spike": "Spike — no heterogeneity (don't personalize)",
+        "cate_wide": "Wide — worth segmenting",
+        "cate_bimodal": "Bimodal — two distinct groups",
+        "cate_zero": "τ = 0",
+        # forces
+        "f_push": "Push · pain with status quo",
+        "f_pull": "Pull · attraction of product",
+        "f_habit": "Habit · inertia of routine",
+        "f_anxiety": "Anxiety · fear of switching",
+        "f_toward": "raises τ  →",
+        "f_against": "←  lowers τ",
+        # qini
+        "qini_x": "% of audience targeted (ranked by predicted uplift)",
+        "qini_y": "Cumulative incremental conversions (%)",
+        "qini_random": "Random targeting",
+        "qini_perfect": "Perfect model (ceiling)",
+        "qini_band": "Industry benchmark (Qini ≈ 0.25–0.40)",
+        # waterfall
+        "wf_attributed": "Platform-attributed",
+        "wf_sure": "− would-buy-anyway",
+        "wf_organic": "− organic / seasonal",
+        "wf_incremental": "True incremental",
+        "wf_axis": "Revenue (illustrative units)",
+    }
+    return {k: L(cfg, f"chart_{k}", v) for k, v in keys.items()}
 
 
 def s_horizon_visual(cfg: dict) -> str:
@@ -937,6 +1180,65 @@ def s_play_timeline(cfg: dict) -> str:
                   f'{kill_html}'
                   f'</div>')
     return f'<div class="timeline">{items}</div>'
+
+def s_tldr(cfg: dict) -> str:
+    """Section 0 — one-glance plain-language summary: do / don't / ROI / why.
+
+    Reads cfg["summary"] when present; otherwise derives do/don't from the memo
+    decision horizons and the thesis. Goal: the reader who stops here leaves with
+    a correct, coarse picture (ref 15 Rule 3, decision-first)."""
+    memo = cfg.get("decision_memo", {})
+    summary = cfg.get("summary", {})
+    meta = cfg.get("meta", {})
+    verdict = memo.get("verdict", "conditional")
+    vlabel = {"go": "GO", "no-go": "NO-GO", "conditional": "CONDITIONAL"}.get(verdict, verdict.upper())
+
+    buckets: dict[str, list[str]] = {"now": [], "checkpoint": [], "never": []}
+    for d in memo.get("decisions", []):
+        buckets.setdefault(d["horizon"], []).append(d["text"])
+    do_items = summary.get("do") or (buckets["now"] + buckets["checkpoint"])
+    dont_items = summary.get("dont") or buckets["never"]
+    why = summary.get("why") or memo.get("thesis", "")
+
+    roi_default = {
+        "go": L(cfg, "tldr_roi_go", "Positive within the stated CAC ceiling — proceed."),
+        "no-go": L(cfg, "tldr_roi_nogo", "Negative under current unit economics — do not spend."),
+        "conditional": L(cfg, "tldr_roi_cond",
+                         "Undetermined — run the zero-cost data pulls before committing budget."),
+    }.get(verdict, "")
+    roi = summary.get("roi") or roi_default
+
+    def _list(items: list[str], empty_txt: str) -> str:
+        if not items:
+            return f'<li class="empty">{esc(empty_txt)}</li>'
+        return "".join(f"<li>{esc(t)}</li>" for t in items)
+
+    do_html = _list(do_items, L(cfg, "tldr_do_empty", "— nothing yet —"))
+    dont_html = _list(dont_items, L(cfg, "tldr_dont_empty", "— nothing flagged —"))
+
+    return f"""<section id="s0" class="tldr">
+  <div class="tldr-top">
+    <span class="tldr-kicker">{esc(L(cfg, "tldr_kicker", "Bottom line"))}</span>
+    <span class="verdict verdict-{esc(verdict)}">{esc(vlabel)}</span>
+    <span class="tldr-meta">{esc(meta.get("product", ""))} · {esc(meta.get("market", ""))} · {esc(meta.get("date", ""))}</span>
+  </div>
+  <p class="tldr-why"><span class="tldr-why-lab">{esc(L(cfg, "tldr_why_label", "Why"))}</span>{esc(why)}</p>
+  <div class="tldr-cols">
+    <div class="tldr-col do">
+      <h4>{esc(L(cfg, "tldr_do", "Do this"))}</h4>
+      <ul>{do_html}</ul>
+    </div>
+    <div class="tldr-col dont">
+      <h4>{esc(L(cfg, "tldr_dont", "Don't do this"))}</h4>
+      <ul>{dont_html}</ul>
+    </div>
+  </div>
+  <div class="tldr-roi">
+    <span class="tldr-roi-lab">{esc(L(cfg, "tldr_roi_label", "ROI"))}</span>
+    <span class="tldr-roi-val">{esc(roi)}</span>
+  </div>
+</section>"""
+
 
 def s_memo(cfg: dict) -> str:
     memo = cfg["decision_memo"]
@@ -1307,6 +1609,7 @@ def s_math(cfg: dict, numbers: dict) -> str:
     return f"""<section id="s2">
   <h2>{esc(L(cfg, "math_heading", "2 · The Math"))}</h2>
   {intro}
+  {s_waterfall_chart(cfg)}
   {kpi}
   {cac_chart}
   {chains}
@@ -1559,6 +1862,8 @@ def s_dimensions(cfg: dict) -> str:
     return f"""<section id=\"s5\">
   <h2>{esc(L(cfg, "dim_heading", "5 · D Dimension Table & Causal Activation Reviewer"))}</h2>
   {intro}
+  {s_quadrant_chart(cfg)}
+  {s_cate_chart(cfg)}
   {dim_chart}
   <div class="table-wrap"><table>
     <thead><tr><th>{esc(L(cfg, "dt_th_dimension", "Dimension"))}</th><th>{esc(L(cfg, "dt_th_mechanism", "Mechanism"))}</th><th>{esc(L(cfg, "dt_th_proxy", "Platform proxy"))}</th><th>{esc(L(cfg, "dt_th_score", "Score"))}</th><th>{esc(L(cfg, "dt_th_verdict", "Verdict"))}</th><th>{esc(L(cfg, "dt_th_status", "Status"))}</th></tr></thead>
@@ -1627,6 +1932,7 @@ def s_h_main(cfg: dict) -> str:
     return f"""<section id=\"s7\">
   <h2>{esc(L(cfg, "hmain_heading", "7 · H-Main Breakdown"))}</h2>
   {intro}
+  {s_forces_chart(cfg)}
   {hm_bars}
   <p>{esc(L(cfg, "hmain_intro", "These are the cells where HTE is expected to be positive. Each maps to a Treatment Card in the Execution Gates section. Priority order: top to bottom."))}</p>
   <div class="table-wrap"><table>
@@ -1824,6 +2130,7 @@ def s_measurement(cfg: dict) -> str:
   <h2>{esc(L(cfg, "measurement_heading", "13 · Measurement Plan"))}</h2>
   {intro}
   {maturity_visual}
+  {s_qini_chart(cfg)}
   <p><strong>{esc(L(cfg, "maturity_label", "Maturity"))}: {esc(maturity)}</strong></p>
   <p><strong>{esc(L(cfg, "mp_primary", "Primary metric:"))}</strong> {esc(primary)}</p>
   {"<p><strong>" + esc(L(cfg, "mp_secondary", "Secondary metrics:")) + "</strong></p><ul>" + sec_items + "</ul>" if sec_items else ""}
@@ -1896,79 +2203,456 @@ def s_termination(cfg: dict) -> str:
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Assembly
+# Assumption → validation ledger (deep mode only). Pure consolidation: it
+# re-presents data already in the config — open challenges (ref 14), missing
+# numbers (ref 16), and test predictions (ref 03) — as one risk-ranked roadmap.
+# It invents nothing; if a row has no data, it does not appear.
 # ──────────────────────────────────────────────────────────────────────────────
 
-def generate_html(cfg: dict) -> str:
-    numbers = validate_and_resolve(cfg.get("numbers", {}))
-    for w in lint_prose(cfg, numbers):
-        print(f"LINT WARNING — {w}", file=sys.stderr)
+def s_assumption_ledger(cfg: dict, numbers: dict, challenges_by_id: dict) -> str:
+    def prov_pill(label, klass):
+        return f'<span class="pill {klass}">{esc(label)}</span>'
 
-    challenges_by_id = {c["id"]: c for c in cfg.get("challenges", [])}
-    meta = cfg.get("meta", {})
-    short_mode = bool(cfg.get("termination"))
+    hyp = L(cfg, "lg_prov_hypothesis", "Hypothesis")
+    miss = L(cfg, "lg_prov_missing", "Missing")
+    rows = []  # (tier, html_cells)
 
-    # Single monotonic section sequence. s_actions was removed: it duplicated
-    # the Treatment Cards already rendered by s_execution_gates.
-    parts = [s_memo(cfg), s_termination(cfg), s_math(cfg, numbers)]
-    if short_mode:
-        parts.append(s_evidence(cfg, numbers))   # short report: memo + math + evidence
+    # tier 0/3 — reviewer challenges (open-blocking first, then open)
+    for c in cfg.get("challenges", []):
+        status = c.get("status", "")
+        if status == "open-blocking":
+            tier, risk, klass = 0, L(cfg, "lg_risk_blocking", "Blocks dependent actions"), "pill-open-blocking"
+        elif status == "open":
+            tier, risk, klass = 3, L(cfg, "lg_risk_open", "Open challenge — not yet blocking"), "pill-open"
+        else:
+            continue  # resolved challenges are not pending validation
+        test = c.get("evidence_needed") or c.get("resolution") or "—"
+        rows.append((tier,
+            f"<td><strong>{esc(c.get('id',''))}</strong> · {esc(c.get('target',''))}<br>{esc(c.get('question',''))}</td>"
+            f"<td>{prov_pill(hyp, klass)}</td>"
+            f"<td>{esc(risk)}</td>"
+            f"<td>{esc(test)}</td>"
+            f"<td>{esc(L(cfg, 'lg_rule_challenge', 'Clears the challenge → action unblocks; otherwise stays BLOCKED'))}</td>"))
+
+    # tier 1/4 — missing numbers (blocking first, then sensitivity-only)
+    for nid, spec in numbers.items():
+        if spec.get("provenance") != "missing":
+            continue
+        blocks = [b for b in spec.get("blocks", []) if b]
+        if blocks:
+            tier, risk, klass = 1, L(cfg, "lg_blocks_prefix", "Blocks: ") + ", ".join(blocks), "pill-open-blocking"
+        else:
+            tier, risk, klass = 4, L(cfg, "lg_risk_sens", "Sensitivity input — no action blocked"), "pill-open"
+        cost = spec.get("cost_to_get", "—")
+        rule = L(cfg, "lg_rule_missing", "Obtain the value → promotes to Sourced / Assumed") + f" ({esc(cost)})"
+        rows.append((tier,
+            f"<td>{esc(spec.get('label', nid))}</td>"
+            f"<td>{prov_pill(miss, klass)}</td>"
+            f"<td>{esc(risk)}</td>"
+            f"<td>{esc(spec.get('needed_from', '—'))}</td>"
+            f"<td>{rule}</td>"))
+
+    # tier 2 — test plan predictions (already have a kill line + decision date)
+    for t in cfg.get("test_plan", []):
+        rule = f"{esc(t.get('kill_line',''))} — {esc(L(cfg, 'lg_by', 'by'))} {esc(t.get('decision_date',''))}"
+        rows.append((2,
+            f"<td><strong>{esc(t.get('name',''))}</strong><br>{esc(t.get('prediction',''))}</td>"
+            f"<td>{prov_pill(hyp, 'pill-role-only')}</td>"
+            f"<td>{esc(L(cfg, 'lg_risk_kill', 'Action killed if the prediction fails'))}</td>"
+            f"<td>{esc(t.get('test',''))}</td>"
+            f"<td>{rule}</td>"))
+
+    rows.sort(key=lambda r: r[0])
+    if not rows:
+        body = f'<p>{esc(L(cfg, "lg_empty", "No open assumptions, missing inputs, or pending tests — nothing left to validate."))}</p>'
     else:
-        parts += [
-            s_product_facts(cfg, numbers),                     # 3
-            s_channel_map(cfg, numbers),                       # 4
-            s_dimensions(cfg),                                 # 5
-            s_heatmap(cfg),                                    # 6
-            s_h_main(cfg),                                     # 7
-            s_execution_gates(cfg, numbers, challenges_by_id), # 8
-            s_challenges(cfg),                                 # 9
-            s_budget(cfg, numbers),                            # 10
-            s_priority_plays(cfg, numbers),                    # 11
-            s_kol(cfg, numbers),                               # 12
-            s_measurement(cfg),                                # 13
-            s_test_plan(cfg),                                  # 14
-            s_suppression(cfg),                                # 15
-            s_evidence(cfg, numbers),                          # 16
-            s_checklist(cfg),                                  # 17
-        ]
+        trs = "".join(
+            f'<tr><td class="ledger-rank">{i}</td>{cells}</tr>'
+            for i, (_, cells) in enumerate(rows, 1))
+        body = f'''<div class="table-wrap"><table class="ledger">
+    <thead><tr>
+      <th>{esc(L(cfg, "lg_th_rank", "#"))}</th>
+      <th>{esc(L(cfg, "lg_th_assumption", "Assumption / open question"))}</th>
+      <th>{esc(L(cfg, "lg_th_prov", "Provenance now"))}</th>
+      <th>{esc(L(cfg, "lg_th_risk", "If wrong"))}</th>
+      <th>{esc(L(cfg, "lg_th_test", "Minimum valid test"))}</th>
+      <th>{esc(L(cfg, "lg_th_rule", "Pass / fail rule"))}</th>
+    </tr></thead>
+    <tbody>{trs}</tbody></table></div>'''
 
-    title = f'{meta.get("product", "")} — {meta.get("market", "")} Decision Memo'
+    intro = _narrative_intro(cfg, "s18_intro",
+        "One ranked list of everything the plan still rests on but has not proven. "
+        "It consolidates the open reviewer challenges, the Missing ledger, and the "
+        "test predictions into a single roadmap, ordered so the cheapest blocker is "
+        "tested first. Nothing here is new — it is the rest of the report, re-sorted "
+        "by what would change the decision.")
+    return f"""<section id=\"s18\">
+  <h2>{esc(L(cfg, "ledger_heading", "18 · Validation Roadmap"))}</h2>
+  {intro}
+  <p>{L(cfg, "ledger_intro", "Ranked by (blocking &times; cost-to-test): open-blocking challenges and budget-blocking gaps first, sensitivity-only inputs last. Each row carries a pre-committed pass/fail line — a Hypothesis is promoted to Sourced only when its test clears.")}</p>
+  {body}
+</section>"""
 
-    # Build sidebar TOC
-    _toc_items = [
-        ("s1",  L(cfg, "memo_heading",        "1 · Decision Memo")),
-        ("s2",  L(cfg, "math_heading",        "2 · The Math")),
-        ("s3",  L(cfg, "product_heading",     "3 · Product & Market Facts")),
-        ("s4",  L(cfg, "channel_heading",     "4 · Local Channel Map")),
-        ("s5",  L(cfg, "dim_heading",         "5 · D Dimensions")),
-        ("s6",  L(cfg, "heatmap_heading",     "6 · Heatmap")),
-        ("s7",  L(cfg, "hmain_heading",       "7 · H-Main")),
-        ("s8",  L(cfg, "eg_heading",          "8 · Execution Gates")),
-        ("s9",  L(cfg, "challenges_heading",  "9 · Challenges")),
-        ("s10", L(cfg, "budget_heading",      "10 · Budget")),
-        ("s11", L(cfg, "plays_heading",       "11 · Priority Plays")),
-        ("s12", L(cfg, "kol_heading",         "12 · KOL")),
-        ("s13", L(cfg, "measurement_heading", "13 · Measurement")),
-        ("s14", L(cfg, "testplan_heading",    "14 · Test Plan")),
-        ("s15", L(cfg, "suppression_heading", "15 · Suppression")),
-        ("s16", L(cfg, "evidence_heading",    "16 · Evidence")),
-        ("s17", L(cfg, "checklist_heading",   "17 · Checklist")),
+
+# ──────────────────────────────────────────────────────────────────────────────
+# ECharts CDN + init. Plain string (NOT an f-string) so JS braces stay literal;
+# the localized label dict is spliced in at __CHART_L__. SVG renderer = crisp on
+# retina and in print. If the CDN script fails, init never runs and each
+# container keeps its text fallback. Theme tracks the report's indigo palette.
+# ──────────────────────────────────────────────────────────────────────────────
+
+_ECHARTS_JS = r"""
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script>
+(function(){
+  if (typeof echarts === 'undefined') return;   // CDN blocked → fallbacks stay
+  var L = __CHART_L__;
+  var INK='#0f172a', INK2='#334155', MUT='#64748b', LINE='#e2e8f0';
+  var ACC='#4f46e5', ACC2='#4338ca', DEEP='#1e3a8a', SOFT='#a5b4fc', SLATE='#94a3b8';
+  var BAD='#ef4444';
+  var charts = [];
+  function mount(id, opt){
+    var el = document.getElementById(id);
+    if(!el) return;
+    el.innerHTML='';
+    var c = echarts.init(el, null, {renderer:'svg'});
+    c.setOption(opt);
+    charts.push(c);
+  }
+  function gauss(x,mu,sd){ return Math.exp(-0.5*Math.pow((x-mu)/sd,2)); }
+
+  /* 1 · Persuadables 2×2 (conceptual) */
+  function rgba(c,a){
+    var m={'#4f46e5':[79,70,229],'#94a3b8':[148,163,184],'#ef4444':[239,68,68]};
+    var v=m[c]; return 'rgba('+v[0]+','+v[1]+','+v[2]+','+a+')';
+  }
+  mount('ec-quadrant', {
+    grid:{left:10,right:24,top:20,bottom:26,containLabel:true},
+    tooltip:{show:false},
+    xAxis:{type:'value',min:0,max:1,name:L.q_x,nameLocation:'middle',nameGap:30,
+      nameTextStyle:{color:MUT,fontSize:11},axisTick:{show:false},
+      axisLine:{lineStyle:{color:LINE}},
+      axisLabel:{color:INK,fontSize:11,formatter:function(v){return v===0.25?L.q_no:(v===0.75?L.q_yes:'');}},
+      splitLine:{show:false}},
+    yAxis:{type:'value',min:0,max:1,name:L.q_y,nameLocation:'middle',nameGap:14,
+      nameTextStyle:{color:MUT,fontSize:11},axisTick:{show:false},
+      axisLine:{lineStyle:{color:LINE}},
+      axisLabel:{color:INK,fontSize:11,formatter:function(v){return v===0.25?L.q_no:(v===0.75?L.q_yes:'');}},
+      splitLine:{show:false}},
+    series:[
+      {type:'scatter',symbolSize:0,silent:true,data:[],
+       markArea:{silent:true,data:[
+         [{itemStyle:{color:rgba(ACC,0.12)},coord:[0,0.5]},{coord:[0.5,1]}],
+         [{itemStyle:{color:rgba(SLATE,0.12)},coord:[0.5,0.5]},{coord:[1,1]}],
+         [{itemStyle:{color:rgba(SLATE,0.12)},coord:[0,0]},{coord:[0.5,0.5]}],
+         [{itemStyle:{color:rgba(BAD,0.12)},coord:[0.5,0]},{coord:[1,0.5]}]
+       ]},
+       markLine:{silent:true,symbol:'none',label:{show:false},
+         lineStyle:{color:LINE,type:'solid',width:1},data:[{xAxis:0.5},{yAxis:0.5}]}},
+      {type:'scatter',symbolSize:0,silent:true,
+       label:{show:true,formatter:function(p){return p.data[2];},color:INK,
+         fontSize:12,fontWeight:700,lineHeight:15,align:'center'},
+       data:[[0.25,0.78,L.q_persuadable],[0.75,0.78,L.q_sure],
+             [0.25,0.30,L.q_lost],[0.75,0.30,L.q_sleeping]]},
+      {type:'scatter',symbolSize:13,itemStyle:{color:ACC,borderColor:'#fff',borderWidth:2},
+       label:{show:true,position:'right',formatter:L.q_persona,color:ACC2,
+         fontSize:10,fontWeight:600},data:[[0.20,0.58]]}
     ]
-    if short_mode:
-        _toc_items = [t for t in _toc_items if t[0] in ("s1", "s2", "s16")]
+  });
 
+  /* 2 · CATE distribution shapes (schematic) */
+  var xs=[]; for(var i=0;i<=60;i++){xs.push(i/60);}
+  function curve(mu,sd,amp){return xs.map(function(x){return [x, amp*gauss(x,mu,sd)];});}
+  var bim=xs.map(function(x){return [x, 0.55*gauss(x,0.18,0.05)+0.62*gauss(x,0.62,0.08)];});
+  mount('ec-cate', {
+    grid:{left:8,right:18,top:20,bottom:54,containLabel:true},
+    legend:{bottom:0,icon:'roundRect',itemWidth:11,itemHeight:11,itemGap:16,
+      textStyle:{color:INK2,fontSize:10.5}},
+    tooltip:{show:false},
+    xAxis:{type:'value',min:0,max:1,name:L.cate_x,nameLocation:'middle',nameGap:26,
+      nameTextStyle:{color:MUT,fontSize:11},axisLabel:{show:false},axisTick:{show:false},
+      axisLine:{lineStyle:{color:LINE}},splitLine:{show:false}},
+    yAxis:{type:'value',name:L.cate_y,nameLocation:'middle',nameGap:14,
+      nameTextStyle:{color:MUT,fontSize:11},axisLabel:{show:false},axisTick:{show:false},
+      axisLine:{show:false},splitLine:{show:false}},
+    series:[
+      {name:L.cate_spike,type:'line',smooth:true,symbol:'none',data:curve(0.18,0.022,1.0),
+       lineStyle:{color:DEEP,width:2},areaStyle:{color:rgba('#4f46e5',0.05)},z:3,
+       markLine:{silent:true,symbol:'none',label:{show:true,formatter:L.cate_zero,
+         color:MUT,fontSize:10,position:'start'},lineStyle:{color:SLATE,type:'dashed',width:1},
+         data:[{xAxis:0.18}]}},
+      {name:L.cate_wide,type:'line',smooth:true,symbol:'none',data:curve(0.5,0.17,0.4),
+       lineStyle:{color:ACC,width:2},areaStyle:{color:rgba('#4f46e5',0.08)}},
+      {name:L.cate_bimodal,type:'line',smooth:true,symbol:'none',data:bim,
+       lineStyle:{color:SOFT,width:2},areaStyle:{color:rgba('#4f46e5',0.05)}}
+    ]
+  });
+
+  /* 3 · Four Forces balance (mechanism) */
+  mount('ec-forces', {
+    grid:{left:10,right:80,top:14,bottom:24,containLabel:true},
+    tooltip:{trigger:'item',formatter:function(p){return p.name;}},
+    xAxis:{type:'value',min:-1,max:1,axisLabel:{show:false},axisTick:{show:false},
+      axisLine:{show:false},splitLine:{show:false},
+      name:L.f_toward,nameLocation:'end',nameTextStyle:{color:ACC2,fontSize:10,fontWeight:600}},
+    yAxis:{type:'category',data:[L.f_anxiety,L.f_habit,L.f_pull,L.f_push],
+      axisLabel:{color:INK,fontSize:11.5,fontWeight:600,width:150,overflow:'truncate'},
+      axisTick:{show:false},axisLine:{show:false}},
+    series:[{type:'bar',barWidth:'52%',
+      label:{show:false},
+      data:[
+        {value:-0.62,itemStyle:{color:SLATE,borderRadius:[3,0,0,3]}},
+        {value:-0.42,itemStyle:{color:SLATE,borderRadius:[3,0,0,3]}},
+        {value:0.52,itemStyle:{color:ACC,borderRadius:[0,3,3,0]}},
+        {value:0.72,itemStyle:{color:ACC,borderRadius:[0,3,3,0]}}
+      ],
+      markLine:{silent:true,symbol:'none',label:{show:false},
+        lineStyle:{color:INK2,width:1.5},data:[{xAxis:0}]}}]
+  });
+
+  /* 4 · Qini / AUUC curve (illustrative template + benchmark band) */
+  var qx=[]; for(var j=0;j<=100;j+=5){qx.push(j);}
+  var rnd=qx.map(function(x){return [x,x];});
+  var perfect=qx.map(function(x){return [x, Math.min(100, x*100/30)];});
+  var bench=qx.map(function(x){return [x, Math.round(100*(1-Math.pow(1-x/100,2.2)))];});
+  mount('ec-qini', {
+    grid:{left:8,right:22,top:18,bottom:54,containLabel:true},
+    legend:{bottom:0,icon:'roundRect',itemWidth:14,itemHeight:4,itemGap:16,
+      textStyle:{color:INK2,fontSize:10.5}},
+    tooltip:{trigger:'axis',valueFormatter:function(v){return v+'%';}},
+    xAxis:{type:'value',min:0,max:100,name:L.qini_x,nameLocation:'middle',nameGap:30,
+      nameTextStyle:{color:MUT,fontSize:11},axisLabel:{color:MUT,fontSize:10,formatter:'{value}%'},
+      axisLine:{lineStyle:{color:LINE}},splitLine:{show:false},axisTick:{show:false}},
+    yAxis:{type:'value',min:0,max:100,name:L.qini_y,nameLocation:'middle',nameGap:34,
+      nameTextStyle:{color:MUT,fontSize:11},axisLabel:{color:MUT,fontSize:10,formatter:'{value}'},
+      axisLine:{show:false},splitLine:{lineStyle:{color:LINE,type:'dashed'}},axisTick:{show:false}},
+    series:[
+      {name:L.qini_band,type:'line',smooth:true,symbol:'none',data:bench,
+       lineStyle:{color:ACC,width:2.5},areaStyle:{color:rgba('#4f46e5',0.12)},z:3},
+      {name:L.qini_perfect,type:'line',smooth:true,symbol:'none',data:perfect,
+       lineStyle:{color:SOFT,width:1.5,type:'dashed'}},
+      {name:L.qini_random,type:'line',symbol:'none',data:rnd,
+       lineStyle:{color:SLATE,width:1.5,type:'dashed'}}
+    ]
+  });
+
+  /* 5 · Attributed → incremental waterfall (illustrative) */
+  var base=[0,40,20,0], val=[100,60,20,20];
+  var wfColor=[ACC2,SLATE,SLATE,ACC];
+  mount('ec-waterfall', {
+    grid:{left:8,right:18,top:28,bottom:8,containLabel:true},
+    tooltip:{trigger:'axis',axisPointer:{type:'shadow'},
+      formatter:function(ps){var p=ps[ps.length-1];return p.name+': '+p.value;}},
+    xAxis:{type:'category',data:[L.wf_attributed,L.wf_sure,L.wf_organic,L.wf_incremental],
+      axisLabel:{color:INK,fontSize:10.5,interval:0,width:90,overflow:'break',lineHeight:13},
+      axisTick:{show:false},axisLine:{lineStyle:{color:LINE}}},
+    yAxis:{type:'value',name:L.wf_axis,nameTextStyle:{color:MUT,fontSize:10,align:'left'},
+      axisLabel:{color:MUT,fontSize:10},axisLine:{show:false},
+      splitLine:{lineStyle:{color:LINE,type:'dashed'}},axisTick:{show:false}},
+    series:[
+      {type:'bar',stack:'t',silent:true,itemStyle:{color:'transparent'},
+       emphasis:{itemStyle:{color:'transparent'}},data:base},
+      {type:'bar',stack:'t',barWidth:'48%',
+       label:{show:true,position:'top',color:INK,fontSize:11,fontWeight:700},
+       data:val.map(function(v,k){return {value:v,itemStyle:{color:wfColor[k],borderRadius:[3,3,0,0]}};})}
+    ]
+  });
+
+  window.addEventListener('resize', function(){ charts.forEach(function(c){c.resize();}); });
+})();
+</script>
+"""
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Category portfolio diagnostic (report_type == "category_portfolio").
+# Runs upstream of the single-SKU report: diagnose the whole category first,
+# verdict each SKU, then hand the "grow" SKUs to the SKU pipeline. Diagnose
+# before recommend; every recommendation points back to a finding; severity is
+# capped by evidence grade so a sharp claim cannot outrun its proof.
+# ──────────────────────────────────────────────────────────────────────────────
+
+# verdict code → (css class, English default label); localized via L(verdict_<code>)
+_VERDICT = {
+    "grow":    ("verdict-grow",    "Grow / Invest"),
+    "hold":    ("verdict-hold",    "Hold"),
+    "harvest": ("verdict-harvest", "Harvest"),
+    "exit":    ("verdict-exit",    "Exit / Plan succession"),
+}
+_SEV = {
+    "critical": ("sev-critical", "sv-critical", "Critical"),
+    "major":    ("sev-major",    "sv-major",    "Major"),
+    "watch":    ("sev-watch",    "sv-watch",    "Watch"),
+}
+_GRADE_RANK = {"sourced": 2, "derived": 2, "assumed": 1, "hypothesis": 0, "missing": 0}
+_SEV_NEED = {"critical": 2, "major": 1, "watch": 0}
+
+
+def _cap_severity(sev: str, grade: str) -> tuple[str, bool]:
+    """Severity ≤ evidence grade. A claim on thin evidence is downgraded to the
+    highest severity its proof can carry. Returns (effective_sev, was_capped)."""
+    g = _GRADE_RANK.get((grade or "").lower(), 0)
+    if _SEV_NEED.get(sev, 0) <= g:
+        return sev, False
+    for cand in ("critical", "major", "watch"):
+        if _SEV_NEED[cand] <= g:
+            return cand, True
+    return "watch", True
+
+
+def _verdict_pill(cfg: dict, code: str) -> str:
+    cls, deflabel = _VERDICT.get(code, ("verdict-hold", code))
+    return f'<span class="verdict {cls}">{esc(L(cfg, "verdict_" + code, deflabel))}</span>'
+
+
+def s_cat_matrix(cfg: dict) -> str:
+    rows = ""
+    for p in cfg.get("portfolio", []):
+        fp = p.get("fourP", {})
+        rows += (f"<tr><td><strong>{esc(p.get('sku',''))}</strong></td>"
+                 f"<td>{_verdict_pill(cfg, p.get('verdict','hold'))}</td>"
+                 f"<td>{esc(fp.get('product','—'))}</td><td>{esc(fp.get('price','—'))}</td>"
+                 f"<td>{esc(fp.get('place','—'))}</td><td>{esc(fp.get('promotion','—'))}</td></tr>")
+    intro = _narrative_intro(cfg, "cat_matrix_intro",
+        "One screen: every SKU's verdict and its one-line move on each P. The findings "
+        "that justify each row are in §1 — read down only where you disagree with a verdict.")
+    return f"""<section id=\"c0\">
+  <h2>{esc(L(cfg, "cat_matrix_heading", "0 · Portfolio Verdict & 4P Matrix"))}</h2>
+  {intro}
+  <div class="table-wrap"><table class="fourp">
+    <thead><tr>
+      <th>{esc(L(cfg, "cat_th_sku", "SKU"))}</th>
+      <th>{esc(L(cfg, "cat_th_verdict", "Verdict"))}</th>
+      <th>{esc(L(cfg, "cat_th_product", "Product"))}</th>
+      <th>{esc(L(cfg, "cat_th_price", "Price"))}</th>
+      <th>{esc(L(cfg, "cat_th_place", "Place"))}</th>
+      <th>{esc(L(cfg, "cat_th_promotion", "Promotion"))}</th>
+    </tr></thead>
+    <tbody>{rows}</tbody></table></div>
+</section>"""
+
+
+def s_cat_diagnosis(cfg: dict) -> str:
+    items = []
+    for d in cfg.get("diagnosis", []):
+        grade = d.get("evidence_grade", "hypothesis")
+        sev, capped = _cap_severity(d.get("severity", "watch"), grade)
+        items.append((sev, capped, grade, d))
+    items.sort(key=lambda t: -_SEV_NEED.get(t[0], 0))  # critical first
+
+    cards = ""
+    for sev, capped, grade, d in items:
+        sevcls, fcls, sevdef = _SEV[sev]
+        sevlabel = L(cfg, "sev_" + sev, sevdef)
+        cap_note = ""
+        if capped:
+            cap_note = " · " + L(cfg, "cat_cap_note",
+                "severity capped — evidence is {g}, enters test queue").format(g=grade)
+        rec = d.get("recommendation", "")
+        cards += f"""<div class="finding {fcls}">
+  <div class="finding-head"><span class="sev {sevcls}">{esc(sevlabel)}</span>
+    <span class="lens-tag">{esc(d.get('lens',''))}</span>
+    <span class="finding-title">{esc(d.get('title',''))}</span></div>
+  <div>{esc(d.get('finding',''))}</div>
+  <div class="finding-meta"><strong>{esc(L(cfg, "cat_evidence_label", "Evidence"))}:</strong> {esc(d.get('evidence','—'))} · {esc(grade)}{esc(cap_note)}</div>
+  <div class="finding-meta"><strong>{esc(L(cfg, "cat_implication_label", "Cost if ignored"))}:</strong> {esc(d.get('implication','—'))}</div>
+  <div class="finding-rec"><strong>→ </strong>{esc(rec)}</div>
+</div>"""
+    intro = _narrative_intro(cfg, "cat_diag_intro",
+        "The sharp part. Each finding names what is broken, the evidence behind it, and "
+        "what it costs — then points to the 4P move that fixes it. Severity is capped by "
+        "evidence grade: a claim on thin evidence is downgraded to Watch and routed to the "
+        "test queue, never dressed up as a settled conclusion.")
+    return f"""<section id=\"c1\">
+  <h2>{esc(L(cfg, "cat_diag_heading", "1 · Category Diagnosis"))}</h2>
+  {intro}
+  {cards or '<p>—</p>'}
+</section>"""
+
+
+def s_cat_tiermap(cfg: dict) -> str:
+    rows = ""
+    for t in cfg.get("price_tiers", []):
+        comps = ", ".join(c.get("name", "") for c in t.get("competitors", [])) or "—"
+        yours = ", ".join(t.get("your_skus", [])) or "—"
+        rows += (f"<tr><td><strong>{esc(t.get('label', t.get('id','')))}</strong></td>"
+                 f"<td>{esc(t.get('trend','—'))}</td><td>{esc(t.get('audience','—'))}</td>"
+                 f"<td>{esc(t.get('force','—'))}</td><td>{esc(yours)}</td><td>{esc(comps)}</td></tr>")
+    intro = _narrative_intro(cfg, "cat_tier_intro",
+        "Where the money is, who is there, and who you are up against. Tiers are clustered "
+        "from observed price points (Hypothesis-grade) and meant to be confirmed or redrawn "
+        "by the operator. The force column is the lever most likely to move that tier's buyer.")
+    return f"""<section id=\"c2\">
+  <h2>{esc(L(cfg, "cat_tier_heading", "2 · Price-Tier × Audience × Competitor Map"))}</h2>
+  {intro}
+  <div class="table-wrap"><table>
+    <thead><tr>
+      <th>{esc(L(cfg, "cat_th_tier", "Price tier"))}</th>
+      <th>{esc(L(cfg, "cat_th_trend", "Trend"))}</th>
+      <th>{esc(L(cfg, "cat_th_audience", "Audience"))}</th>
+      <th>{esc(L(cfg, "cat_th_force", "Lever (force)"))}</th>
+      <th>{esc(L(cfg, "cat_th_yours", "Your SKUs"))}</th>
+      <th>{esc(L(cfg, "cat_th_competitors", "Competitors"))}</th>
+    </tr></thead>
+    <tbody>{rows}</tbody></table></div>
+</section>"""
+
+
+def s_cat_skus(cfg: dict) -> str:
+    cards = ""
+    for p in cfg.get("portfolio", []):
+        fp = p.get("fourP", {})
+        cards += f"""<div class="card">
+  <h3>{esc(p.get('sku',''))} &nbsp;{_verdict_pill(cfg, p.get('verdict','hold'))}</h3>
+  <p>{esc(p.get('note',''))}</p>
+  <dl>
+    <dt>{esc(L(cfg, "cat_th_product", "Product"))}</dt><dd>{esc(fp.get('product','—'))}</dd>
+    <dt>{esc(L(cfg, "cat_th_price", "Price"))}</dt><dd>{esc(fp.get('price','—'))}</dd>
+    <dt>{esc(L(cfg, "cat_th_place", "Place"))}</dt><dd>{esc(fp.get('place','—'))}</dd>
+    <dt>{esc(L(cfg, "cat_th_promotion", "Promotion"))}</dt><dd>{esc(fp.get('promotion','—'))}</dd>
+  </dl></div>"""
+    intro = _narrative_intro(cfg, "cat_sku_intro",
+        "Each SKU in a few lines: the short diagnosis behind its verdict and its move on each "
+        "P. Deep analysis is deliberately not here — it is earned in §4 by a Grow verdict.")
+    return f"""<section id=\"c3\">
+  <h2>{esc(L(cfg, "cat_sku_heading", "3 · SKU Detail & 4P"))}</h2>
+  {intro}
+  <div class="cards">{cards}</div>
+</section>"""
+
+
+def s_cat_handoff(cfg: dict) -> str:
+    grow = [p.get("sku", "") for p in cfg.get("portfolio", []) if p.get("verdict") == "grow"]
+    lis = "".join(f"<li><strong>{esc(s)}</strong></li>" for s in grow) or "<li>—</li>"
+    intro = _narrative_intro(cfg, "cat_handoff_intro",
+        "A Grow verdict is a Hypothesis: it says there is profit room worth a closer look, not "
+        "that the room is proven. Confirm the list, then run each SKU through the single-SKU "
+        "pipeline (ref 13 → HTE / experiment design). Only a holdout / geo test turns "
+        "“looks like room” into Sourced incremental upside.")
+    return f"""<section id=\"c4\">
+  <h2>{esc(L(cfg, "cat_handoff_heading", "4 · Deep-Dive Handoff"))}</h2>
+  {intro}
+  <p>{esc(L(cfg, "cat_handoff_label", "SKUs that earned a Grow verdict — confirm, then send to the SKU pipeline:"))}</p>
+  <ul>{lis}</ul>
+</section>"""
+
+
+def _build_sidebar(cfg: dict, toc_items: list) -> str:
+    meta = cfg.get("meta", {})
     toc_links = "".join(
         f'<a class="toc-link" href="#{sid}" id="toc-{sid}">{esc(label[:32])}</a>\n'
-        for sid, label in _toc_items
-    )
-    sidebar = f'''<aside class="sidebar">
+        for sid, label in toc_items)
+    return f'''<aside class="sidebar">
   <div class="toc-logo">{esc(meta.get("product","")[:20])}<br><span>{esc(meta.get("market",""))}</span></div>
   <div class="toc-group-label">{esc(L(cfg, "toc_title", "CONTENTS"))}</div>
   {toc_links}
 </aside>'''
 
+
+def _page_shell(cfg: dict, title: str, sidebar: str, body_html: str, echarts_block: str = "") -> str:
+    meta = cfg.get("meta", {})
     return f"""<!doctype html>
-<html lang="{esc(meta.get("lang", "hu"))}">
+<html lang="{esc(meta.get("lang", "en"))}">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(title)}</title>
@@ -1979,7 +2663,7 @@ def generate_html(cfg: dict) -> str:
 {sidebar}
 <div class="content-col">
 <main>
-{"".join(parts)}
+{body_html}
 </main>
 <footer>
   {esc(meta.get("date", str(date.today())))} &nbsp;·&nbsp;
@@ -2005,8 +2689,132 @@ def generate_html(cfg: dict) -> str:
   secs.forEach(function(s){{ obs.observe(s); }});
 }})();
 </script>
+{echarts_block}
 </body>
 </html>"""
+
+
+def generate_category_html(cfg: dict, numbers: dict) -> str:
+    meta = cfg.get("meta", {})
+    parts = [
+        s_cat_matrix(cfg),
+        s_cat_diagnosis(cfg),
+        s_cat_tiermap(cfg),
+        s_cat_skus(cfg),
+        s_cat_handoff(cfg),
+        s_evidence(cfg, numbers),
+    ]
+    toc = [
+        ("c0",  L(cfg, "cat_matrix_heading",  "0 · Portfolio Verdict & 4P Matrix")),
+        ("c1",  L(cfg, "cat_diag_heading",    "1 · Category Diagnosis")),
+        ("c2",  L(cfg, "cat_tier_heading",    "2 · Price-Tier × Audience × Competitor Map")),
+        ("c3",  L(cfg, "cat_sku_heading",     "3 · SKU Detail & 4P")),
+        ("c4",  L(cfg, "cat_handoff_heading", "4 · Deep-Dive Handoff")),
+        ("s16", L(cfg, "evidence_heading",    "5 · Evidence & Gaps")),
+    ]
+    sidebar = _build_sidebar(cfg, toc)
+    title = (f'{meta.get("product", "")} — {meta.get("market", "")} '
+             f'{L(cfg, "cat_title_suffix", "Category Diagnostic")}')
+    return _page_shell(cfg, title, sidebar, "".join(parts))
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Assembly
+# ──────────────────────────────────────────────────────────────────────────────
+
+def generate_html(cfg: dict, depth: str = "standard") -> str:
+    numbers = validate_and_resolve(cfg.get("numbers", {}))
+    for w in lint_prose(cfg, numbers):
+        print(f"LINT WARNING — {w}", file=sys.stderr)
+
+    if cfg.get("report_type") == "category_portfolio":
+        return generate_category_html(cfg, numbers)
+
+    challenges_by_id = {c["id"]: c for c in cfg.get("challenges", [])}
+    meta = cfg.get("meta", {})
+    short_mode = bool(cfg.get("termination"))
+    depth = depth if depth in ("quick", "standard", "deep") else "standard"
+
+    # Single monotonic section sequence as (section_id, html). s_actions was
+    # removed: it duplicated the Treatment Cards already in s_execution_gates.
+    parts_spec = [
+        ("s0",   s_tldr(cfg)),
+        ("s1",   s_memo(cfg)),
+        ("term", s_termination(cfg)),   # empty unless the pipeline terminated
+        ("s2",   s_math(cfg, numbers)),
+    ]
+    if short_mode:
+        parts_spec.append(("s16", s_evidence(cfg, numbers)))  # short: memo + math + evidence
+    else:
+        parts_spec += [
+            ("s3",  s_product_facts(cfg, numbers)),
+            ("s4",  s_channel_map(cfg, numbers)),
+            ("s5",  s_dimensions(cfg)),
+            ("s6",  s_heatmap(cfg)),
+            ("s7",  s_h_main(cfg)),
+            ("s8",  s_execution_gates(cfg, numbers, challenges_by_id)),
+            ("s9",  s_challenges(cfg)),
+            ("s10", s_budget(cfg, numbers)),
+            ("s11", s_priority_plays(cfg, numbers)),
+            ("s12", s_kol(cfg, numbers)),
+            ("s13", s_measurement(cfg)),
+            ("s14", s_test_plan(cfg)),
+            ("s15", s_suppression(cfg)),
+            ("s16", s_evidence(cfg, numbers)),
+            ("s17", s_checklist(cfg)),
+        ]
+    if depth == "deep":
+        parts_spec.append(("s18", s_assumption_ledger(cfg, numbers, challenges_by_id)))
+
+    # Quick mode keeps only the decision-critical sections.
+    if depth == "quick":
+        quick_ids = {"s0", "s1", "term", "s2", "s8", "s16"}
+        parts_spec = [(sid, html) for sid, html in parts_spec if sid in quick_ids]
+
+    active_ids = {sid for sid, html in parts_spec if html}
+    parts = [html for _, html in parts_spec if html]
+
+    # Banner when the report is not the full standard view.
+    depth_banner = ""
+    if depth == "quick":
+        depth_banner = (f'<div class="depth-banner"><b>{esc(L(cfg, "depth_label_quick", "Quick"))}</b>'
+                        f'<span>{esc(L(cfg, "depth_quick_banner", "Decision-critical sections only — summary, memo, the math, the gate, and the evidence. Re-run without --depth quick for the full analysis."))}</span></div>')
+    elif depth == "deep":
+        depth_banner = (f'<div class="depth-banner"><b>{esc(L(cfg, "depth_label_deep", "Deep"))}</b>'
+                        f'<span>{esc(L(cfg, "depth_deep_banner", "Full report plus the consolidated validation roadmap (§18) — every open assumption ranked by what would change the decision."))}</span></div>')
+
+    title = f'{meta.get("product", "")} — {meta.get("market", "")} Decision Memo'
+
+    echarts_block = _ECHARTS_JS.replace(
+        "__CHART_L__", json.dumps(_chart_labels(cfg), ensure_ascii=False))
+
+    # Build sidebar TOC, then keep only sections that actually rendered.
+    _toc_items = [
+        ("s0",  L(cfg, "tldr_heading",        "0 · Summary")),
+        ("s1",  L(cfg, "memo_heading",        "1 · Decision Memo")),
+        ("s2",  L(cfg, "math_heading",        "2 · The Math")),
+        ("s3",  L(cfg, "product_heading",     "3 · Product & Market Facts")),
+        ("s4",  L(cfg, "channel_heading",     "4 · Local Channel Map")),
+        ("s5",  L(cfg, "dim_heading",         "5 · D Dimensions")),
+        ("s6",  L(cfg, "heatmap_heading",     "6 · Heatmap")),
+        ("s7",  L(cfg, "hmain_heading",       "7 · H-Main")),
+        ("s8",  L(cfg, "eg_heading",          "8 · Execution Gates")),
+        ("s9",  L(cfg, "challenges_heading",  "9 · Challenges")),
+        ("s10", L(cfg, "budget_heading",      "10 · Budget")),
+        ("s11", L(cfg, "plays_heading",       "11 · Priority Plays")),
+        ("s12", L(cfg, "kol_heading",         "12 · KOL")),
+        ("s13", L(cfg, "measurement_heading", "13 · Measurement")),
+        ("s14", L(cfg, "testplan_heading",    "14 · Test Plan")),
+        ("s15", L(cfg, "suppression_heading", "15 · Suppression")),
+        ("s16", L(cfg, "evidence_heading",    "16 · Evidence")),
+        ("s17", L(cfg, "checklist_heading",   "17 · Checklist")),
+        ("s18", L(cfg, "ledger_heading",      "18 · Validation Roadmap")),
+    ]
+    _toc_items = [t for t in _toc_items if t[0] in active_ids]
+
+    sidebar = _build_sidebar(cfg, _toc_items)
+    body = depth_banner + "".join(parts)
+    return _page_shell(cfg, title, sidebar, body, echarts_block)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -2090,6 +2898,10 @@ def main():
     ap.add_argument("--config", help="JSON config path")
     ap.add_argument("--output", help="output HTML path (default stdout)")
     ap.add_argument("--validate-only", action="store_true", help="validate config, render nothing")
+    ap.add_argument("--depth", choices=["quick", "standard", "deep"], default=None,
+                    help="quick = decision-critical sections only; standard = full report (default); "
+                         "deep = full report + consolidated validation roadmap (§18). "
+                         "Overrides cfg['depth'] if set.")
     args = ap.parse_args()
 
     if args.demo:
@@ -2107,7 +2919,8 @@ def main():
                 print(f"LINT WARNING — {w}", file=sys.stderr)
             print("Config valid: provenance contract satisfied.", file=sys.stderr)
             return
-        html = generate_html(cfg)
+        depth = args.depth or cfg.get("depth", "standard")
+        html = generate_html(cfg, depth=depth)
     except ConfigError as e:
         print(f"BUILD FAILED — {e}", file=sys.stderr)
         sys.exit(2)

@@ -1,0 +1,207 @@
+{
+  "report_type": "category_portfolio",
+  "meta": {
+    "product": "Aurora Air Purifiers",
+    "market": "Poland",
+    "brand": "Aurora",
+    "category": "Air Purifier",
+    "date": "2026-06-15",
+    "lang": "en"
+  },
+  "_note": "Illustrative example. Brand, SKUs, competitors and figures are fictional placeholders to demonstrate the category-portfolio report structure — not a real market study. Replace with operator-supplied data; AI-scanned fields stay Hypothesis-grade until confirmed.",
+
+  "price_tiers": [
+    {
+      "id": "entry",
+      "label": "Entry · < 600 PLN",
+      "trend": "Shrinking (price war, thinning margin)",
+      "audience": "First-time, price-led buyers",
+      "force": "Habit (low urgency, easy to defer)",
+      "channel_fit": "Marketplace bidding + bundles",
+      "your_skus": ["Aurora A1 Mini", "Aurora S2"],
+      "competitors": [{"name": "Budget Rival X"}, {"name": "Budget Rival Y"}]
+    },
+    {
+      "id": "mid",
+      "label": "Mid · 600–1,200 PLN",
+      "trend": "Growing",
+      "audience": "Mainstream upgraders replacing a first unit",
+      "force": "Push + Anxiety (old-unit pain; fear of buying wrong)",
+      "channel_fit": "Comparison sites + review content",
+      "your_skus": ["Aurora A3", "Aurora A3 Plus"],
+      "competitors": [{"name": "Mid Rival M"}, {"name": "Mid Rival N"}]
+    },
+    {
+      "id": "premium",
+      "label": "Premium · > 1,200 PLN",
+      "trend": "Growing fast",
+      "audience": "Health-driven / large-home buyers",
+      "force": "Pull (product capability itself attracts)",
+      "channel_fit": "Brand media + expert reviews + DTC",
+      "your_skus": ["Aurora Pro", "Aurora Max"],
+      "competitors": [{"name": "Premium Rival P"}]
+    }
+  ],
+
+  "diagnosis": [
+    {
+      "lens": "L1",
+      "title": "No SKU in the fastest-growing premium sub-band",
+      "severity": "critical",
+      "finding": "The 1,200–1,800 PLN sub-band is where premium growth concentrates, yet the portfolio jumps straight from Aurora Pro (entry-premium) to Aurora Max (flagship), leaving the band empty. Premium Rival P owns it uncontested.",
+      "evidence": "Own + competitor price listings across the three largest local marketplaces",
+      "evidence_grade": "sourced",
+      "implication": "The single fastest-growing band is conceded by default; share captured here compounds as the category premiumizes.",
+      "recommendation": "Position Aurora Pro into the 1,200–1,800 band, or introduce a Pro variant — do not leave the band to one competitor."
+    },
+    {
+      "lens": "L2",
+      "title": "Volume concentrated in the shrinking entry tier",
+      "severity": "major",
+      "finding": "Two of six SKUs sit in the entry tier, which is shrinking under a price war while the mid and premium tiers grow. The portfolio's center of gravity is in the wrong place for where the category is heading.",
+      "evidence": "Category tier-trend read from marketplace assortment and price-drop frequency",
+      "evidence_grade": "assumed",
+      "implication": "Effort and inventory anchored to a declining tier; margin erodes as the price war deepens.",
+      "recommendation": "Harvest entry SKUs for margin, shift new investment to mid and premium."
+    },
+    {
+      "lens": "L3",
+      "title": "A3 and A3 Plus cannibalize each other",
+      "severity": "major",
+      "finding": "Aurora A3 and A3 Plus occupy the same price point and the same mid-tier position. Channels are forced to pick one; the two split demand and weaken both listings' review velocity.",
+      "evidence": "Own product catalog + marketplace pricing (both live at near-identical price)",
+      "evidence_grade": "sourced",
+      "implication": "Self-inflicted split of mid-tier demand; neither SKU builds the review mass that wins the band.",
+      "recommendation": "Consolidate on A3 as the mid-tier hero; plan A3 Plus exit and clear inventory."
+    },
+    {
+      "lens": "L4",
+      "title": "Aurora Pro may be stuck in a permanent-promo spiral",
+      "severity": "critical",
+      "finding": "Aurora Pro appears to carry a near-constant discount, which would erode its anchor price and make full-price sell-through impossible — a classic premium-killing spiral.",
+      "evidence": "Observed promo-banner frequency on listing pages (no access to actual transaction price or margin)",
+      "evidence_grade": "hypothesis",
+      "implication": "If true, the premium anchor is already damaged; if false, no action needed. Cannot tell without transaction-price data.",
+      "recommendation": "Pull a 90-day transaction-price history; if permanent-discount confirmed, freeze promo and rebuild the anchor."
+    },
+    {
+      "lens": "L5",
+      "title": "Entry SKUs over-concentrated on one marketplace",
+      "severity": "major",
+      "finding": "Both entry SKUs lean on a single marketplace for visibility, while a meaningful share of first-time buyers in this category discover via bundled retail and telco offers where Aurora is absent.",
+      "evidence": "Channel presence audit vs typical category purchase paths",
+      "evidence_grade": "assumed",
+      "implication": "Concentration risk plus missed discovery surface; one marketplace algorithm change can wipe entry-tier visibility.",
+      "recommendation": "Diversify entry distribution into bundle/retail; treat the single marketplace as one lever, not the whole shelf."
+    },
+    {
+      "lens": "L6",
+      "title": "Flagship Aurora Max is invisible at launch",
+      "severity": "major",
+      "finding": "Aurora Max is the brand's premium flagship but has no localized product page and zero reviews on the main marketplace — buyers searching the premium band cannot find it or trust it.",
+      "evidence": "Localized PDP absent; review count = 0 (both directly verifiable)",
+      "evidence_grade": "sourced",
+      "implication": "The SKU meant to establish premium brand altitude is silent exactly where high-consideration buyers decide.",
+      "recommendation": "Build a localized PDP, seed expert reviews, and lead with technical media — do not discount the flagship."
+    }
+  ],
+
+  "portfolio": [
+    {
+      "sku": "Aurora A1 Mini", "tier": "entry", "lifecycle": "declining", "verdict": "harvest",
+      "note": "Aging entry unit in a shrinking, price-warred tier. No room to grow profitably; milk margin and prepare a successor.",
+      "fourP": {
+        "product": "Entry value unit; freeze spec, no new investment",
+        "price": "Hold list; stop deep promo, protect margin",
+        "place": "Keep marketplace listing; no new channel spend",
+        "promotion": "None — let it run down; plan successor"
+      }
+    },
+    {
+      "sku": "Aurora S2", "tier": "entry", "lifecycle": "maintain", "verdict": "hold",
+      "note": "Defends the entry price band against Budget Rivals X/Y. Worth keeping as a price anchor, not worth scaling.",
+      "fourP": {
+        "product": "Keep as price-band defender",
+        "price": "Match rivals −5–10%; price is the weapon",
+        "place": "Diversify off the single marketplace (see L5)",
+        "promotion": "Flash deals / bundles, no storytelling"
+      }
+    },
+    {
+      "sku": "Aurora A3", "tier": "mid", "lifecycle": "main", "verdict": "grow",
+      "note": "Mid-tier in a growing band with the clearest profit room. The hero SKU — consolidate the mid tier around it. → deep dive.",
+      "fourP": {
+        "product": "Mid-tier hero; lead on whole-home coverage",
+        "price": "Hold 600–800 PLN; defend, don't discount",
+        "place": "Comparison sites + marketplace primary",
+        "promotion": "Scenario content: old-unit pain, room-by-room upgrade"
+      }
+    },
+    {
+      "sku": "Aurora A3 Plus", "tier": "mid", "lifecycle": "declining", "verdict": "exit",
+      "note": "Cannibalizes A3 at the same price and position (see L3). No distinct job. Clear inventory and let A3 own the band.",
+      "fourP": {
+        "product": "Redundant with A3; discontinue",
+        "price": "Clearance only",
+        "place": "Sell through existing channels, no replenishment",
+        "promotion": "Liquidation, then delist"
+      }
+    },
+    {
+      "sku": "Aurora Pro", "tier": "premium", "lifecycle": "main", "verdict": "grow",
+      "note": "Entry-premium with room to climb into the empty 1,200–1,800 band (see L1). Confirm the promo-spiral risk first (L4). → deep dive.",
+      "fourP": {
+        "product": "Stretch into the open premium sub-band",
+        "price": "Rebuild anchor; freeze permanent promo pending data",
+        "place": "Brand media + DTC + expert reviews",
+        "promotion": "Capability-led; prove the premium, don't discount it"
+      }
+    },
+    {
+      "sku": "Aurora Max", "tier": "premium", "lifecycle": "new", "verdict": "grow",
+      "note": "Flagship that should set brand altitude but launched invisible (see L6). Fix the digital shelf, then it can anchor the premium narrative. → deep dive.",
+      "fourP": {
+        "product": "Premium flagship; build brand altitude",
+        "price": "Flagship premium; no price war",
+        "place": "Few launch channels, but each with full content",
+        "promotion": "Localized PDP + seeded expert reviews + tech media"
+      }
+    }
+  ],
+
+  "numbers": {
+    "premium_subband_share": {
+      "label": "Aurora share in the 1,200–1,800 PLN sub-band",
+      "provenance": "missing",
+      "needed_from": "Marketplace share estimate or sell-through data",
+      "cost_to_get": "~1 day desk research",
+      "blocks": ["L1 sizing", "Aurora Pro reposition decision"]
+    },
+    "pro_transaction_price_history": {
+      "label": "Aurora Pro 90-day transaction-price history",
+      "provenance": "missing",
+      "needed_from": "Internal sales / marketplace transaction export",
+      "cost_to_get": "Internal pull, ~2 hours",
+      "blocks": ["L4 promo-spiral confirmation"]
+    },
+    "entry_tier_trend": {
+      "label": "Entry-tier category volume trend (YoY)",
+      "provenance": "assumed",
+      "value": -0.12,
+      "basis": "Assumed −12% YoY from marketplace assortment thinning and price-drop frequency; not a measured figure"
+    }
+  },
+
+  "facts": [
+    {
+      "fact": "Premium air-purifier demand is growing faster than entry in the local market",
+      "source_label": "Illustrative placeholder — replace with a real cited source",
+      "source_url": "https://example.com/category-report",
+      "accessed": "2026-06-15"
+    }
+  ],
+
+  "labels": {
+    "footer_note": "Illustrative example — fictional data; every real number must be sourced, assumed, derived, or missing"
+  }
+}

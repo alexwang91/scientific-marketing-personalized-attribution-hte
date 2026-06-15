@@ -13,10 +13,44 @@ anything" and you suspect the action definition is the problem.
 "30%-off coupon + urgency framing + WeChat service account + 48-hour window"
 is a learnable action.
 
+## Which Force Does the Treatment Move? (mechanism before card)
+
+A treatment produces *incremental* lift only when it shifts the balance of
+forces acting on one person's decision. Four forces (JTBD framing, recast
+causally):
+
+| Force | Pulls them | What a treatment does to it | Effect on τ(x) |
+|-------|-----------|-----------------------------|----------------|
+| **Push** — pain with the status quo | toward buying | name / sharpen the pain | raises τ where the pain is real but unspoken |
+| **Pull** — attraction of the product | toward buying | demonstrate the specific benefit | raises τ where the benefit is *not yet known* — not where it's already obvious |
+| **Habit** — inertia of current behavior | against buying | lower switching effort (trial, migration help) | reducing it raises τ; ignoring it wastes spend on the immovable |
+| **Anxiety** — fear of the new choice | against buying | reduce it (proof, guarantee, easy returns) — or, badly, inflate it | reducing it raises τ; *manufacturing* it (fake scarcity) can make τ **negative** |
+
+**The discipline**: every treatment card names the force it moves *and the
+segment for whom that force is currently unsettled*. A coupon shown to someone
+whose Pull is already maxed (brand-searcher, repeat buyer) moves no force — it
+is a discount handed to a sure-thing: τ ≈ 0 and negative incremental margin.
+The same coupon shown to someone with high Push but high Anxiety (wants it,
+fears the commitment) moves the Anxiety force and can produce real lift.
+
+This is the mechanism vocabulary behind the Causal Activation Reviewer's
+core question (ref 14: "response to this action" vs "purchase propensity").
+Push / Pull / Habit / Anxiety is how you *state which lever* the treatment
+pulls; the reviewer then tests whether that lever is real.
+
+**Where the force comes from**: source it from real customer voice (ref 00b),
+not from desk intuition. Buyers name their own Push, Pull, Habit, and Anxiety in
+reviews and threads — mine and weight them by prevalence. A `force_targeted`
+value that was guessed is a guess with a yaml schema around it. Voice is
+`Hypothesis`-grade: it tells you which force to aim at; only a holdout tells you
+whether aiming there produces lift.
+
 ## Treatment Card Template (one card per action in the library)
 
 ```yaml
 treatment_id: T-2026-031          # versioned; any dimension change = new ID
+force_targeted: Anxiety           # Push / Pull / Habit / Anxiety — which force this moves (capitalized; distinct from push channel)
+force_unsettled_for: high-Push users who haven't bought (fear of commitment)  # the segment where that force is still in play
 channel: WeChat service account   # push / SMS / email / WeChat / outbound call / ad
 incentive: 30%-off, cap ¥30, valid 48h
 content: urgency-framing copy     # messaging frame, tone, length
@@ -86,6 +120,58 @@ independently requires linearly growing sample. Solutions:
   (cross-campaign contamination is a persistent problem without global
   frequency control → ref 03 GCG).
 
+## Creator / KOL Selection as Treatment Design
+
+A creator *is* a treatment: the post is the content, the creator's audience is
+the channel, and the creator's credibility is the mechanism. So a creator gets a
+treatment card and names the force it moves — usually **Anxiety** (a trusted face
+reduces fear of a new or expensive product) or **Pull** (a demonstration makes a
+non-obvious benefit concrete). A creator who moves no force for the target
+segment is reach bought at a CPM, not a treatment.
+
+**Score the archetype before the person.** Decide the *kind* of creator the
+segment's trust and proof needs demand (domain expert / peer / aspirational /
+utility reviewer), then score candidates against that archetype — not the other
+way around. Picking a creator first and reverse-justifying the fit is how budget
+ends up following follower count instead of mechanism.
+
+**Gate 0 — category exclusivity check (run before any scoring).**
+Before evaluating fit, check whether the creator has an **active exclusivity or
+category agreement with a competing brand in this product category and market.**
+If yes → **disqualify immediately.** Do not score fit, do not negotiate, do not
+"try to renegotiate later." This is a hard gate, not a deduction:
+
+- A creator under category exclusivity has signed a legal commitment that may
+  cover any content featuring competing products — a campaign launched without
+  checking is a contract-breach liability, not just a wasted budget.
+- Exclusivity is typically category-scoped (e.g. "consumer electronics —
+  wireless audio") and market-scoped (e.g. "Romania") — confirm both dimensions
+  before clearing the gate.
+- **How to check**: ask the creator's MCN/agent directly; review publicly visible
+  long-term brand ambassador disclosures; cross-reference recent campaign disclosures
+  in the target market. Tag the result `Sourced` only if you have written
+  confirmation; otherwise tag `Hypothesis` and treat the creator as gated until
+  confirmed.
+- If exclusivity status is **unknown**, treat as gated (do not proceed to scoring)
+  until cleared. "Probably fine" is not a gate.
+
+**Score on evidence, not vanity (only after Gate 0 is cleared):**
+- Audience–segment overlap (a *proxy* — label it as one)
+- Proof / trust match to the specific force being moved
+- Platform relevance to where the segment actually decides
+- Brand-safety screen — a pass/fail gate, not a score
+- Budget as a **range**, never a guaranteed CPA
+
+**Hard line — follower count ≠ influence ≠ incrementality.** Reach, engagement
+rate, and even a creator's past "conversions" are correlational; they do not
+prove this creator caused incremental buyers for *your* product. Creator fit is
+`Hypothesis`-grade (ref 00b): it tells you whom to pilot, not whom to scale. The
+only thing that promotes a creator to Sourced is a **creator pilot with a holdout
+or geo-control** (ref 03) — matched markets / audiences with and without the
+campaign, read on incremental conversion, not on the creator's own dashboard.
+Follower-weighted shortlists enter the experiment queue; they never go straight
+to a contract.
+
 ## Step-by-Step
 
 1. Write all existing actions as treatment cards; version and register them.
@@ -107,6 +193,21 @@ independently requires linearly growing sample. Solutions:
   justification — LLM judges text quality, not causal effect
 - **Confounded dimensions**: changed channel and copy simultaneously —
   effect attribution is impossible
+- **Treatment moves no force**: the action amplifies a Pull that is already
+  maxed (coupon to a brand-searcher, reminder to a repeat buyer) — high
+  attribution, zero increment. If the card cannot name a force *and* a segment
+  for whom it is unsettled, expect τ ≈ 0.
+- **Anxiety-inflation as the only mechanism**: the treatment works solely by
+  manufacturing urgency / scarcity. This raises the Anxiety force, which can
+  flip τ negative (lower conversion, higher post-purchase churn) and trips the
+  red-team (ref 09 dark patterns).
+- **Creator chosen on reach, not mechanism**: a high-follower creator whose
+  audience already buys (Pull maxed) — high views, zero increment. Follower
+  count is not a force; a creator dashboard is observational, not a holdout.
+- **Exclusivity not checked before engagement**: creator is under an active
+  category agreement with a competitor — campaign triggers a breach clause.
+  Gate 0 is not optional; skipping it turns a fit-scoring exercise into a
+  legal exposure.
 
 ## Acceptance Checklist
 
@@ -119,6 +220,16 @@ independently requires linearly growing sample. Solutions:
       not directly to launch
 - [ ] Dimensions orthogonal: one dimension changed at a time, or explicit
       factorial design
+- [ ] Every card names the force it moves (Push / Pull / Habit / Anxiety) and
+      the segment for whom that force is currently unsettled; no card whose
+      sole mechanism is manufactured Anxiety
+- [ ] **Creator / KOL Gate 0**: category exclusivity status confirmed (written
+      confirmation or public disclosure check) before any fit-scoring begins —
+      active exclusivity with a competitor in this category × market = immediate
+      disqualification; unknown status = gated until cleared
+- [ ] Any creator / KOL action scored against a trust-proof archetype first,
+      budgeted as a range, and entered as a holdout / geo pilot — follower count
+      never used as proof of incrementality
 
 ## Literature
 
@@ -127,3 +238,7 @@ independently requires linearly growing sample. Solutions:
   Models* — partial pooling
 - Amazon Science: causal contextual bandits series — treatment featurization
   in industry
+- Pattern credit: the archetype-first creator scoring adapts the "score-kol-fit"
+  (S06) move from the GTM-Master skill suite (alexwang91/gtm-master), re-grounded
+  here so creator fit stays Hypothesis-grade until a holdout / geo pilot proves
+  incrementality — follower count is never proof.
