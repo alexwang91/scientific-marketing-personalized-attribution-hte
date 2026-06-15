@@ -586,6 +586,31 @@ _CSS = """
   .ledger-rank{font-weight:800;color:var(--muted);text-align:center;width:30px}
   .ledger td .pill{margin:0}
 
+  /* ── Category portfolio: severity, verdict, findings ── */
+  .sev{display:inline-block;padding:2px 8px;border-radius:999px;
+    font-size:10px;font-weight:800;white-space:nowrap;text-transform:uppercase;letter-spacing:.03em}
+  .sev-critical{background:var(--bad);color:var(--bad-ink)}
+  .sev-major{background:var(--warn);color:var(--warn-ink)}
+  .sev-watch{background:var(--neutral);color:var(--neutral-ink)}
+  .verdict{display:inline-block;padding:2px 9px;border-radius:6px;
+    font-size:11px;font-weight:800;white-space:nowrap}
+  .verdict-grow{background:var(--ok);color:var(--ok-ink)}
+  .verdict-hold{background:var(--neutral);color:var(--neutral-ink)}
+  .verdict-harvest{background:var(--warn);color:var(--warn-ink)}
+  .verdict-exit{background:var(--bad);color:var(--bad-ink)}
+  .finding{border:1px solid var(--line);border-left:4px solid var(--line-strong);
+    border-radius:7px;padding:11px 14px;margin:10px 0;background:var(--panel)}
+  .finding.sv-critical{border-left-color:var(--bad-ink)}
+  .finding.sv-major{border-left-color:var(--warn-ink)}
+  .finding.sv-watch{border-left-color:var(--neutral-ink)}
+  .finding-head{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:6px}
+  .finding-title{font-weight:700;font-size:13px;color:var(--ink)}
+  .finding-meta{font-size:11.5px;color:var(--muted);margin:4px 0;line-height:1.6}
+  .finding-rec{font-size:12.5px;margin-top:7px;padding-top:7px;border-top:1px dashed var(--line);color:var(--ink)}
+  .lens-tag{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.04em;
+    padding:1px 6px;border-radius:4px;background:var(--accent-light);color:var(--accent)}
+  table.fourp th:first-child,table.fourp td:first-child{position:sticky;left:0;background:var(--surface)}
+
   /* ── Tables ── */
   .table-wrap{overflow-x:auto;border:1px solid var(--line);
     border-radius:7px;background:#fff;margin:10px 0}
@@ -2440,6 +2465,260 @@ _ECHARTS_JS = r"""
 
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Category portfolio diagnostic (report_type == "category_portfolio").
+# Runs upstream of the single-SKU report: diagnose the whole category first,
+# verdict each SKU, then hand the "grow" SKUs to the SKU pipeline. Diagnose
+# before recommend; every recommendation points back to a finding; severity is
+# capped by evidence grade so a sharp claim cannot outrun its proof.
+# ──────────────────────────────────────────────────────────────────────────────
+
+# verdict code → (css class, English default label); localized via L(verdict_<code>)
+_VERDICT = {
+    "grow":    ("verdict-grow",    "Grow / Invest"),
+    "hold":    ("verdict-hold",    "Hold"),
+    "harvest": ("verdict-harvest", "Harvest"),
+    "exit":    ("verdict-exit",    "Exit / Plan succession"),
+}
+_SEV = {
+    "critical": ("sev-critical", "sv-critical", "Critical"),
+    "major":    ("sev-major",    "sv-major",    "Major"),
+    "watch":    ("sev-watch",    "sv-watch",    "Watch"),
+}
+_GRADE_RANK = {"sourced": 2, "derived": 2, "assumed": 1, "hypothesis": 0, "missing": 0}
+_SEV_NEED = {"critical": 2, "major": 1, "watch": 0}
+
+
+def _cap_severity(sev: str, grade: str) -> tuple[str, bool]:
+    """Severity ≤ evidence grade. A claim on thin evidence is downgraded to the
+    highest severity its proof can carry. Returns (effective_sev, was_capped)."""
+    g = _GRADE_RANK.get((grade or "").lower(), 0)
+    if _SEV_NEED.get(sev, 0) <= g:
+        return sev, False
+    for cand in ("critical", "major", "watch"):
+        if _SEV_NEED[cand] <= g:
+            return cand, True
+    return "watch", True
+
+
+def _verdict_pill(cfg: dict, code: str) -> str:
+    cls, deflabel = _VERDICT.get(code, ("verdict-hold", code))
+    return f'<span class="verdict {cls}">{esc(L(cfg, "verdict_" + code, deflabel))}</span>'
+
+
+def s_cat_matrix(cfg: dict) -> str:
+    rows = ""
+    for p in cfg.get("portfolio", []):
+        fp = p.get("fourP", {})
+        rows += (f"<tr><td><strong>{esc(p.get('sku',''))}</strong></td>"
+                 f"<td>{_verdict_pill(cfg, p.get('verdict','hold'))}</td>"
+                 f"<td>{esc(fp.get('product','—'))}</td><td>{esc(fp.get('price','—'))}</td>"
+                 f"<td>{esc(fp.get('place','—'))}</td><td>{esc(fp.get('promotion','—'))}</td></tr>")
+    intro = _narrative_intro(cfg, "cat_matrix_intro",
+        "One screen: every SKU's verdict and its one-line move on each P. The findings "
+        "that justify each row are in §1 — read down only where you disagree with a verdict.")
+    return f"""<section id=\"c0\">
+  <h2>{esc(L(cfg, "cat_matrix_heading", "0 · Portfolio Verdict & 4P Matrix"))}</h2>
+  {intro}
+  <div class="table-wrap"><table class="fourp">
+    <thead><tr>
+      <th>{esc(L(cfg, "cat_th_sku", "SKU"))}</th>
+      <th>{esc(L(cfg, "cat_th_verdict", "Verdict"))}</th>
+      <th>{esc(L(cfg, "cat_th_product", "Product"))}</th>
+      <th>{esc(L(cfg, "cat_th_price", "Price"))}</th>
+      <th>{esc(L(cfg, "cat_th_place", "Place"))}</th>
+      <th>{esc(L(cfg, "cat_th_promotion", "Promotion"))}</th>
+    </tr></thead>
+    <tbody>{rows}</tbody></table></div>
+</section>"""
+
+
+def s_cat_diagnosis(cfg: dict) -> str:
+    items = []
+    for d in cfg.get("diagnosis", []):
+        grade = d.get("evidence_grade", "hypothesis")
+        sev, capped = _cap_severity(d.get("severity", "watch"), grade)
+        items.append((sev, capped, grade, d))
+    items.sort(key=lambda t: -_SEV_NEED.get(t[0], 0))  # critical first
+
+    cards = ""
+    for sev, capped, grade, d in items:
+        sevcls, fcls, sevdef = _SEV[sev]
+        sevlabel = L(cfg, "sev_" + sev, sevdef)
+        cap_note = ""
+        if capped:
+            cap_note = " · " + L(cfg, "cat_cap_note",
+                "severity capped — evidence is {g}, enters test queue").format(g=grade)
+        rec = d.get("recommendation", "")
+        cards += f"""<div class="finding {fcls}">
+  <div class="finding-head"><span class="sev {sevcls}">{esc(sevlabel)}</span>
+    <span class="lens-tag">{esc(d.get('lens',''))}</span>
+    <span class="finding-title">{esc(d.get('title',''))}</span></div>
+  <div>{esc(d.get('finding',''))}</div>
+  <div class="finding-meta"><strong>{esc(L(cfg, "cat_evidence_label", "Evidence"))}:</strong> {esc(d.get('evidence','—'))} · {esc(grade)}{esc(cap_note)}</div>
+  <div class="finding-meta"><strong>{esc(L(cfg, "cat_implication_label", "Cost if ignored"))}:</strong> {esc(d.get('implication','—'))}</div>
+  <div class="finding-rec"><strong>→ </strong>{esc(rec)}</div>
+</div>"""
+    intro = _narrative_intro(cfg, "cat_diag_intro",
+        "The sharp part. Each finding names what is broken, the evidence behind it, and "
+        "what it costs — then points to the 4P move that fixes it. Severity is capped by "
+        "evidence grade: a claim on thin evidence is downgraded to Watch and routed to the "
+        "test queue, never dressed up as a settled conclusion.")
+    return f"""<section id=\"c1\">
+  <h2>{esc(L(cfg, "cat_diag_heading", "1 · Category Diagnosis"))}</h2>
+  {intro}
+  {cards or '<p>—</p>'}
+</section>"""
+
+
+def s_cat_tiermap(cfg: dict) -> str:
+    rows = ""
+    for t in cfg.get("price_tiers", []):
+        comps = ", ".join(c.get("name", "") for c in t.get("competitors", [])) or "—"
+        yours = ", ".join(t.get("your_skus", [])) or "—"
+        rows += (f"<tr><td><strong>{esc(t.get('label', t.get('id','')))}</strong></td>"
+                 f"<td>{esc(t.get('trend','—'))}</td><td>{esc(t.get('audience','—'))}</td>"
+                 f"<td>{esc(t.get('force','—'))}</td><td>{esc(yours)}</td><td>{esc(comps)}</td></tr>")
+    intro = _narrative_intro(cfg, "cat_tier_intro",
+        "Where the money is, who is there, and who you are up against. Tiers are clustered "
+        "from observed price points (Hypothesis-grade) and meant to be confirmed or redrawn "
+        "by the operator. The force column is the lever most likely to move that tier's buyer.")
+    return f"""<section id=\"c2\">
+  <h2>{esc(L(cfg, "cat_tier_heading", "2 · Price-Tier × Audience × Competitor Map"))}</h2>
+  {intro}
+  <div class="table-wrap"><table>
+    <thead><tr>
+      <th>{esc(L(cfg, "cat_th_tier", "Price tier"))}</th>
+      <th>{esc(L(cfg, "cat_th_trend", "Trend"))}</th>
+      <th>{esc(L(cfg, "cat_th_audience", "Audience"))}</th>
+      <th>{esc(L(cfg, "cat_th_force", "Lever (force)"))}</th>
+      <th>{esc(L(cfg, "cat_th_yours", "Your SKUs"))}</th>
+      <th>{esc(L(cfg, "cat_th_competitors", "Competitors"))}</th>
+    </tr></thead>
+    <tbody>{rows}</tbody></table></div>
+</section>"""
+
+
+def s_cat_skus(cfg: dict) -> str:
+    cards = ""
+    for p in cfg.get("portfolio", []):
+        fp = p.get("fourP", {})
+        cards += f"""<div class="card">
+  <h3>{esc(p.get('sku',''))} &nbsp;{_verdict_pill(cfg, p.get('verdict','hold'))}</h3>
+  <p>{esc(p.get('note',''))}</p>
+  <dl>
+    <dt>{esc(L(cfg, "cat_th_product", "Product"))}</dt><dd>{esc(fp.get('product','—'))}</dd>
+    <dt>{esc(L(cfg, "cat_th_price", "Price"))}</dt><dd>{esc(fp.get('price','—'))}</dd>
+    <dt>{esc(L(cfg, "cat_th_place", "Place"))}</dt><dd>{esc(fp.get('place','—'))}</dd>
+    <dt>{esc(L(cfg, "cat_th_promotion", "Promotion"))}</dt><dd>{esc(fp.get('promotion','—'))}</dd>
+  </dl></div>"""
+    intro = _narrative_intro(cfg, "cat_sku_intro",
+        "Each SKU in a few lines: the short diagnosis behind its verdict and its move on each "
+        "P. Deep analysis is deliberately not here — it is earned in §4 by a Grow verdict.")
+    return f"""<section id=\"c3\">
+  <h2>{esc(L(cfg, "cat_sku_heading", "3 · SKU Detail & 4P"))}</h2>
+  {intro}
+  <div class="cards">{cards}</div>
+</section>"""
+
+
+def s_cat_handoff(cfg: dict) -> str:
+    grow = [p.get("sku", "") for p in cfg.get("portfolio", []) if p.get("verdict") == "grow"]
+    lis = "".join(f"<li><strong>{esc(s)}</strong></li>" for s in grow) or "<li>—</li>"
+    intro = _narrative_intro(cfg, "cat_handoff_intro",
+        "A Grow verdict is a Hypothesis: it says there is profit room worth a closer look, not "
+        "that the room is proven. Confirm the list, then run each SKU through the single-SKU "
+        "pipeline (ref 13 → HTE / experiment design). Only a holdout / geo test turns "
+        "“looks like room” into Sourced incremental upside.")
+    return f"""<section id=\"c4\">
+  <h2>{esc(L(cfg, "cat_handoff_heading", "4 · Deep-Dive Handoff"))}</h2>
+  {intro}
+  <p>{esc(L(cfg, "cat_handoff_label", "SKUs that earned a Grow verdict — confirm, then send to the SKU pipeline:"))}</p>
+  <ul>{lis}</ul>
+</section>"""
+
+
+def _build_sidebar(cfg: dict, toc_items: list) -> str:
+    meta = cfg.get("meta", {})
+    toc_links = "".join(
+        f'<a class="toc-link" href="#{sid}" id="toc-{sid}">{esc(label[:32])}</a>\n'
+        for sid, label in toc_items)
+    return f'''<aside class="sidebar">
+  <div class="toc-logo">{esc(meta.get("product","")[:20])}<br><span>{esc(meta.get("market",""))}</span></div>
+  <div class="toc-group-label">{esc(L(cfg, "toc_title", "CONTENTS"))}</div>
+  {toc_links}
+</aside>'''
+
+
+def _page_shell(cfg: dict, title: str, sidebar: str, body_html: str, echarts_block: str = "") -> str:
+    meta = cfg.get("meta", {})
+    return f"""<!doctype html>
+<html lang="{esc(meta.get("lang", "en"))}">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{esc(title)}</title>
+<style>{_CSS}</style>
+</head>
+<body>
+<div class="page-layout">
+{sidebar}
+<div class="content-col">
+<main>
+{body_html}
+</main>
+<footer>
+  {esc(meta.get("date", str(date.today())))} &nbsp;·&nbsp;
+  {esc(L(cfg, "footer_note", "Every number is sourced, assumed, derived, or missing — none invented"))} &nbsp;·&nbsp;
+  <a href="https://github.com/alexwang91/scientific-marketing-personalized-attribution-hte">{esc(L(cfg, "footer_method", "methodology"))}</a>
+</footer>
+</div>
+</div>
+<script>
+(function(){{
+  var links = document.querySelectorAll(".toc-link");
+  var secs = document.querySelectorAll("section[id]");
+  if(!secs.length) return;
+  var obs = new IntersectionObserver(function(entries){{
+    entries.forEach(function(e){{
+      if(e.isIntersecting){{
+        links.forEach(function(a){{
+          a.classList.toggle("active", a.getAttribute("href")==="#"+e.target.id);
+        }});
+      }}
+    }});
+  }}, {{threshold:0.15, rootMargin:"-8% 0px -75% 0px"}});
+  secs.forEach(function(s){{ obs.observe(s); }});
+}})();
+</script>
+{echarts_block}
+</body>
+</html>"""
+
+
+def generate_category_html(cfg: dict, numbers: dict) -> str:
+    meta = cfg.get("meta", {})
+    parts = [
+        s_cat_matrix(cfg),
+        s_cat_diagnosis(cfg),
+        s_cat_tiermap(cfg),
+        s_cat_skus(cfg),
+        s_cat_handoff(cfg),
+        s_evidence(cfg, numbers),
+    ]
+    toc = [
+        ("c0",  L(cfg, "cat_matrix_heading",  "0 · Portfolio Verdict & 4P Matrix")),
+        ("c1",  L(cfg, "cat_diag_heading",    "1 · Category Diagnosis")),
+        ("c2",  L(cfg, "cat_tier_heading",    "2 · Price-Tier × Audience × Competitor Map")),
+        ("c3",  L(cfg, "cat_sku_heading",     "3 · SKU Detail & 4P")),
+        ("c4",  L(cfg, "cat_handoff_heading", "4 · Deep-Dive Handoff")),
+        ("s16", L(cfg, "evidence_heading",    "5 · Evidence & Gaps")),
+    ]
+    sidebar = _build_sidebar(cfg, toc)
+    title = (f'{meta.get("product", "")} — {meta.get("market", "")} '
+             f'{L(cfg, "cat_title_suffix", "Category Diagnostic")}')
+    return _page_shell(cfg, title, sidebar, "".join(parts))
+
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Assembly
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -2447,6 +2726,9 @@ def generate_html(cfg: dict, depth: str = "standard") -> str:
     numbers = validate_and_resolve(cfg.get("numbers", {}))
     for w in lint_prose(cfg, numbers):
         print(f"LINT WARNING — {w}", file=sys.stderr)
+
+    if cfg.get("report_type") == "category_portfolio":
+        return generate_category_html(cfg, numbers)
 
     challenges_by_id = {c["id"]: c for c in cfg.get("challenges", [])}
     meta = cfg.get("meta", {})
@@ -2530,58 +2812,9 @@ def generate_html(cfg: dict, depth: str = "standard") -> str:
     ]
     _toc_items = [t for t in _toc_items if t[0] in active_ids]
 
-    toc_links = "".join(
-        f'<a class="toc-link" href="#{sid}" id="toc-{sid}">{esc(label[:32])}</a>\n'
-        for sid, label in _toc_items
-    )
-    sidebar = f'''<aside class="sidebar">
-  <div class="toc-logo">{esc(meta.get("product","")[:20])}<br><span>{esc(meta.get("market",""))}</span></div>
-  <div class="toc-group-label">{esc(L(cfg, "toc_title", "CONTENTS"))}</div>
-  {toc_links}
-</aside>'''
-
-    return f"""<!doctype html>
-<html lang="{esc(meta.get("lang", "hu"))}">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{esc(title)}</title>
-<style>{_CSS}</style>
-</head>
-<body>
-<div class="page-layout">
-{sidebar}
-<div class="content-col">
-<main>
-{depth_banner}
-{"".join(parts)}
-</main>
-<footer>
-  {esc(meta.get("date", str(date.today())))} &nbsp;·&nbsp;
-  {esc(L(cfg, "footer_note", "Every number is sourced, assumed, derived, or missing — none invented"))} &nbsp;·&nbsp;
-  <a href="https://github.com/alexwang91/scientific-marketing-personalized-attribution-hte">{esc(L(cfg, "footer_method", "methodology"))}</a>
-</footer>
-</div>
-</div>
-<script>
-(function(){{
-  var links = document.querySelectorAll(".toc-link");
-  var secs = document.querySelectorAll("section[id]");
-  if(!secs.length) return;
-  var obs = new IntersectionObserver(function(entries){{
-    entries.forEach(function(e){{
-      if(e.isIntersecting){{
-        links.forEach(function(a){{
-          a.classList.toggle("active", a.getAttribute("href")==="#"+e.target.id);
-        }});
-      }}
-    }});
-  }}, {{threshold:0.15, rootMargin:"-8% 0px -75% 0px"}});
-  secs.forEach(function(s){{ obs.observe(s); }});
-}})();
-</script>
-{echarts_block}
-</body>
-</html>"""
+    sidebar = _build_sidebar(cfg, _toc_items)
+    body = depth_banner + "".join(parts)
+    return _page_shell(cfg, title, sidebar, body, echarts_block)
 
 
 # ──────────────────────────────────────────────────────────────────────────────

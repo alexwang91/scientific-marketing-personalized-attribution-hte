@@ -6,7 +6,7 @@
 
 [![Claude Code skill](https://img.shields.io/badge/Claude%20Code-skill-6E56CF)](https://claude.ai/code)
 [![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)](#-dependencies--examples)
-[![References](https://img.shields.io/badge/references-18-44883e)](#-reference-library)
+[![References](https://img.shields.io/badge/references-19-44883e)](#-reference-library)
 [![Scripts](https://img.shields.io/badge/scripts-5%20(validated)-blue)](#-scripts)
 [![Provenance contract](https://img.shields.io/badge/numbers-sourced%20%C2%B7%20assumed%20%C2%B7%20derived%20%C2%B7%20missing-orange)](#-methodology-stance)
 [![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
@@ -62,6 +62,7 @@ python generate_report.py --config ../examples/ax3-romania-config.json --output 
 python generate_report.py --config ../examples/ax3-romania-config.json --validate-only   # provenance contract check only
 python generate_report.py --config ../examples/ax3-romania-config.json --depth quick      # executive view: verdict + math + gate + evidence
 python generate_report.py --config ../examples/ax3-romania-config.json --depth deep       # full report + validation roadmap (§18)
+python generate_report.py --config ../examples/aurora-airpurifier-category-config.json     # category portfolio diagnostic (ref 17)
 python generate_report.py --demo > demo.html                                              # minimal schema demo
 ```
 
@@ -110,7 +111,7 @@ Layer 4 · Generation & Serving        LLM embeddings as features (not in the de
 Each reference follows a fixed template: **when to use → decision tree → minimum necessary math → step-by-step → common failure modes → acceptance checklist → literature**. Decision guide, not textbook.
 
 <details>
-<summary><b>Expand all 18 references</b></summary>
+<summary><b>Expand all 19 references</b></summary>
 
 **Research & framing**
 | Ref | Topic |
@@ -145,6 +146,7 @@ Each reference follows a fixed template: **when to use → decision tree → min
 | `14` d-dimension-reviewer | D-dimension generation gate + independent adversarial review; open-blocking → BLOCKED budget linkage |
 | `15` writing-rules | Language policy, falsifiability obligation, honest-state vocabulary, anti-slop, narrative and theory-usability principles |
 | `16` estimation-discipline | Four provenance states, Fermi chains, benchmark asymmetry, sensitivity-sorted Missing ledger |
+| `17` category-portfolio-diagnostic | Whole-category line-up audit upstream of the SKU pipeline: 6 audit lenses (2 market + 4 audited-P), severity capped by evidence grade, SKU verdicts (Grow / Hold / Harvest / Exit), 4P matrix; feeds confirmed Grow SKUs into ref 13 → 04 |
 
 </details>
 
@@ -188,8 +190,9 @@ For production, swap in [EconML](https://github.com/py-why/EconML) / [CausalML](
 
 **Example configs** (`.claude/skills/sm-causal-personalization/examples/`):
 
-- `ax3-romania-config.json` — English, standard report
+- `ax3-romania-config.json` — English, standard single-SKU report
 - `fit5pro-hungary-config.json` / `fit5pro-hungary-zh-config.json` — Hungary market, English / Chinese versions (Chinese version includes localized chart labels and a TL;DR summary page)
+- `aurora-airpurifier-category-config.json` — category portfolio diagnostic (ref 17), fictional brand / SKUs for illustration: `report_type=category_portfolio`
 
 **中文说明 / Chinese README** → [`README.zh.md`](README.zh.md)
 

@@ -6,7 +6,7 @@
 
 [![Claude Code skill](https://img.shields.io/badge/Claude%20Code-skill-6E56CF)](https://claude.ai/code)
 [![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)](#-依赖与示例)
-[![References](https://img.shields.io/badge/references-18-44883e)](#-参考库)
+[![References](https://img.shields.io/badge/references-19-44883e)](#-参考库)
 [![Scripts](https://img.shields.io/badge/scripts-5%20(validated)-blue)](#-脚本)
 [![Provenance contract](https://img.shields.io/badge/numbers-sourced%20%C2%B7%20assumed%20%C2%B7%20derived%20%C2%B7%20missing-orange)](#-方法论立场)
 [![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
@@ -64,6 +64,7 @@ python generate_report.py --config ../examples/ax3-romania-config.json --output 
 python generate_report.py --config ../examples/ax3-romania-config.json --validate-only   # 仅校验 provenance 合约
 python generate_report.py --config ../examples/ax3-romania-config.json --depth quick      # 高管速览：结论+单位经济+门控+证据
 python generate_report.py --config ../examples/ax3-romania-config.json --depth deep       # 完整报告 + 验证路线图（§18）
+python generate_report.py --config ../examples/aurora-airpurifier-category-config.json     # 类目货盘诊断（ref 17）
 python generate_report.py --demo > demo.html                                              # 最小 schema 示例
 ```
 
@@ -112,7 +113,7 @@ Layer 4 · 生成与服务（可选） LLM embedding 作特征（不进决策回
 每个 reference 固定模板：**何时用 → 决策树 → 最小必要数学 → 分步操作 → 常见死法 → 验收清单 → 文献**。决策指南，不是教科书。
 
 <details>
-<summary><b>展开全部 18 篇</b></summary>
+<summary><b>展开全部 19 篇</b></summary>
 
 **研究与立项**
 | Ref | 主题 |
@@ -147,6 +148,7 @@ Layer 4 · 生成与服务（可选） LLM embedding 作特征（不进决策回
 | `14` d-dimension-reviewer | D 维度生成门 + 独立对抗评审，open-blocking → BLOCKED 预算联动 |
 | `15` writing-rules | 语言策略、可证伪义务、诚实状态词、反 slop、叙事与理论可用性原则 |
 | `16` estimation-discipline | 四种 provenance 状态、Fermi 链、基准不对称、敏感度排序的 Missing 台账 |
+| `17` category-portfolio-diagnostic | 整类目货盘诊断，位于单品 pipeline 上游：6 审视镜（2 市场 + 4 审 P）、严重度受证据等级封顶、SKU 裁决（加大投入/维持现状/收割利润/计划退市）、4P 矩阵；选出的「加大投入」SKU 下沉至 ref 13 → 04 |
 
 </details>
 
@@ -190,8 +192,9 @@ pip install numpy pandas scipy scikit-learn matplotlib
 
 **示例配置**（`.claude/skills/sm-causal-personalization/examples/`）：
 
-- `ax3-romania-config.json` — 英文，标准报告
+- `ax3-romania-config.json` — 英文，标准单品报告
 - `fit5pro-hungary-config.json` / `fit5pro-hungary-zh-config.json` — 匈牙利市场，英 / 中双版本（中文版含本地化图表与 TL;DR 总结页）
+- `aurora-airpurifier-category-config.json` — 类目货盘诊断（ref 17），虚构品牌/型号示例：`report_type=category_portfolio`
 
 ---
 

@@ -1,6 +1,6 @@
 # 设计稿 · Category Portfolio Diagnostic（类目货盘诊断）
 
-> 状态：**设计稿，待 alexwang91 审阅**。通过后落为 `references/17-category-portfolio-diagnostic.md`（英文，与其他 ref 同模板）+ config schema 扩展 + HTML 新章节。
+> 状态：**已实现**（2026-06-15）。落地为 `references/17-category-portfolio-diagnostic.md` + `generate_report.py` 的 `report_type=category_portfolio` 渲染路径 + 示例 `examples/aurora-airpurifier-category-config.json`（虚构品牌/类目）。本稿保留为设计记录。
 > 本稿用中文，便于审阅。
 
 ---

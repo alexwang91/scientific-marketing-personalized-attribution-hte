@@ -15,8 +15,13 @@ description: >
   skip", "is this channel worth the spend", "did the promo really drive sales
   or would they have bought anyway", "which customers deserve a retention
   offer", "why isn't my targeting working".
-  Covers the full chain: problem framing → experiment design → HTE estimation →
-  uplift segmentation → policy optimization → governance / compliance.
+  Also trigger when the user brings a whole category line-up in a market and
+  wants a portfolio diagnostic: "how is my <category> doing in <country>",
+  "which SKU should I push, hold, harvest, or kill", "build me the 4P matrix
+  across my models", "diagnose my product line-up / price bands / competitors".
+  Covers the full chain: category portfolio diagnostic → problem framing →
+  experiment design → HTE estimation → uplift segmentation → policy
+  optimization → governance / compliance.
 ---
 
 # Scientific Marketing: Causal Personalization Decision System
@@ -114,6 +119,15 @@ is less critical than rank quality.
 ## Decision Tree: Which Reference Applies?
 
 ```
+FIRST — what scope did the user bring?
+├─ A whole CATEGORY + country + a list of in-market SKUs
+│   ("how is my <category> line-up doing in <country>; which SKU to push / kill")
+│   → 17-category-portfolio-diagnostic  (diagnose the portfolio, verdict each SKU;
+│       "Grow" SKUs then descend into 13 → 04 below)
+└─ A single SKU / campaign + country → continue to the tree below
+```
+
+```
 What is the user asking about?
 ├─ "Is this campaign / program worth it? How do I define metrics?"
 │   → 01-problem-framing
@@ -168,9 +182,14 @@ What is the user asking about?
 ├─ "How should the output be written; language; how to state uncertainty"
 │   → 15-writing-rules  (language policy, falsifiability obligation,
 │       honest-state vocabulary, anti-slop, form budget)
-└─ "Where does this number come from; estimates; benchmarks; sensitivity"
-    → 16-estimation-discipline  (four provenance states, Fermi chains,
-        benchmark asymmetry, sensitivity-sorted Missing ledger)
+├─ "Where does this number come from; estimates; benchmarks; sensitivity"
+│   → 16-estimation-discipline  (four provenance states, Fermi chains,
+│       benchmark asymmetry, sensitivity-sorted Missing ledger)
+└─ "Diagnose my whole category line-up in this market; which SKU to push / kill;
+│   build the 4P matrix" (operator brings a category + SKU list, not one product)
+    → 17-category-portfolio-diagnostic  (6 audit lenses [2 market + 4 audited-P],
+        severity capped by evidence grade, SKU verdicts Grow/Hold/Harvest/Exit;
+        report_type=category_portfolio in generate_report.py; feeds 13 → 04)
 ```
 
 ---
@@ -183,7 +202,7 @@ What is the user asking about?
 | `qini_auuc.py` | Qini curve, AUUC + bootstrap CI, decile calibration, two-model comparison | Section 11 AUUC launch gate |
 | `hte_starter.py` | T/X/DR-learner starter templates (sklearn, drop-in replaceable with EconML / CausalML) | — |
 | `ope_estimators.py` | IPS / SNIPS / Doubly Robust off-policy evaluation + support check | Section 14 OPE support check |
-| `generate_report.py` | Decision-memo HTML generator (v2). **Enforces the provenance contract**: build fails on any number that is not sourced / assumed / derived / missing; renders derivation chains; stamps BLOCKED on actions gated by open-blocking challenges; short-report mode when the pipeline terminates at the channel screen. **Depth modes**: `quick` (decision-critical sections only), `standard` (full report, default), `deep` (full + consolidated validation roadmap §18, built only from existing config data) | **Entry point for HTML output** |
+| `generate_report.py` | Decision-memo HTML generator (v2). **Enforces the provenance contract**: build fails on any number that is not sourced / assumed / derived / missing; renders derivation chains; stamps BLOCKED on actions gated by open-blocking challenges; short-report mode when the pipeline terminates at the channel screen. **Depth modes**: `quick` (decision-critical sections only), `standard` (full report, default), `deep` (full + consolidated validation roadmap §18, built only from existing config data). **Category mode**: `report_type=category_portfolio` renders the ref 17 portfolio diagnostic (6 audit lenses, SKU verdicts, 4P matrix) instead of the single-SKU report | **Entry point for HTML output** |
 
 ```bash
 python scripts/generate_report.py --config config.json --validate-only  # contract check
