@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aurora Air Purifiers — Poland Category Diagnostic</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  /* ── Design system · nexu-io/open-design (Linear palette) ─────────────────
+     Palette: dark graphite ink, warm neutral surfaces, muted performance orange.
+     Layout: fixed 210px sidebar TOC + fluid content column.
+  ────────────────────────────────────────────────────────────────────────── */
+  :root{
+    --bg:#f0f2f5;
+    --panel:#ffffff;
+    --surface:#f6f7fb;
+    --ink:#0f172a;
+    --ink-2:#334155;
+    --muted:#64748b;
+    --muted-2:#94a3b8;
+    --line:#e2e8f0;
+    --line-strong:#cbd5e1;
+    --accent:#4f46e5;
+    --accent-light:#eef2ff;
+    --ok:#dcfce7;--ok-ink:#166534;
+    --warn:#fef9c3;--warn-ink:#854d0e;
+    --bad:#fee2e2;--bad-ink:#991b1b;
+    --neutral:#f1f5f9;--neutral-ink:#475569;
+    --radius:8px;
+    --sidebar-w:220px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    font-size:14.5px;line-height:1.65;-webkit-font-smoothing:antialiased;
+    font-feature-settings:'cv01','ss03'}
+
+  /* ── Two-column layout: sidebar + content ── */
+  .page-layout{display:grid;grid-template-columns:var(--sidebar-w) 1fr;
+    max-width:1200px;margin:0 auto;min-height:100vh}
+  .content-col{min-width:0}
+  main{padding:32px 32px 72px;max-width:960px}
+  footer{padding:20px 32px 48px;color:var(--muted);font-size:12px;
+    border-top:1px solid var(--line);max-width:960px}
+
+  /* ── Sidebar TOC ── */
+  .sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;
+    background:var(--panel);border-right:1px solid var(--line);
+    padding:24px 0 32px;display:flex;flex-direction:column}
+  .toc-logo{padding:0 18px 16px;font-size:11px;font-weight:800;
+    letter-spacing:.04em;color:var(--ink);border-bottom:1px solid var(--line);
+    margin-bottom:6px}
+  .toc-logo span{color:var(--accent)}
+  .toc-group-label{padding:12px 18px 4px;font-size:9.5px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.1em;color:var(--muted-2)}
+  .toc-link{display:block;padding:5px 18px 5px 16px;font-size:12px;
+    color:var(--muted);text-decoration:none;line-height:1.4;
+    border-left:2px solid transparent;transition:color .12s,border-color .12s,background .12s;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .toc-link:hover{color:var(--ink);background:rgba(0,0,0,.03)}
+  .toc-link.active{color:var(--accent);border-left-color:var(--accent);
+    background:var(--accent-light);font-weight:600}
+
+  /* ── Typography ── */
+  h1{margin:0 0 8px;font-size:24px;font-weight:800;line-height:1.2;
+    letter-spacing:-.025em;color:var(--ink)}
+  h2{margin:36px 0 14px;font-size:17px;font-weight:700;letter-spacing:-.01em;
+    color:var(--ink);display:flex;align-items:center;gap:9px}
+  h2::before{content:'';display:inline-block;width:3px;height:18px;
+    background:var(--accent);border-radius:2px;flex-shrink:0}
+  h2+*{margin-top:0}
+  h3{margin:18px 0 8px;font-size:10.5px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--accent)}
+  p{margin:0 0 11px}
+  strong{font-weight:600}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* ── Narrative intro (section connective paragraph) ── */
+  .section-intro{font-size:13.5px;color:var(--ink-2);line-height:1.75;
+    margin:0 0 18px;padding:13px 16px;background:var(--surface);
+    border-radius:6px;border-left:3px solid var(--line-strong)}
+
+  /* ── Section card ── */
+  section{background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:26px 30px;margin:14px 0;
+    box-shadow:0 1px 3px rgba(0,0,0,.04)}
+
+  /* ── KPI stat strip ── */
+  .kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));
+    gap:10px;margin:0 0 20px}
+  .kpi{background:var(--surface);border:1px solid var(--line);border-radius:8px;
+    padding:18px 20px;position:relative;overflow:hidden}
+  .kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+    background:var(--accent)}
+  .kpi-num{font-size:26px;font-weight:800;letter-spacing:-.04em;
+    line-height:1;color:var(--ink);margin-bottom:6px}
+  .kpi-num .kpi-unit{font-size:13px;font-weight:600;color:var(--muted);margin-left:2px}
+  .kpi-label{font-size:10.5px;color:var(--muted);text-transform:uppercase;
+    letter-spacing:.06em;font-weight:600}
+
+  /* ── CAC bar chart ── */
+  .cac-chart{margin:0 0 20px;background:var(--surface);border:1px solid var(--line);
+    border-radius:8px;padding:20px 22px 14px}
+  .cac-chart-title{font-size:10.5px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--accent);margin-bottom:18px}
+  .cac-row{display:grid;grid-template-columns:140px 1fr;gap:12px;
+    align-items:center;margin:10px 0}
+  .cac-name{font-size:12px;font-weight:600;text-align:right;line-height:1.3;
+    color:var(--ink-2)}
+  .cac-track{position:relative;height:26px;background:#e9eaec;border-radius:5px}
+  .cac-bar{position:absolute;height:100%;border-radius:5px;top:0;
+    display:flex;align-items:center;padding:0 7px;
+    font-size:10px;font-weight:700;color:#fff;white-space:nowrap;min-width:2px}
+  .cac-bar.viable{background:#16a34a}
+  .cac-bar.undetermined{background:#d97706}
+  .cac-bar.not-viable{background:#dc2626}
+  .cac-bar.role-only{background:#9ca3af}
+  .cac-ceiling{position:absolute;top:-7px;bottom:-7px;width:2px;
+    background:var(--ink);z-index:6;border-radius:1px}
+  .cac-ceiling-flag{position:absolute;top:-22px;transform:translateX(-50%);
+    background:var(--ink);color:#fff;font-size:9.5px;font-weight:700;
+    padding:2px 6px;border-radius:4px;white-space:nowrap;z-index:7}
+  .cac-axis{display:grid;grid-template-columns:140px 1fr;gap:12px;margin-top:6px}
+  .cac-axis-labels{display:flex;justify-content:space-between;
+    font-size:10px;color:var(--muted);font-weight:600}
+  .cac-legend{margin-top:10px;font-size:11px;color:var(--muted);
+    display:flex;gap:12px;flex-wrap:wrap}
+  .cac-legend span{display:inline-flex;align-items:center;gap:5px}
+  .cac-legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+
+  /* ── Sensitivity priority cards ── */
+  .sens-chart{margin:0 0 20px}
+  .sens-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+    gap:9px;margin-top:10px}
+  .sens-card{background:var(--surface);border:1px solid var(--line);
+    border-radius:7px;padding:13px 15px;display:flex;gap:11px;align-items:flex-start}
+  .sens-badge{width:28px;height:28px;border-radius:50%;display:flex;
+    align-items:center;justify-content:center;font-size:11px;font-weight:800;
+    color:#fff;flex-shrink:0;margin-top:1px}
+  .sens-badge.p1{background:var(--accent)}
+  .sens-badge.p2{background:#d97706}
+  .sens-badge.p3{background:var(--ink-2)}
+  .sens-badge.pN{background:var(--muted)}
+  .sens-change{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px;line-height:1.4}
+  .sens-effect{font-size:11px;color:var(--muted);line-height:1.45}
+
+  /* ── Dimension score chart ── */
+  .dim-chart{margin:0 0 18px}
+  .dim-chart-row{display:grid;grid-template-columns:155px 1fr 34px;
+    gap:9px;align-items:center;margin:4px 0}
+  .dim-label-cell{font-size:11px;font-weight:600;color:var(--ink-2);
+    text-overflow:ellipsis;overflow:hidden;white-space:nowrap;text-align:right}
+  .dim-bar-track{background:#e5e7eb;border-radius:3px;height:12px}
+  .dim-bar{height:100%;border-radius:3px}
+  .dim-score-lbl{font-size:10px;font-weight:700;color:var(--muted);text-align:right}
+
+  /* ── Price comparison chart ── */
+  .price-chart{margin:0 0 20px;background:var(--surface);border:1px solid var(--line);
+    border-radius:8px;padding:20px 22px}
+  .price-chart-title{font-size:10.5px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--accent);margin-bottom:18px}
+  .price-axis-wrap{position:relative;padding:34px 0 30px;margin:0 8px}
+  .price-axis-line{height:3px;background:#dde1e7;border-radius:2px;position:relative}
+  .price-dot{position:absolute;transform:translateX(-50%) translateY(-50%);
+    top:50%;width:14px;height:14px;border-radius:50%;border:2.5px solid #fff;
+    box-shadow:0 1px 5px rgba(0,0,0,.18);z-index:2}
+  .price-dot.ours{background:var(--accent);width:20px;height:20px}
+  .price-dot.comp{background:var(--ink-2)}
+  .price-top-label{position:absolute;transform:translateX(-50%);
+    bottom:calc(100% + 12px);font-size:11px;font-weight:700;
+    white-space:nowrap;color:var(--ink)}
+  .price-top-label.ours{color:var(--accent)}
+  .price-bot-label{position:absolute;transform:translateX(-50%);
+    top:calc(100% + 12px);font-size:9.5px;color:var(--muted);white-space:nowrap}
+  .price-axis-ends{display:flex;justify-content:space-between;
+    font-size:10px;color:var(--muted);font-weight:600;margin-top:4px}
+
+  /* ── Budget allocation bar ── */
+  .budget-chart{margin:0 0 20px}
+  .budget-bar-row{display:flex;height:32px;border-radius:7px;overflow:hidden;
+    gap:2px;margin:10px 0}
+  .budget-seg{display:flex;align-items:center;padding:0 9px;
+    font-size:10px;font-weight:700;color:#fff;white-space:nowrap;
+    overflow:hidden;min-width:20px}
+  .budget-legend{font-size:11px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
+  .budget-legend span{display:inline-flex;align-items:center;gap:5px}
+  .budget-legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+
+  /* ── Channel verdict strip ── */
+  .cv-strip{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+  .cv-badge{display:inline-flex;align-items:center;gap:7px;
+    padding:8px 12px;border-radius:7px;border:1px solid var(--line);
+    background:var(--surface);font-size:12px}
+  .cv-badge-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .cv-name{font-weight:700;color:var(--ink);font-size:12px}
+  .cv-task{color:var(--muted);font-size:11px}
+
+  /* ── Challenge traffic lights ── */
+  .ch-visual{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+    gap:8px;margin:0 0 18px}
+  .ch-card{background:var(--surface);border:1px solid var(--line);
+    border-radius:7px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start}
+  .ch-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-top:3px}
+  .ch-dot.resolved{background:#16a34a}
+  .ch-dot.open{background:#d97706}
+  .ch-dot.open-blocking{background:#dc2626}
+  .ch-title{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px;line-height:1.35}
+  .ch-target{font-size:11px;color:var(--muted)}
+
+  /* ── Maturity ladder ── */
+  .maturity-ladder{display:flex;gap:2px;margin:0 0 18px;border-radius:7px;
+    overflow:hidden;border:1px solid var(--line)}
+  .ml-step{flex:1;padding:12px 14px;background:var(--surface);
+    font-size:11px;line-height:1.4;text-align:center;position:relative}
+  .ml-step.active{background:var(--accent);color:#fff}
+  .ml-step.done{background:var(--ok);color:var(--ok-ink)}
+  .ml-step-label{font-weight:700;font-size:12px;display:block;margin-bottom:2px}
+  .ml-step-desc{font-size:10.5px;opacity:.8}
+
+  /* ── Signature: verdict band ── */
+  .memo{border:none;padding:0;box-shadow:none;background:transparent}
+  .memo-verdict-band{background:#1a202c;color:#fff;
+    border-radius:10px 10px 0 0;padding:32px 30px 26px}
+  .verdict-label{font-size:10px;font-weight:700;letter-spacing:.12em;
+    text-transform:uppercase;opacity:.45;margin-bottom:8px}
+  .verdict{display:inline-block;padding:7px 22px;border-radius:6px;
+    font-weight:800;font-size:20px;letter-spacing:.03em}
+  .verdict-go{background:var(--ok);color:var(--ok-ink)}
+  .verdict-no-go{background:var(--bad);color:var(--bad-ink)}
+  .verdict-conditional{background:var(--accent);color:#fff}
+  .memo-body{background:var(--panel);border:1px solid var(--line);
+    border-top:none;border-radius:0 0 10px 10px;padding:26px 30px}
+  .memo-thesis{font-size:14.5px;line-height:1.75;margin:0 0 20px;color:var(--ink)}
+  .memo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
+  .memo-grid>div{border:1px solid var(--line);border-radius:7px;
+    padding:15px 17px;background:var(--surface)}
+  .memo-grid h3{margin:0 0 9px}
+  .memo-grid ul{margin:0;padding-left:17px}
+  .memo-grid li{margin:5px 0;font-size:13.5px;line-height:1.55}
+  .mk-legend{font-size:11px;color:var(--muted);margin:14px 0 0;
+    padding-top:11px;border-top:1px solid var(--line)}
+
+  /* ── Derivation chains ── */
+  .derivation{font-family:ui-monospace,"JetBrains Mono",Consolas,monospace;
+    font-size:11.5px;background:var(--surface);border:1px solid var(--line);
+    border-left:3px solid var(--accent);border-radius:0 7px 7px 0;
+    padding:11px 15px;margin:10px 0;line-height:1.8}
+  .deriv-name{font-weight:700;font-size:12.5px;margin-bottom:4px;color:var(--ink)}
+  .deriv-line{padding-left:11px;color:#4b5563}
+  .deriv-result{padding-left:11px;margin-top:4px;font-weight:700;color:var(--ink)}
+  .deriv-note{margin-top:7px;color:var(--muted);
+    font-family:'Inter',sans-serif;font-size:11.5px;
+    padding-top:6px;border-top:1px dashed var(--line)}
+  .prov-note{color:var(--muted);font-size:10.5px}
+
+  /* ── Provenance markers ── */
+  sup.mk{font-size:9px;font-weight:700;padding:1px 3px;margin-left:1px;border-radius:2px}
+  .mk-sourced{color:#065f46;background:#d1fae5}
+  .mk-assumed{color:#78350f;background:#fef3c7}
+  .mk-derived{color:#1e40af;background:#dbeafe}
+  .mk-missing{color:#991b1b;background:#fee2e2}
+  .missing-val{color:#9ca3af;border-bottom:1px dashed #d1d5db}
+
+  /* ── Pills ── */
+  .pill{display:inline-block;padding:2px 8px;border-radius:999px;
+    font-size:10.5px;font-weight:700;white-space:nowrap}
+  .pill-viable{background:var(--ok);color:var(--ok-ink)}
+  .pill-not-viable{background:var(--bad);color:var(--bad-ink)}
+  .pill-undetermined{background:var(--warn);color:var(--warn-ink)}
+  .pill-role-only{background:var(--neutral);color:var(--neutral-ink)}
+  .pill-resolved{background:var(--ok);color:var(--ok-ink)}
+  .pill-open{background:var(--warn);color:var(--warn-ink)}
+  .pill-open-blocking{background:var(--bad);color:var(--bad-ink)}
+  .blocked-stamp{display:inline-block;border:2px solid var(--bad-ink);
+    color:var(--bad-ink);padding:2px 8px;border-radius:4px;
+    font-weight:700;font-size:10.5px;transform:rotate(-1.5deg);margin-left:7px}
+
+  /* ── Depth banner (quick / deep modes) ── */
+  .depth-banner{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;
+    background:var(--accent-light);color:var(--accent);
+    border:1px solid var(--accent);border-radius:7px;
+    padding:9px 13px;margin:0 0 16px;font-size:11.5px;line-height:1.5}
+  .depth-banner b{font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+  .depth-banner span{color:var(--muted)}
+
+  /* ── Assumption → validation ledger (deep mode) ── */
+  .ledger-rank{font-weight:800;color:var(--muted);text-align:center;width:30px}
+  .ledger td .pill{margin:0}
+
+  /* ── Category portfolio: severity, verdict, findings ── */
+  .sev{display:inline-block;padding:2px 8px;border-radius:999px;
+    font-size:10px;font-weight:800;white-space:nowrap;text-transform:uppercase;letter-spacing:.03em}
+  .sev-critical{background:var(--bad);color:var(--bad-ink)}
+  .sev-major{background:var(--warn);color:var(--warn-ink)}
+  .sev-watch{background:var(--neutral);color:var(--neutral-ink)}
+  .verdict{display:inline-block;padding:2px 9px;border-radius:6px;
+    font-size:11px;font-weight:800;white-space:nowrap}
+  .verdict-grow{background:var(--ok);color:var(--ok-ink)}
+  .verdict-hold{background:var(--neutral);color:var(--neutral-ink)}
+  .verdict-harvest{background:var(--warn);color:var(--warn-ink)}
+  .verdict-exit{background:var(--bad);color:var(--bad-ink)}
+  .finding{border:1px solid var(--line);border-left:4px solid var(--line-strong);
+    border-radius:7px;padding:11px 14px;margin:10px 0;background:var(--panel)}
+  .finding.sv-critical{border-left-color:var(--bad-ink)}
+  .finding.sv-major{border-left-color:var(--warn-ink)}
+  .finding.sv-watch{border-left-color:var(--neutral-ink)}
+  .finding-head{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:6px}
+  .finding-title{font-weight:700;font-size:13px;color:var(--ink)}
+  .finding-meta{font-size:11.5px;color:var(--muted);margin:4px 0;line-height:1.6}
+  .finding-rec{font-size:12.5px;margin-top:7px;padding-top:7px;border-top:1px dashed var(--line);color:var(--ink)}
+  .lens-tag{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.04em;
+    padding:1px 6px;border-radius:4px;background:var(--accent-light);color:var(--accent)}
+  table.fourp th:first-child,table.fourp td:first-child{position:sticky;left:0;background:var(--surface)}
+
+  /* ── Tables ── */
+  .table-wrap{overflow-x:auto;border:1px solid var(--line);
+    border-radius:7px;background:#fff;margin:10px 0}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{background:var(--surface);font-weight:700;font-size:10px;text-transform:uppercase;
+    letter-spacing:.06em;color:var(--muted);padding:9px 13px;
+    border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  td{padding:10px 13px;border-bottom:1px solid var(--line);
+    vertical-align:top;text-align:left;font-size:12.5px}
+  tr:last-child td{border-bottom:0}
+  tr:nth-child(even) td{background:#fafafa}
+
+  /* ── Cards ── */
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+    gap:12px;margin-top:12px}
+  .card{border:1px solid var(--line);border-radius:7px;
+    padding:15px 17px;background:var(--surface);border-top:2px solid var(--line)}
+  .card.blocked{border-top-color:var(--bad-ink);background:#fff8f8}
+  .card h3{margin:0 0 9px;font-size:13.5px;font-weight:700;line-height:1.35}
+  .card dl{margin:0;font-size:12.5px}
+  .card dt{color:var(--muted);font-size:9.5px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.06em;margin-top:9px}
+  .card dd{margin:3px 0 0;line-height:1.5}
+
+  /* ── Callout ── */
+  .callout{border-left:3px solid var(--accent);border-radius:0 7px 7px 0;
+    padding:13px 17px;margin:12px 0;background:var(--accent-light);
+    font-size:13px;line-height:1.65}
+
+  /* ── Heatmap ── */
+  .heatmap{display:grid;gap:2px;background:var(--line);
+    border:1px solid var(--line);border-radius:7px;
+    overflow:hidden;font-size:11px;margin:12px 0;overflow-x:auto}
+  .hm-header{background:#1f2937;color:#fff;font-weight:700;
+    padding:7px 6px;text-align:center;font-size:9px;
+    text-transform:uppercase;letter-spacing:.03em;line-height:1.3;
+    word-break:break-all;min-width:36px}
+  .hm-label{background:#f9fafb;font-weight:600;padding:8px 10px;
+    font-size:11px;color:var(--ink);white-space:nowrap}
+  .hm-cell{padding:7px 4px;text-align:center;font-weight:800;
+    font-size:10.5px;letter-spacing:.03em;min-width:36px}
+  .hm-high{background:#4338ca;color:#fff}
+  .hm-test{background:#1e3a8a;color:#fff}
+  .hm-small{background:#e0e7ff;color:#3730a3}
+  .hm-none{background:#f9fafb;color:#d1d5db}
+  .hm-avoid{background:#991b1b;color:#fff}
+
+  /* ── Score dots ── */
+  .score-bar{display:inline-flex;gap:2px;vertical-align:middle}
+  .score-dot{width:7px;height:7px;border-radius:50%}
+  .score-dot.pass{background:var(--accent)}.score-dot.fail{background:#e5e7eb}
+
+  /* ── KOL card ── */
+  .kol-card{border:1px solid var(--line);border-radius:7px;
+    padding:15px 17px;background:var(--surface);margin:9px 0;
+    border-left:3px solid var(--accent)}
+
+  /* ── Checklist ── */
+  .checklist{list-style:none;padding:0;margin:0}
+  .checklist li{display:flex;gap:11px;padding:8px 0;
+    border-bottom:1px solid var(--line);font-size:13px;align-items:flex-start}
+  .checklist li:last-child{border-bottom:0}
+  .chk-pending{color:var(--warn-ink);font-weight:800;min-width:18px;margin-top:1px}
+  .chk-done{color:var(--ok-ink);font-weight:800;min-width:18px;margin-top:1px}
+  .chk-blocked{color:var(--bad-ink);font-weight:800;min-width:18px;margin-top:1px}
+
+  /* ── Evidence tags ── */
+  .tag{display:inline-block;padding:2px 7px;border-radius:999px;
+    font-size:10.5px;font-weight:700;white-space:nowrap}
+  .tag.evidence{background:var(--ok);color:var(--ok-ink)}
+  .tag.assumption{background:var(--warn);color:var(--warn-ink)}
+  .tag.hypothesis{background:#dbeafe;color:#1e40af}
+  .tag.needs-test{background:var(--bad);color:var(--bad-ink)}
+
+  @media(max-width:760px){
+    .page-layout{grid-template-columns:1fr}
+    .sidebar{display:none}
+    .memo-grid,.cards,.sens-grid,.ch-visual,.cv-strip{grid-template-columns:1fr}
+    .dim-chart-row{grid-template-columns:90px 1fr 30px}
+    .maturity-ladder{flex-direction:column}
+  }
+  @media print{body{background:#fff;font-size:12px}
+    .sidebar{display:none}
+    .page-layout{grid-template-columns:1fr}
+    section{break-inside:avoid;box-shadow:none}
+    .memo-verdict-band{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    a{color:var(--ink)}}
+  /* ── Decision horizon strip ── */
+  .hz-bar{display:flex;height:28px;border-radius:6px;overflow:hidden;margin:14px 0;gap:1px}
+  .hz-seg{display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:700;color:#fff;overflow:hidden;
+    white-space:nowrap;padding:0 8px;min-width:40px}
+
+  /* ── H-main opportunity bars ── */
+  .hm-bars{margin:14px 0}
+  .hm-bar-row{display:grid;grid-template-columns:150px 1fr auto;
+    gap:8px;align-items:center;margin:5px 0}
+  .hm-bar-label{font-size:11.5px;font-weight:600;color:var(--ink-2);text-align:right;line-height:1.3}
+  .hm-bar-track{height:18px;background:var(--surface);border-radius:4px;
+    border:1px solid var(--line);overflow:hidden}
+  .hm-bar-fill{height:100%;background:var(--accent);border-radius:4px;opacity:.8}
+  .hm-bar-card{font-size:10px;color:var(--muted);font-weight:600;white-space:nowrap}
+
+  /* ── Vertical timeline ── */
+  .timeline{position:relative;margin:16px 0 8px;padding-left:20px}
+  .timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;
+    width:2px;background:var(--line-strong);border-radius:1px}
+  .tl-item{position:relative;margin-bottom:14px}
+  .tl-item::before{content:'';position:absolute;left:-13px;top:5px;
+    width:10px;height:10px;border-radius:50%;background:var(--accent);
+    border:2px solid var(--panel)}
+  .tl-name{font-size:12.5px;font-weight:700;color:var(--ink);line-height:1.35}
+  .tl-date{font-size:10.5px;color:var(--muted);margin-top:2px}
+  .tl-desc{font-size:12px;color:var(--ink-2);margin-top:3px;line-height:1.5}
+
+  /* ── Suppression rule cards ── */
+  .supp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:10px;margin:12px 0}
+  .supp-card{background:var(--surface);border:1px solid var(--line);
+    border-radius:7px;padding:13px 14px;border-left:3px solid var(--bad-ink)}
+  .supp-dim{font-size:9.5px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.07em;color:var(--muted);margin-bottom:4px}
+  .supp-rule{font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.4;margin-bottom:4px}
+  .supp-reason{font-size:11.5px;color:var(--muted);line-height:1.45}
+
+  /* ── Provenance donut ── */
+  .prov-donut-wrap{display:flex;align-items:center;gap:24px;margin:14px 0}
+  .prov-donut{width:100px;height:100px;border-radius:50%;flex-shrink:0}
+  .prov-legend{display:flex;flex-direction:column;gap:7px}
+  .prov-leg-item{display:flex;align-items:center;gap:8px;font-size:12.5px}
+  .prov-leg-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+  .prov-leg-count{font-weight:700;color:var(--ink);margin-left:auto;padding-left:14px}
+
+  /* ── Checklist progress ── */
+  .chk-summary{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));
+    gap:8px;margin:12px 0}
+  .chk-stat{background:var(--surface);border:1px solid var(--line);border-radius:7px;
+    padding:11px 13px;text-align:center}
+  .chk-stat-num{font-size:22px;font-weight:800;letter-spacing:-.03em}
+  .chk-stat-label{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-top:3px}
+  .chk-progress-bar{height:7px;background:var(--surface);border-radius:4px;
+    border:1px solid var(--line);overflow:hidden;margin:6px 0 16px}
+  .chk-progress-fill{height:100%;background:var(--ok-ink);border-radius:4px}
+
+  /* ── KOL tier cards ── */
+  .kol-tiers{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+    gap:10px;margin:14px 0}
+  .kol-tier-card{border:1px solid var(--line);border-radius:7px;
+    padding:12px 14px;background:var(--surface);text-align:center}
+  .kol-tier-label{font-size:9.5px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--accent);margin-bottom:6px}
+  .kol-tier-name{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px;line-height:1.3}
+  .kol-tier-meta{font-size:11px;color:var(--muted);line-height:1.5}
+
+  /* ── Budget phase diagram ── */
+  .budget-phases{display:flex;flex-direction:column;gap:4px;margin:14px 0}
+  .bp-phase{display:grid;grid-template-columns:20px 1fr;gap:10px;align-items:start}
+  .bp-line{display:flex;flex-direction:column;align-items:center}
+  .bp-dot{width:12px;height:12px;border-radius:50%;background:var(--accent);
+    border:2px solid var(--panel);flex-shrink:0;margin-top:3px}
+  .bp-connector{width:2px;flex:1;background:var(--line-strong);margin:2px 0;min-height:14px}
+  .bp-body{background:var(--surface);border:1px solid var(--line);
+    border-radius:6px;padding:9px 12px;margin-bottom:2px}
+  .bp-name{font-size:12.5px;font-weight:700;color:var(--ink)}
+  .bp-cond{font-size:11px;color:var(--muted);margin-top:3px}
+  .bp-amt{font-size:11px;font-weight:700;color:var(--accent);margin-top:3px}
+
+  /* ── ECharts interactive figure ── */
+  .echart-wrap{background:var(--surface);border:1px solid var(--line);
+    border-radius:8px;padding:16px 18px 14px;margin:16px 0}
+  .echart-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
+    margin-bottom:4px}
+  .echart-title{font-size:13px;font-weight:700;color:var(--ink);
+    letter-spacing:-.01em;line-height:1.4}
+  .echart-badge{font-size:9px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.07em;padding:2px 7px;border-radius:4px;white-space:nowrap;
+    background:var(--accent-light);color:var(--accent)}
+  .echart-badge.illustrative{background:var(--warn);color:var(--warn-ink)}
+  .echart-sub{font-size:11.5px;color:var(--muted);margin:0 0 8px;line-height:1.5}
+  .echart{width:100%;height:330px}
+  @media(max-width:560px){.echart{height:300px}}
+  .echart-rebuttal{font-size:11px;color:var(--ink-2);line-height:1.55;
+    margin-top:8px;padding:8px 11px;background:var(--panel);
+    border-left:3px solid var(--warn-ink);border-radius:4px}
+  .echart-rebuttal strong{color:var(--warn-ink)}
+  .echart-fallback{display:flex;align-items:center;justify-content:center;
+    min-height:300px;color:var(--muted);font-size:12px;text-align:center;
+    padding:0 20px;line-height:1.6}
+
+  /* ── TL;DR summary page (s0) ── */
+  .tldr{background:var(--panel);border:1px solid var(--line-strong);
+    border-radius:12px;padding:24px 28px 26px;margin:14px 0 20px;
+    box-shadow:0 2px 10px rgba(0,0,0,.06)}
+  .tldr-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .tldr-kicker{font-size:10px;font-weight:800;text-transform:uppercase;
+    letter-spacing:.13em;color:var(--muted)}
+  .tldr-meta{font-size:11.5px;color:var(--muted);margin-left:auto}
+  .tldr-why{font-size:15.5px;line-height:1.6;color:var(--ink);
+    margin:0 0 18px;font-weight:600;letter-spacing:-.01em}
+  .tldr-why .tldr-why-lab{display:block;font-size:10px;font-weight:800;
+    text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:5px}
+  .tldr-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+  @media(max-width:640px){.tldr-cols{grid-template-columns:1fr}}
+  .tldr-col{border-radius:10px;padding:15px 17px}
+  .tldr-col.do{background:var(--ok)}
+  .tldr-col.dont{background:var(--bad)}
+  .tldr-col h4{margin:0 0 9px;font-size:12px;font-weight:800;
+    display:flex;align-items:center;gap:7px;letter-spacing:.01em}
+  .tldr-col.do h4{color:var(--ok-ink)}
+  .tldr-col.dont h4{color:var(--bad-ink)}
+  .tldr-col ul{margin:0;padding:0;list-style:none}
+  .tldr-col li{position:relative;padding:4px 0 4px 20px;font-size:13px;
+    line-height:1.5;color:var(--ink)}
+  .tldr-col li::before{position:absolute;left:0;top:4px;font-weight:800}
+  .tldr-col.do li::before{content:'✓';color:var(--ok-ink)}
+  .tldr-col.dont li::before{content:'✗';color:var(--bad-ink)}
+  .tldr-col li.empty{color:var(--muted);padding-left:0}
+  .tldr-col li.empty::before{content:''}
+  .tldr-roi{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:10px;padding:14px 18px}
+  .tldr-roi-lab{font-size:10px;font-weight:800;text-transform:uppercase;
+    letter-spacing:.1em;color:var(--muted);flex-shrink:0}
+  .tldr-roi-val{font-size:14px;font-weight:600;color:var(--ink);line-height:1.5}
+
+</style>
+</head>
+<body>
+<div class="page-layout">
+<aside class="sidebar">
+  <div class="toc-logo">Aurora Air Purifiers<br><span>Poland</span></div>
+  <div class="toc-group-label">CONTENTS</div>
+  <a class="toc-link" href="#c0" id="toc-c0">0 · Portfolio Verdict &amp; 4P Matri</a>
+<a class="toc-link" href="#c1" id="toc-c1">1 · Category Diagnosis</a>
+<a class="toc-link" href="#c2" id="toc-c2">2 · Price-Tier × Audience × Comp</a>
+<a class="toc-link" href="#c3" id="toc-c3">3 · SKU Detail &amp; 4P</a>
+<a class="toc-link" href="#c4" id="toc-c4">4 · Deep-Dive Handoff</a>
+<a class="toc-link" href="#s16" id="toc-s16">5 · Evidence &amp; Gaps</a>
+
+</aside>
+<div class="content-col">
+<main>
+<section id="c0">
+  <h2>0 · Portfolio Verdict &amp; 4P Matrix</h2>
+  <p class="section-intro">One screen: every SKU's verdict and its one-line move on each P. The findings that justify each row are in §1 — read down only where you disagree with a verdict.</p>
+  <div class="table-wrap"><table class="fourp">
+    <thead><tr>
+      <th>SKU</th>
+      <th>Verdict</th>
+      <th>Product</th>
+      <th>Price</th>
+      <th>Place</th>
+      <th>Promotion</th>
+    </tr></thead>
+    <tbody><tr><td><strong>Aurora A1 Mini</strong></td><td><span class="verdict verdict-harvest">Harvest</span></td><td>Entry value unit; freeze spec, no new investment</td><td>Hold list; stop deep promo, protect margin</td><td>Keep marketplace listing; no new channel spend</td><td>None — let it run down; plan successor</td></tr><tr><td><strong>Aurora S2</strong></td><td><span class="verdict verdict-hold">Hold</span></td><td>Keep as price-band defender</td><td>Match rivals −5–10%; price is the weapon</td><td>Diversify off the single marketplace (see L5)</td><td>Flash deals / bundles, no storytelling</td></tr><tr><td><strong>Aurora A3</strong></td><td><span class="verdict verdict-grow">Grow / Invest</span></td><td>Mid-tier hero; lead on whole-home coverage</td><td>Hold 600–800 PLN; defend, don't discount</td><td>Comparison sites + marketplace primary</td><td>Scenario content: old-unit pain, room-by-room upgrade</td></tr><tr><td><strong>Aurora A3 Plus</strong></td><td><span class="verdict verdict-exit">Exit / Plan succession</span></td><td>Redundant with A3; discontinue</td><td>Clearance only</td><td>Sell through existing channels, no replenishment</td><td>Liquidation, then delist</td></tr><tr><td><strong>Aurora Pro</strong></td><td><span class="verdict verdict-grow">Grow / Invest</span></td><td>Stretch into the open premium sub-band</td><td>Rebuild anchor; freeze permanent promo pending data</td><td>Brand media + DTC + expert reviews</td><td>Capability-led; prove the premium, don't discount it</td></tr><tr><td><strong>Aurora Max</strong></td><td><span class="verdict verdict-grow">Grow / Invest</span></td><td>Premium flagship; build brand altitude</td><td>Flagship premium; no price war</td><td>Few launch channels, but each with full content</td><td>Localized PDP + seeded expert reviews + tech media</td></tr></tbody></table></div>
+</section><section id="c1">
+  <h2>1 · Category Diagnosis</h2>
+  <p class="section-intro">The sharp part. Each finding names what is broken, the evidence behind it, and what it costs — then points to the 4P move that fixes it. Severity is capped by evidence grade: a claim on thin evidence is downgraded to Watch and routed to the test queue, never dressed up as a settled conclusion.</p>
+  <div class="finding sv-critical">
+  <div class="finding-head"><span class="sev sev-critical">Critical</span>
+    <span class="lens-tag">L1</span>
+    <span class="finding-title">No SKU in the fastest-growing premium sub-band</span></div>
+  <div>The 1,200–1,800 PLN sub-band is where premium growth concentrates, yet the portfolio jumps straight from Aurora Pro (entry-premium) to Aurora Max (flagship), leaving the band empty. Premium Rival P owns it uncontested.</div>
+  <div class="finding-meta"><strong>Evidence:</strong> Own + competitor price listings across the three largest local marketplaces · sourced</div>
+  <div class="finding-meta"><strong>Cost if ignored:</strong> The single fastest-growing band is conceded by default; share captured here compounds as the category premiumizes.</div>
+  <div class="finding-rec"><strong>→ </strong>Position Aurora Pro into the 1,200–1,800 band, or introduce a Pro variant — do not leave the band to one competitor.</div>
+</div><div class="finding sv-major">
+  <div class="finding-head"><span class="sev sev-major">Major</span>
+    <span class="lens-tag">L2</span>
+    <span class="finding-title">Volume concentrated in the shrinking entry tier</span></div>
+  <div>Two of six SKUs sit in the entry tier, which is shrinking under a price war while the mid and premium tiers grow. The portfolio's center of gravity is in the wrong place for where the category is heading.</div>
+  <div class="finding-meta"><strong>Evidence:</strong> Category tier-trend read from marketplace assortment and price-drop frequency · assumed</div>
+  <div class="finding-meta"><strong>Cost if ignored:</strong> Effort and inventory anchored to a declining tier; margin erodes as the price war deepens.</div>
+  <div class="finding-rec"><strong>→ </strong>Harvest entry SKUs for margin, shift new investment to mid and premium.</div>
+</div><div class="finding sv-major">
+  <div class="finding-head"><span class="sev sev-major">Major</span>
+    <span class="lens-tag">L3</span>
+    <span class="finding-title">A3 and A3 Plus cannibalize each other</span></div>
+  <div>Aurora A3 and A3 Plus occupy the same price point and the same mid-tier position. Channels are forced to pick one; the two split demand and weaken both listings' review velocity.</div>
+  <div class="finding-meta"><strong>Evidence:</strong> Own product catalog + marketplace pricing (both live at near-identical price) · sourced</div>
+  <div class="finding-meta"><strong>Cost if ignored:</strong> Self-inflicted split of mid-tier demand; neither SKU builds the review mass that wins the band.</div>
+  <div class="finding-rec"><strong>→ </strong>Consolidate on A3 as the mid-tier hero; plan A3 Plus exit and clear inventory.</div>
+</div><div class="finding sv-major">
+  <div class="finding-head"><span class="sev sev-major">Major</span>
+    <span class="lens-tag">L5</span>
+    <span class="finding-title">Entry SKUs over-concentrated on one marketplace</span></div>
+  <div>Both entry SKUs lean on a single marketplace for visibility, while a meaningful share of first-time buyers in this category discover via bundled retail and telco offers where Aurora is absent.</div>
+  <div class="finding-meta"><strong>Evidence:</strong> Channel presence audit vs typical category purchase paths · assumed</div>
+  <div class="finding-meta"><strong>Cost if ignored:</strong> Concentration risk plus missed discovery surface; one marketplace algorithm change can wipe entry-tier visibility.</div>
+  <div class="finding-rec"><strong>→ </strong>Diversify entry distribution into bundle/retail; treat the single marketplace as one lever, not the whole shelf.</div>
+</div><div class="finding sv-major">
+  <div class="finding-head"><span class="sev sev-major">Major</span>
+    <span class="lens-tag">L6</span>
+    <span class="finding-title">Flagship Aurora Max is invisible at launch</span></div>
+  <div>Aurora Max is the brand's premium flagship but has no localized product page and zero reviews on the main marketplace — buyers searching the premium band cannot find it or trust it.</div>
+  <div class="finding-meta"><strong>Evidence:</strong> Localized PDP absent; review count = 0 (both directly verifiable) · sourced</div>
+  <div class="finding-meta"><strong>Cost if ignored:</strong> The SKU meant to establish premium brand altitude is silent exactly where high-consideration buyers decide.</div>
+  <div class="finding-rec"><strong>→ </strong>Build a localized PDP, seed expert reviews, and lead with technical media — do not discount the flagship.</div>
+</div><div class="finding sv-watch">
+  <div class="finding-head"><span class="sev sev-watch">Watch</span>
+    <span class="lens-tag">L4</span>
+    <span class="finding-title">Aurora Pro may be stuck in a permanent-promo spiral</span></div>
+  <div>Aurora Pro appears to carry a near-constant discount, which would erode its anchor price and make full-price sell-through impossible — a classic premium-killing spiral.</div>
+  <div class="finding-meta"><strong>Evidence:</strong> Observed promo-banner frequency on listing pages (no access to actual transaction price or margin) · hypothesis · severity capped — evidence is hypothesis, enters test queue</div>
+  <div class="finding-meta"><strong>Cost if ignored:</strong> If true, the premium anchor is already damaged; if false, no action needed. Cannot tell without transaction-price data.</div>
+  <div class="finding-rec"><strong>→ </strong>Pull a 90-day transaction-price history; if permanent-discount confirmed, freeze promo and rebuild the anchor.</div>
+</div>
+</section><section id="c2">
+  <h2>2 · Price-Tier × Audience × Competitor Map</h2>
+  <p class="section-intro">Where the money is, who is there, and who you are up against. Tiers are clustered from observed price points (Hypothesis-grade) and meant to be confirmed or redrawn by the operator. The force column is the lever most likely to move that tier's buyer.</p>
+  <div class="table-wrap"><table>
+    <thead><tr>
+      <th>Price tier</th>
+      <th>Trend</th>
+      <th>Audience</th>
+      <th>Lever (force)</th>
+      <th>Your SKUs</th>
+      <th>Competitors</th>
+    </tr></thead>
+    <tbody><tr><td><strong>Entry · &lt; 600 PLN</strong></td><td>Shrinking (price war, thinning margin)</td><td>First-time, price-led buyers</td><td>Habit (low urgency, easy to defer)</td><td>Aurora A1 Mini, Aurora S2</td><td>Budget Rival X, Budget Rival Y</td></tr><tr><td><strong>Mid · 600–1,200 PLN</strong></td><td>Growing</td><td>Mainstream upgraders replacing a first unit</td><td>Push + Anxiety (old-unit pain; fear of buying wrong)</td><td>Aurora A3, Aurora A3 Plus</td><td>Mid Rival M, Mid Rival N</td></tr><tr><td><strong>Premium · &gt; 1,200 PLN</strong></td><td>Growing fast</td><td>Health-driven / large-home buyers</td><td>Pull (product capability itself attracts)</td><td>Aurora Pro, Aurora Max</td><td>Premium Rival P</td></tr></tbody></table></div>
+</section><section id="c3">
+  <h2>3 · SKU Detail &amp; 4P</h2>
+  <p class="section-intro">Each SKU in a few lines: the short diagnosis behind its verdict and its move on each P. Deep analysis is deliberately not here — it is earned in §4 by a Grow verdict.</p>
+  <div class="cards"><div class="card">
+  <h3>Aurora A1 Mini &nbsp;<span class="verdict verdict-harvest">Harvest</span></h3>
+  <p>Aging entry unit in a shrinking, price-warred tier. No room to grow profitably; milk margin and prepare a successor.</p>
+  <dl>
+    <dt>Product</dt><dd>Entry value unit; freeze spec, no new investment</dd>
+    <dt>Price</dt><dd>Hold list; stop deep promo, protect margin</dd>
+    <dt>Place</dt><dd>Keep marketplace listing; no new channel spend</dd>
+    <dt>Promotion</dt><dd>None — let it run down; plan successor</dd>
+  </dl></div><div class="card">
+  <h3>Aurora S2 &nbsp;<span class="verdict verdict-hold">Hold</span></h3>
+  <p>Defends the entry price band against Budget Rivals X/Y. Worth keeping as a price anchor, not worth scaling.</p>
+  <dl>
+    <dt>Product</dt><dd>Keep as price-band defender</dd>
+    <dt>Price</dt><dd>Match rivals −5–10%; price is the weapon</dd>
+    <dt>Place</dt><dd>Diversify off the single marketplace (see L5)</dd>
+    <dt>Promotion</dt><dd>Flash deals / bundles, no storytelling</dd>
+  </dl></div><div class="card">
+  <h3>Aurora A3 &nbsp;<span class="verdict verdict-grow">Grow / Invest</span></h3>
+  <p>Mid-tier in a growing band with the clearest profit room. The hero SKU — consolidate the mid tier around it. → deep dive.</p>
+  <dl>
+    <dt>Product</dt><dd>Mid-tier hero; lead on whole-home coverage</dd>
+    <dt>Price</dt><dd>Hold 600–800 PLN; defend, don't discount</dd>
+    <dt>Place</dt><dd>Comparison sites + marketplace primary</dd>
+    <dt>Promotion</dt><dd>Scenario content: old-unit pain, room-by-room upgrade</dd>
+  </dl></div><div class="card">
+  <h3>Aurora A3 Plus &nbsp;<span class="verdict verdict-exit">Exit / Plan succession</span></h3>
+  <p>Cannibalizes A3 at the same price and position (see L3). No distinct job. Clear inventory and let A3 own the band.</p>
+  <dl>
+    <dt>Product</dt><dd>Redundant with A3; discontinue</dd>
+    <dt>Price</dt><dd>Clearance only</dd>
+    <dt>Place</dt><dd>Sell through existing channels, no replenishment</dd>
+    <dt>Promotion</dt><dd>Liquidation, then delist</dd>
+  </dl></div><div class="card">
+  <h3>Aurora Pro &nbsp;<span class="verdict verdict-grow">Grow / Invest</span></h3>
+  <p>Entry-premium with room to climb into the empty 1,200–1,800 band (see L1). Confirm the promo-spiral risk first (L4). → deep dive.</p>
+  <dl>
+    <dt>Product</dt><dd>Stretch into the open premium sub-band</dd>
+    <dt>Price</dt><dd>Rebuild anchor; freeze permanent promo pending data</dd>
+    <dt>Place</dt><dd>Brand media + DTC + expert reviews</dd>
+    <dt>Promotion</dt><dd>Capability-led; prove the premium, don't discount it</dd>
+  </dl></div><div class="card">
+  <h3>Aurora Max &nbsp;<span class="verdict verdict-grow">Grow / Invest</span></h3>
+  <p>Flagship that should set brand altitude but launched invisible (see L6). Fix the digital shelf, then it can anchor the premium narrative. → deep dive.</p>
+  <dl>
+    <dt>Product</dt><dd>Premium flagship; build brand altitude</dd>
+    <dt>Price</dt><dd>Flagship premium; no price war</dd>
+    <dt>Place</dt><dd>Few launch channels, but each with full content</dd>
+    <dt>Promotion</dt><dd>Localized PDP + seeded expert reviews + tech media</dd>
+  </dl></div></div>
+</section><section id="c4">
+  <h2>4 · Deep-Dive Handoff</h2>
+  <p class="section-intro">A Grow verdict is a Hypothesis: it says there is profit room worth a closer look, not that the room is proven. Confirm the list, then run each SKU through the single-SKU pipeline (ref 13 → HTE / experiment design). Only a holdout / geo test turns “looks like room” into Sourced incremental upside.</p>
+  <p>SKUs that earned a Grow verdict — confirm, then send to the SKU pipeline:</p>
+  <ul><li><strong>Aurora A3</strong></li><li><strong>Aurora Pro</strong></li><li><strong>Aurora Max</strong></li></ul>
+</section><section id="s16">
+  <h2>16 · Evidence &amp; Gaps</h2>
+  <p class="section-intro">This is the audit trail for every number in the report. Every value above is either Sourced (linked to a URL), Assumed (basis explicitly stated), Derived (formula shown with inputs), or Missing (placeholder — no value was invented). The Missing ledger is ordered by sensitivity: the top items are the work plan.</p>
+  <div class="prov-donut-wrap"><div class="prov-donut" style="background:conic-gradient(#854d0e 0.0deg 120.0deg,#991b1b 120.0deg 360.0deg)"></div><div class="prov-legend"><div class="prov-leg-item"><div class="prov-leg-dot" style="background:#854d0e"></div><span>Assumed</span><span class="prov-leg-count">1</span></div><div class="prov-leg-item"><div class="prov-leg-dot" style="background:#991b1b"></div><span>Missing</span><span class="prov-leg-count">2</span></div></div></div>
+  <h3>Sourced facts</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Fact</th><th>Source</th><th>Accessed</th></tr></thead>
+    <tbody><tr><td>Premium air-purifier demand is growing faster than entry in the local market</td><td><a href='https://example.com/category-report'>Illustrative placeholder — replace with a real cited source</a></td><td>2026-06-15</td></tr></tbody></table></div>
+  <h3>Assumption register</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Assumption</th><th>Value</th><th>Basis</th></tr></thead>
+    <tbody><tr><td>Entry-tier category volume trend (YoY)</td><td>-0.1</td><td>Assumed −12% YoY from marketplace assortment thinning and price-drop frequency; not a measured figure</td></tr></tbody></table></div>
+  <h3>Missing ledger — sorted by sensitivity, this is the work plan</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>What</th><th>Where to get it</th><th>Cost</th><th>Blocks</th></tr></thead>
+    <tbody><tr><td>Aurora share in the 1,200–1,800 PLN sub-band</td><td>Marketplace share estimate or sell-through data</td><td>~1 day desk research</td><td>L1 sizing, Aurora Pro reposition decision</td></tr><tr><td>Aurora Pro 90-day transaction-price history</td><td>Internal sales / marketplace transaction export</td><td>Internal pull, ~2 hours</td><td>L4 promo-spiral confirmation</td></tr></tbody></table></div>
+</section>
+</main>
+<footer>
+  2026-06-15 &nbsp;·&nbsp;
+  Illustrative example — fictional data; every real number must be sourced, assumed, derived, or missing &nbsp;·&nbsp;
+  <a href="https://github.com/alexwang91/scientific-marketing-personalized-attribution-hte">methodology</a>
+</footer>
+</div>
+</div>
+<script>
+(function(){
+  var links = document.querySelectorAll(".toc-link");
+  var secs = document.querySelectorAll("section[id]");
+  if(!secs.length) return;
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(a){
+          a.classList.toggle("active", a.getAttribute("href")==="#"+e.target.id);
+        });
+      }
+    });
+  }, {threshold:0.15, rootMargin:"-8% 0px -75% 0px"});
+  secs.forEach(function(s){ obs.observe(s); });
+})();
+</script>
+
+</body>
+</html>

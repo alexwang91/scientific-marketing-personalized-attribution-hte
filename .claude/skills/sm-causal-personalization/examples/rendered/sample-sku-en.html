@@ -1,0 +1,988 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vela BrewPro B1 — Czech Republic Decision Memo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  /* ── Design system · nexu-io/open-design (Linear palette) ─────────────────
+     Palette: dark graphite ink, warm neutral surfaces, muted performance orange.
+     Layout: fixed 210px sidebar TOC + fluid content column.
+  ────────────────────────────────────────────────────────────────────────── */
+  :root{
+    --bg:#f0f2f5;
+    --panel:#ffffff;
+    --surface:#f6f7fb;
+    --ink:#0f172a;
+    --ink-2:#334155;
+    --muted:#64748b;
+    --muted-2:#94a3b8;
+    --line:#e2e8f0;
+    --line-strong:#cbd5e1;
+    --accent:#4f46e5;
+    --accent-light:#eef2ff;
+    --ok:#dcfce7;--ok-ink:#166534;
+    --warn:#fef9c3;--warn-ink:#854d0e;
+    --bad:#fee2e2;--bad-ink:#991b1b;
+    --neutral:#f1f5f9;--neutral-ink:#475569;
+    --radius:8px;
+    --sidebar-w:220px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    font-size:14.5px;line-height:1.65;-webkit-font-smoothing:antialiased;
+    font-feature-settings:'cv01','ss03'}
+
+  /* ── Two-column layout: sidebar + content ── */
+  .page-layout{display:grid;grid-template-columns:var(--sidebar-w) 1fr;
+    max-width:1200px;margin:0 auto;min-height:100vh}
+  .content-col{min-width:0}
+  main{padding:32px 32px 72px;max-width:960px}
+  footer{padding:20px 32px 48px;color:var(--muted);font-size:12px;
+    border-top:1px solid var(--line);max-width:960px}
+
+  /* ── Sidebar TOC ── */
+  .sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;
+    background:var(--panel);border-right:1px solid var(--line);
+    padding:24px 0 32px;display:flex;flex-direction:column}
+  .toc-logo{padding:0 18px 16px;font-size:11px;font-weight:800;
+    letter-spacing:.04em;color:var(--ink);border-bottom:1px solid var(--line);
+    margin-bottom:6px}
+  .toc-logo span{color:var(--accent)}
+  .toc-group-label{padding:12px 18px 4px;font-size:9.5px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.1em;color:var(--muted-2)}
+  .toc-link{display:block;padding:5px 18px 5px 16px;font-size:12px;
+    color:var(--muted);text-decoration:none;line-height:1.4;
+    border-left:2px solid transparent;transition:color .12s,border-color .12s,background .12s;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .toc-link:hover{color:var(--ink);background:rgba(0,0,0,.03)}
+  .toc-link.active{color:var(--accent);border-left-color:var(--accent);
+    background:var(--accent-light);font-weight:600}
+
+  /* ── Typography ── */
+  h1{margin:0 0 8px;font-size:24px;font-weight:800;line-height:1.2;
+    letter-spacing:-.025em;color:var(--ink)}
+  h2{margin:36px 0 14px;font-size:17px;font-weight:700;letter-spacing:-.01em;
+    color:var(--ink);display:flex;align-items:center;gap:9px}
+  h2::before{content:'';display:inline-block;width:3px;height:18px;
+    background:var(--accent);border-radius:2px;flex-shrink:0}
+  h2+*{margin-top:0}
+  h3{margin:18px 0 8px;font-size:10.5px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--accent)}
+  p{margin:0 0 11px}
+  strong{font-weight:600}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* ── Narrative intro (section connective paragraph) ── */
+  .section-intro{font-size:13.5px;color:var(--ink-2);line-height:1.75;
+    margin:0 0 18px;padding:13px 16px;background:var(--surface);
+    border-radius:6px;border-left:3px solid var(--line-strong)}
+
+  /* ── Section card ── */
+  section{background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:26px 30px;margin:14px 0;
+    box-shadow:0 1px 3px rgba(0,0,0,.04)}
+
+  /* ── KPI stat strip ── */
+  .kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));
+    gap:10px;margin:0 0 20px}
+  .kpi{background:var(--surface);border:1px solid var(--line);border-radius:8px;
+    padding:18px 20px;position:relative;overflow:hidden}
+  .kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+    background:var(--accent)}
+  .kpi-num{font-size:26px;font-weight:800;letter-spacing:-.04em;
+    line-height:1;color:var(--ink);margin-bottom:6px}
+  .kpi-num .kpi-unit{font-size:13px;font-weight:600;color:var(--muted);margin-left:2px}
+  .kpi-label{font-size:10.5px;color:var(--muted);text-transform:uppercase;
+    letter-spacing:.06em;font-weight:600}
+
+  /* ── CAC bar chart ── */
+  .cac-chart{margin:0 0 20px;background:var(--surface);border:1px solid var(--line);
+    border-radius:8px;padding:20px 22px 14px}
+  .cac-chart-title{font-size:10.5px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--accent);margin-bottom:18px}
+  .cac-row{display:grid;grid-template-columns:140px 1fr;gap:12px;
+    align-items:center;margin:10px 0}
+  .cac-name{font-size:12px;font-weight:600;text-align:right;line-height:1.3;
+    color:var(--ink-2)}
+  .cac-track{position:relative;height:26px;background:#e9eaec;border-radius:5px}
+  .cac-bar{position:absolute;height:100%;border-radius:5px;top:0;
+    display:flex;align-items:center;padding:0 7px;
+    font-size:10px;font-weight:700;color:#fff;white-space:nowrap;min-width:2px}
+  .cac-bar.viable{background:#16a34a}
+  .cac-bar.undetermined{background:#d97706}
+  .cac-bar.not-viable{background:#dc2626}
+  .cac-bar.role-only{background:#9ca3af}
+  .cac-ceiling{position:absolute;top:-7px;bottom:-7px;width:2px;
+    background:var(--ink);z-index:6;border-radius:1px}
+  .cac-ceiling-flag{position:absolute;top:-22px;transform:translateX(-50%);
+    background:var(--ink);color:#fff;font-size:9.5px;font-weight:700;
+    padding:2px 6px;border-radius:4px;white-space:nowrap;z-index:7}
+  .cac-axis{display:grid;grid-template-columns:140px 1fr;gap:12px;margin-top:6px}
+  .cac-axis-labels{display:flex;justify-content:space-between;
+    font-size:10px;color:var(--muted);font-weight:600}
+  .cac-legend{margin-top:10px;font-size:11px;color:var(--muted);
+    display:flex;gap:12px;flex-wrap:wrap}
+  .cac-legend span{display:inline-flex;align-items:center;gap:5px}
+  .cac-legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+
+  /* ── Sensitivity priority cards ── */
+  .sens-chart{margin:0 0 20px}
+  .sens-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+    gap:9px;margin-top:10px}
+  .sens-card{background:var(--surface);border:1px solid var(--line);
+    border-radius:7px;padding:13px 15px;display:flex;gap:11px;align-items:flex-start}
+  .sens-badge{width:28px;height:28px;border-radius:50%;display:flex;
+    align-items:center;justify-content:center;font-size:11px;font-weight:800;
+    color:#fff;flex-shrink:0;margin-top:1px}
+  .sens-badge.p1{background:var(--accent)}
+  .sens-badge.p2{background:#d97706}
+  .sens-badge.p3{background:var(--ink-2)}
+  .sens-badge.pN{background:var(--muted)}
+  .sens-change{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px;line-height:1.4}
+  .sens-effect{font-size:11px;color:var(--muted);line-height:1.45}
+
+  /* ── Dimension score chart ── */
+  .dim-chart{margin:0 0 18px}
+  .dim-chart-row{display:grid;grid-template-columns:155px 1fr 34px;
+    gap:9px;align-items:center;margin:4px 0}
+  .dim-label-cell{font-size:11px;font-weight:600;color:var(--ink-2);
+    text-overflow:ellipsis;overflow:hidden;white-space:nowrap;text-align:right}
+  .dim-bar-track{background:#e5e7eb;border-radius:3px;height:12px}
+  .dim-bar{height:100%;border-radius:3px}
+  .dim-score-lbl{font-size:10px;font-weight:700;color:var(--muted);text-align:right}
+
+  /* ── Price comparison chart ── */
+  .price-chart{margin:0 0 20px;background:var(--surface);border:1px solid var(--line);
+    border-radius:8px;padding:20px 22px}
+  .price-chart-title{font-size:10.5px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--accent);margin-bottom:18px}
+  .price-axis-wrap{position:relative;padding:34px 0 30px;margin:0 8px}
+  .price-axis-line{height:3px;background:#dde1e7;border-radius:2px;position:relative}
+  .price-dot{position:absolute;transform:translateX(-50%) translateY(-50%);
+    top:50%;width:14px;height:14px;border-radius:50%;border:2.5px solid #fff;
+    box-shadow:0 1px 5px rgba(0,0,0,.18);z-index:2}
+  .price-dot.ours{background:var(--accent);width:20px;height:20px}
+  .price-dot.comp{background:var(--ink-2)}
+  .price-top-label{position:absolute;transform:translateX(-50%);
+    bottom:calc(100% + 12px);font-size:11px;font-weight:700;
+    white-space:nowrap;color:var(--ink)}
+  .price-top-label.ours{color:var(--accent)}
+  .price-bot-label{position:absolute;transform:translateX(-50%);
+    top:calc(100% + 12px);font-size:9.5px;color:var(--muted);white-space:nowrap}
+  .price-axis-ends{display:flex;justify-content:space-between;
+    font-size:10px;color:var(--muted);font-weight:600;margin-top:4px}
+
+  /* ── Budget allocation bar ── */
+  .budget-chart{margin:0 0 20px}
+  .budget-bar-row{display:flex;height:32px;border-radius:7px;overflow:hidden;
+    gap:2px;margin:10px 0}
+  .budget-seg{display:flex;align-items:center;padding:0 9px;
+    font-size:10px;font-weight:700;color:#fff;white-space:nowrap;
+    overflow:hidden;min-width:20px}
+  .budget-legend{font-size:11px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
+  .budget-legend span{display:inline-flex;align-items:center;gap:5px}
+  .budget-legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+
+  /* ── Channel verdict strip ── */
+  .cv-strip{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+  .cv-badge{display:inline-flex;align-items:center;gap:7px;
+    padding:8px 12px;border-radius:7px;border:1px solid var(--line);
+    background:var(--surface);font-size:12px}
+  .cv-badge-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .cv-name{font-weight:700;color:var(--ink);font-size:12px}
+  .cv-task{color:var(--muted);font-size:11px}
+
+  /* ── Challenge traffic lights ── */
+  .ch-visual{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+    gap:8px;margin:0 0 18px}
+  .ch-card{background:var(--surface);border:1px solid var(--line);
+    border-radius:7px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start}
+  .ch-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-top:3px}
+  .ch-dot.resolved{background:#16a34a}
+  .ch-dot.open{background:#d97706}
+  .ch-dot.open-blocking{background:#dc2626}
+  .ch-title{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px;line-height:1.35}
+  .ch-target{font-size:11px;color:var(--muted)}
+
+  /* ── Maturity ladder ── */
+  .maturity-ladder{display:flex;gap:2px;margin:0 0 18px;border-radius:7px;
+    overflow:hidden;border:1px solid var(--line)}
+  .ml-step{flex:1;padding:12px 14px;background:var(--surface);
+    font-size:11px;line-height:1.4;text-align:center;position:relative}
+  .ml-step.active{background:var(--accent);color:#fff}
+  .ml-step.done{background:var(--ok);color:var(--ok-ink)}
+  .ml-step-label{font-weight:700;font-size:12px;display:block;margin-bottom:2px}
+  .ml-step-desc{font-size:10.5px;opacity:.8}
+
+  /* ── Signature: verdict band ── */
+  .memo{border:none;padding:0;box-shadow:none;background:transparent}
+  .memo-verdict-band{background:#1a202c;color:#fff;
+    border-radius:10px 10px 0 0;padding:32px 30px 26px}
+  .verdict-label{font-size:10px;font-weight:700;letter-spacing:.12em;
+    text-transform:uppercase;opacity:.45;margin-bottom:8px}
+  .verdict{display:inline-block;padding:7px 22px;border-radius:6px;
+    font-weight:800;font-size:20px;letter-spacing:.03em}
+  .verdict-go{background:var(--ok);color:var(--ok-ink)}
+  .verdict-no-go{background:var(--bad);color:var(--bad-ink)}
+  .verdict-conditional{background:var(--accent);color:#fff}
+  .memo-body{background:var(--panel);border:1px solid var(--line);
+    border-top:none;border-radius:0 0 10px 10px;padding:26px 30px}
+  .memo-thesis{font-size:14.5px;line-height:1.75;margin:0 0 20px;color:var(--ink)}
+  .memo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
+  .memo-grid>div{border:1px solid var(--line);border-radius:7px;
+    padding:15px 17px;background:var(--surface)}
+  .memo-grid h3{margin:0 0 9px}
+  .memo-grid ul{margin:0;padding-left:17px}
+  .memo-grid li{margin:5px 0;font-size:13.5px;line-height:1.55}
+  .mk-legend{font-size:11px;color:var(--muted);margin:14px 0 0;
+    padding-top:11px;border-top:1px solid var(--line)}
+
+  /* ── Derivation chains ── */
+  .derivation{font-family:ui-monospace,"JetBrains Mono",Consolas,monospace;
+    font-size:11.5px;background:var(--surface);border:1px solid var(--line);
+    border-left:3px solid var(--accent);border-radius:0 7px 7px 0;
+    padding:11px 15px;margin:10px 0;line-height:1.8}
+  .deriv-name{font-weight:700;font-size:12.5px;margin-bottom:4px;color:var(--ink)}
+  .deriv-line{padding-left:11px;color:#4b5563}
+  .deriv-result{padding-left:11px;margin-top:4px;font-weight:700;color:var(--ink)}
+  .deriv-note{margin-top:7px;color:var(--muted);
+    font-family:'Inter',sans-serif;font-size:11.5px;
+    padding-top:6px;border-top:1px dashed var(--line)}
+  .prov-note{color:var(--muted);font-size:10.5px}
+
+  /* ── Provenance markers ── */
+  sup.mk{font-size:9px;font-weight:700;padding:1px 3px;margin-left:1px;border-radius:2px}
+  .mk-sourced{color:#065f46;background:#d1fae5}
+  .mk-assumed{color:#78350f;background:#fef3c7}
+  .mk-derived{color:#1e40af;background:#dbeafe}
+  .mk-missing{color:#991b1b;background:#fee2e2}
+  .missing-val{color:#9ca3af;border-bottom:1px dashed #d1d5db}
+
+  /* ── Pills ── */
+  .pill{display:inline-block;padding:2px 8px;border-radius:999px;
+    font-size:10.5px;font-weight:700;white-space:nowrap}
+  .pill-viable{background:var(--ok);color:var(--ok-ink)}
+  .pill-not-viable{background:var(--bad);color:var(--bad-ink)}
+  .pill-undetermined{background:var(--warn);color:var(--warn-ink)}
+  .pill-role-only{background:var(--neutral);color:var(--neutral-ink)}
+  .pill-resolved{background:var(--ok);color:var(--ok-ink)}
+  .pill-open{background:var(--warn);color:var(--warn-ink)}
+  .pill-open-blocking{background:var(--bad);color:var(--bad-ink)}
+  .blocked-stamp{display:inline-block;border:2px solid var(--bad-ink);
+    color:var(--bad-ink);padding:2px 8px;border-radius:4px;
+    font-weight:700;font-size:10.5px;transform:rotate(-1.5deg);margin-left:7px}
+
+  /* ── Depth banner (quick / deep modes) ── */
+  .depth-banner{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;
+    background:var(--accent-light);color:var(--accent);
+    border:1px solid var(--accent);border-radius:7px;
+    padding:9px 13px;margin:0 0 16px;font-size:11.5px;line-height:1.5}
+  .depth-banner b{font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+  .depth-banner span{color:var(--muted)}
+
+  /* ── Assumption → validation ledger (deep mode) ── */
+  .ledger-rank{font-weight:800;color:var(--muted);text-align:center;width:30px}
+  .ledger td .pill{margin:0}
+
+  /* ── Category portfolio: severity, verdict, findings ── */
+  .sev{display:inline-block;padding:2px 8px;border-radius:999px;
+    font-size:10px;font-weight:800;white-space:nowrap;text-transform:uppercase;letter-spacing:.03em}
+  .sev-critical{background:var(--bad);color:var(--bad-ink)}
+  .sev-major{background:var(--warn);color:var(--warn-ink)}
+  .sev-watch{background:var(--neutral);color:var(--neutral-ink)}
+  .verdict{display:inline-block;padding:2px 9px;border-radius:6px;
+    font-size:11px;font-weight:800;white-space:nowrap}
+  .verdict-grow{background:var(--ok);color:var(--ok-ink)}
+  .verdict-hold{background:var(--neutral);color:var(--neutral-ink)}
+  .verdict-harvest{background:var(--warn);color:var(--warn-ink)}
+  .verdict-exit{background:var(--bad);color:var(--bad-ink)}
+  .finding{border:1px solid var(--line);border-left:4px solid var(--line-strong);
+    border-radius:7px;padding:11px 14px;margin:10px 0;background:var(--panel)}
+  .finding.sv-critical{border-left-color:var(--bad-ink)}
+  .finding.sv-major{border-left-color:var(--warn-ink)}
+  .finding.sv-watch{border-left-color:var(--neutral-ink)}
+  .finding-head{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:6px}
+  .finding-title{font-weight:700;font-size:13px;color:var(--ink)}
+  .finding-meta{font-size:11.5px;color:var(--muted);margin:4px 0;line-height:1.6}
+  .finding-rec{font-size:12.5px;margin-top:7px;padding-top:7px;border-top:1px dashed var(--line);color:var(--ink)}
+  .lens-tag{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.04em;
+    padding:1px 6px;border-radius:4px;background:var(--accent-light);color:var(--accent)}
+  table.fourp th:first-child,table.fourp td:first-child{position:sticky;left:0;background:var(--surface)}
+
+  /* ── Tables ── */
+  .table-wrap{overflow-x:auto;border:1px solid var(--line);
+    border-radius:7px;background:#fff;margin:10px 0}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{background:var(--surface);font-weight:700;font-size:10px;text-transform:uppercase;
+    letter-spacing:.06em;color:var(--muted);padding:9px 13px;
+    border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  td{padding:10px 13px;border-bottom:1px solid var(--line);
+    vertical-align:top;text-align:left;font-size:12.5px}
+  tr:last-child td{border-bottom:0}
+  tr:nth-child(even) td{background:#fafafa}
+
+  /* ── Cards ── */
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+    gap:12px;margin-top:12px}
+  .card{border:1px solid var(--line);border-radius:7px;
+    padding:15px 17px;background:var(--surface);border-top:2px solid var(--line)}
+  .card.blocked{border-top-color:var(--bad-ink);background:#fff8f8}
+  .card h3{margin:0 0 9px;font-size:13.5px;font-weight:700;line-height:1.35}
+  .card dl{margin:0;font-size:12.5px}
+  .card dt{color:var(--muted);font-size:9.5px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.06em;margin-top:9px}
+  .card dd{margin:3px 0 0;line-height:1.5}
+
+  /* ── Callout ── */
+  .callout{border-left:3px solid var(--accent);border-radius:0 7px 7px 0;
+    padding:13px 17px;margin:12px 0;background:var(--accent-light);
+    font-size:13px;line-height:1.65}
+
+  /* ── Heatmap ── */
+  .heatmap{display:grid;gap:2px;background:var(--line);
+    border:1px solid var(--line);border-radius:7px;
+    overflow:hidden;font-size:11px;margin:12px 0;overflow-x:auto}
+  .hm-header{background:#1f2937;color:#fff;font-weight:700;
+    padding:7px 6px;text-align:center;font-size:9px;
+    text-transform:uppercase;letter-spacing:.03em;line-height:1.3;
+    word-break:break-all;min-width:36px}
+  .hm-label{background:#f9fafb;font-weight:600;padding:8px 10px;
+    font-size:11px;color:var(--ink);white-space:nowrap}
+  .hm-cell{padding:7px 4px;text-align:center;font-weight:800;
+    font-size:10.5px;letter-spacing:.03em;min-width:36px}
+  .hm-high{background:#4338ca;color:#fff}
+  .hm-test{background:#1e3a8a;color:#fff}
+  .hm-small{background:#e0e7ff;color:#3730a3}
+  .hm-none{background:#f9fafb;color:#d1d5db}
+  .hm-avoid{background:#991b1b;color:#fff}
+
+  /* ── Score dots ── */
+  .score-bar{display:inline-flex;gap:2px;vertical-align:middle}
+  .score-dot{width:7px;height:7px;border-radius:50%}
+  .score-dot.pass{background:var(--accent)}.score-dot.fail{background:#e5e7eb}
+
+  /* ── KOL card ── */
+  .kol-card{border:1px solid var(--line);border-radius:7px;
+    padding:15px 17px;background:var(--surface);margin:9px 0;
+    border-left:3px solid var(--accent)}
+
+  /* ── Checklist ── */
+  .checklist{list-style:none;padding:0;margin:0}
+  .checklist li{display:flex;gap:11px;padding:8px 0;
+    border-bottom:1px solid var(--line);font-size:13px;align-items:flex-start}
+  .checklist li:last-child{border-bottom:0}
+  .chk-pending{color:var(--warn-ink);font-weight:800;min-width:18px;margin-top:1px}
+  .chk-done{color:var(--ok-ink);font-weight:800;min-width:18px;margin-top:1px}
+  .chk-blocked{color:var(--bad-ink);font-weight:800;min-width:18px;margin-top:1px}
+
+  /* ── Evidence tags ── */
+  .tag{display:inline-block;padding:2px 7px;border-radius:999px;
+    font-size:10.5px;font-weight:700;white-space:nowrap}
+  .tag.evidence{background:var(--ok);color:var(--ok-ink)}
+  .tag.assumption{background:var(--warn);color:var(--warn-ink)}
+  .tag.hypothesis{background:#dbeafe;color:#1e40af}
+  .tag.needs-test{background:var(--bad);color:var(--bad-ink)}
+
+  @media(max-width:760px){
+    .page-layout{grid-template-columns:1fr}
+    .sidebar{display:none}
+    .memo-grid,.cards,.sens-grid,.ch-visual,.cv-strip{grid-template-columns:1fr}
+    .dim-chart-row{grid-template-columns:90px 1fr 30px}
+    .maturity-ladder{flex-direction:column}
+  }
+  @media print{body{background:#fff;font-size:12px}
+    .sidebar{display:none}
+    .page-layout{grid-template-columns:1fr}
+    section{break-inside:avoid;box-shadow:none}
+    .memo-verdict-band{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    a{color:var(--ink)}}
+  /* ── Decision horizon strip ── */
+  .hz-bar{display:flex;height:28px;border-radius:6px;overflow:hidden;margin:14px 0;gap:1px}
+  .hz-seg{display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:700;color:#fff;overflow:hidden;
+    white-space:nowrap;padding:0 8px;min-width:40px}
+
+  /* ── H-main opportunity bars ── */
+  .hm-bars{margin:14px 0}
+  .hm-bar-row{display:grid;grid-template-columns:150px 1fr auto;
+    gap:8px;align-items:center;margin:5px 0}
+  .hm-bar-label{font-size:11.5px;font-weight:600;color:var(--ink-2);text-align:right;line-height:1.3}
+  .hm-bar-track{height:18px;background:var(--surface);border-radius:4px;
+    border:1px solid var(--line);overflow:hidden}
+  .hm-bar-fill{height:100%;background:var(--accent);border-radius:4px;opacity:.8}
+  .hm-bar-card{font-size:10px;color:var(--muted);font-weight:600;white-space:nowrap}
+
+  /* ── Vertical timeline ── */
+  .timeline{position:relative;margin:16px 0 8px;padding-left:20px}
+  .timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;
+    width:2px;background:var(--line-strong);border-radius:1px}
+  .tl-item{position:relative;margin-bottom:14px}
+  .tl-item::before{content:'';position:absolute;left:-13px;top:5px;
+    width:10px;height:10px;border-radius:50%;background:var(--accent);
+    border:2px solid var(--panel)}
+  .tl-name{font-size:12.5px;font-weight:700;color:var(--ink);line-height:1.35}
+  .tl-date{font-size:10.5px;color:var(--muted);margin-top:2px}
+  .tl-desc{font-size:12px;color:var(--ink-2);margin-top:3px;line-height:1.5}
+
+  /* ── Suppression rule cards ── */
+  .supp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:10px;margin:12px 0}
+  .supp-card{background:var(--surface);border:1px solid var(--line);
+    border-radius:7px;padding:13px 14px;border-left:3px solid var(--bad-ink)}
+  .supp-dim{font-size:9.5px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.07em;color:var(--muted);margin-bottom:4px}
+  .supp-rule{font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.4;margin-bottom:4px}
+  .supp-reason{font-size:11.5px;color:var(--muted);line-height:1.45}
+
+  /* ── Provenance donut ── */
+  .prov-donut-wrap{display:flex;align-items:center;gap:24px;margin:14px 0}
+  .prov-donut{width:100px;height:100px;border-radius:50%;flex-shrink:0}
+  .prov-legend{display:flex;flex-direction:column;gap:7px}
+  .prov-leg-item{display:flex;align-items:center;gap:8px;font-size:12.5px}
+  .prov-leg-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+  .prov-leg-count{font-weight:700;color:var(--ink);margin-left:auto;padding-left:14px}
+
+  /* ── Checklist progress ── */
+  .chk-summary{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));
+    gap:8px;margin:12px 0}
+  .chk-stat{background:var(--surface);border:1px solid var(--line);border-radius:7px;
+    padding:11px 13px;text-align:center}
+  .chk-stat-num{font-size:22px;font-weight:800;letter-spacing:-.03em}
+  .chk-stat-label{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-top:3px}
+  .chk-progress-bar{height:7px;background:var(--surface);border-radius:4px;
+    border:1px solid var(--line);overflow:hidden;margin:6px 0 16px}
+  .chk-progress-fill{height:100%;background:var(--ok-ink);border-radius:4px}
+
+  /* ── KOL tier cards ── */
+  .kol-tiers{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+    gap:10px;margin:14px 0}
+  .kol-tier-card{border:1px solid var(--line);border-radius:7px;
+    padding:12px 14px;background:var(--surface);text-align:center}
+  .kol-tier-label{font-size:9.5px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--accent);margin-bottom:6px}
+  .kol-tier-name{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px;line-height:1.3}
+  .kol-tier-meta{font-size:11px;color:var(--muted);line-height:1.5}
+
+  /* ── Budget phase diagram ── */
+  .budget-phases{display:flex;flex-direction:column;gap:4px;margin:14px 0}
+  .bp-phase{display:grid;grid-template-columns:20px 1fr;gap:10px;align-items:start}
+  .bp-line{display:flex;flex-direction:column;align-items:center}
+  .bp-dot{width:12px;height:12px;border-radius:50%;background:var(--accent);
+    border:2px solid var(--panel);flex-shrink:0;margin-top:3px}
+  .bp-connector{width:2px;flex:1;background:var(--line-strong);margin:2px 0;min-height:14px}
+  .bp-body{background:var(--surface);border:1px solid var(--line);
+    border-radius:6px;padding:9px 12px;margin-bottom:2px}
+  .bp-name{font-size:12.5px;font-weight:700;color:var(--ink)}
+  .bp-cond{font-size:11px;color:var(--muted);margin-top:3px}
+  .bp-amt{font-size:11px;font-weight:700;color:var(--accent);margin-top:3px}
+
+  /* ── ECharts interactive figure ── */
+  .echart-wrap{background:var(--surface);border:1px solid var(--line);
+    border-radius:8px;padding:16px 18px 14px;margin:16px 0}
+  .echart-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
+    margin-bottom:4px}
+  .echart-title{font-size:13px;font-weight:700;color:var(--ink);
+    letter-spacing:-.01em;line-height:1.4}
+  .echart-badge{font-size:9px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.07em;padding:2px 7px;border-radius:4px;white-space:nowrap;
+    background:var(--accent-light);color:var(--accent)}
+  .echart-badge.illustrative{background:var(--warn);color:var(--warn-ink)}
+  .echart-sub{font-size:11.5px;color:var(--muted);margin:0 0 8px;line-height:1.5}
+  .echart{width:100%;height:330px}
+  @media(max-width:560px){.echart{height:300px}}
+  .echart-rebuttal{font-size:11px;color:var(--ink-2);line-height:1.55;
+    margin-top:8px;padding:8px 11px;background:var(--panel);
+    border-left:3px solid var(--warn-ink);border-radius:4px}
+  .echart-rebuttal strong{color:var(--warn-ink)}
+  .echart-fallback{display:flex;align-items:center;justify-content:center;
+    min-height:300px;color:var(--muted);font-size:12px;text-align:center;
+    padding:0 20px;line-height:1.6}
+
+  /* ── TL;DR summary page (s0) ── */
+  .tldr{background:var(--panel);border:1px solid var(--line-strong);
+    border-radius:12px;padding:24px 28px 26px;margin:14px 0 20px;
+    box-shadow:0 2px 10px rgba(0,0,0,.06)}
+  .tldr-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .tldr-kicker{font-size:10px;font-weight:800;text-transform:uppercase;
+    letter-spacing:.13em;color:var(--muted)}
+  .tldr-meta{font-size:11.5px;color:var(--muted);margin-left:auto}
+  .tldr-why{font-size:15.5px;line-height:1.6;color:var(--ink);
+    margin:0 0 18px;font-weight:600;letter-spacing:-.01em}
+  .tldr-why .tldr-why-lab{display:block;font-size:10px;font-weight:800;
+    text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:5px}
+  .tldr-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+  @media(max-width:640px){.tldr-cols{grid-template-columns:1fr}}
+  .tldr-col{border-radius:10px;padding:15px 17px}
+  .tldr-col.do{background:var(--ok)}
+  .tldr-col.dont{background:var(--bad)}
+  .tldr-col h4{margin:0 0 9px;font-size:12px;font-weight:800;
+    display:flex;align-items:center;gap:7px;letter-spacing:.01em}
+  .tldr-col.do h4{color:var(--ok-ink)}
+  .tldr-col.dont h4{color:var(--bad-ink)}
+  .tldr-col ul{margin:0;padding:0;list-style:none}
+  .tldr-col li{position:relative;padding:4px 0 4px 20px;font-size:13px;
+    line-height:1.5;color:var(--ink)}
+  .tldr-col li::before{position:absolute;left:0;top:4px;font-weight:800}
+  .tldr-col.do li::before{content:'✓';color:var(--ok-ink)}
+  .tldr-col.dont li::before{content:'✗';color:var(--bad-ink)}
+  .tldr-col li.empty{color:var(--muted);padding-left:0}
+  .tldr-col li.empty::before{content:''}
+  .tldr-roi{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:10px;padding:14px 18px}
+  .tldr-roi-lab{font-size:10px;font-weight:800;text-transform:uppercase;
+    letter-spacing:.1em;color:var(--muted);flex-shrink:0}
+  .tldr-roi-val{font-size:14px;font-weight:600;color:var(--ink);line-height:1.5}
+
+</style>
+</head>
+<body>
+<div class="page-layout">
+<aside class="sidebar">
+  <div class="toc-logo">Vela BrewPro B1<br><span>Czech Republic</span></div>
+  <div class="toc-group-label">CONTENTS</div>
+  <a class="toc-link" href="#s0" id="toc-s0">0 · Summary</a>
+<a class="toc-link" href="#s1" id="toc-s1">1 · Decision Memo</a>
+<a class="toc-link" href="#s2" id="toc-s2">2 · The Math</a>
+<a class="toc-link" href="#s3" id="toc-s3">3 · Product &amp; Market Facts</a>
+<a class="toc-link" href="#s4" id="toc-s4">4 · Local Channel Map</a>
+<a class="toc-link" href="#s5" id="toc-s5">5 · D Dimensions</a>
+<a class="toc-link" href="#s7" id="toc-s7">7 · H-Main</a>
+<a class="toc-link" href="#s8" id="toc-s8">8 · Execution Gates</a>
+<a class="toc-link" href="#s9" id="toc-s9">9 · Challenges</a>
+<a class="toc-link" href="#s11" id="toc-s11">11 · Priority Plays</a>
+<a class="toc-link" href="#s14" id="toc-s14">14 · Test Plan</a>
+<a class="toc-link" href="#s16" id="toc-s16">16 · Evidence</a>
+<a class="toc-link" href="#s17" id="toc-s17">17 · Checklist</a>
+
+</aside>
+<div class="content-col">
+<main>
+<section id="s0" class="tldr">
+  <div class="tldr-top">
+    <span class="tldr-kicker">Bottom line</span>
+    <span class="verdict verdict-conditional">CONDITIONAL</span>
+    <span class="tldr-meta">Vela BrewPro B1 · Czech Republic · 2026-06-15</span>
+  </div>
+  <p class="tldr-why"><span class="tldr-why-lab">Why</span>Unit margin 2,797 CZK; CAC ceiling 1,678 CZK. No channel has local data proving CAC below the ceiling — benchmarks span the ceiling for Search and are only marginally viable at the optimistic corner for social. Do not allocate media budget; complete three zero-cost data pulls first, then re-evaluate at the 2026-07-15 checkpoint.</p>
+  <div class="tldr-cols">
+    <div class="tldr-col do">
+      <h4>Do this</h4>
+      <ul><li>Pull Czech keyword CPC for brand / category / pain-point terms (app-controlled coffee maker, grinder noise, etc.) via Google Keyword Planner. Zero cost; unlocks Search viability verdict.</li><li>Request Alza.cz sponsored placement rate card. One email; unlocks the channel closest to purchase intent.</li><li>Finance to confirm margin basis (gross vs net of retail share); also pull capsule subscription attach rate from historical orders — both shift the CAC ceiling directly.</li><li>2026-07-15: any channel projecting CAC below ceiling → unlock corresponding small pilot from envelope. All failing → rethink subscription upsell or bundle to raise effective LTV.</li></ul>
+    </div>
+    <div class="tldr-col dont">
+      <h4>Don't do this</h4>
+      <ul><li>KOL hero spend, broad social prospecting — unit economics cannot support them at current margin (see rejected options).</li></ul>
+    </div>
+  </div>
+  <div class="tldr-roi">
+    <span class="tldr-roi-lab">ROI</span>
+    <span class="tldr-roi-val">Undetermined — run the zero-cost data pulls before committing budget.</span>
+  </div>
+</section><section id="s1" class="memo">
+  <div class="memo-verdict-band">
+    <div class="verdict-label">VERDICT</div>
+    <div><span class="verdict verdict-conditional">CONDITIONAL</span></div>
+    <div style="margin-top:14px;opacity:.7;font-size:13px;font-weight:500;letter-spacing:.02em">Vela BrewPro B1 · Czech Republic · 2026-06-15</div>
+  </div>
+  <div class="memo-body">
+    <h1>1 · Decision Memo</h1>
+    <p class="memo-thesis"><strong>Thesis:</strong> Unit margin 2,797 CZK; CAC ceiling 1,678 CZK. No channel has local data proving CAC below the ceiling — benchmarks span the ceiling for Search and are only marginally viable at the optimistic corner for social. Do not allocate media budget; complete three zero-cost data pulls first, then re-evaluate at the 2026-07-15 checkpoint.</p>
+    <div class="hz-bar"><div class="hz-seg" style="width:60.0%;background:#166534" title="Now: 3"><span>Now 3</span></div><div class="hz-seg" style="width:20.0%;background:#854d0e" title="Checkpoint: 1"><span>Checkpoint 1</span></div><div class="hz-seg" style="width:20.0%;background:#991b1b" title="Never: 1"><span>Never 1</span></div></div>
+    <div class="memo-grid">
+      <div><h3>Now (zero cost)</h3><ul><li>Pull Czech keyword CPC for brand / category / pain-point terms (app-controlled coffee maker, grinder noise, etc.) via Google Keyword Planner. Zero cost; unlocks Search viability verdict.</li><li>Request Alza.cz sponsored placement rate card. One email; unlocks the channel closest to purchase intent.</li><li>Finance to confirm margin basis (gross vs net of retail share); also pull capsule subscription attach rate from historical orders — both shift the CAC ceiling directly.</li></ul><h3>At checkpoint</h3><ul><li>2026-07-15: any channel projecting CAC below ceiling → unlock corresponding small pilot from envelope. All failing → rethink subscription upsell or bundle to raise effective LTV.</li></ul><h3>Not under this math</h3><ul><li>KOL hero spend, broad social prospecting — unit economics cannot support them at current margin (see rejected options).</li></ul></div>
+      <div>
+        <h3>What overturns this thesis</h3><ul><li>Margin is actually 45%+ (ceiling rises to 2,157 CZK; Search mid-range benchmark becomes viable)</li><li>Capsule subscription attach rate &gt; 25% (effective 12-month LTV +40%; all channel screens re-run)</li><li>Alza.cz rate card significantly below benchmark</li></ul>
+        <h3>Weakest point of this report</h3><p style="margin:4px 0 0">Local CPC, landing-page CVR, and retail rate card are all missing; channel screen rests on benchmark ranges. Czech fully-automatic espresso penetration (households that already own a competing machine) is unquantified — this may be a more fundamental ceiling than CAC arithmetic alone.</p>
+      </div>
+    </div>
+    <p class="mk-legend">Number markers: ◆S sourced (linked) · ◇A assumed (basis stated) · ⊕D derived (chain shown) · ○M missing (no value — placeholder only)</p>
+  </div>
+</section><section id="s2">
+  <h2>2 · The Math</h2>
+  <p class="section-intro">The verdict above rests on a single economic logic: unit margin sets the ceiling on how much we can spend to acquire one customer. Every channel and every action in this report is evaluated against that ceiling. A benchmark can only disprove viability — it cannot confirm it.</p>
+  <div class="echart-wrap"><div class="echart-head"><span class="echart-title">From attributed revenue to true incremental</span><span class="echart-badge illustrative">Illustrative</span></div><p class="echart-sub">Platform attribution credits every conversion it touched. Strip out the buyers who would have converted anyway, plus organic and seasonal demand, and only the remainder is caused by the spend.</p><div class="echart" id="ec-waterfall"><div class="echart-fallback">Interactive chart requires ECharts (loaded over the network). Reconnect and refresh to view.</div></div><div class="echart-rebuttal"><strong>Overturn condition:</strong> Proportions are illustrative; the real split requires a holdout. If the holdout incremental is within 5% of platform-attributed, this decomposition is wrong and attribution can be trusted as-is.</div></div>
+  
+  <div class="cac-chart">
+  <div class="cac-chart-title">Channel CAC interval vs ceiling (HUF)</div>
+  <div class="cac-row"><div class="cac-name"></div><div class="cac-track" style="background:transparent;height:8px">
+    <div class="cac-ceiling-flag" style="left:8.6%">◄ CAC ceiling 1,678 CZK</div>
+    <div class="cac-ceiling" style="left:8.6%"></div>
+  </div></div>
+  <div class="cac-row"><div class="cac-name">Social prospecting (Meta / TikTok)</div><div class="cac-track"><div class="cac-bar undetermined" style="left:3.1%;width:89.5%" title="600–18,000">600–18,000</div><div class="cac-ceiling" style="left:8.6%"></div></div></div>
+  <div class="cac-axis"><div></div><div class="cac-axis-labels"><span>0</span><span>19,440 CZK</span></div></div>
+  <div class="cac-legend">
+    <span><i style="background:#16a34a"></i>viable (whole interval under ceiling)</span>
+    <span><i style="background:#f59e0b"></i>undetermined (interval spans ceiling)</span>
+    <span><i style="background:#dc2626"></i>not-viable (best case over ceiling)</span>
+  </div>
+  <p style="font-size:11px;color:var(--muted);margin:10px 0 0">Bar = benchmark CAC interval · vertical line = ceiling · colour = screen verdict. A benchmark can only disprove viability (best case over ceiling) — it can never prove it, so a bar fully under the ceiling is still 'undetermined' until local data confirms.</p>
+</div>
+  <div class="derivation">
+  <div class="deriv-name">Unit margin</div>
+  <div class="deriv-line">= price_plan × margin_rate</div>
+  <div class="deriv-line">= 7,990 CZK<sup class="mk mk-assumed">A<÷sup> <span class="prov-note">(Internal planning price; confirm against Alza ÷ )<÷span> × 35%<sup class="mk mk-assumed">A<÷sup> <span class="prov-note">(User input; not confirmed by finance; needs net-)<÷span></div>
+  <div class="deriv-result">= <strong>2,796 CZK</strong></div>
+  
+</div><div class="derivation">
+  <div class="deriv-name">CAC ceiling</div>
+  <div class="deriv-line">= unit_margin × cac_share</div>
+  <div class="deriv-line">= 2,796 CZK<sup class="mk mk-derived">D<÷sup> × 60%<sup class="mk mk-assumed">A<÷sup> <span class="prov-note">(Convention: acquisition ≤ 60% of first-order mar)<÷span></div>
+  <div class="deriv-result">= <strong>1,678 CZK</strong></div>
+  <div class="deriv-note">Central number for this report — all channel verdicts are measured against this.</div>
+</div><div class="derivation">
+  <div class="deriv-name">CAC ceiling (45% margin scenario)</div>
+  <div class="deriv-line">= price_plan × margin_rate_alt × cac_share</div>
+  <div class="deriv-line">= 7,990 CZK<sup class="mk mk-assumed">A<÷sup> <span class="prov-note">(Internal planning price; confirm against Alza ÷ )<÷span> × 45%<sup class="mk mk-assumed">A<÷sup> <span class="prov-note">(Sensitivity scenario: direct channel or higher r)<÷span> × 60%<sup class="mk mk-assumed">A<÷sup> <span class="prov-note">(Convention: acquisition ≤ 60% of first-order mar)<÷span></div>
+  <div class="deriv-result">= <strong>2,157 CZK</strong></div>
+  
+</div><div class="derivation">
+  <div class="deriv-name">Social prospecting CAC (benchmark estimate)</div>
+  <div class="deriv-line">= bench_social_cpm ÷ 1000 ÷ (bench_social_ctr × bench_lp_cvr)</div>
+  <div class="deriv-line">= 180 CZK–450 CZK<sup class="mk mk-assumed">A<÷sup> <span class="prov-note">(Industry benchmark range; not local data (benchm)<÷span> ÷ 1000 ÷ (0.5%–1.5%<sup class="mk mk-assumed">A<÷sup> <span class="prov-note">(Industry benchmark range; not local data)<÷span> × 0.5%–2%<sup class="mk mk-assumed">A<÷sup> <span class="prov-note">(Industry benchmark; cold traffic, below category)<÷span>)</div>
+  <div class="deriv-result">= <strong>600 CZK–18,000 CZK</strong></div>
+  <div class="deriv-note">Best-case corner (optimistic CPM + CTR + CVR): ~1,200 CZK — below ceiling, but only at the corner. Benchmark asymmetry: a range that spans the ceiling cannot confirm viability, only falsify it (ref 16). Verdict: undetermined.</div>
+</div>
+  <div class="sens-chart">
+  <h3>Sensitivity — which assumption flips the conclusion</h3>
+  <div class="sens-grid"><div class="sens-card"><div class="sens-badge p1">P1</div><div><div class="sens-change">Margin 35% → 45% (finance confirmation)</div><div class="sens-effect">CAC ceiling 1,678 → 2,157 CZK; Search mid-range benchmark becomes viable — highest-priority number to verify</div></div></div><div class="sens-card"><div class="sens-badge p2">P2</div><div><div class="sens-change">Capsule subscription attach rate &gt; 25%</div><div class="sens-effect">Effective 12-month LTV +40%; CAC ceiling recalculates upward; all channel screens re-run</div></div></div><div class="sens-card"><div class="sens-badge p3">P3</div><div><div class="sens-change">Alza.cz rate card below benchmark</div><div class="sens-effect">Retail media flips from undetermined to viable — shortest path to a confirmed channel</div></div></div><div class="sens-card"><div class="sens-badge pN">P4</div><div><div class="sens-change">Price defended at 7,990 vs discounting to 6,490 CZK</div><div class="sens-effect">Ceiling drops to 1,373 CZK; most channels would exit — pricing decision precedes media strategy</div></div></div></div>
+  <p style="font-size:12px;color:var(--muted);margin-top:8px">Verify in priority order: P1 first.</p>
+</div>
+  <h3>Channel viability screen (threshold: CAC ceiling above)</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Channel</th><th>Verdict</th><th>CAC estimate</th><th>Reasoning / what's missing</th></tr></thead>
+    <tbody><tr><td><strong>Alza.cz / Mall.cz retail media</strong></td><td><span class='pill pill-undetermined'>undetermined</span></td><td>—</td><td>Closest to purchase intent; rate card missing (one email resolves). Highest-priority verification.</td></tr><tr><td><strong>Search — brand terms</strong></td><td><span class='pill pill-undetermined'>undetermined</span></td><td>—</td><td>CPC missing; brand-term sure-thing risk (C1) means even if CAC looks good, holdout is required to prove incrementality.</td></tr><tr><td><strong>Search — category / pain-point terms</strong></td><td><span class='pill pill-undetermined'>undetermined</span></td><td>—</td><td>CPC and volume missing; 'app-controlled coffee maker' searchers may be high-consideration, reducing CVR vs branded queries.</td></tr><tr><td><strong>Social prospecting (Meta / TikTok)</strong></td><td><span class='pill pill-undetermined'>undetermined</span></td><td>600 CZK–18,000 CZK<sup class="mk mk-derived">D</sup></td><td>Benchmark best-case (1,200 CZK) is below ceiling but only at the optimistic corner — benchmark cannot confirm viability. Stays undetermined until local CVR is known.</td></tr><tr><td><strong>YouTube review content</strong></td><td><span class='pill pill-role-only'>role-only</span></td><td>—</td><td>Not evaluated on CAC. Role: answer the largest conversion barrier — 'why pay 7,990 CZK when a 4,990 CZK model exists'. Output is a content asset, not a direct-response acquisition channel.</td></tr><tr><td><strong>Retargeting</strong></td><td><span class='pill pill-undetermined'>undetermined</span></td><td>—</td><td>Depends on site traffic volume (missing); if done, 7-day short window + matched holdout required to separate incrementality from sure-things.</td></tr></tbody></table></div>
+  <p style="font-size:13px;color:var(--muted)">Rules: a benchmark-based estimate can prove <em>not-viable</em> (best case still fails) but never <em>viable</em> — that requires local data. <em>undetermined</em> means the interval spans the ceiling; the action is to get data, not to pick an endpoint.</p>
+</section><section id="s3">
+  <h2>3 · Product &amp; Market Facts</h2>
+  <p class="section-intro">The economics establish the ceiling. This section grounds the analysis in product reality: which features carry differentiation value, how the product is positioned against competitors, and which market facts constrain the channel and audience strategy.</p>
+  
+  
+  
+</section><section id="s4">
+  <h2>4 · Local Channel Map</h2>
+  <p class="section-intro">With the CAC ceiling set above, each channel is now screened: can its cost-per-acquisition interval fall under the ceiling? The verdict strip below gives the quick answer; the table below it provides the reasoning. Remember: a benchmark can only rule a channel OUT.</p>
+  <div class="cv-strip"><div class="cv-badge"><div class="cv-badge-dot" style="background:#d97706"></div><div><div class="cv-name">Alza.cz / Mall.cz retail media</div><div class="cv-task">Closest to purchase intent; rate card missing (one email res…</div></div></div><div class="cv-badge"><div class="cv-badge-dot" style="background:#d97706"></div><div><div class="cv-name">Search — brand terms</div><div class="cv-task">CPC missing; brand-term sure-thing risk (C1) means even if C…</div></div></div><div class="cv-badge"><div class="cv-badge-dot" style="background:#d97706"></div><div><div class="cv-name">Search — category / pain-point terms</div><div class="cv-task">CPC and volume missing; 'app-controlled coffee maker' search…</div></div></div><div class="cv-badge"><div class="cv-badge-dot" style="background:#d97706"></div><div><div class="cv-name">Social prospecting (Meta / TikTok)</div><div class="cv-task">Benchmark best-case (1,200 CZK) is below ceiling but only at…</div></div></div><div class="cv-badge"><div class="cv-badge-dot" style="background:#9ca3af"></div><div><div class="cv-name">YouTube review content</div><div class="cv-task">Not evaluated on CAC. Role: answer the largest conversion ba…</div></div></div><div class="cv-badge"><div class="cv-badge-dot" style="background:#d97706"></div><div><div class="cv-name">Retargeting</div><div class="cv-task">Depends on site traffic volume (missing); if done, 7-day sho…</div></div></div></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Channel</th><th>Task</th><th>Proxy quality</th><th>Verdict</th><th>CAC estimate</th><th>Note</th></tr></thead>
+    <tbody></tbody></table></div>
+  <p style="font-size:13px;color:var(--muted)">Benchmarks may prove <em>not-viable</em> (best case still fails ceiling) but never <em>viable</em>. <em>undetermined</em> = interval spans ceiling; data acquisition required.</p>
+</section><section id="s5">
+  <h2>5 · D Dimension Table &amp; Causal Activation Reviewer</h2>
+  <p class="section-intro">The channel screen tells us WHERE to reach buyers. The dimension table asks a different question: within those channels, which buyer characteristics predict incremental response? Each dimension must pass four criteria before entering budget: deployable proxy, testable incrementality, stated mechanism, no compliance or margin risk.</p>
+  <div class="echart-wrap"><div class="echart-head"><span class="echart-title">Who is worth treating: the four response types</span><span class="echart-badge">Conceptual</span></div><p class="echart-sub">Targeting by purchase probability hits Sure Things; targeting by uplift finds Persuadables — the only group whose purchase is caused by the action.</p><div class="echart" id="ec-quadrant"><div class="echart-fallback">Interactive chart requires ECharts (loaded over the network). Reconnect and refresh to view.</div></div></div>
+  <div class="echart-wrap"><div class="echart-head"><span class="echart-title">Should you personalize? Read the shape of τ(x)</span><span class="echart-badge">Schematic</span></div><p class="echart-sub">A single spike means everyone responds alike — do not personalize. A wide or bimodal spread means uplift is heterogeneous and segmentation pays.</p><div class="echart" id="ec-cate"><div class="echart-fallback">Interactive chart requires ECharts (loaded over the network). Reconnect and refresh to view.</div></div></div>
+  
+  <div class="table-wrap"><table>
+    <thead><tr><th>Dimension</th><th>Mechanism</th><th>Platform proxy</th><th>Score</th><th>Verdict</th><th>Status</th></tr></thead>
+    <tbody></tbody></table></div>
+  <p style="font-size:13px;color:var(--muted)">Verdicts: Retain = H or T in heatmap · Retain (test) = T or S · Demote S = S only · Suppression = exclude not target · Delete = remove.</p>
+  
+</section><section id="s7">
+  <h2>7 · H-Main Breakdown</h2>
+  <p class="section-intro">The heatmap above identified all H and T cells. This section narrows to the H-main cells: the specific channel-dimension combinations where we expect positive incremental lift. Each row here maps directly to a Treatment Card in section 8. Priority runs top to bottom.</p>
+  <div class="echart-wrap"><div class="echart-head"><span class="echart-title">What the treatment must move: the four forces</span><span class="echart-badge">Mechanism</span></div><p class="echart-sub">Push and Pull drive toward the purchase; Habit and Anxiety hold it back. Lift comes only when the treatment shifts a force that is still unsettled.</p><div class="echart" id="ec-forces"><div class="echart-fallback">Interactive chart requires ECharts (loaded over the network). Reconnect and refresh to view.</div></div></div>
+  
+  <p>These are the cells where HTE is expected to be positive. Each maps to a Treatment Card in the Execution Gates section. Priority order: top to bottom.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Channel × Dimension</th><th>HTE hypothesis</th><th>Treatment Card</th><th>Notes</th></tr></thead>
+    <tbody></tbody></table></div>
+</section><section id="s8">
+  <h2>8 · Execution Gates &amp; Treatment Cards</h2>
+  <p class="section-intro">Treatment Cards translate the H-main hypotheses from section 7 into operational plans. Each card specifies who we reach (audience), what we do (mechanism), what we protect against (guardrail), and how we measure (test). Gates must be cleared before budget unlocks.</p>
+  <p><strong>Maturity: L0</strong> — this analysis supports trial design and channel screening, not CATE claims or policy optimization.</p>
+  
+  <div class="callout"><strong>power_analysis.py</strong> — baseline CVR 1.2%, MDE 0.40%: ATE needs <strong>13,543/arm</strong>; an uplift-difference (HTE) test needs <strong>28,971/cell (115,884 total)</strong> ≈ <strong>24 days</strong> at 5,000 eligible/day. First round therefore runs coarse cells only (channel × primary message), not per-dimension HTE.</div>
+  <h3>Treatment Cards (H-main cells only)</h3>
+  <div class="cards"><div class="card">
+  <h3>A1 · Pull Czech keyword CPC and search volume </h3>
+  <dl>
+    
+    
+    <dt>Mechanism</dt><dd>Unlocks Search viability verdict; category volume also gives first estimate of addressable market ceiling (C2 first data point)</dd>
+    <dt>Guardrail</dt><dd>—</dd>
+    <dt>Measurement</dt><dd>Project CAC range vs ceiling 1,678 CZK</dd>
+    
+  </dl>
+</div><div class="card">
+  <h3>A2 · Request Alza.cz / Mall.cz retail media rate card </h3>
+  <dl>
+    
+    
+    <dt>Mechanism</dt><dd>Closest-to-purchase channel; most likely to pass the ceiling at current margin</dd>
+    <dt>Guardrail</dt><dd>Promo placement terms may require price support — check before committing</dd>
+    <dt>Measurement</dt><dd>Rate substituted into CAC formula</dd>
+    
+  </dl>
+</div><div class="card">
+  <h3>A3 · Finance to confirm margin basis + pull capsule subscription attach rate </h3>
+  <dl>
+    
+    
+    <dt>Mechanism</dt><dd>Top two sensitivity levers — these shift the ceiling itself</dd>
+    <dt>Guardrail</dt><dd>—</dd>
+    <dt>Measurement</dt><dd>Ceiling recalculation; all channel verdicts refresh</dd>
+    
+  </dl>
+</div><div class="card">
+  <h3>A4 · Search brand + category terms pilot </h3>
+  <dl>
+    
+    
+    <dt>Mechanism</dt><dd>High-intent capture; brand terms include built-in holdout to address C1</dd>
+    <dt>Guardrail</dt><dd>Brand-term sure-thing risk; stop if category CPC exceeds margin tolerance</dd>
+    <dt>Measurement</dt><dd>TP1: per-match-type incremental CAC</dd>
+    
+  </dl>
+</div></div>
+</section><section id="s9">
+  <h2>9 · Causal Activation Reviewer (campaign-level)</h2>
+  <p class="section-intro">An independent review pass raised these challenges after the initial analysis was complete. They are immutable — the analysis may respond but cannot rewrite them. Open-blocking challenges stamp every dependent action with a BLOCKED notice. Displaying unresolved challenges openly is the trust mechanism of this framework.</p>
+  <div class="ch-visual"><div class="ch-card"><div class="ch-dot open"></div><div><div class="ch-title">C1 · Search brand terms</div><div class="ch-target">Users searching 'Vela BrewPro' have likely already decided to buy. Does paid cap…</div></div></div><div class="ch-card"><div class="ch-dot open"></div><div><div class="ch-title">C2 · Addressable market ceiling</div><div class="ch-target">Czech households that already own a fully-automatic espresso machine represent n…</div></div></div><div class="ch-card"><div class="ch-dot open"></div><div><div class="ch-title">C3 · Retargeting incrementality</div><div class="ch-target">Retargeting routinely attributes purchases that would have happened anyway. With…</div></div></div></div>
+  <p>Challenges are raised by an independent review pass and are immutable — the analysis may respond but not rewrite them. <strong>open-blocking</strong> challenges stamp every action that depends on them. An unresolved challenge displayed openly is the trust mechanism; "resolved" requires data, not rhetoric.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Challenge</th><th>Question</th><th>Status</th><th>Resolution / evidence needed</th></tr></thead>
+    <tbody><tr><td><strong>C1</strong> · Search brand terms</td><td>Users searching 'Vela BrewPro' have likely already decided to buy. Does paid capture add incremental conversion or just pay for natural traffic?</td><td><span class='pill pill-open'>open</span></td><td>A4 includes a brand-term holdout — the test is its own answer; stays open until data arrives.</td></tr><tr><td><strong>C2</strong> · Addressable market ceiling</td><td>Czech households that already own a fully-automatic espresso machine represent near-zero incremental opportunity. What fraction of category search volume is non-convertible?</td><td><span class='pill pill-open'>open</span></td><td>Category search volume by intent type (A1 by-product) + optional survey on ownership penetration.</td></tr><tr><td><strong>C3</strong> · Retargeting incrementality</td><td>Retargeting routinely attributes purchases that would have happened anyway. Without a holdout, reported ROAS is inflated by sure-things.</td><td><span class='pill pill-open'>open</span></td><td>Matched holdout in any retargeting pilot; minimum 7-day conversion window and a non-exposed control group.</td></tr></tbody></table></div>
+</section><section id="s11">
+  <h2>11 · Priority Plays &amp; ROI Scenarios</h2>
+  <p class="section-intro">Given the channel screen, dimension scores, and budget structure above, these are the three moves with the highest expected return in the next 90 days. Each play references the Treatment Card it activates and carries a kill line that forces a decision before the next budget cycle.</p>
+  
+  <div class="callout">No uplift model scores available yet — AUUC gate will be applied when model predictions are generated after pilot data collection.</div>
+  <div class="cards"></div>
+</section><section id="s14">
+  <h2>14 · Test Plan</h2>
+  <p class="section-intro">Every Treatment Card from section 8 carries a falsifiable prediction and a kill line. These are not milestones — they are decision gates. On the decision date, the prediction either becomes Sourced evidence or the action is killed and the budget is returned.</p>
+  <div class="timeline"><div class="tl-item"><div class="tl-name">TP1 · Search per-match-type incremental CAC</div><div class="tl-date">&#128197; 2026-07-29</div><div class="tl-desc">Any match type: incremental CAC &gt; 2× ceiling for 7 consecutive days → that match…</div></div><div class="tl-item"><div class="tl-name">TP2 · Retail media incrementality</div><div class="tl-date">&#128197; 2026-07-29</div><div class="tl-desc">Net of any required price support, incremental CAC &gt; ceiling → stop that platfor…</div></div></div>
+  <p>Every claim that survives to budget carries a falsifiable prediction, a kill line, and a decision date. On that date the line either becomes Sourced or is declared dead.</p>
+  <div class="callout"><strong>power_analysis.py</strong> — baseline CVR 1.2%, MDE 0.40%: ATE needs <strong>13,543/arm</strong>; an uplift-difference (HTE) test needs <strong>28,971/cell (115,884 total)</strong> ≈ <strong>24 days</strong> at 5,000 eligible/day. First round therefore runs coarse cells only (channel × primary message), not per-dimension HTE.</div>
+  <div class="cards"><div class="card">
+  <h3>TP1 · Search per-match-type incremental CAC</h3>
+  <dl>
+    <dt>Prediction</dt><dd>Brand-term incremental CAC &gt; reported CAC due to sure-thing inflation; category-term CAC may be viable if CPC lands at benchmark low end.</dd>
+    <dt>Test</dt><dd>Post-checkpoint 2-week pilot, exact-match only. Brand terms run with holdout group; category and pain-point terms tracked separately.</dd>
+    <dt>Kill line</dt><dd>Any match type: incremental CAC &gt; 2× ceiling for 7 consecutive days → that match type's hypothesis is dead.</dd>
+    <dt>Decision date</dt><dd>2026-07-29</dd>
+  </dl>
+</div><div class="card">
+  <h3>TP2 · Retail media incrementality</h3>
+  <dl>
+    <dt>Prediction</dt><dd>Retail CAC &lt; Search category CAC; promotional placements show lower incremental rate than standard placements.</dd>
+    <dt>Test</dt><dd>Single-platform (Alza.cz first) category placement pilot; require platform to segment new vs returning buyer reporting.</dd>
+    <dt>Kill line</dt><dd>Net of any required price support, incremental CAC &gt; ceiling → stop that platform; re-examine retail terms.</dd>
+    <dt>Decision date</dt><dd>2026-07-29</dd>
+  </dl>
+</div></div>
+</section><section id="s16">
+  <h2>16 · Evidence &amp; Gaps</h2>
+  <p class="section-intro">This is the audit trail for every number in the report. Every value above is either Sourced (linked to a URL), Assumed (basis explicitly stated), Derived (formula shown with inputs), or Missing (placeholder — no value was invented). The Missing ledger is ordered by sensitivity: the top items are the work plan.</p>
+  <div class="prov-donut-wrap"><div class="prov-donut" style="background:conic-gradient(#166534 0.0deg 40.0deg,#854d0e 40.0deg 200.0deg,#1e40af 200.0deg 280.0deg,#991b1b 280.0deg 360.0deg)"></div><div class="prov-legend"><div class="prov-leg-item"><div class="prov-leg-dot" style="background:#166534"></div><span>Sourced</span><span class="prov-leg-count">2</span></div><div class="prov-leg-item"><div class="prov-leg-dot" style="background:#854d0e"></div><span>Assumed</span><span class="prov-leg-count">8</span></div><div class="prov-leg-item"><div class="prov-leg-dot" style="background:#1e40af"></div><span>Derived</span><span class="prov-leg-count">4</span></div><div class="prov-leg-item"><div class="prov-leg-dot" style="background:#991b1b"></div><span>Missing</span><span class="prov-leg-count">4</span></div></div></div>
+  <h3>Sourced facts</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Fact</th><th>Source</th><th>Accessed</th></tr></thead>
+    <tbody><tr><td>Vela BrewPro B1 planned retail price: 7,990 CZK (planning assumption; no public listing yet)</td><td><a href='https://example.com/placeholder'>Internal planning doc (placeholder)</a></td><td>2026-06-15</td></tr><tr><td>Competitor entry segment (Philips, DeLonghi) priced 4,990–6,490 CZK on Alza.cz (placeholder data)</td><td><a href='https://example.com/placeholder-alza-category'>Alza.cz category page (placeholder)</a></td><td>2026-06-15</td></tr><tr><td>Premium segment (Jura) priced 29,990–59,990 CZK — different purchase occasion, not a direct competitor</td><td><a href='https://example.com/placeholder-jura'>Alza.cz premium listings (placeholder)</a></td><td>2026-06-15</td></tr></tbody></table></div>
+  <h3>Assumption register</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Assumption</th><th>Value</th><th>Basis</th></tr></thead>
+    <tbody><tr><td>Planned retail price</td><td>7,990 CZK</td><td>Internal planning price; confirm against Alza / Mall listing before launch</td></tr><tr><td>Gross margin</td><td>35%</td><td>User input; not confirmed by finance; needs net-of-retail-share clarification</td></tr><tr><td>Gross margin (sensitivity scenario)</td><td>45%</td><td>Sensitivity scenario: direct channel or higher rebate structure</td></tr><tr><td>CAC share of margin</td><td>60%</td><td>Convention: acquisition ≤ 60% of first-order margin; remainder covers fulfillment and returns</td></tr><tr><td>Social prospecting CPM (benchmark)</td><td>180 CZK–450 CZK</td><td>Industry benchmark range; not local data (benchmarks falsify, not verify — ref 16)</td></tr><tr><td>Social CTR (benchmark)</td><td>0.5%–1.5%</td><td>Industry benchmark range; not local data</td></tr><tr><td>Landing-page CVR — cold traffic (benchmark)</td><td>0.5%–2%</td><td>Industry benchmark; cold traffic, below category search intent</td></tr><tr><td>Pilot budget envelope</td><td>80,000 CZK</td><td>Planning envelope; not committed — unlocked per channel after checkpoint gate</td></tr></tbody></table></div>
+  <h3>Missing ledger — sorted by sensitivity, this is the work plan</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>What</th><th>Where to get it</th><th>Cost</th><th>Blocks</th></tr></thead>
+    <tbody><tr><td>Czech keyword CPC (brand / category / pain-point)</td><td>Google Keyword Planner</td><td>0 budget, ~1 hour</td><td>Search channel verdict, Search CAC projection</td></tr><tr><td>Landing-page CVR (local, BrewPro B1)</td><td>Historical data or 2-week post-checkpoint pilot</td><td>Within pilot budget</td><td>All CAC projections requiring a conversion denominator</td></tr><tr><td>Alza.cz sponsored placement rate card</td><td>Direct inquiry to Alza account team</td><td>0 budget, 1 email</td><td>Retail media channel verdict</td></tr><tr><td>Capsule subscription attach rate</td><td>Internal order data</td><td>0 budget, internal data pull</td><td>LTV-adjusted CAC ceiling recalculation</td></tr></tbody></table></div>
+</section><section id="s17">
+  <h2>17 · Sources &amp; Verification Checklist</h2>
+  <p class="section-intro">Pre-launch verification checklist. All items must reach Done before any budget is unlocked. Pending items block the corresponding Treatment Cards. This checklist is the operational translation of the Missing ledger above.</p>
+  
+  <ul class="checklist"></ul>
+</section>
+</main>
+<footer>
+  2026-06-15 &nbsp;·&nbsp;
+  Every number is sourced, assumed, derived, or missing — none invented &nbsp;·&nbsp;
+  <a href="https://github.com/alexwang91/scientific-marketing-personalized-attribution-hte">methodology</a>
+</footer>
+</div>
+</div>
+<script>
+(function(){
+  var links = document.querySelectorAll(".toc-link");
+  var secs = document.querySelectorAll("section[id]");
+  if(!secs.length) return;
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(a){
+          a.classList.toggle("active", a.getAttribute("href")==="#"+e.target.id);
+        });
+      }
+    });
+  }, {threshold:0.15, rootMargin:"-8% 0px -75% 0px"});
+  secs.forEach(function(s){ obs.observe(s); });
+})();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script>
+(function(){
+  if (typeof echarts === 'undefined') return;   // CDN blocked → fallbacks stay
+  var L = {"q_x": "Would buy WITHOUT the action", "q_y": "Would buy WITH the action", "q_no": "No", "q_yes": "Yes", "q_persuadable": "Persuadables\n✓ target these", "q_sure": "Sure Things\nwasted spend", "q_lost": "Lost Causes\nwasted spend", "q_sleeping": "Sleeping Dogs\naction repels them", "q_persona": "high Push + high Anxiety", "cate_x": "Estimated uplift  τ(x)  →", "cate_y": "Customers", "cate_spike": "Spike — no heterogeneity (don't personalize)", "cate_wide": "Wide — worth segmenting", "cate_bimodal": "Bimodal — two distinct groups", "cate_zero": "τ = 0", "f_push": "Push · pain with status quo", "f_pull": "Pull · attraction of product", "f_habit": "Habit · inertia of routine", "f_anxiety": "Anxiety · fear of switching", "f_toward": "raises τ  →", "f_against": "←  lowers τ", "qini_x": "% of audience targeted (ranked by predicted uplift)", "qini_y": "Cumulative incremental conversions (%)", "qini_random": "Random targeting", "qini_perfect": "Perfect model (ceiling)", "qini_band": "Industry benchmark (Qini ≈ 0.25–0.40)", "wf_attributed": "Platform-attributed", "wf_sure": "− would-buy-anyway", "wf_organic": "− organic / seasonal", "wf_incremental": "True incremental", "wf_axis": "Revenue (illustrative units)"};
+  var INK='#0f172a', INK2='#334155', MUT='#64748b', LINE='#e2e8f0';
+  var ACC='#4f46e5', ACC2='#4338ca', DEEP='#1e3a8a', SOFT='#a5b4fc', SLATE='#94a3b8';
+  var BAD='#ef4444';
+  var charts = [];
+  function mount(id, opt){
+    var el = document.getElementById(id);
+    if(!el) return;
+    el.innerHTML='';
+    var c = echarts.init(el, null, {renderer:'svg'});
+    c.setOption(opt);
+    charts.push(c);
+  }
+  function gauss(x,mu,sd){ return Math.exp(-0.5*Math.pow((x-mu)/sd,2)); }
+
+  /* 1 · Persuadables 2×2 (conceptual) */
+  function rgba(c,a){
+    var m={'#4f46e5':[79,70,229],'#94a3b8':[148,163,184],'#ef4444':[239,68,68]};
+    var v=m[c]; return 'rgba('+v[0]+','+v[1]+','+v[2]+','+a+')';
+  }
+  mount('ec-quadrant', {
+    grid:{left:10,right:24,top:20,bottom:26,containLabel:true},
+    tooltip:{show:false},
+    xAxis:{type:'value',min:0,max:1,name:L.q_x,nameLocation:'middle',nameGap:30,
+      nameTextStyle:{color:MUT,fontSize:11},axisTick:{show:false},
+      axisLine:{lineStyle:{color:LINE}},
+      axisLabel:{color:INK,fontSize:11,formatter:function(v){return v===0.25?L.q_no:(v===0.75?L.q_yes:'');}},
+      splitLine:{show:false}},
+    yAxis:{type:'value',min:0,max:1,name:L.q_y,nameLocation:'middle',nameGap:14,
+      nameTextStyle:{color:MUT,fontSize:11},axisTick:{show:false},
+      axisLine:{lineStyle:{color:LINE}},
+      axisLabel:{color:INK,fontSize:11,formatter:function(v){return v===0.25?L.q_no:(v===0.75?L.q_yes:'');}},
+      splitLine:{show:false}},
+    series:[
+      {type:'scatter',symbolSize:0,silent:true,data:[],
+       markArea:{silent:true,data:[
+         [{itemStyle:{color:rgba(ACC,0.12)},coord:[0,0.5]},{coord:[0.5,1]}],
+         [{itemStyle:{color:rgba(SLATE,0.12)},coord:[0.5,0.5]},{coord:[1,1]}],
+         [{itemStyle:{color:rgba(SLATE,0.12)},coord:[0,0]},{coord:[0.5,0.5]}],
+         [{itemStyle:{color:rgba(BAD,0.12)},coord:[0.5,0]},{coord:[1,0.5]}]
+       ]},
+       markLine:{silent:true,symbol:'none',label:{show:false},
+         lineStyle:{color:LINE,type:'solid',width:1},data:[{xAxis:0.5},{yAxis:0.5}]}},
+      {type:'scatter',symbolSize:0,silent:true,
+       label:{show:true,formatter:function(p){return p.data[2];},color:INK,
+         fontSize:12,fontWeight:700,lineHeight:15,align:'center'},
+       data:[[0.25,0.78,L.q_persuadable],[0.75,0.78,L.q_sure],
+             [0.25,0.30,L.q_lost],[0.75,0.30,L.q_sleeping]]},
+      {type:'scatter',symbolSize:13,itemStyle:{color:ACC,borderColor:'#fff',borderWidth:2},
+       label:{show:true,position:'right',formatter:L.q_persona,color:ACC2,
+         fontSize:10,fontWeight:600},data:[[0.20,0.58]]}
+    ]
+  });
+
+  /* 2 · CATE distribution shapes (schematic) */
+  var xs=[]; for(var i=0;i<=60;i++){xs.push(i/60);}
+  function curve(mu,sd,amp){return xs.map(function(x){return [x, amp*gauss(x,mu,sd)];});}
+  var bim=xs.map(function(x){return [x, 0.55*gauss(x,0.18,0.05)+0.62*gauss(x,0.62,0.08)];});
+  mount('ec-cate', {
+    grid:{left:8,right:18,top:20,bottom:54,containLabel:true},
+    legend:{bottom:0,icon:'roundRect',itemWidth:11,itemHeight:11,itemGap:16,
+      textStyle:{color:INK2,fontSize:10.5}},
+    tooltip:{show:false},
+    xAxis:{type:'value',min:0,max:1,name:L.cate_x,nameLocation:'middle',nameGap:26,
+      nameTextStyle:{color:MUT,fontSize:11},axisLabel:{show:false},axisTick:{show:false},
+      axisLine:{lineStyle:{color:LINE}},splitLine:{show:false}},
+    yAxis:{type:'value',name:L.cate_y,nameLocation:'middle',nameGap:14,
+      nameTextStyle:{color:MUT,fontSize:11},axisLabel:{show:false},axisTick:{show:false},
+      axisLine:{show:false},splitLine:{show:false}},
+    series:[
+      {name:L.cate_spike,type:'line',smooth:true,symbol:'none',data:curve(0.18,0.022,1.0),
+       lineStyle:{color:DEEP,width:2},areaStyle:{color:rgba('#4f46e5',0.05)},z:3,
+       markLine:{silent:true,symbol:'none',label:{show:true,formatter:L.cate_zero,
+         color:MUT,fontSize:10,position:'start'},lineStyle:{color:SLATE,type:'dashed',width:1},
+         data:[{xAxis:0.18}]}},
+      {name:L.cate_wide,type:'line',smooth:true,symbol:'none',data:curve(0.5,0.17,0.4),
+       lineStyle:{color:ACC,width:2},areaStyle:{color:rgba('#4f46e5',0.08)}},
+      {name:L.cate_bimodal,type:'line',smooth:true,symbol:'none',data:bim,
+       lineStyle:{color:SOFT,width:2},areaStyle:{color:rgba('#4f46e5',0.05)}}
+    ]
+  });
+
+  /* 3 · Four Forces balance (mechanism) */
+  mount('ec-forces', {
+    grid:{left:10,right:80,top:14,bottom:24,containLabel:true},
+    tooltip:{trigger:'item',formatter:function(p){return p.name;}},
+    xAxis:{type:'value',min:-1,max:1,axisLabel:{show:false},axisTick:{show:false},
+      axisLine:{show:false},splitLine:{show:false},
+      name:L.f_toward,nameLocation:'end',nameTextStyle:{color:ACC2,fontSize:10,fontWeight:600}},
+    yAxis:{type:'category',data:[L.f_anxiety,L.f_habit,L.f_pull,L.f_push],
+      axisLabel:{color:INK,fontSize:11.5,fontWeight:600,width:150,overflow:'truncate'},
+      axisTick:{show:false},axisLine:{show:false}},
+    series:[{type:'bar',barWidth:'52%',
+      label:{show:false},
+      data:[
+        {value:-0.62,itemStyle:{color:SLATE,borderRadius:[3,0,0,3]}},
+        {value:-0.42,itemStyle:{color:SLATE,borderRadius:[3,0,0,3]}},
+        {value:0.52,itemStyle:{color:ACC,borderRadius:[0,3,3,0]}},
+        {value:0.72,itemStyle:{color:ACC,borderRadius:[0,3,3,0]}}
+      ],
+      markLine:{silent:true,symbol:'none',label:{show:false},
+        lineStyle:{color:INK2,width:1.5},data:[{xAxis:0}]}}]
+  });
+
+  /* 4 · Qini / AUUC curve (illustrative template + benchmark band) */
+  var qx=[]; for(var j=0;j<=100;j+=5){qx.push(j);}
+  var rnd=qx.map(function(x){return [x,x];});
+  var perfect=qx.map(function(x){return [x, Math.min(100, x*100/30)];});
+  var bench=qx.map(function(x){return [x, Math.round(100*(1-Math.pow(1-x/100,2.2)))];});
+  mount('ec-qini', {
+    grid:{left:8,right:22,top:18,bottom:54,containLabel:true},
+    legend:{bottom:0,icon:'roundRect',itemWidth:14,itemHeight:4,itemGap:16,
+      textStyle:{color:INK2,fontSize:10.5}},
+    tooltip:{trigger:'axis',valueFormatter:function(v){return v+'%';}},
+    xAxis:{type:'value',min:0,max:100,name:L.qini_x,nameLocation:'middle',nameGap:30,
+      nameTextStyle:{color:MUT,fontSize:11},axisLabel:{color:MUT,fontSize:10,formatter:'{value}%'},
+      axisLine:{lineStyle:{color:LINE}},splitLine:{show:false},axisTick:{show:false}},
+    yAxis:{type:'value',min:0,max:100,name:L.qini_y,nameLocation:'middle',nameGap:34,
+      nameTextStyle:{color:MUT,fontSize:11},axisLabel:{color:MUT,fontSize:10,formatter:'{value}'},
+      axisLine:{show:false},splitLine:{lineStyle:{color:LINE,type:'dashed'}},axisTick:{show:false}},
+    series:[
+      {name:L.qini_band,type:'line',smooth:true,symbol:'none',data:bench,
+       lineStyle:{color:ACC,width:2.5},areaStyle:{color:rgba('#4f46e5',0.12)},z:3},
+      {name:L.qini_perfect,type:'line',smooth:true,symbol:'none',data:perfect,
+       lineStyle:{color:SOFT,width:1.5,type:'dashed'}},
+      {name:L.qini_random,type:'line',symbol:'none',data:rnd,
+       lineStyle:{color:SLATE,width:1.5,type:'dashed'}}
+    ]
+  });
+
+  /* 5 · Attributed → incremental waterfall (illustrative) */
+  var base=[0,40,20,0], val=[100,60,20,20];
+  var wfColor=[ACC2,SLATE,SLATE,ACC];
+  mount('ec-waterfall', {
+    grid:{left:8,right:18,top:28,bottom:8,containLabel:true},
+    tooltip:{trigger:'axis',axisPointer:{type:'shadow'},
+      formatter:function(ps){var p=ps[ps.length-1];return p.name+': '+p.value;}},
+    xAxis:{type:'category',data:[L.wf_attributed,L.wf_sure,L.wf_organic,L.wf_incremental],
+      axisLabel:{color:INK,fontSize:10.5,interval:0,width:90,overflow:'break',lineHeight:13},
+      axisTick:{show:false},axisLine:{lineStyle:{color:LINE}}},
+    yAxis:{type:'value',name:L.wf_axis,nameTextStyle:{color:MUT,fontSize:10,align:'left'},
+      axisLabel:{color:MUT,fontSize:10},axisLine:{show:false},
+      splitLine:{lineStyle:{color:LINE,type:'dashed'}},axisTick:{show:false}},
+    series:[
+      {type:'bar',stack:'t',silent:true,itemStyle:{color:'transparent'},
+       emphasis:{itemStyle:{color:'transparent'}},data:base},
+      {type:'bar',stack:'t',barWidth:'48%',
+       label:{show:true,position:'top',color:INK,fontSize:11,fontWeight:700},
+       data:val.map(function(v,k){return {value:v,itemStyle:{color:wfColor[k],borderRadius:[3,3,0,0]}};})}
+    ]
+  });
+
+  window.addEventListener('resize', function(){ charts.forEach(function(c){c.resize();}); });
+})();
+</script>
+
+</body>
+</html>
