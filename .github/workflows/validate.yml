@@ -45,8 +45,8 @@ jobs:
             echo "::endgroup::"
           done
           python generate_report.py --demo > /tmp/demo.html
-          python generate_report.py --config ../examples/ax3-romania-config.json --depth quick --output /tmp/quick.html
-          python generate_report.py --config ../examples/ax3-romania-config.json --depth deep  --output /tmp/deep.html
+          python generate_report.py --config ../examples/sample-sku-en-config.json --depth quick --output /tmp/quick.html
+          python generate_report.py --config ../examples/sample-sku-en-config.json --depth deep  --output /tmp/deep.html
 
       # ── Core scripts (each must run end-to-end and exit 0) ────────────────
       - name: Run core scripts
