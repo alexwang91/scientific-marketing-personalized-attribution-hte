@@ -7,7 +7,8 @@
 [![Claude Code skill](https://img.shields.io/badge/Claude%20Code-skill-6E56CF)](https://claude.ai/code)
 [![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)](#-dependencies--examples)
 [![References](https://img.shields.io/badge/references-19-44883e)](#-reference-library)
-[![Scripts](https://img.shields.io/badge/scripts-5%20(validated)-blue)](#-scripts)
+[![CI](https://github.com/alexwang91/scientific-marketing-personalized-attribution-hte/actions/workflows/validate.yml/badge.svg)](https://github.com/alexwang91/scientific-marketing-personalized-attribution-hte/actions/workflows/validate.yml)
+[![Scripts](https://img.shields.io/badge/scripts-5-blue)](#-scripts)
 [![Provenance contract](https://img.shields.io/badge/numbers-sourced%20%C2%B7%20assumed%20%C2%B7%20derived%20%C2%B7%20missing-orange)](#-methodology-stance)
 [![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
 
@@ -154,7 +155,7 @@ Each reference follows a fixed template: **when to use → decision tree → min
 
 ## 🔧 Scripts
 
-All validated. Each script maps to a gating step in the report.
+Re-validated by CI on every push ([`.github/workflows/validate.yml`](.github/workflows/validate.yml)): the workflow runs all four core scripts end-to-end, validates every example config against the provenance contract, and renders each to HTML. Each script maps to a gating step in the report.
 
 | Script | Purpose | Report bridge |
 |--------|---------|--------------|

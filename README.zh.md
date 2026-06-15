@@ -7,7 +7,8 @@
 [![Claude Code skill](https://img.shields.io/badge/Claude%20Code-skill-6E56CF)](https://claude.ai/code)
 [![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)](#-依赖与示例)
 [![References](https://img.shields.io/badge/references-19-44883e)](#-参考库)
-[![Scripts](https://img.shields.io/badge/scripts-5%20(validated)-blue)](#-脚本)
+[![CI](https://github.com/alexwang91/scientific-marketing-personalized-attribution-hte/actions/workflows/validate.yml/badge.svg)](https://github.com/alexwang91/scientific-marketing-personalized-attribution-hte/actions/workflows/validate.yml)
+[![Scripts](https://img.shields.io/badge/scripts-5-blue)](#-脚本)
 [![Provenance contract](https://img.shields.io/badge/numbers-sourced%20%C2%B7%20assumed%20%C2%B7%20derived%20%C2%B7%20missing-orange)](#-方法论立场)
 [![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
 
@@ -156,7 +157,7 @@ Layer 4 · 生成与服务（可选） LLM embedding 作特征（不进决策回
 
 ## 🔧 脚本
 
-全部跑通验证。每个脚本都对应报告里的一个门控环节。
+每次 push 由 CI 自动复验（[`.github/workflows/validate.yml`](.github/workflows/validate.yml)）：流水线端到端跑全部 4 个核心脚本、用 provenance 合约校验每个示例 config、并把每个 config 渲染成 HTML。每个脚本都对应报告里的一个门控环节。
 
 | Script | 用途 | 报告桥接 |
 |--------|------|----------|
