@@ -146,6 +146,9 @@ in the `numbers` registry under the provenance contract. Worked example:
 - [ ] Grow verdicts flagged as Hypothesis, routed to ref 13 for holdout proof
 - [ ] AI-scanned fields tagged Hypothesis; operator internals tagged Sourced
 - [ ] Per-SKU sections stay light; no deep HTE write-ups in this report
+- [ ] Any creator / KOL named in a Promotion recommendation has passed **Gate 0**
+      (category exclusivity check in this market) before scoring or budgeting —
+      unknown exclusivity status = gated, not recommended
 
 ## Literature
 

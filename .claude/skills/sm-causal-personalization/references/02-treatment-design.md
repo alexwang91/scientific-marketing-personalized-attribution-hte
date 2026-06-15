@@ -135,7 +135,27 @@ utility reviewer), then score candidates against that archetype — not the othe
 way around. Picking a creator first and reverse-justifying the fit is how budget
 ends up following follower count instead of mechanism.
 
-**Score on evidence, not vanity:**
+**Gate 0 — category exclusivity check (run before any scoring).**
+Before evaluating fit, check whether the creator has an **active exclusivity or
+category agreement with a competing brand in this product category and market.**
+If yes → **disqualify immediately.** Do not score fit, do not negotiate, do not
+"try to renegotiate later." This is a hard gate, not a deduction:
+
+- A creator under category exclusivity has signed a legal commitment that may
+  cover any content featuring competing products — a campaign launched without
+  checking is a contract-breach liability, not just a wasted budget.
+- Exclusivity is typically category-scoped (e.g. "consumer electronics —
+  wireless audio") and market-scoped (e.g. "Romania") — confirm both dimensions
+  before clearing the gate.
+- **How to check**: ask the creator's MCN/agent directly; review publicly visible
+  long-term brand ambassador disclosures; cross-reference recent campaign disclosures
+  in the target market. Tag the result `Sourced` only if you have written
+  confirmation; otherwise tag `Hypothesis` and treat the creator as gated until
+  confirmed.
+- If exclusivity status is **unknown**, treat as gated (do not proceed to scoring)
+  until cleared. "Probably fine" is not a gate.
+
+**Score on evidence, not vanity (only after Gate 0 is cleared):**
 - Audience–segment overlap (a *proxy* — label it as one)
 - Proof / trust match to the specific force being moved
 - Platform relevance to where the segment actually decides
@@ -184,6 +204,10 @@ to a contract.
 - **Creator chosen on reach, not mechanism**: a high-follower creator whose
   audience already buys (Pull maxed) — high views, zero increment. Follower
   count is not a force; a creator dashboard is observational, not a holdout.
+- **Exclusivity not checked before engagement**: creator is under an active
+  category agreement with a competitor — campaign triggers a breach clause.
+  Gate 0 is not optional; skipping it turns a fit-scoring exercise into a
+  legal exposure.
 
 ## Acceptance Checklist
 
@@ -199,6 +223,10 @@ to a contract.
 - [ ] Every card names the force it moves (Push / Pull / Habit / Anxiety) and
       the segment for whom that force is currently unsettled; no card whose
       sole mechanism is manufactured Anxiety
+- [ ] **Creator / KOL Gate 0**: category exclusivity status confirmed (written
+      confirmation or public disclosure check) before any fit-scoring begins —
+      active exclusivity with a competitor in this category × market = immediate
+      disqualification; unknown status = gated until cleared
 - [ ] Any creator / KOL action scored against a trust-proof archetype first,
       budgeted as a range, and entered as a holdout / geo pilot — follower count
       never used as proof of incrementality
