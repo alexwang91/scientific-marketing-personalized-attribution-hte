@@ -18,6 +18,9 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
+# np.trapezoid is NumPy >= 2.0; fall back to np.trapz on 1.x
+_trapezoid = getattr(np, "trapezoid", None) or np.trapz
+
 
 def qini_curve(y: np.ndarray, t: np.ndarray, score: np.ndarray, n_bins: int = 100):
     """Sort by score descending, progressively expand targeting fraction, compute cumulative lift.
@@ -47,7 +50,7 @@ def auuc(y: np.ndarray, t: np.ndarray, score: np.ndarray, n_bins: int = 100) -> 
     """
     df = qini_curve(y, t, score, n_bins)
     total = df["qini"].iloc[-1]
-    model_area = np.trapezoid(df["qini"], df["frac"])
+    model_area = _trapezoid(df["qini"], df["frac"])
     random_area = total / 2  # random ordering: straight line from 0 to total
     return float(model_area - random_area)
 

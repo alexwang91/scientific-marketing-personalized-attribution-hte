@@ -69,6 +69,7 @@ python generate_report.py --config ../examples/sample-sku-en-config.json --depth
 python generate_report.py --config ../examples/sample-sku-en-config.json --depth deep       # 完整报告 + 验证路线图（§18）
 python generate_report.py --config ../examples/aurora-airpurifier-category-config.json      # 类目货盘诊断（ref 17）
 python generate_report.py --demo > demo.html                                               # 最小 schema 示例
+python generate_report.py --config c.json --embed-echarts echarts.min.js --output r.html   # 离线 HTML（图表库内嵌，不走 CDN）
 ```
 
 报告分三档深度（`--depth`）：`quick` 只渲染决策关键章节；`standard`（默认）完整报告；`deep` 在完整报告后追加一张**验证路线图（§18）**——把未决评审挑战、缺失台账、测试预测合并为一张按「能否改变决策」排序的清单。只用配置里已有的数据，绝不新造数字。

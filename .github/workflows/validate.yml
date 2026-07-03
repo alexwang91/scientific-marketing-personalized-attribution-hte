@@ -60,3 +60,15 @@ jobs:
       # ── Asset generator (KV banner must regenerate cleanly) ──────────────
       - name: Regenerate KV banner
         run: python make_kv.py /tmp/hero.png
+
+      # ── Repo-level checks (previously never ran in CI) ───────────────────
+      # Unit tests for both skills + the audience-activation toolchain.
+      - name: Run repo test suite and audience-activation checks
+        working-directory: .
+        run: python scripts/run_all_checks.py
+
+      # run_all_checks.py regenerates the committed example; if that leaves the
+      # tree dirty, the example has drifted from the generator — fail loudly.
+      - name: Committed examples must match generator output (drift guard)
+        working-directory: .
+        run: git diff --exit-code -- skills/audience-activation/examples

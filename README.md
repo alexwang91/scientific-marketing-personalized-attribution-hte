@@ -67,6 +67,7 @@ python generate_report.py --config ../examples/sample-sku-en-config.json --depth
 python generate_report.py --config ../examples/sample-sku-en-config.json --depth deep       # full report + validation roadmap (§18)
 python generate_report.py --config ../examples/aurora-airpurifier-category-config.json      # category portfolio diagnostic (ref 17)
 python generate_report.py --demo > demo.html                                              # minimal schema demo
+python generate_report.py --config c.json --embed-echarts echarts.min.js --output r.html  # offline HTML (no CDN)
 ```
 
 Three depth modes (`--depth`): `quick` renders decision-critical sections only; `standard` (default) renders the full report; `deep` appends a **validation roadmap** (§18) — all open challenges, missing inputs, and test predictions consolidated into one list ranked by what would change the decision. Builds only from existing config data, invents nothing.

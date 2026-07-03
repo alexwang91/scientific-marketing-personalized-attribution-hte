@@ -13,6 +13,8 @@ ROOT = Path(__file__).resolve().parents[1]
 COMMANDS = [
     [sys.executable, "tests/test_generate_activation_plan.py"],
     [sys.executable, "tests/test_validate_activation_plan.py"],
+    [sys.executable, "tests/test_generate_report.py"],
+    [sys.executable, "tests/test_causal_scripts.py"],  # skips itself if numpy/scipy absent
     [sys.executable, "skills/audience-activation/scripts/generate_activation_plan.py", "skills/audience-activation/examples/hungary-cycling-input.json", "--output", "skills/audience-activation/examples/hungary-cycling-output.md"],
     [sys.executable, "skills/audience-activation/scripts/validate_activation_plan.py", "skills/audience-activation/examples/hungary-cycling-output.md"],
 ]

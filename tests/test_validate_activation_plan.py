@@ -41,6 +41,32 @@ def test_validator_rejects_roi_without_assumption_note():
     assert any("assumption note" in e.lower() for e in errors), errors
 
 
+def test_high_priority_row_mentioning_channel_is_not_skipped():
+    # regression: rows whose cells contain the word "channel" (e.g. "omni-channel")
+    # were treated as header rows, so a missing execution spec went undetected
+    md = valid_markdown().replace(
+        "| Google Search | conversion | Local-language intent keywords",
+        "| Google Search | conversion | omni-channel intent keywords")
+    assert "Google Search" in validator.high_priority_channels(md), \
+        "Google Search dropped from high-priority list"
+    bad = md.replace("### Google Search", "### Removed Spec")
+    errors = validator.validate_markdown(bad)
+    assert any("execution spec" in e and "Google Search" in e for e in errors), errors
+
+
+def test_high_priority_channels_matches_generated_plan():
+    plan = gen.generate_plan({
+        "country": "Hungary",
+        "audience": "people interested in cycling",
+        "goal": "purchase",
+        "first_party_data": "website_visitors",
+    })
+    expected = sorted(r["channel"] for r in plan["channel_priority_map"]
+                      if r["execution_priority"] == "High")
+    parsed = sorted(validator.high_priority_channels(gen.render_markdown(plan)))
+    assert parsed == expected, (parsed, expected)
+
+
 if __name__ == "__main__":
     tests = [name for name in globals() if name.startswith("test_")]
     failures = 0
