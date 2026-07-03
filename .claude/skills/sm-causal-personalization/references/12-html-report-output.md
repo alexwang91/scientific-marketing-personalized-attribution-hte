@@ -349,7 +349,7 @@ python scripts/generate_report.py --config config.json --output report.html
 python scripts/generate_report.py --demo > demo.html
 ```
 
-Worked example config: `examples/ax3-romania-config.json`.
+Worked example config: `examples/sample-sku-en-config.json`.
 
 ---
 

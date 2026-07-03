@@ -61,6 +61,33 @@ def test_unknown_budget_uses_percentages_not_fake_currency():
         assert fake_currency not in markdown
 
 
+def test_priority_map_budget_share_follows_requested_level():
+    # regression: the priority map always showed the medium profile, contradicting
+    # the budget-allocation table in the same report when budget_level was high
+    plan = gen.generate_plan(sample_input(goal="purchase", budget_level="high"))
+    shares = {r["channel"]: r["budget_share"] for r in plan["channel_priority_map"]}
+    assert shares == plan["budget_allocation"]["high"], shares
+
+
+def test_crm_retargeting_not_high_priority_without_first_party_data():
+    # regression: first_party_data was accepted but never used, so CRM/retargeting
+    # was recommended as High even when there was no data to retarget with
+    plan = gen.generate_plan(sample_input(goal="purchase", first_party_data="none"))
+    priorities = {r["channel"]: r["execution_priority"] for r in plan["channel_priority_map"]}
+    assert priorities["CRM / retargeting"] == "Low", priorities["CRM / retargeting"]
+    plan = gen.generate_plan(sample_input(goal="purchase", first_party_data="crm"))
+    priorities = {r["channel"]: r["execution_priority"] for r in plan["channel_priority_map"]}
+    assert priorities["CRM / retargeting"] == "High", priorities["CRM / retargeting"]
+
+
+def test_budget_allocations_sum_to_100_for_every_goal_and_level():
+    for goal in sorted(gen.GOALS):
+        allocation = gen.build_budget_allocation(goal)
+        for level, alloc in allocation.items():
+            total = sum(alloc.values())
+            assert total == 100, f"goal={goal} level={level} sums to {total}"
+
+
 if __name__ == "__main__":
     tests = [name for name in globals() if name.startswith("test_")]
     failures = 0

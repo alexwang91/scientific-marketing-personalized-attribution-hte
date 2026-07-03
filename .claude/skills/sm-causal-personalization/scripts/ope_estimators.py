@@ -19,14 +19,27 @@ from __future__ import annotations
 import numpy as np
 
 
-def support_check(t_logged, p_logged, pi_new, min_propensity: float = 0.01) -> dict:
-    """Must run before any OPE. Insufficient support for the new policy → results unreliable."""
+def support_check(t_logged, p_logged, pi_new, min_propensity: float = 0.01,
+                  min_coverage: float = 0.10) -> dict:
+    """Must run before any OPE. Insufficient support for the new policy → results unreliable.
+
+    Two failure modes, both fatal for OPE:
+    - low coverage: the new policy rarely agrees with the logged actions, so almost
+      no rows carry weight — the effective sample is tiny even if propensities are healthy;
+    - weak support: matched rows were logged with near-zero propensity — a few
+      huge inverse-propensity weights dominate the estimate.
+    """
     match = (pi_new == t_logged)
     weak = match & (p_logged < min_propensity)
     coverage = float(match.mean())
     weak_share = float(weak.sum() / max(match.sum(), 1))
-    verdict = ("OK" if weak_share < 0.05
-               else "Insufficient support — OPE unreliable; run small-traffic experiment instead")
+    if coverage < min_coverage:
+        verdict = ("Insufficient coverage — new policy rarely matches logged actions; "
+                   "OPE unreliable, run small-traffic experiment instead")
+    elif weak_share >= 0.05:
+        verdict = "Insufficient support — OPE unreliable; run small-traffic experiment instead"
+    else:
+        verdict = "OK"
     return {"coverage": coverage, "weak_support_share": weak_share, "verdict": verdict}
 
 

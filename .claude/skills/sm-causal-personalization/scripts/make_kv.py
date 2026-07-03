@@ -195,7 +195,7 @@ def main(out: str) -> None:
     # ── footer strip ────────────────────────────────────────────────────
     fig.text(0.046, 0.038,
              "experiment-first · provenance contract · adversarial review · "
-             "5 validated scripts · 19 references",
+             "6 validated scripts · 19 references",
              fontsize=10, color=MUTED, va="center")
     fig.text(0.954, 0.038, "packaged as a Claude Code skill", fontsize=10,
              color=ACCENT, va="center", ha="right", fontweight="bold")

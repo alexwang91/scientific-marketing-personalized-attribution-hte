@@ -152,6 +152,9 @@ def localized_context(inp: Dict[str, str]) -> Dict[str, Any]:
 
 
 def priority_for(channel: str, goal: str, first_party_data: str) -> str:
+    if channel == "CRM / retargeting" and first_party_data == "none":
+        # no consented first-party audiences exist — there is nothing to retarget
+        return "Low"
     if goal == "purchase":
         if channel in {"Google Search", "CRM / retargeting", "Meta Facebook / Instagram"}:
             return "High"
@@ -291,13 +294,21 @@ def scale_budget(profile: Dict[str, int], emphasis: str) -> Dict[str, int]:
 
 def build_budget_allocation(goal: str) -> Dict[str, Dict[str, int]]:
     profile = budget_profile(goal)
-    return {level: scale_budget(profile, level) for level in ["low", "medium", "high"]}
+    allocation = {level: scale_budget(profile, level) for level in ["low", "medium", "high"]}
+    for level, alloc in allocation.items():
+        total = sum(alloc.values())
+        if total != 100:
+            raise ValueError(f"budget allocation for level '{level}' sums to {total}%, expected 100%")
+    return allocation
 
 
 def generate_plan(raw_input: Dict[str, Any]) -> Dict[str, Any]:
     inp = normalize_input(raw_input)
     ctx = localized_context(inp)
     allocation = build_budget_allocation(inp["goal"])
+    # the priority map shows the shares for the requested budget level;
+    # unknown budget falls back to the medium profile
+    share_level = inp["budget_level"] if inp["budget_level"] in {"low", "medium", "high"} else "medium"
     channel_rows = []
     specs = []
     for row in load_catalog():
@@ -309,7 +320,7 @@ def generate_plan(raw_input: Dict[str, Any]) -> Dict[str, Any]:
             "funnel_role": row["funnel_role"],
             "audience_proxy": proxy,
             "execution_priority": priority,
-            "budget_share": allocation["medium"][channel],
+            "budget_share": allocation[share_level][channel],
             "relative_roi_score": roi_score_for(row, inp),
             "confidence": confidence_for(inp, channel),
             "why": f"Uses an executable proxy mechanism for {inp['audience']} in {inp['country']}; score is a planning estimate, not calibrated ROAS.",

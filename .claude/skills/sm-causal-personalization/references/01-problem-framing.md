@@ -140,6 +140,10 @@ it were realized demand is the classic way to over-promise on a discount plan.
 - Gordon et al. (2019, *Marketing Science*) — large-scale comparison of
   Facebook experiments vs observational methods; observational methods
   systematically mis-estimate
+- [pymc-marketing](https://github.com/pymc-labs/pymc-marketing) (PyMC Labs,
+  open source) — Bayesian MMM with adstock/saturation and lift-test
+  calibration; the production tool for the **channel/budget layer** of the
+  MMM × attribution × HTE triangle (this skill covers the individual layer)
 - Van Westendorp (1976) "NSS Price Sensitivity Meter" — eliciting an acceptable
   price band from perception questions (Hypothesis-grade demand sizing)
 - Gabor & Granger (1966) "Price as an Indicator of Quality" — stepped purchase

@@ -29,13 +29,15 @@ Usage:
   python generate_report.py --config c.json --validate-only
   python generate_report.py --config c.json --depth quick   # executive view
   python generate_report.py --config c.json --depth deep    # + validation roadmap
+  python generate_report.py --config c.json --embed-echarts echarts.min.js  # offline HTML
 
-Config schema: see examples/ax3-romania-config.json and references/12.
+Config schema: see examples/sample-sku-en-config.json and references/12.
 """
 
 from __future__ import annotations
 
 import argparse
+import ast
 import itertools
 import json
 import re
@@ -54,8 +56,7 @@ def L(cfg, key, default):
 PROVENANCES = {"sourced", "assumed", "derived", "missing"}
 CHALLENGE_STATUSES = {"resolved", "open", "open-blocking"}
 CHANNEL_VERDICTS = {"viable", "not-viable", "undetermined", "role-only"}
-_FORMULA_TOKEN = re.compile(r"^[A-Za-z0-9_+\-*/(). ]+$")
-_IDENT = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+DECISION_HORIZONS = ("now", "checkpoint", "never")
 
 
 class ConfigError(Exception):
@@ -104,15 +105,18 @@ def validate_and_resolve(numbers: dict[str, dict]) -> dict[str, dict]:
         elif prov == "derived":
             if not spec.get("formula") or not spec.get("inputs"):
                 errors.append(f"{nid}: derived requires formula + inputs")
-            elif not _FORMULA_TOKEN.match(spec["formula"]):
-                errors.append(f"{nid}: formula contains illegal characters")
             else:
-                for ident in _IDENT.findall(spec["formula"]):
-                    if ident not in spec["inputs"]:
-                        errors.append(f"{nid}: formula references '{ident}' not listed in inputs")
-                for inp in spec["inputs"]:
-                    if inp not in numbers:
-                        errors.append(f"{nid}: input '{inp}' not in registry")
+                try:
+                    idents = _formula_names(_parse_formula(spec["formula"]))
+                except ConfigError as e:
+                    errors.append(f"{nid}: {e}")
+                else:
+                    for ident in sorted(idents):
+                        if ident not in spec["inputs"]:
+                            errors.append(f"{nid}: formula references '{ident}' not listed in inputs")
+                    for inp in spec["inputs"]:
+                        if inp not in numbers:
+                            errors.append(f"{nid}: input '{inp}' not in registry")
         elif prov == "missing":
             if "value" in spec:
                 errors.append(f"{nid}: missing numbers must NOT carry a value — that is a guess")
@@ -163,10 +167,64 @@ def _eval_interval(formula: str, inputs: dict[str, Any]) -> Any:
     return [min(corners), max(corners)]
 
 
+# Formula language: arithmetic only. Anything outside this whitelist —
+# including '**' (exponent blow-up can hang the build), attribute access,
+# calls, and subscripts — is rejected at validation time.
+_ALLOWED_BINOPS = (ast.Add, ast.Sub, ast.Mult, ast.Div)
+_ALLOWED_UNARYOPS = (ast.UAdd, ast.USub)
+
+
+def _parse_formula(formula: str) -> ast.Expression:
+    """Parse a formula, allowing only + - * / parentheses, numeric literals,
+    and bare identifiers. Raises ConfigError on anything else."""
+    try:
+        tree = ast.parse(formula, mode="eval")
+    except SyntaxError as e:
+        raise ConfigError(f"formula {formula!r} is not valid arithmetic: {e.msg}") from None
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Expression, ast.operator, ast.unaryop, ast.expr_context)):
+            continue
+        if isinstance(node, ast.BinOp) and isinstance(node.op, _ALLOWED_BINOPS):
+            continue
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, _ALLOWED_UNARYOPS):
+            continue
+        if (isinstance(node, ast.Constant) and _is_num(node.value)):
+            continue
+        if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load):
+            continue
+        raise ConfigError(
+            f"formula {formula!r} contains unsupported syntax "
+            f"({type(node).__name__}); only + - * / ( ) numbers and input names are allowed")
+    return tree
+
+
+def _formula_names(tree: ast.Expression) -> set[str]:
+    return {n.id for n in ast.walk(tree) if isinstance(n, ast.Name)}
+
+
 def _safe_eval(formula: str, env: dict[str, float]) -> float:
-    if not _FORMULA_TOKEN.match(formula):
-        raise ConfigError(f"illegal formula: {formula!r}")
-    return float(eval(formula, {"__builtins__": {}}, dict(env)))  # noqa: S307 — token-validated
+    def ev(node) -> float:
+        if isinstance(node, ast.Expression):
+            return ev(node.body)
+        if isinstance(node, ast.BinOp):
+            left, right = ev(node.left), ev(node.right)
+            if isinstance(node.op, ast.Add):
+                return left + right
+            if isinstance(node.op, ast.Sub):
+                return left - right
+            if isinstance(node.op, ast.Mult):
+                return left * right
+            return left / right
+        if isinstance(node, ast.UnaryOp):
+            v = ev(node.operand)
+            return v if isinstance(node.op, ast.UAdd) else -v
+        if isinstance(node, ast.Constant):
+            return float(node.value)
+        if node.id not in env:
+            raise ConfigError(f"formula {formula!r} references unknown input '{node.id}'")
+        return float(env[node.id])
+
+    return float(ev(_parse_formula(formula)))
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -1181,6 +1239,20 @@ def s_play_timeline(cfg: dict) -> str:
                   f'</div>')
     return f'<div class="timeline">{items}</div>'
 
+def _bucket_decisions(memo: dict) -> dict[str, list[str]]:
+    """Group memo decisions by horizon. Unknown horizons are a build error —
+    a silently dropped decision is worse than a failed build."""
+    buckets: dict[str, list[str]] = {h: [] for h in DECISION_HORIZONS}
+    for d in memo.get("decisions", []):
+        h = d.get("horizon")
+        if h not in buckets:
+            raise ConfigError(
+                f"decision {d.get('text', '')!r}: horizon must be one of "
+                f"{list(DECISION_HORIZONS)}, got {h!r}")
+        buckets[h].append(d["text"])
+    return buckets
+
+
 def s_tldr(cfg: dict) -> str:
     """Section 0 — one-glance plain-language summary: do / don't / ROI / why.
 
@@ -1193,9 +1265,7 @@ def s_tldr(cfg: dict) -> str:
     verdict = memo.get("verdict", "conditional")
     vlabel = {"go": "GO", "no-go": "NO-GO", "conditional": "CONDITIONAL"}.get(verdict, verdict.upper())
 
-    buckets: dict[str, list[str]] = {"now": [], "checkpoint": [], "never": []}
-    for d in memo.get("decisions", []):
-        buckets.setdefault(d["horizon"], []).append(d["text"])
+    buckets = _bucket_decisions(memo)
     do_items = summary.get("do") or (buckets["now"] + buckets["checkpoint"])
     dont_items = summary.get("dont") or buckets["never"]
     why = summary.get("why") or memo.get("thesis", "")
@@ -1250,11 +1320,9 @@ def s_memo(cfg: dict) -> str:
         "checkpoint": L(cfg, "horizon_checkpoint", "At checkpoint"),
         "never": L(cfg, "horizon_never", "Not under this math"),
     }
-    buckets: dict[str, list[str]] = {"now": [], "checkpoint": [], "never": []}
-    for d in memo.get("decisions", []):
-        buckets.setdefault(d["horizon"], []).append(d["text"])
+    buckets = _bucket_decisions(memo)
     decision_html = ""
-    for h in ("now", "checkpoint", "never"):
+    for h in DECISION_HORIZONS:
         if buckets.get(h):
             items = "".join(f"<li>{esc(t)}</li>" for t in buckets[h])
             decision_html += f"<h3>{horizon_label[h]}</h3><ul>{items}</ul>"
@@ -1623,40 +1691,19 @@ def _blocked_by(action: dict, challenges_by_id: dict) -> list[str]:
             if challenges_by_id.get(cid, {}).get("status") == "open-blocking"]
 
 
-def s_actions(cfg: dict, numbers: dict, challenges_by_id: dict) -> str:
-    cards = ""
-    for a in cfg.get("actions", []):
-        blockers = _blocked_by(a, challenges_by_id)
-        stamp = "".join(f'<span class="blocked-stamp">⊘ BLOCKED by {esc(b)}</span>' for b in blockers)
-        budget = ""
-        if a.get("budget"):
-            budget = f"<dt>{esc(L(cfg, 'budget_envelope_label', 'Budget envelope'))}</dt><dd>{fmt_value(a['budget'], numbers)}</dd>"
-        gate = f"<dt>{esc(L(cfg, 'unlocks_label', 'Unlocks'))}</dt><dd>{esc(a['gate'])}</dd>" if a.get("gate") else ""
-        cards += f"""<div class="card{' blocked' if blockers else ''}">
-  <h3>{esc(a['id'])} · {esc(a['action'])} {stamp}</h3>
-  <dl>
-    <dt>{esc(L(cfg, 'mechanism_label', 'Mechanism'))}</dt><dd>{esc(a['mechanism'])}</dd>
-    <dt>{esc(L(cfg, 'guardrail_label', 'Guardrail'))}</dt><dd>{esc(a['guardrail'])}</dd>
-    <dt>{esc(L(cfg, 'test_label', 'Test'))}</dt><dd>{esc(a.get('test', a.get('measurement', '')))}</dd>
-    {budget}{gate}
-  </dl>
-</div>"""
+def s_rejected_options(cfg: dict) -> str:
+    """Rejected-options table — the audit record of what was considered and
+    why it was turned down. Rendered inside s_execution_gates (§8)."""
     rejected = "".join(
         f"<tr><td>{esc(r['option'])}</td><td>{esc(r['reason'])}</td></tr>"
         for r in cfg.get("rejected_options", [])
     )
-    rej_html = ""
-    if rejected:
-        rej_html = f"""<h3>{esc(L(cfg, "rejected_heading", "Rejected options (and why)"))}</h3>
+    if not rejected:
+        return ""
+    return f"""<h3>{esc(L(cfg, "rejected_heading", "Rejected options (and why)"))}</h3>
   <div class="table-wrap"><table>
     <thead><tr><th>{esc(L(cfg, "rejected_th_option", "Option"))}</th><th>{esc(L(cfg, "rejected_th_reason", "Rejection reason"))}</th></tr></thead>
     <tbody>{rejected}</tbody></table></div>"""
-    return f"""<section>
-  <h2>{esc(L(cfg, "actions_heading", "3 · Actions"))}</h2>
-  <p>{L(cfg, "actions_intro", "Only options that survived the viability screen appear as cards. A card stamped <strong>⊘ BLOCKED</strong> references an unresolved blocking challenge (section 4) and must not receive budget until that challenge is resolved.")}</p>
-  <div class="cards">{cards}</div>
-  {rej_html}
-</section>"""
 
 
 def s_challenges(cfg: dict) -> str:
@@ -1995,6 +2042,7 @@ def s_execution_gates(cfg: dict, numbers: dict, challenges_by_id: dict) -> str:
   {power_bridge(cfg)}
   <h3>{esc(L(cfg, "eg_tcards_heading", "Treatment Cards (H-main cells only)"))}</h3>
   <div class="cards">{cards}</div>
+  {s_rejected_options(cfg)}
 </section>"""
 
 
@@ -2301,8 +2349,10 @@ def s_assumption_ledger(cfg: dict, numbers: dict, challenges_by_id: dict) -> str
 # container keeps its text fallback. Theme tracks the report's indigo palette.
 # ──────────────────────────────────────────────────────────────────────────────
 
+_ECHARTS_CDN_TAG = '<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>'
+
 _ECHARTS_JS = r"""
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+__ECHARTS_LIB__
 <script>
 (function(){
   if (typeof echarts === 'undefined') return;   // CDN blocked → fallbacks stay
@@ -2722,7 +2772,7 @@ def generate_category_html(cfg: dict, numbers: dict) -> str:
 # Assembly
 # ──────────────────────────────────────────────────────────────────────────────
 
-def generate_html(cfg: dict, depth: str = "standard") -> str:
+def generate_html(cfg: dict, depth: str = "standard", echarts_js: str | None = None) -> str:
     numbers = validate_and_resolve(cfg.get("numbers", {}))
     for w in lint_prose(cfg, numbers):
         print(f"LINT WARNING — {w}", file=sys.stderr)
@@ -2785,8 +2835,12 @@ def generate_html(cfg: dict, depth: str = "standard") -> str:
 
     title = f'{meta.get("product", "")} — {meta.get("market", "")} Decision Memo'
 
-    echarts_block = _ECHARTS_JS.replace(
-        "__CHART_L__", json.dumps(_chart_labels(cfg), ensure_ascii=False))
+    # Inline a local echarts.min.js when supplied (offline / intranet delivery);
+    # otherwise load from the CDN — chart containers keep their text fallback.
+    lib_tag = f"<script>{echarts_js}</script>" if echarts_js else _ECHARTS_CDN_TAG
+    echarts_block = (_ECHARTS_JS
+                     .replace("__ECHARTS_LIB__", lib_tag)
+                     .replace("__CHART_L__", json.dumps(_chart_labels(cfg), ensure_ascii=False)))
 
     # Build sidebar TOC, then keep only sections that actually rendered.
     _toc_items = [
@@ -2818,7 +2872,7 @@ def generate_html(cfg: dict, depth: str = "standard") -> str:
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Demo config — minimal, shows the schema; real example: examples/ax3-romania-config.json
+# Demo config — minimal, shows the schema; real example: examples/sample-sku-en-config.json
 # ──────────────────────────────────────────────────────────────────────────────
 
 DEMO_CONFIG: dict[str, Any] = {
@@ -2902,25 +2956,29 @@ def main():
                     help="quick = decision-critical sections only; standard = full report (default); "
                          "deep = full report + consolidated validation roadmap (§18). "
                          "Overrides cfg['depth'] if set.")
+    ap.add_argument("--embed-echarts", metavar="JS_PATH",
+                    help="inline a local echarts.min.js into the HTML instead of loading it "
+                         "from the CDN — for offline / intranet delivery of the report")
     args = ap.parse_args()
 
     if args.demo:
         cfg = DEMO_CONFIG
     elif args.config:
-        cfg = json.loads(Path(args.config).read_text())
+        cfg = json.loads(Path(args.config).read_text(encoding="utf-8"))
     else:
         ap.print_help()
         sys.exit(1)
 
     try:
         if args.validate_only:
-            validate_and_resolve(cfg.get("numbers", {}))
-            for w in lint_prose(cfg, cfg["numbers"]):
+            numbers = validate_and_resolve(cfg.get("numbers", {}))
+            for w in lint_prose(cfg, numbers):
                 print(f"LINT WARNING — {w}", file=sys.stderr)
             print("Config valid: provenance contract satisfied.", file=sys.stderr)
             return
         depth = args.depth or cfg.get("depth", "standard")
-        html = generate_html(cfg, depth=depth)
+        echarts_js = Path(args.embed_echarts).read_text(encoding="utf-8") if args.embed_echarts else None
+        html = generate_html(cfg, depth=depth, echarts_js=echarts_js)
     except ConfigError as e:
         print(f"BUILD FAILED — {e}", file=sys.stderr)
         sys.exit(2)

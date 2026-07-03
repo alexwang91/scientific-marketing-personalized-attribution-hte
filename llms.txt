@@ -1,5 +1,22 @@
 # LLM Entrypoints
 
+## Scientific Marketing · Causal Personalization (main skill)
+
+Use `.claude/skills/sm-causal-personalization/SKILL.md` for anything about
+marketing lift, uplift / HTE / CATE, incrementality, experiment design,
+coupon / discount strategy, policy learning, OPE, or category portfolio
+diagnostics. Scripts (installable via `pip install .` as the `smcp` package):
+
+```bash
+cd .claude/skills/sm-causal-personalization/scripts
+python power_analysis.py    # uplift experiment power
+python qini_auuc.py         # Qini / AUUC validation
+python ope_estimators.py    # IPS / SNIPS / DR off-policy evaluation
+python hte_starter.py       # T / X / DR-learner templates
+python policy_budget.py     # lambda* budget-constrained allocation + policy value
+python generate_report.py --config ../examples/sample-sku-en-config.json --output report.html
+```
+
 ## Audience Activation Planner v1
 
 Use `skills/audience-activation/SKILL.md` when the user asks for a simple country + audience activation plan.

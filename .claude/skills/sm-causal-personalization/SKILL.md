@@ -202,6 +202,7 @@ What is the user asking about?
 | `qini_auuc.py` | Qini curve, AUUC + bootstrap CI, decile calibration, two-model comparison | Section 11 AUUC launch gate |
 | `hte_starter.py` | T/X/DR-learner starter templates (sklearn, drop-in replaceable with EconML / CausalML) | — |
 | `ope_estimators.py` | IPS / SNIPS / Doubly Robust off-policy evaluation + support check | Section 14 OPE support check |
+| `policy_budget.py` | λ* budget-constrained allocation (ref 06 knapsack / shadow price), IPW policy value on a randomized holdout, profit-vs-budget curve | Layer 3 decision tool |
 | `generate_report.py` | Decision-memo HTML generator (v2). **Enforces the provenance contract**: build fails on any number that is not sourced / assumed / derived / missing; renders derivation chains; stamps BLOCKED on actions gated by open-blocking challenges; short-report mode when the pipeline terminates at the channel screen. **Depth modes**: `quick` (decision-critical sections only), `standard` (full report, default), `deep` (full + consolidated validation roadmap §18, built only from existing config data). **Category mode**: `report_type=category_portfolio` renders the ref 17 portfolio diagnostic (6 audit lenses, SKU verdicts, 4P matrix) instead of the single-SKU report | **Entry point for HTML output** |
 
 ```bash
@@ -210,7 +211,7 @@ python scripts/generate_report.py --config config.json --output report.html
 python scripts/generate_report.py --config config.json --depth quick      # executive view: verdict + math + gate + evidence
 python scripts/generate_report.py --config config.json --depth deep       # full report + validation roadmap (§18)
 python scripts/generate_report.py --demo > demo.html
-# Worked example: examples/ax3-romania-config.json
+# Worked example: examples/sample-sku-en-config.json
 ```
 
 ---

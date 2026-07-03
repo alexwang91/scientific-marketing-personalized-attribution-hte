@@ -54,9 +54,14 @@ def high_priority_channels(markdown: str) -> List[str]:
     section = section_text(markdown, "## 2. Channel Priority Map")
     channels: List[str] = []
     for line in section.splitlines():
-        if not line.startswith("|") or "---" in line or "channel" in line.lower():
+        line = line.strip()
+        if not line.startswith("|"):
             continue
         cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if not cells or cells[0].lower() == "channel":  # header row
+            continue
+        if all(set(cell) <= {"-", ":", " "} for cell in cells):  # separator row
+            continue
         if len(cells) >= 4 and cells[3].lower() == "high":
             channels.append(cells[0])
     return channels

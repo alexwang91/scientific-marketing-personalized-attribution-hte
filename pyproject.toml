@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sm-causal-personalization"
+version = "0.1.0"
+description = "Scientific-marketing causal personalization toolkit: Qini/AUUC validation, uplift power analysis, OPE, HTE starter learners, lambda* budget policy, and a provenance-enforced decision-report generator"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+authors = [{ name = "alexwang91" }]
+keywords = ["uplift", "hte", "cate", "incrementality", "marketing", "causal-inference", "qini", "off-policy-evaluation"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+]
+
+dependencies = [
+    "numpy>=1.22",
+    "pandas>=1.4",
+    "scipy>=1.8",
+    "scikit-learn>=1.1",
+    "matplotlib>=3.5",
+]
+
+[project.urls]
+Homepage = "https://github.com/alexwang91/scientific-marketing-personalized-attribution-hte"
+Repository = "https://github.com/alexwang91/scientific-marketing-personalized-attribution-hte"
+
+[project.scripts]
+sm-report = "smcp.generate_report:main"
+
+# The canonical code lives inside the Claude Code skill so the skill stays a
+# self-contained, copyable directory; the package maps onto it rather than
+# duplicating it.
+[tool.setuptools]
+packages = ["smcp"]
+
+[tool.setuptools.package-dir]
+smcp = ".claude/skills/sm-causal-personalization/scripts"
