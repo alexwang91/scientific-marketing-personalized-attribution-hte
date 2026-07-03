@@ -145,5 +145,8 @@ holdout quarterly; if they diverge, update f(S).
 - Yang, Eckles et al. — industrial surrogate applications
   (Netflix / Meta public materials)
 - Gupta et al. (2006) "Modeling Customer Lifetime Value" — LTV metrics
+- [pymc-marketing](https://github.com/pymc-labs/pymc-marketing) `clv` module
+  (open source) — production BG/NBD, Pareto/NBD, Gamma-Gamma implementations
+  for the LTV term of the surrogate index
 - Anderson & Simester series — long-term effects of promotions: deep discounts
   train customers to wait for deals

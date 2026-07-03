@@ -212,3 +212,8 @@ result.
 - Kiyohara et al. (2021) "Open Bandit Pipeline" — OBP reference implementation
 - Hitsch, Misra & Sanders (2024, QME) — comprehensive policy evaluation
   framework for marketing
+- [pymc-marketing](https://github.com/pymc-labs/pymc-marketing)
+  `BudgetOptimizer` (open source) — Bayesian **channel-level** budget
+  allocation over saturation response curves; the channel-level complement
+  to the person-level λ* rule here (`policy_budget.py`). Use it when the
+  question is "how much per channel", not "which person gets which action"

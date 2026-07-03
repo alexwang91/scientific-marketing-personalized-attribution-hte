@@ -55,6 +55,7 @@ jobs:
           python qini_auuc.py
           python ope_estimators.py
           python hte_starter.py
+          python policy_budget.py
           rm -f qini_curve.png   # artifact dropped in cwd; canonical copy lives at repo root
 
       # ── Asset generator (KV banner must regenerate cleanly) ──────────────
@@ -72,3 +73,11 @@ jobs:
       - name: Committed examples must match generator output (drift guard)
         working-directory: .
         run: git diff --exit-code -- skills/audience-activation/examples
+
+      # ── Package install smoke test (pip install . → smcp + sm-report CLI) ─
+      - name: Install as a package and import every module
+        working-directory: .
+        run: |
+          pip install .
+          python -c "import smcp, importlib; [importlib.import_module(f'smcp.{m}') for m in smcp.__all__]"
+          cd /tmp && sm-report --demo > /dev/null

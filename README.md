@@ -10,7 +10,7 @@
 [![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)](#-dependencies--examples)
 [![References](https://img.shields.io/badge/references-19-44883e)](#-reference-library)
 [![CI](https://github.com/alexwang91/scientific-marketing-personalized-attribution-hte/actions/workflows/validate.yml/badge.svg)](https://github.com/alexwang91/scientific-marketing-personalized-attribution-hte/actions/workflows/validate.yml)
-[![Scripts](https://img.shields.io/badge/scripts-5-blue)](#-scripts)
+[![Scripts](https://img.shields.io/badge/scripts-6-blue)](#-scripts)
 [![Provenance contract](https://img.shields.io/badge/numbers-sourced%20%C2%B7%20assumed%20%C2%B7%20derived%20%C2%B7%20missing-orange)](#-methodology-stance)
 [![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
 
@@ -79,6 +79,15 @@ python power_analysis.py    # uplift experiment power: sample size to detect inc
 python qini_auuc.py         # Qini / AUUC + bootstrap CI + decile calibration
 python ope_estimators.py    # IPS / SNIPS / Doubly-Robust off-policy evaluation + support check
 python hte_starter.py       # T / X / DR-learner starter templates (sklearn, swappable with EconML / CausalML)
+python policy_budget.py     # λ* budget-constrained allocation + IPW policy value + profit-vs-budget curve
+```
+
+Or install everything as a package (`smcp`) with a `sm-report` CLI:
+
+```bash
+pip install .               # from the repo root
+python -c "from smcp.policy_budget import allocate"
+sm-report --demo > demo.html
 ```
 
 ---
@@ -158,7 +167,7 @@ Each reference follows a fixed template: **when to use → decision tree → min
 
 ## 🔧 Scripts
 
-Re-validated by CI on every push ([`.github/workflows/validate.yml`](.github/workflows/validate.yml)): the workflow runs all four core scripts end-to-end, validates every example config against the provenance contract, and renders each to HTML. Each script maps to a gating step in the report.
+Re-validated by CI on every push ([`.github/workflows/validate.yml`](.github/workflows/validate.yml)): the workflow runs all five core scripts end-to-end, validates every example config against the provenance contract, renders each to HTML, runs the unit-test suite, and smoke-tests the pip package. Each script maps to a gating step in the report.
 
 | Script | Purpose | Report bridge |
 |--------|---------|--------------|
@@ -166,6 +175,7 @@ Re-validated by CI on every push ([`.github/workflows/validate.yml`](.github/wor
 | `qini_auuc.py` | Qini curve, AUUC + bootstrap CI, decile calibration, two-model comparison | §11 AUUC launch gate |
 | `ope_estimators.py` | IPS / SNIPS / DR off-policy evaluation + support check | §14 OPE support check |
 | `hte_starter.py` | T / X / DR-learner starter templates (sklearn, drop-in replaceable with EconML / CausalML) | — |
+| `policy_budget.py` | λ* budget-constrained allocation (ref 06 knapsack / shadow price), IPW policy value on a randomized holdout, profit-vs-budget curve | Layer 3 decision tool |
 | `generate_report.py` | Decision-memo HTML generator (v2). **Enforces the provenance contract**: build fails on any number not tagged sourced / assumed / derived / missing; 5 interactive causal-logic charts (ECharts); three depth modes `--depth quick / standard / deep` (deep adds §18 validation roadmap) | **HTML output entry point** |
 
 ---

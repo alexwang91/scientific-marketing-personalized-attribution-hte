@@ -32,6 +32,7 @@ def _load(name):
 qini = _load("qini_auuc")
 power = _load("power_analysis")
 ope = _load("ope_estimators")
+pb = _load("policy_budget")
 
 
 def test_auuc_positive_for_good_model_and_flat_for_noise():
@@ -115,6 +116,63 @@ def test_support_check_flags_weak_propensities():
 def test_support_check_ok_on_healthy_logs():
     y, t, p, pi, *_ = ope._synthetic_logs(n=20_000, seed=0)
     assert ope.support_check(t, p, pi)["verdict"] == "OK"
+
+
+def test_allocate_binding_budget_toy_example():
+    # 3 users, value=10: profits are 10*0.5-1=4 (roi 4), 10*0.3-1=2 (roi 2),
+    # 10*0.05-1=-0.5 (roi<0). Budget 1 funds only the best user.
+    tau, cost = [0.5, 0.05, 0.3], 1.0
+    a = pb.allocate(tau, 10.0, cost, budget=1.0)
+    assert list(a["treat"]) == [True, False, False]
+    assert a["lambda_star"] == 4.0 and a["budget_binding"]
+    # budget 2 funds both positive-ROI users; λ* = marginal (last funded) ROI
+    a = pb.allocate(tau, 10.0, cost, budget=2.0)
+    assert list(a["treat"]) == [True, False, True]
+    assert a["lambda_star"] == 0.0 and not a["budget_binding"]
+
+
+def test_allocate_never_funds_negative_roi_even_with_slack_budget():
+    a = pb.allocate([0.5, 0.01], 10.0, 1.0, budget=100.0)
+    assert list(a["treat"]) == [True, False]
+    assert a["lambda_star"] == 0.0
+
+
+def test_allocate_decision_rule_matches_lambda_star():
+    y, t, score, _, _ = pb._synthetic(n=20_000, seed=0)
+    a = pb.allocate(score, 30.0, 1.0, budget=0.2 * len(y))
+    rule = (score * 30.0 - 1.0) >= a["lambda_star"] * 1.0
+    agree = (rule == a["treat"]).mean()
+    assert agree > 0.999, agree  # only cumsum boundary ties may differ
+
+
+def test_uplift_policy_beats_propensity_and_treat_all():
+    y, t, score, prop, tau = pb._synthetic(n=60_000, seed=0)
+    n = len(y)
+    a = pb.allocate(score, 30.0, 1.0, budget=0.2 * n)
+    prop_mask = np.zeros(n, dtype=bool)
+    prop_mask[np.argsort(-prop)[:a["n_treated"]]] = True
+    p_uplift = pb.policy_incremental_profit(y, t, a["treat"], 0.5, 30.0, 1.0)
+    p_prop = pb.policy_incremental_profit(y, t, prop_mask, 0.5, 30.0, 1.0)
+    p_all = pb.policy_incremental_profit(y, t, np.ones(n, bool), 0.5, 30.0, 1.0)
+    assert p_uplift > 0 > p_all, (p_uplift, p_all)
+    assert p_uplift > p_prop, (p_uplift, p_prop)
+    # IPW estimate should track the synthetic ground truth
+    true_uplift = float(np.mean(a["treat"] * (tau * 30.0 - 1.0)))
+    assert abs(p_uplift - true_uplift) < 0.05, (p_uplift, true_uplift)
+
+
+def test_policy_value_of_treat_none_is_zero():
+    y, t, score, *_ = pb._synthetic(n=5_000, seed=0)
+    none = np.zeros(len(y), dtype=bool)
+    assert pb.policy_incremental_profit(y, t, none, 0.5, 30.0, 1.0) == 0.0
+
+
+def test_profit_curve_spend_monotone_and_lambda_decreasing():
+    y, t, score, *_ = pb._synthetic(n=20_000, seed=0)
+    curve = pb.profit_curve(y, t, score, 0.5, 30.0, 1.0, n_points=6)
+    assert (curve["spend"].diff().dropna() >= 0).all()
+    assert (curve["lambda_star"].diff().dropna() <= 1e-9).all()
+    assert curve["lambda_star"].iloc[-1] == 0.0  # full positive-ROI spend → not binding
 
 
 if __name__ == "__main__":

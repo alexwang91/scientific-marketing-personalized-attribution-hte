@@ -31,7 +31,7 @@ Usage:
   python generate_report.py --config c.json --depth deep    # + validation roadmap
   python generate_report.py --config c.json --embed-echarts echarts.min.js  # offline HTML
 
-Config schema: see examples/ax3-romania-config.json and references/12.
+Config schema: see examples/sample-sku-en-config.json and references/12.
 """
 
 from __future__ import annotations
@@ -2872,7 +2872,7 @@ def generate_html(cfg: dict, depth: str = "standard", echarts_js: str | None = N
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Demo config — minimal, shows the schema; real example: examples/ax3-romania-config.json
+# Demo config — minimal, shows the schema; real example: examples/sample-sku-en-config.json
 # ──────────────────────────────────────────────────────────────────────────────
 
 DEMO_CONFIG: dict[str, Any] = {
