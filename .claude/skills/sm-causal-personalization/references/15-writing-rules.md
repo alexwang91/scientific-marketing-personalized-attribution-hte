@@ -173,6 +173,35 @@ Use:
 
 ---
 
+## Rule 6b — Reader Persona: Write for the Operator, Not the Analyst
+
+The default reader is an operator — a founder, sales lead, or marketing lead
+who is fluent in money, funnels, and deadlines, and has never heard of CATE.
+The renderer's five-question spine (ref 12) handles structure; this rule
+governs the free text the config author writes (thesis, decisions,
+reasoning, notes).
+
+Hard requirements for every free-text sentence in a deliverable:
+
+1. **It answers an operator question**: each sentence must serve one of
+   who / how much money / by what date / how do we judge win-lose-stop.
+   A sentence that serves none of these is analyst self-narration — cut it.
+2. **Operator word first, term in parentheses on first use**:
+   写「获客成本红线 (CAC ceiling)」，不写「CAC ceiling，即获客成本上限」。
+   After first use, either form is fine. Never a naked acronym a sales
+   lead would have to look up (HTE, CATE, OPE, IPW, AIPW, GCG).
+3. **Verdicts in money language**: "必亏 / 能赚 / 看不清——先拿数", not
+   "not-viable / viable / undetermined" standing alone.
+4. **Every action names an owner** (`owner` field on the task card).
+   A card without an owner is a wish, not a task.
+5. **Stop-loss framing**: kill lines are written as "碰到就停" instructions
+   with a number and a date, not as statistical criteria.
+
+Test: hand chapter 1 to someone who runs a sales team. If they ask what any
+word means, the sentence — not the reader — failed.
+
+---
+
 ## Rule 7 — Table vs Prose
 
 Use a table when:

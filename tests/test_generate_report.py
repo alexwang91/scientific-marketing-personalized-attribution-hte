@@ -119,17 +119,71 @@ def test_unknown_horizon_is_build_error():
     raise AssertionError("expected ConfigError for unknown horizon")
 
 
-def test_rejected_options_render_in_report():
-    # regression: rejected_options silently disappeared when s_actions was removed
+def test_rejected_options_render_as_never_do_in_chapter1():
+    # regression: rejected_options silently disappeared when s_actions was removed;
+    # they now render as the "Never do" section closing chapter 1 (the call page)
     html = rpt.generate_html(copy.deepcopy(rpt.DEMO_CONFIG))
-    assert "Rejected options" in html
+    assert 'id="rej"' in html
+    assert "Never do" in html
     assert "Influencer hero spend" in html
+    assert html.index('id="rej"') < html.index('id="s2"'), "never-do must live in chapter 1"
 
 
 def test_demo_report_renders_all_core_sections():
     html = rpt.generate_html(copy.deepcopy(rpt.DEMO_CONFIG))
     for marker in ["Decision Memo", "The Math", "cac-chart", "derivation"]:
         assert marker in html, f"missing {marker!r}"
+
+
+def test_report_has_five_chapter_banners_with_answers():
+    html = rpt.generate_html(copy.deepcopy(rpt.DEMO_CONFIG))
+    assert html.count('class="chapter-head"') == 5
+    assert html.count('class="ch-answer"') == 5
+    for ch in ("ch1", "ch2", "ch3", "ch4", "ch5"):
+        assert f'id="{ch}"' in html, f"missing chapter {ch}"
+    # reading order is the reader's question order
+    assert html.index('id="ch1"') < html.index('id="ch2"') < html.index('id="ch5"')
+
+
+def test_chapter_answers_bilingual_and_key_parallel():
+    import importlib.util
+    sem_path = REPORT_PATH.parent / "report_semantics.py"
+    spec = importlib.util.spec_from_file_location("report_semantics_t", sem_path)
+    sem = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(sem)
+    assert set(sem.OPERATOR_STRINGS["en"]) == set(sem.OPERATOR_STRINGS["zh"]), \
+        "operator string packs must stay key-parallel"
+    zh_cfg = {"meta": {"lang": "zh"}}
+    assert sem.S(zh_cfg, "ch1_question") == "这钱到底花不花？"
+    assert sem.grade_label(zh_cfg, "A") == "别碰"
+    assert sem.verdict_word({"meta": {"lang": "en"}}, "not-viable").startswith("money-losing")
+
+
+def test_task_card_merge_links_tests_and_plays():
+    import importlib.util
+    sem_path = REPORT_PATH.parent / "report_semantics.py"
+    spec = importlib.util.spec_from_file_location("report_semantics_t2", sem_path)
+    sem = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(sem)
+    cfg = {
+        "actions": [{"id": "A1", "action": "x"}, {"id": "A2", "action": "y"}],
+        "test_plan": [{"name": "T1", "card": "A2"}, {"name": "T2"}],
+        "priority_plays": [{"play": "P1", "card": "A2", "why_now": "w"},
+                           {"play": "P2", "action": "loose"}],
+    }
+    merged = sem.merge_task_cards(cfg)
+    assert [c["id"] for c in merged["cards"]] == ["A2", "A1"], "play rank orders cards"
+    assert merged["cards"][0]["tests"][0]["name"] == "T1"
+    assert merged["cards"][0]["play"]["why_now"] == "w"
+    assert [t["name"] for t in merged["loose_tests"]] == ["T2"]
+    assert len(merged["loose_plays"]) == 1
+
+
+def test_old_config_without_new_fields_still_renders():
+    # backward compat: a config with no card/owner/due/chapter_answers renders fine
+    cfg = copy.deepcopy(rpt.DEMO_CONFIG)
+    html = rpt.generate_html(cfg)
+    assert 'class="chapter-head"' in html and "cac-chart" in html
 
 
 def test_embed_echarts_inlines_local_js():

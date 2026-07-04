@@ -158,7 +158,7 @@ What is the user asking about?
 │
 │  ── Output & Delivery layer ───────────────────────────────────────────────
 ├─ "Generate a deliverable report / campaign brief / HTML output"
-│   → 12-html-report-output  (6-element decision memo + 17-section analysis,
+│   → 12-html-report-output  (five-question chapter spine + 6-element memo,
 │       provenance rendering, pill budget, short-report mode; generate_report.py
 │       enforces the contract and localizes every heading via L())
 ├─ "User gives a product + country; needs channel map, audience, treatment plan"

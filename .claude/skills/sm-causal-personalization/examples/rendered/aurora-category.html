@@ -53,6 +53,9 @@
   .toc-logo span{color:var(--accent)}
   .toc-group-label{padding:12px 18px 4px;font-size:9.5px;font-weight:700;
     text-transform:uppercase;letter-spacing:.1em;color:var(--muted-2)}
+  .toc-chapter{display:block;padding:12px 18px 4px;font-size:11px;font-weight:800;
+    color:var(--ink);text-decoration:none;line-height:1.35;letter-spacing:.01em}
+  .toc-chapter:hover{color:var(--accent)}
   .toc-link{display:block;padding:5px 18px 5px 16px;font-size:12px;
     color:var(--muted);text-decoration:none;line-height:1.4;
     border-left:2px solid transparent;transition:color .12s,border-color .12s,background .12s;
@@ -80,6 +83,21 @@
   .section-intro{font-size:13.5px;color:var(--ink-2);line-height:1.75;
     margin:0 0 18px;padding:13px 16px;background:var(--surface);
     border-radius:6px;border-left:3px solid var(--line-strong)}
+
+  /* ── Chapter banner: the question this chapter answers + one-line answer ── */
+  .chapter-head{margin:34px 0 10px;padding:18px 22px;border-radius:10px;
+    background:linear-gradient(135deg,var(--accent) 0%,#3730a3 100%);color:#fff;
+    scroll-margin-top:12px}
+  .chapter-head:first-child{margin-top:0}
+  .ch-num{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+    opacity:.75;margin-bottom:4px}
+  .ch-question{font-size:20px;font-weight:800;letter-spacing:-.015em;line-height:1.3}
+  .ch-answer{margin-top:10px;font-size:13.5px;line-height:1.6;
+    background:rgba(255,255,255,.14);border-radius:7px;padding:9px 12px}
+  .ch-answer span{font-weight:800;opacity:.8;margin-right:6px}
+  .hm-code{display:block;font-size:9px;font-weight:400;opacity:.55;margin-top:1px}
+  .card-ownerline{font-size:12px;color:var(--ink-2);background:var(--surface);
+    border:1px solid var(--line);border-radius:6px;padding:6px 10px;margin:2px 0 8px}
 
   /* ── Section card ── */
   section{background:var(--panel);border:1px solid var(--line);
@@ -544,7 +562,7 @@
 <div class="page-layout">
 <aside class="sidebar">
   <div class="toc-logo">Aurora Air Purifiers<br><span>Poland</span></div>
-  <div class="toc-group-label">CONTENTS</div>
+  <div class="toc-group-label">THE 5 QUESTIONS</div>
   <a class="toc-link" href="#c0" id="toc-c0">0 · Portfolio Verdict &amp; 4P Matri</a>
 <a class="toc-link" href="#c1" id="toc-c1">1 · Category Diagnosis</a>
 <a class="toc-link" href="#c2" id="toc-c2">2 · Price-Tier × Audience × Comp</a>
