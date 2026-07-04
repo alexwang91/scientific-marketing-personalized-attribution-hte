@@ -161,7 +161,7 @@ Layer 4 · 生成与服务（可选） LLM embedding 作特征（不进决策回
 **输出与交付**
 | Ref | 主题 |
 |-----|------|
-| `12` html-report-output | 6 元素决策备忘 + 17 节分析，provenance 渲染 |
+| `12` html-report-output | 五问章节主轴（拍板/这笔账/打法/执行/底牌）+ 6 元素决策备忘，provenance 渲染 |
 | `13` product-country-pipeline | 8 阶段产品×国家流水线 |
 | `14` d-dimension-reviewer | D 维度生成门 + 独立对抗评审，open-blocking → BLOCKED 预算联动 |
 | `15` writing-rules | 语言策略、可证伪义务、诚实状态词、反 slop、叙事与理论可用性原则 |
@@ -183,7 +183,7 @@ Layer 4 · 生成与服务（可选） LLM embedding 作特征（不进决策回
 | `ope_estimators.py` | IPS / SNIPS / DR off-policy 评估 + support 检查 | §14 OPE support |
 | `hte_starter.py` | T / X / DR-learner 起手式（sklearn，可换 EconML/CausalML） | — |
 | `policy_budget.py` | λ* 预算约束分配（ref 06 背包/影子价格）、随机化保留集上的 IPW 政策价值、利润-预算曲线 | Layer 3 决策工具 |
-| `generate_report.py` | 决策备忘 HTML 生成器（v2）和交互式看板渲染器。**强制 provenance 合约**；report 模式含 5 张因果逻辑交互图（ECharts）和三档深度 `--depth quick/standard/deep`；dashboard 模式输出单位经济、渠道筛选、热力图、treatment gates、evidence ledger 组成的 board-style cockpit | **HTML 输出入口** |
+| `generate_report.py` | 决策报告生成器和交互式看板渲染器。**强制 provenance 合约**；**按读者五问组织**（花不花钱/账怎么算/对谁打/谁执行/凭什么信），内置中英人话文案包（`meta.lang` 切换）、统一任务卡（负责人/截止/止损线）、5 张因果逻辑交互图；`--format dashboard` 输出由单位经济、渠道筛选、热力图、treatment gates、evidence ledger 组成的 board-style cockpit；三档深度 `--depth quick/standard/deep` | **HTML 输出入口** |
 
 ---
 

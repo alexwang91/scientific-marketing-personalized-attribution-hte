@@ -1,11 +1,33 @@
 #!/usr/bin/env python3
-"""Normalize existing report configs into interactive dashboard data."""
+"""Normalize existing report configs into interactive dashboard data.
+
+Shares the semantic layer (report_semantics) with the document renderer, so
+the cockpit and the document speak the same operator language: five reader
+questions, plain verdict words, and real config data — the heatmap comes from
+cfg["heatmap"] when present (a synthetic fallback is labelled as such), the
+budget table reads the real budget_rows field, and dimension fields match the
+actual schema (name / mechanism / entry_score / verdict / resolution_status).
+"""
 
 from __future__ import annotations
 
 from collections import Counter
 from decimal import Decimal, ROUND_HALF_UP
+from pathlib import Path
 from typing import Any, Dict, List
+
+_HERE = Path(__file__).parent
+
+try:
+    import report_semantics as _sem
+except ImportError:
+    try:
+        from . import report_semantics as _sem
+    except ImportError:
+        import importlib.util as _ilu
+        _sem_spec = _ilu.spec_from_file_location("report_semantics", _HERE / "report_semantics.py")
+        _sem = _ilu.module_from_spec(_sem_spec)
+        _sem_spec.loader.exec_module(_sem)
 
 
 def build_dashboard_data(cfg: Dict[str, Any]) -> Dict[str, Any]:
@@ -146,11 +168,14 @@ def _challenges(cfg: Dict[str, Any]) -> List[Dict[str, Any]]:
 def _dimensions(cfg: Dict[str, Any], treatments: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     raw = cfg.get("dimensions") or cfg.get("d_dimensions") or []
     if raw:
+        # field names follow the real config schema; older aliases kept as fallbacks
         return [{
             "id": row.get("id", f"D{idx}"),
-            "label": row.get("label") or row.get("name") or row.get("dimension") or f"D{idx}",
-            "status": row.get("status", "test"),
-            "logic": row.get("logic", row.get("reasoning", "")),
+            "label": row.get("name") or row.get("label") or row.get("dimension") or f"D{idx}",
+            "status": row.get("resolution_status", row.get("status", "open")),
+            "verdict": row.get("verdict", ""),
+            "entry_score": row.get("entry_score", ""),
+            "logic": row.get("mechanism") or row.get("logic") or row.get("reasoning", ""),
             "proxy": row.get("proxy", ""),
             "treatment_ids": row.get("treatment_ids", []),
         } for idx, row in enumerate(raw, 1)]
@@ -159,7 +184,9 @@ def _dimensions(cfg: Dict[str, Any], treatments: List[Dict[str, Any]]) -> List[D
         fallback.append({
             "id": f"D{idx}",
             "label": _short(treatment["label"], 28),
-            "status": "test",
+            "status": "open",
+            "verdict": "",
+            "entry_score": "",
             "logic": treatment.get("mechanism", ""),
             "proxy": treatment.get("gate", ""),
             "treatment_ids": [treatment["id"]],
@@ -167,14 +194,38 @@ def _dimensions(cfg: Dict[str, Any], treatments: List[Dict[str, Any]]) -> List[D
     return fallback or [{
         "id": "D1",
         "label": "Decision blocker",
-        "status": "test",
+        "status": "open",
+        "verdict": "",
+        "entry_score": "",
         "logic": "Needs data",
         "proxy": "",
         "treatment_ids": [],
     }]
 
 
-def _heatmap(channels: List[Dict[str, Any]], dimensions: List[Dict[str, Any]]) -> Dict[str, Any]:
+def _heatmap(cfg: Dict[str, Any], channels: List[Dict[str, Any]],
+             dimensions: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Real heatmap from cfg["heatmap"] when present. The synthetic fallback
+    (derived mechanically from channel verdicts) is labelled synthetic so the
+    UI can say so — a fabricated-looking grid presented as data would violate
+    the provenance stance of this repo."""
+    hm = cfg.get("heatmap")
+    if hm and hm.get("channels") and hm.get("dimensions"):
+        label_map = hm.get("dim_labels", {})
+        dim_logic = {d["id"]: d for d in dimensions}
+        columns = [{
+            "id": d,
+            "label": label_map.get(d, d),
+            "logic": dim_logic.get(d, {}).get("logic", ""),
+            "proxy": dim_logic.get(d, {}).get("proxy", ""),
+        } for d in hm["dimensions"]]
+        rows = [{
+            "channel_id": ch,
+            "channel_name": ch,
+            "grades": [hm.get("scores", {}).get(ch, {}).get(d, "N") for d in hm["dimensions"]],
+        } for ch in hm["channels"]]
+        return {"columns": columns, "rows": rows, "synthetic": False}
+
     rows = []
     for channel in channels:
         verdict = channel.get("verdict")
@@ -189,8 +240,10 @@ def _heatmap(channels: List[Dict[str, Any]], dimensions: List[Dict[str, Any]]) -
             else:
                 grade = "T" if idx == 0 else "N"
             grades.append(grade)
-        rows.append({"channel_id": channel["id"], "grades": grades})
-    return {"columns": dimensions, "rows": rows}
+        rows.append({"channel_id": channel["id"],
+                     "channel_name": channel.get("name", channel["id"]),
+                     "grades": grades})
+    return {"columns": dimensions, "rows": rows, "synthetic": True}
 
 
 def _evidence(numbers: Dict[str, Dict[str, Any]], cfg: Dict[str, Any]) -> Dict[str, Any]:
@@ -203,15 +256,51 @@ def _evidence(numbers: Dict[str, Dict[str, Any]], cfg: Dict[str, Any]) -> Dict[s
     }
 
 
+def _budget_rows(cfg: Dict[str, Any], numbers: Dict[str, Dict[str, Any]]) -> List[Dict[str, Any]]:
+    rows = []
+    for r in cfg.get("budget_rows", []):
+        bid = r.get("budget_id")
+        spec = numbers.get(bid, {}) if bid else {}
+        rows.append({
+            "phase": r.get("phase", ""),
+            "item": r.get("item", ""),
+            "budget_text": spec.get("value_text") or r.get("budget_display", "—"),
+            "provenance": spec.get("provenance", ""),
+            "condition": r.get("condition", ""),
+        })
+    return rows
+
+
+def _strings(cfg: Dict[str, Any]) -> Dict[str, str]:
+    """UI vocabulary for the renderer, in the config's language."""
+    keys = [
+        "ch1_title", "ch1_question", "ch2_title", "ch2_question",
+        "ch3_title", "ch3_question", "ch4_title", "ch4_question",
+        "ch5_title", "ch5_question", "ch_answer_label",
+        "kill_line_word", "blocked_word", "gate_word", "owner_word", "due_word",
+        "never_do_heading", "prov_legend", "heatmap_caption",
+        "task_cards_heading", "toc_title",
+    ]
+    out = {k: _sem.S(cfg, k) for k in keys}
+    for code in ("H", "T", "S", "N", "A"):
+        out[f"grade_{code}"] = _sem.grade_label(cfg, code)
+    for v in ("viable", "not-viable", "undetermined", "role-only"):
+        out[f"verdict_{v}"] = _sem.verdict_word(cfg, v)
+    return out
+
+
 def _build_sku_dashboard(cfg: Dict[str, Any]) -> Dict[str, Any]:
     numbers = _numbers(cfg)
     treatments = _treatments(cfg)
     challenges = _challenges(cfg)
     channels = _channels(cfg, numbers)
     dimensions = _dimensions(cfg, treatments)
+    raw_numbers = cfg.get("numbers", {})
     return {
         "kind": "sku",
         "meta": _meta(cfg),
+        "strings": _strings(cfg),
+        "chapter_answers": _sem.chapter_answers(cfg, raw_numbers),
         "overview": _overview(cfg, numbers),
         "kpis": _kpis(cfg, numbers),
         "economics": {
@@ -224,9 +313,14 @@ def _build_sku_dashboard(cfg: Dict[str, Any]) -> Dict[str, Any]:
         },
         "channels": channels,
         "dimensions": dimensions,
-        "heatmap": _heatmap(channels, dimensions),
+        "heatmap": _heatmap(cfg, channels, dimensions),
         "treatments": treatments,
-        "budgets": cfg.get("budget", []) or cfg.get("budgets", []),
+        "budgets": _budget_rows(cfg, numbers),
+        "gates": cfg.get("execution_gates", []),
+        "suppression": cfg.get("suppression_rules", []),
+        "measurement": cfg.get("measurement_plan", {}),
+        "checklist": cfg.get("checklist", []),
+        "h_main": cfg.get("h_main_breakdown", []),
         "plays": cfg.get("priority_plays", []),
         "challenges": challenges,
         "tests": cfg.get("test_plan", []),
@@ -241,6 +335,7 @@ def _build_category_dashboard(cfg: Dict[str, Any]) -> Dict[str, Any]:
     return {
         "kind": "category_portfolio",
         "meta": _meta(cfg),
+        "strings": _strings(cfg),
         "overview": {
             "verdict": "portfolio",
             "thesis": cfg.get("_note", ""),

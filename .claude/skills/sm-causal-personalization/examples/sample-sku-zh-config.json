@@ -6,357 +6,30 @@
     "lang": "zh",
     "_note": "虚构品牌与产品——仅作示例。不含任何真实品牌或市场数据。"
   },
-  "labels": {
-    "memo_heading": "1 · 决策备忘",
-    "thesis_label": "论点：",
-    "overturn_heading": "什么会推翻这个论点",
-    "weakest_heading": "本报告最薄弱处",
-    "marker_legend": "数字标记：◆S 已溯源（带链接）· ◇A 假设（已述依据）· ⊕D 推导（展示链条）· ○M 缺失（无值，仅占位）",
-    "horizon_now": "现在（零成本）",
-    "horizon_checkpoint": "检查点时",
-    "horizon_never": "此测算下不做",
-    "math_heading": "2 · 测算",
-    "sensitivity_heading": "敏感性分析 — 哪个假设会翻转结论",
-    "sens_th_change": "假设变化",
-    "sens_th_effect": "对结论的影响",
-    "sens_th_priority": "验证优先级",
-    "sens_note": "按优先级顺序验证：P1 最先处理。",
-    "screen_heading": "渠道可行性筛查（阈值：上方 CAC 上限）",
-    "screen_th_channel": "渠道",
-    "screen_th_verdict": "结论",
-    "screen_th_cac": "CAC 估算",
-    "screen_th_reasoning": "原因 / 缺失数据",
-    "screen_note": "规则：基准估算可以证明<em>不可行</em>（最优情况仍超上限），但<em>无法</em>证明可行——可行需要本地数据。<em>undetermined</em> 意味着区间横跨上限；行动是获取数据，而非选一个端点。",
-    "product_heading": "3 · 产品与市场事实",
-    "product_features_heading": "与定向相关的产品功能",
-    "market_facts_heading": "市场事实",
-    "product_th_feature": "功能",
-    "product_th_relevance": "定向相关性",
-    "product_th_status": "状态",
-    "market_th_fact": "事实",
-    "market_th_status": "状态",
-    "channel_heading": "4 · 本地渠道地图",
-    "channel_th_name": "渠道",
-    "channel_th_task": "任务",
-    "channel_th_proxy": "Proxy 质量",
-    "channel_th_verdict": "结论",
-    "channel_th_cac": "CAC 估算",
-    "channel_th_note": "备注",
-    "channel_benchmark_note": "基准可以证明<em>不可行</em>（最优情况仍超上限），但<em>无法</em>证明可行。<em>undetermined</em> = 区间横跨上限；需要获取数据。",
-    "dim_heading": "5 · D 维度表与因果激活评审",
-    "dim_th_id": "维度",
-    "dim_th_mechanism": "机制",
-    "dim_th_proxy": "平台 Proxy",
-    "dim_th_score": "评分",
-    "dim_th_verdict": "评审结论",
-    "dim_th_status": "状态",
-    "dim_verdict_legend": "结论说明：Retain = 热力图 H 或 T · Retain (test) = T 或 S · Demote S = 仅 S · Suppression = 抑制目标 · Delete = 剔除。",
-    "dim_reviewer_heading": "因果激活评审 — 维度挑战",
-    "dim_reviewer_th_dimension": "维度",
-    "dim_reviewer_th_challenge": "提出的挑战",
-    "dim_reviewer_th_handling": "当前处理",
-    "dim_reviewer_th_evidence": "所需证据",
-    "dim_reviewer_callout": "D 维度是试验设计的候选操作变量。在进入主要预算之前，每个维度必须通过：可部署的 Proxy、可测试的增量效果、已陈述的机制、无合规或边际风险。",
-    "heatmap_heading": "6 · 语义热力图（渠道 × 维度）",
-    "heatmap_intro": "仅通过可行性筛查的渠道出现在此。H = 主要投资目标；A = 主动抑制。",
-    "heatmap_legend_prefix": "图例：",
-    "hmain_heading": "7 · H-Main 拆解",
-    "hmain_intro": "以下是预期 HTE 为正的单元。每个对应执行门禁节中的一张 Treatment Card。优先级自上而下。",
-    "hmain_th_cell": "渠道 × 维度",
-    "hmain_th_hypothesis": "HTE 假设",
-    "hmain_th_card": "Treatment Card",
-    "hmain_th_notes": "备注",
-    "gates_heading": "9 · 执行门与 Treatment Cards",
-    "gates_maturity_prefix": "成熟度：",
-    "gates_maturity_suffix": " — 本分析支持试验设计和渠道筛查，不支持 CATE 声明或策略优化。",
-    "gates_th_gate": "执行门",
-    "gates_th_input": "所需输入",
-    "gates_th_status": "状态",
-    "gates_th_note": "备注",
-    "gates_cards_heading": "Treatment Cards（仅 H 主投格）",
-    "card_audience": "受众",
-    "card_baseline": "基线",
-    "card_mechanism": "机制",
-    "card_guardrail": "护栏",
-    "card_measurement": "测量",
-    "budget_envelope_label": "预算额度",
-    "card_unlocks": "解锁条件",
-    "budget_heading": "10 · 预算分配",
-    "budget_th_phase": "阶段",
-    "budget_th_item": "项目",
-    "budget_th_budget": "预算",
-    "budget_th_condition": "条件",
-    "plays_heading": "11 · 优先打法与 ROI 情景",
-    "plays_why_now": "为何现在",
-    "plays_expected_cac": "预期增量 CAC",
-    "plays_kill_line": "止损线",
-    "kol_heading": "12 · KOL / 达人采购",
-    "kol_format": "形式",
-    "kol_fee": "费用估算",
-    "kol_fee_suffix": "待直接询价",
-    "kol_attribution": "归因",
-    "kol_incrementality": "增量性",
-    "measurement_heading": "13 · 测量计划",
-    "measurement_primary": "主指标",
-    "measurement_secondary": "次要指标",
-    "measurement_scaleup": "放量规则",
-    "measurement_pause": "暂停规则",
-    "measurement_gcg": "全局对照组（GCG）设计",
-    "suppression_heading": "15 · 抑制与风险规则",
-    "suppression_th_rule": "规则",
-    "suppression_th_dimension": "维度",
-    "suppression_th_reason": "原因",
-    "checklist_heading": "17 · 来源与核验清单",
-    "actions_heading": "附 · Treatment Cards 汇总",
-    "actions_intro": "仅通过可行性筛查的选项以卡片形式出现。标有 <strong>⊘ BLOCKED</strong> 的卡片引用了未解决的阻塞性挑战（第4节），必须在解决该挑战之前不得分配预算。",
-    "actions_rejected_heading": "已拒绝选项（及原因）",
-    "actions_rejected_th_option": "选项",
-    "actions_rejected_th_reason": "拒绝原因",
-    "challenges_heading": "9 · 因果激活评审（campaign 级）",
-    "challenges_intro": "挑战由独立评审过程提出，不可更改——分析方可回应但不得改写。<strong>open-blocking</strong> 挑战为每个依赖它的行动打上标记。公开展示未解决的挑战是信任机制；\"resolved\" 需要数据，而非说辞。",
-    "challenges_th_challenge": "挑战",
-    "challenges_th_question": "问题",
-    "challenges_th_status": "状态",
-    "challenges_th_resolution": "解决方案 / 所需证据",
-    "testplan_heading": "14 · 测试计划",
-    "testplan_intro": "每个进入预算的主张都带有可证伪的预测、止损线和决策日期。在该日期，该线要么成为已溯源数据，要么被宣告无效。",
-    "card_prediction": "预测",
-    "card_test": "测试",
-    "card_kill_line": "止损线",
-    "card_decision_date": "决策日期",
-    "evidence_heading": "16 · 证据与缺口",
-    "evidence_sourced_heading": "已溯源事实",
-    "evidence_assumed_heading": "假设登记",
-    "evidence_missing_heading": "缺失台账 — 按敏感性排序，即工作计划",
-    "evidence_th_fact": "事实",
-    "evidence_th_source": "来源",
-    "evidence_th_accessed": "访问日期",
-    "evidence_th_assumption": "假设",
-    "evidence_th_value": "值",
-    "evidence_th_basis": "依据",
-    "evidence_th_missing": "缺失项",
-    "evidence_th_where": "获取渠道",
-    "evidence_th_cost": "成本",
-    "evidence_th_blocks": "阻塞",
-    "hmain_th_tcard": "Treatment Card",
-    "eg_heading": "8 · 执行门禁与 Treatment Cards",
-    "eg_th_gate": "门禁",
-    "eg_th_input": "所需输入",
-    "eg_th_status": "状态",
-    "eg_th_note": "备注",
-    "maturity_label": "成熟度",
-    "eg_maturity_note": "本分析支持试验设计与渠道筛查，不支持 CATE 断言或策略优化。",
-    "eg_tcards_heading": "Treatment Cards（仅 H-main 单元）",
-    "tc_audience": "受众",
-    "tc_baseline": "基线",
-    "tc_mechanism": "机制",
-    "tc_guardrail": "护栏",
-    "tc_measurement": "测量",
-    "tc_budget": "预算额度",
-    "tc_blocked_by": "被阻塞，来自",
-    "bg_th_phase": "阶段",
-    "bg_th_item": "项目",
-    "bg_th_budget": "预算",
-    "bg_th_condition": "解锁条件",
-    "pp_why_now": "为何现在",
-    "pp_expected_cac": "预期增量 CAC",
-    "pp_kill_line": "止损线",
-    "tag_needs_test": "待测试",
-    "kol_fee_pending": "待直接报价",
-    "tag_assumption": "假设",
-    "mp_primary": "主指标：",
-    "mp_secondary": "次级指标：",
-    "mp_scaleup": "扩量规则",
-    "mp_pause": "暂停规则",
-    "mp_gcg": "GCG 设计",
-    "sp_th_rule": "规则",
-    "sp_th_dimension": "维度",
-    "sp_th_reason": "原因",
-    "termination_heading": "流程在第 {stage} 阶段终止",
-    "termination_note": "本报告刻意保持简短：测算不支持媒体投放计划。能改变测算的杠杆已列在敏感性分析表和缺失账本中。其中之一发生变化时，重新运行流程。",
-    "verdict_label": "裁决",
-    "pf_th_feature": "功能",
-    "pf_th_relevance": "定向相关性",
-    "pf_th_status": "状态",
-    "mf_th_fact": "事实",
-    "mf_th_status": "状态",
-    "cm_th_channel": "渠道",
-    "cm_th_task": "任务",
-    "cm_th_proxy": "Proxy 质量",
-    "cm_th_verdict": "结论",
-    "cm_th_cac": "CAC 估算",
-    "cm_th_note": "备注",
-    "channel_note": "基准可以证明<em>不可行</em>（最优情况仍超上限），但<em>无法</em>证明可行。<em>undetermined</em> = 区间横跨上限；需要获取数据。",
-    "dt_th_dimension": "维度",
-    "dt_th_mechanism": "机制",
-    "dt_th_proxy": "平台 Proxy",
-    "dt_th_score": "评分",
-    "dt_th_verdict": "判定",
-    "dt_th_status": "状态",
-    "reviewer_heading": "因果激活评审 — 维度挑战",
-    "rv_th_dimension": "维度",
-    "rv_th_challenge": "提出的挑战",
-    "rv_th_handling": "当前处理",
-    "rv_th_evidence": "所需证据",
-    "reviewer_callout": "D 维度是试验设计的候选操作变量。进入主预算前，每个维度都须通过：可部署 Proxy、可测增量、有明确机制、无合规或利润风险。",
-    "heatmap_corner": "渠道 / 维度",
-    "heatmap_legend_label": "图例",
-    "ch_th_challenge": "挑战",
-    "ch_th_question": "问题",
-    "ch_th_status": "状态",
-    "ch_th_resolution": "解决 / 所需证据",
-    "rejected_heading": "被否决的选项（及原因）",
-    "rejected_th_option": "选项",
-    "rejected_th_reason": "否决原因",
-    "sourced_facts_heading": "已溯源事实",
-    "assumption_register_heading": "假设登记表",
-    "missing_ledger_heading": "缺失账本 — 按敏感性排序，这就是工作计划",
-    "ev_th_fact": "事实",
-    "ev_th_source": "来源",
-    "ev_th_accessed": "访问日期",
-    "ev_th_assumption": "假设",
-    "ev_th_value": "值",
-    "ev_th_basis": "依据",
-    "ev_th_what": "内容",
-    "ev_th_where": "从何获取",
-    "ev_th_cost": "成本",
-    "ev_th_blocks": "阻塞",
-    "decision_date_label": "决策日期",
-    "guardrail_label": "护栏",
-    "kill_line_label": "止损线",
-    "mechanism_label": "机制",
-    "prediction_label": "预测",
-    "test_label": "测试",
-    "unlocks_label": "解锁",
-    "cac_chart_title": "各渠道 CAC 区间 vs 上限（CZK）",
-    "cac_chart_ceiling_label": "CAC 上限",
-    "cac_legend_viable": "可行（本地数据确认低于上限）",
-    "cac_legend_undetermined": "待定（基准估算，无法据此判定可行）",
-    "cac_legend_notviable": "不可行（最优情况仍超上限）",
-    "cac_chart_caption": "横条=基准 CAC 区间 · 竖线=上限 · 颜色=筛查结论。基准只能证伪（最优情况超上限即出局），无法证明可行——所以即便整条在上限左侧，未经本地数据确认前仍为「待定」。",
-    "price_comparison_title": "竞品价格定位",
-    "dim_chart_title": "D 维度评分排名",
-    "budget_chart_title": "预算分配概览",
-    "toc_title": "目录",
-    "footer_note": "每个数字均为溯源、假设、推导或缺失——无任何数字是凭空捏造的",
-    "footer_method": "方法论",
-    "s2_intro": "以上结论建立在一个核心经济逻辑上：单位毛利决定了客户获取成本（CAC）的上限。本报告中的每个渠道、每项行动，均以该上限为评判基准。基准估算只能证伪可行性——无法证实可行性。",
-    "s3_intro": "经济模型划定了上限，本节将分析落地到产品现实：哪些功能具有差异化价值，产品如何在竞品中定位，哪些市场事实制约了渠道与受众策略。",
-    "s4_intro": "CAC 上限已确立，现对每个渠道进行筛查：其获客成本区间能否低于上限？下方的结论标签给出快速答案，表格提供详细推理。请记住：基准只能排除渠道，不能确认渠道。",
-    "s5_intro": "渠道筛查告诉我们在哪里触达买家。维度表则提出另一个问题：在这些渠道中，哪些买家特征能预测增量响应？每个维度在获得预算前须通过四项标准：可部署代理指标、可检验增量性、转化机制合理、监管合规。",
-    "s6_intro": "热图将每个维度与每个渠道交叉比对。标记 H 的格子是主要投资目标——预期具有最强正向提升效果。标记 A 的格子需要主动屏蔽：向这些用户投放可能侵蚀利润，而非带来增长。",
-    "s7_intro": "热图识别了所有 H 和 T 格子，本节聚焦 H-main 格子：预期具有正向增量提升的渠道-维度组合。每行直接对应第 8 节的一张干预卡。优先级从上至下排列。",
-    "s8_intro": "干预卡将第 7 节的 H-main 假设转化为可操作的执行方案。每张卡明确触达对象（受众）、执行内容（机制）、风险保护（护栏）和测量方式（测试）。被阻断的卡意味着存在未解决的阻断性挑战，在挑战关闭前不得分配预算。",
-    "s9_intro": "以下挑战由独立复核在初步分析完成后提出，属于不可篡改的记录——分析可以回应，但不能重写。阻断性未解决挑战会在所有依赖该挑战的行动上盖上 BLOCKED 标记。",
-    "s10_intro": "预算分配遵循渠道筛查和执行门控——而非相反。只有通过筛查的渠道才能获得资金。每一行均以第 8 节中某个门控条件被满足为前提。预算不会在假设中移动——它在完成执行门控后才真正移动。",
-    "s11_intro": "综合渠道筛查、维度评分和预算结构，以下是未来 90 天预期回报最高的三个行动。每个策略对应其激活的干预卡，并附有终止线——一旦数据显示假设不成立，行动即停止。",
-    "s12_intro": "达人资源整合遵循渠道地图：YouTube 和社交媒体承担内容资产角色，而非直接转化。达人内容产生认知并构建产品叙事——不能证明增量效果。在设置 holdout 对照组隔离因果效应之前，以下所有达人归因均标注为假设。",
-    "s13_intro": "测量方案直接衔接第 5 节的 D 维度和第 8 节的干预卡。若没有此处指定的 GCG（随机对照设计），将无法区分营销造成的结果与趋势巧合。下方的成熟度阶梯显示当前项目所处位置及晋级所需条件。",
-    "s14_intro": "第 8 节中的每张干预卡都附有可证伪的预测和终止线。这些不是里程碑——而是决策门。到决策日期，预测要么成为溯源证据，要么终止行动并回收预算。",
-    "s15_intro": "屏蔽与定向同等重要。以下规则定义了不该触达的人群——保护利润、防范合规风险，避免将正向 CATE 策略变成负利润项目的逆向选择。",
-    "s16_intro": "这是报告中每个数字的审计追踪记录。所有数值均为以下四种之一：已溯源（附链接）、已假设（明确陈述依据）、已推导（展示公式与输入）或缺失（占位符——无数值被发明）。",
-    "s17_intro": "上线前核查清单。所有条目须达到「完成」状态，才能解锁任何预算。待处理条目阻断对应的干预卡。本清单是上方缺失台账的操作转化。",
-    "ml_l0": "L0 — 实验前",
-    "ml_l0_desc": "尚未设置 holdout",
-    "ml_l1": "L1 — GCG + 回溯分析",
-    "ml_l1_desc": "随机 holdout 对照",
-    "ml_l2": "L2 — 策略学习 + OPE",
-    "ml_l2_desc": "离线验证",
-    "ml_l3": "L3 — 上下文 Bandit",
-    "ml_l3_desc": "在线学习",
-    "echart_reb_label": "推翻条件",
-    "echart_fallback": "交互图表需加载 ECharts（联网获取）。断网时请联网后刷新查看。",
-    "ec_quad_title": "谁值得投放：四种响应类型",
-    "ec_quad_sub": "按购买概率投放，命中的是「铁定会买」；按 uplift 投放，才找得到「可说服者」——唯一因你的动作才购买的人。",
-    "ec_quad_badge": "概念图",
-    "ec_cate_title": "到底该不该个性化？看 τ(x) 的分布形状",
-    "ec_cate_sub": "单一尖峰=人人反应一样，别个性化；宽分布或双峰=uplift 存在异质性，分层投放才划算。",
-    "ec_cate_badge": "示意图",
-    "ec_forces_title": "treatment 必须撬动什么：四种力",
-    "ec_forces_sub": "Push 与 Pull 推向购买；Habit 与 Anxiety 拉住不买。只有当 treatment 移动了一个仍未定的力，才会产生增量。",
-    "ec_forces_badge": "机制图",
-    "ec_qini_title": "模型是否胜过随机投放？（Qini 曲线）",
-    "ec_qini_sub": "模型曲线与随机线之间的面积，就是模型创造的价值。色带是电商行业基准区间；你的曲线需在 holdout 数据上运行 qini_auuc.py 填入。",
-    "ec_qini_badge": "示意（待填）",
-    "ec_qini_reb": "若实测 Qini < 0.15，曲线贴回随机线——说明特征无 uplift 信号，应放弃个性化，改用统一策略。",
-    "ec_wf_title": "从归因收入到真实增量",
-    "ec_wf_sub": "平台归因把碰过的每笔转化都算作自己的功劳。剔除本来就会买的人，再剔除自然与季节性需求，剩下的才是花费真正带来的。",
-    "ec_wf_badge": "示意",
-    "ec_wf_reb": "比例为示意；真实拆分需 holdout。若 holdout 增量与平台归因差距 < 5%，则此拆分不成立，归因可直接采信。",
-    "chart_q_x": "不投放也会买",
-    "chart_q_y": "投放后会买",
-    "chart_q_no": "否",
-    "chart_q_yes": "是",
-    "chart_q_persuadable": "可说服者\n✓ 投这些人",
-    "chart_q_sure": "铁定会买\n浪费预算",
-    "chart_q_lost": "无望者\n浪费预算",
-    "chart_q_sleeping": "沉睡狗\n投了反而跑",
-    "chart_q_persona": "高 Push + 高 Anxiety",
-    "chart_cate_x": "预测 uplift  τ(x)  →",
-    "chart_cate_y": "用户数",
-    "chart_cate_spike": "尖峰——无异质性（别个性化）",
-    "chart_cate_wide": "宽分布——值得分层",
-    "chart_cate_bimodal": "双峰——两类人",
-    "chart_cate_zero": "τ = 0",
-    "chart_f_push": "Push · 对现状不满",
-    "chart_f_pull": "Pull · 产品吸引力",
-    "chart_f_habit": "Habit · 习惯惯性",
-    "chart_f_anxiety": "Anxiety · 换新的恐惧",
-    "chart_f_toward": "抬高 τ  →",
-    "chart_f_against": "←  压低 τ",
-    "chart_qini_x": "触达人群比例（按预测 uplift 排序）",
-    "chart_qini_y": "累计增量转化（%）",
-    "chart_qini_random": "随机投放",
-    "chart_qini_perfect": "完美模型（上界）",
-    "chart_qini_band": "行业基准（Qini ≈ 0.25–0.40）",
-    "chart_wf_attributed": "平台归因",
-    "chart_wf_sure": "− 本来就会买",
-    "chart_wf_organic": "− 自然 / 季节",
-    "chart_wf_incremental": "真实增量",
-    "chart_wf_axis": "收入（示意单位）",
-    "tldr_heading": "0 · 总结",
-    "tldr_kicker": "一句话结论",
-    "tldr_why_label": "为什么",
-    "tldr_do": "要做",
-    "tldr_dont": "不要做",
-    "tldr_roi_label": "ROI",
-    "tldr_roi_cond": "未定——先完成零成本数据拉取再决定预算",
-    "tldr_do_empty": "— 暂无 —",
-    "tldr_dont_empty": "— 暂无 —",
-    "depth_label_quick": "速览",
-    "depth_quick_banner": "仅保留决策关键章节——总结、备忘、单位经济、门控与证据。去掉 --depth quick 可查看完整分析。",
-    "depth_label_deep": "深度",
-    "depth_deep_banner": "完整报告 + 汇总的验证路线图（§18）——所有未决假设按「能否改变决策」排序。",
-    "ledger_heading": "18 · 验证路线图",
-    "s18_intro": "把整份报告里仍未证实、但决策依赖的东西汇成一张排序清单。它将未决评审挑战、缺失台账和测试预测合并为一条路线图，按「最便宜的阻塞项先测」排序。这里没有新东西——只是把报告其余部分按「什么能改变决策」重新排了序。",
-    "ledger_intro": "按（是否阻塞 × 验证成本）排序：open-blocking 挑战与阻塞预算的缺口在前，仅影响敏感性的输入在后。每行都带一条预先承诺的判定线——假设只有在其测试通过后才能晋升为 Sourced。",
-    "lg_th_rank": "#",
-    "lg_th_assumption": "假设 / 未决问题",
-    "lg_th_prov": "当前来源等级",
-    "lg_th_risk": "若错了",
-    "lg_th_test": "最小有效验证",
-    "lg_th_rule": "通过 / 否决规则",
-    "lg_prov_hypothesis": "Hypothesis",
-    "lg_prov_missing": "Missing",
-    "lg_risk_blocking": "阻塞依赖它的动作",
-    "lg_risk_open": "未决挑战——暂未阻塞",
-    "lg_risk_kill": "预测不成立则该动作被砍",
-    "lg_risk_sens": "敏感性输入——不阻塞任何动作",
-    "lg_blocks_prefix": "阻塞：",
-    "lg_rule_challenge": "挑战澄清 → 动作解锁；否则保持 BLOCKED",
-    "lg_rule_missing": "拿到该值 → 晋升为 Sourced / Assumed",
-    "lg_by": "截止",
-    "lg_empty": "无未决假设、无缺失输入、无待测项——没有需要验证的内容。"
-  },
   "decision_memo": {
     "verdict": "conditional",
     "thesis": "单位毛利 2,797 CZK；CAC 上限 1,678 CZK。无渠道有本地数据证明 CAC 低于上限——搜索基准区间横跨上限，社媒拉新最优角接近但仍在基准范围内。结论：CONDITIONAL。暂不分配媒体预算；先完成三项零成本数据拉取，2026-07-15 checkpoint 重新评估。",
     "decisions": [
-      {"horizon": "now", "text": "拉捷克语关键词 CPC（品牌词 / 品类词 / 痛点词，如「全自动咖啡机 测评」等），Google Keyword Planner 零成本，约 1 小时，解锁搜索渠道判定。"},
-      {"horizon": "now", "text": "向 Alza.cz 询 sponsored placement 费率卡。一封邮件，解锁离购买最近渠道的判定。"},
-      {"horizon": "now", "text": "财务确认毛利口径（含渠道分成后净毛利），并从历史订单拉胶囊订阅连带率——两个数字直接决定 CAC 上限是否上移。"},
-      {"horizon": "checkpoint", "text": "2026-07-15：任一渠道推算 CAC 低于上限 → 解锁对应小额试投；全部不过 → 转向订阅/捆绑方案提升 LTV，重算单位经济学。"},
-      {"horizon": "never", "text": "KOL 大额投放、降价比价竞赛、泛兴趣社媒拉新——在当前毛利结构下数学上不成立（见已拒绝选项）。"}
+      {
+        "horizon": "now",
+        "text": "拉捷克语关键词 CPC（品牌词 / 品类词 / 痛点词，如「全自动咖啡机 测评」等），Google Keyword Planner 零成本，约 1 小时，解锁搜索渠道判定。"
+      },
+      {
+        "horizon": "now",
+        "text": "向 Alza.cz 询 sponsored placement 费率卡。一封邮件，解锁离购买最近渠道的判定。"
+      },
+      {
+        "horizon": "now",
+        "text": "财务确认毛利口径（含渠道分成后净毛利），并从历史订单拉胶囊订阅连带率——两个数字直接决定 CAC 上限是否上移。"
+      },
+      {
+        "horizon": "checkpoint",
+        "text": "2026-07-15：任一渠道推算 CAC 低于上限 → 解锁对应小额试投；全部不过 → 转向订阅/捆绑方案提升 LTV，重算单位经济学。"
+      },
+      {
+        "horizon": "never",
+        "text": "KOL 大额投放、降价比价竞赛、泛兴趣社媒拉新——在当前毛利结构下数学上不成立（见已拒绝选项）。"
+      }
     ],
     "overturn_conditions": [
       "毛利率实为 45%+（上限升至 2,157 CZK；搜索基准中值明确可行）",
@@ -365,182 +38,369 @@
     ],
     "weakest_point": "本地 CPC、落地页 CVR、retail 费率卡全部缺失，渠道筛选目前建立在行业基准区间上；且捷克全自动咖啡机保有量（已有同类产品的家庭）完全未量化——可能比 CAC 问题更根本。"
   },
-
   "numbers": {
     "price_plan": {
-      "label": "规划售价", "value": 7990, "unit": "CZK", "decimals": 0,
-      "provenance": "assumed", "basis": "内部规划价，上线前按 SKU 与渠道逐日核对"
+      "label": "规划售价",
+      "value": 7990,
+      "unit": "CZK",
+      "decimals": 0,
+      "provenance": "assumed",
+      "basis": "内部规划价，上线前按 SKU 与渠道逐日核对"
     },
     "price_competitor_entry": {
-      "label": "竞品入门价（Philips、DeLonghi）", "value": [4990, 6490], "unit": "CZK", "decimals": 0,
+      "label": "竞品入门价（Philips、DeLonghi）",
+      "value": [
+        4990,
+        6490
+      ],
+      "unit": "CZK",
+      "decimals": 0,
       "provenance": "sourced",
       "source_url": "https://example.com/placeholder-alza-category",
-      "source_label": "Alza.cz 品类页（占位）", "accessed": "2026-06-15"
+      "source_label": "Alza.cz 品类页（占位）",
+      "accessed": "2026-06-15"
     },
     "price_competitor_premium": {
-      "label": "高端区间上界（Jura）", "value": [29990, 59990], "unit": "CZK", "decimals": 0,
+      "label": "高端区间上界（Jura）",
+      "value": [
+        29990,
+        59990
+      ],
+      "unit": "CZK",
+      "decimals": 0,
       "provenance": "sourced",
       "source_url": "https://example.com/placeholder-jura",
-      "source_label": "Alza.cz 高端 listing（占位）", "accessed": "2026-06-15"
+      "source_label": "Alza.cz 高端 listing（占位）",
+      "accessed": "2026-06-15"
     },
     "margin_rate": {
-      "label": "毛利率", "value": 0.35, "pct": true,
-      "provenance": "assumed", "basis": "用户输入，未经财务确认；需明确是否含渠道分成后净毛利口径"
+      "label": "毛利率",
+      "value": 0.35,
+      "pct": true,
+      "provenance": "assumed",
+      "basis": "用户输入，未经财务确认；需明确是否含渠道分成后净毛利口径"
     },
     "margin_rate_alt": {
-      "label": "毛利率（敏感性情景）", "value": 0.45, "pct": true,
-      "provenance": "assumed", "basis": "敏感性情景：直营或更高返点口径"
+      "label": "毛利率（敏感性情景）",
+      "value": 0.45,
+      "pct": true,
+      "provenance": "assumed",
+      "basis": "敏感性情景：直营或更高返点口径"
     },
     "unit_margin": {
-      "label": "单台毛利", "unit": "CZK", "decimals": 0,
-      "provenance": "derived", "formula": "price_plan * margin_rate", "inputs": ["price_plan", "margin_rate"]
+      "label": "单台毛利",
+      "unit": "CZK",
+      "decimals": 0,
+      "provenance": "derived",
+      "formula": "price_plan * margin_rate",
+      "inputs": [
+        "price_plan",
+        "margin_rate"
+      ]
     },
     "cac_share": {
-      "label": "获客成本占毛利上限", "value": 0.6, "pct": true,
-      "provenance": "assumed", "basis": "惯例：获客成本不超过首单毛利的 60%，余量留给履约与退货"
+      "label": "获客成本占毛利上限",
+      "value": 0.6,
+      "pct": true,
+      "provenance": "assumed",
+      "basis": "惯例：获客成本不超过首单毛利的 60%，余量留给履约与退货"
     },
     "cac_ceiling": {
-      "label": "CAC 上限", "unit": "CZK", "decimals": 0,
-      "provenance": "derived", "formula": "unit_margin * cac_share", "inputs": ["unit_margin", "cac_share"],
+      "label": "CAC 上限",
+      "unit": "CZK",
+      "decimals": 0,
+      "provenance": "derived",
+      "formula": "unit_margin * cac_share",
+      "inputs": [
+        "unit_margin",
+        "cac_share"
+      ],
       "note": "本报告的中心数字：所有渠道判断都对照它。"
     },
     "cac_ceiling_margin45": {
-      "label": "CAC 上限（毛利 45% 情景）", "unit": "CZK", "decimals": 0,
-      "provenance": "derived", "formula": "price_plan * margin_rate_alt * cac_share",
-      "inputs": ["price_plan", "margin_rate_alt", "cac_share"]
+      "label": "CAC 上限（毛利 45% 情景）",
+      "unit": "CZK",
+      "decimals": 0,
+      "provenance": "derived",
+      "formula": "price_plan * margin_rate_alt * cac_share",
+      "inputs": [
+        "price_plan",
+        "margin_rate_alt",
+        "cac_share"
+      ]
     },
     "bench_social_cpm": {
-      "label": "社媒 prospecting CPM 基准", "value": [180, 450], "unit": "CZK", "decimals": 0,
-      "provenance": "assumed", "basis": "行业基准区间，非本地数据（基准只能证伪、不能放行，见 ref 16）"
+      "label": "社媒 prospecting CPM 基准",
+      "value": [
+        180,
+        450
+      ],
+      "unit": "CZK",
+      "decimals": 0,
+      "provenance": "assumed",
+      "basis": "行业基准区间，非本地数据（基准只能证伪、不能放行，见 ref 16）"
     },
     "bench_social_ctr": {
-      "label": "社媒 CTR 基准", "value": [0.005, 0.015], "pct": true,
-      "provenance": "assumed", "basis": "行业基准区间，非本地数据"
+      "label": "社媒 CTR 基准",
+      "value": [
+        0.005,
+        0.015
+      ],
+      "pct": true,
+      "provenance": "assumed",
+      "basis": "行业基准区间，非本地数据"
     },
     "bench_lp_cvr": {
-      "label": "冷流量落地页 CVR 基准", "value": [0.005, 0.02], "pct": true,
-      "provenance": "assumed", "basis": "行业基准区间（冷流量），非本地数据"
+      "label": "冷流量落地页 CVR 基准",
+      "value": [
+        0.005,
+        0.02
+      ],
+      "pct": true,
+      "provenance": "assumed",
+      "basis": "行业基准区间（冷流量），非本地数据"
     },
     "social_cac_bench": {
-      "label": "社媒拉新 CAC（基准推算）", "unit": "CZK", "decimals": 0,
+      "label": "社媒拉新 CAC（基准推算）",
+      "unit": "CZK",
+      "decimals": 0,
       "provenance": "derived",
       "formula": "bench_social_cpm / 1000 / (bench_social_ctr * bench_lp_cvr)",
-      "inputs": ["bench_social_cpm", "bench_social_ctr", "bench_lp_cvr"],
+      "inputs": [
+        "bench_social_cpm",
+        "bench_social_ctr",
+        "bench_lp_cvr"
+      ],
       "note": "最优角约 1,200 CZK——低于上限，但仅在最乐观组合下成立。基准不对称原则：区间横跨上限不能证明可行，只能证伪（ref 16）。结论：待定。"
     },
     "search_cpc": {
-      "label": "捷克语关键词 CPC（品牌 / 品类 / 痛点）", "provenance": "missing",
-      "needed_from": "Google Keyword Planner", "cost_to_get": "0 预算，约 1 小时",
-      "blocks": ["搜索渠道判定", "搜索 CAC 推算"]
+      "label": "捷克语关键词 CPC（品牌 / 品类 / 痛点）",
+      "provenance": "missing",
+      "needed_from": "Google Keyword Planner",
+      "cost_to_get": "0 预算，约 1 小时",
+      "blocks": [
+        "搜索渠道判定",
+        "搜索 CAC 推算"
+      ]
     },
     "lp_cvr_local": {
-      "label": "落地页 CVR（本地，BrewPro B1）", "provenance": "missing",
-      "needed_from": "历史数据或 checkpoint 后 2 周试投", "cost_to_get": "试投预算内",
-      "blocks": ["所有依赖转化率的 CAC 推算"]
+      "label": "落地页 CVR（本地，BrewPro B1）",
+      "provenance": "missing",
+      "needed_from": "历史数据或 checkpoint 后 2 周试投",
+      "cost_to_get": "试投预算内",
+      "blocks": [
+        "所有依赖转化率的 CAC 推算"
+      ]
     },
     "retail_rate_alza": {
-      "label": "Alza.cz sponsored placement 费率卡", "provenance": "missing",
-      "needed_from": "直接向 Alza 账户团队询价", "cost_to_get": "0 预算，1 封邮件",
-      "blocks": ["Retail media 渠道判定"]
+      "label": "Alza.cz sponsored placement 费率卡",
+      "provenance": "missing",
+      "needed_from": "直接向 Alza 账户团队询价",
+      "cost_to_get": "0 预算，1 封邮件",
+      "blocks": [
+        "Retail media 渠道判定"
+      ]
     },
     "subscription_attach": {
-      "label": "胶囊订阅连带率", "provenance": "missing",
-      "needed_from": "历史订单数据", "cost_to_get": "0 预算，内部数据",
-      "blocks": ["LTV 调整后 CAC 上限重算"]
+      "label": "胶囊订阅连带率",
+      "provenance": "missing",
+      "needed_from": "历史订单数据",
+      "cost_to_get": "0 预算，内部数据",
+      "blocks": [
+        "LTV 调整后 CAC 上限重算"
+      ]
     },
     "pilot_envelope": {
-      "label": "试投预算包络", "value": 80000, "unit": "CZK", "decimals": 0,
-      "provenance": "assumed", "basis": "规划包络，非承诺；checkpoint 通过后才按渠道解锁"
+      "label": "试投预算包络",
+      "value": 80000,
+      "unit": "CZK",
+      "decimals": 0,
+      "provenance": "assumed",
+      "basis": "规划包络，非承诺；checkpoint 通过后才按渠道解锁"
     }
   },
-
-  "derivations": ["unit_margin", "cac_ceiling", "cac_ceiling_margin45", "social_cac_bench"],
-
+  "derivations": [
+    "unit_margin",
+    "cac_ceiling",
+    "cac_ceiling_margin45",
+    "social_cac_bench"
+  ],
   "sensitivity": [
-    {"change": "毛利 35% → 45%（财务口径确认）", "effect": "CAC 上限 1,678 → 2,157 CZK；搜索基准中值明确可行——这是第一个该去验证的数字", "priority": 1},
-    {"change": "胶囊订阅连带率超过 25%", "effect": "有效 12 个月 LTV +40%；CAC 上限同步上移，整个渠道筛选重跑", "priority": 2},
-    {"change": "Alza.cz 费率卡低于行业基准", "effect": "Retail media 从待定翻为可行——达到确认渠道的最短路径", "priority": 3},
-    {"change": "坚守 7,990 vs 降价至 6,490 CZK", "effect": "上限降至 1,373 CZK，几乎所有渠道出局——定价策略先于投放策略", "priority": 4}
+    {
+      "change": "毛利 35% → 45%（财务口径确认）",
+      "effect": "CAC 上限 1,678 → 2,157 CZK；搜索基准中值明确可行——这是第一个该去验证的数字",
+      "priority": 1
+    },
+    {
+      "change": "胶囊订阅连带率超过 25%",
+      "effect": "有效 12 个月 LTV +40%；CAC 上限同步上移，整个渠道筛选重跑",
+      "priority": 2
+    },
+    {
+      "change": "Alza.cz 费率卡低于行业基准",
+      "effect": "Retail media 从待定翻为可行——达到确认渠道的最短路径",
+      "priority": 3
+    },
+    {
+      "change": "坚守 7,990 vs 降价至 6,490 CZK",
+      "effect": "上限降至 1,373 CZK，几乎所有渠道出局——定价策略先于投放策略",
+      "priority": 4
+    }
   ],
-
   "channel_screen": [
-    {"channel": "Alza.cz / Mall.cz retail media", "verdict": "undetermined", "cac_estimate": null,
-     "reasoning": "离购买最近、最可能过线的渠道，但费率卡缺失（一封邮件可解）。最优先验证。"},
-    {"channel": "Search 品牌词", "verdict": "undetermined", "cac_estimate": null,
-     "reasoning": "CPC 缺失；且品牌词 sure-thing 风险（C1）意味着即使 CAC 好看也需 holdout 验证增量。"},
-    {"channel": "Search 品类 / 痛点词", "verdict": "undetermined", "cac_estimate": null,
-     "reasoning": "CPC 与词量缺失；搜索「全自动咖啡机」的用户决策周期长，CVR 预期低于品牌词。"},
-    {"channel": "Meta / TikTok 泛兴趣拉新", "verdict": "undetermined", "cac_estimate": "social_cac_bench",
-     "reasoning": "基准最优角约 1,200 CZK 低于上限，但仅在最乐观组合下成立——基准不对称：不能放行，只能证伪。本地 CVR 未知，结论维持待定。"},
-    {"channel": "YouTube 评测内容", "verdict": "role-only", "cac_estimate": null,
-     "reasoning": "不按 CAC 评估。角色是回答最大转化障碍：「为什么花 7,990 CZK 而不买 4,990 CZK 的」。产出是内容资产，不是拉新渠道。"},
-    {"channel": "Retargeting", "verdict": "undetermined", "cac_estimate": null,
-     "reasoning": "依赖站点流量规模（缺失）；若做，7 天短窗 + 无触达对照是前置条件。"}
+    {
+      "channel": "Alza.cz / Mall.cz retail media",
+      "verdict": "undetermined",
+      "cac_estimate": null,
+      "reasoning": "离购买最近、最可能过线的渠道，但费率卡缺失（一封邮件可解）。最优先验证。"
+    },
+    {
+      "channel": "Search 品牌词",
+      "verdict": "undetermined",
+      "cac_estimate": null,
+      "reasoning": "CPC 缺失；且品牌词 sure-thing 风险（C1）意味着即使 CAC 好看也需 holdout 验证增量。"
+    },
+    {
+      "channel": "Search 品类 / 痛点词",
+      "verdict": "undetermined",
+      "cac_estimate": null,
+      "reasoning": "CPC 与词量缺失；搜索「全自动咖啡机」的用户决策周期长，CVR 预期低于品牌词。"
+    },
+    {
+      "channel": "Meta / TikTok 泛兴趣拉新",
+      "verdict": "undetermined",
+      "cac_estimate": "social_cac_bench",
+      "reasoning": "基准最优角约 1,200 CZK 低于上限，但仅在最乐观组合下成立——基准不对称：不能放行，只能证伪。本地 CVR 未知，结论维持待定。"
+    },
+    {
+      "channel": "YouTube 评测内容",
+      "verdict": "role-only",
+      "cac_estimate": null,
+      "reasoning": "不按 CAC 评估。角色是回答最大转化障碍：「为什么花 7,990 CZK 而不买 4,990 CZK 的」。产出是内容资产，不是拉新渠道。"
+    },
+    {
+      "channel": "Retargeting",
+      "verdict": "undetermined",
+      "cac_estimate": null,
+      "reasoning": "依赖站点流量规模（缺失）；若做，7 天短窗 + 无触达对照是前置条件。"
+    }
   ],
-
   "actions": [
-    {"id": "A1", "action": "拉捷克语关键词 CPC 与搜索量",
-     "mechanism": "解锁搜索渠道判定，品类词量同时给出可触达市场天花板的第一块数据（C2 首个数据点）",
-     "guardrail": "—", "test": "推算 CAC 区间 vs 上限 1,678 CZK", "gate": "零成本，立即执行"},
-    {"id": "A2", "action": "向 Alza.cz / Mall.cz 询 retail media 费率卡",
-     "mechanism": "离购买最近的渠道，最可能在当前毛利下过线",
-     "guardrail": "促销位条款可能要求价格支持——毛利经不起，先问清", "test": "费率代入 CAC 推算", "gate": "零成本，立即执行"},
-    {"id": "A3", "action": "财务确认毛利口径 + 拉胶囊订阅连带率",
-     "mechanism": "敏感性表前两位：这两个数字决定 CAC 上限本身",
-     "guardrail": "—", "test": "上限重算，全部渠道判定刷新", "gate": "零成本，内部数据"},
-    {"id": "A4", "action": "Search 品牌 + 品类词小额试投",
-     "mechanism": "高意图承接；品牌词组内置 holdout 以回应 C1",
-     "guardrail": "品牌词 sure-thing 风险；品类词 CPC 超毛利承受力即停",
-     "test": "TP1：分词组增量 CAC", "gate": "checkpoint 解锁，从 80,000 CZK 包络分配"}
+    {
+      "id": "A1",
+      "action": "拉捷克语关键词 CPC 与搜索量",
+      "mechanism": "解锁搜索渠道判定，品类词量同时给出可触达市场天花板的第一块数据（C2 首个数据点）",
+      "guardrail": "—",
+      "test": "推算 CAC 区间 vs 上限 1,678 CZK",
+      "gate": "零成本，立即执行",
+      "owner": "增长负责人",
+      "due": "2026-06-22"
+    },
+    {
+      "id": "A2",
+      "action": "向 Alza.cz / Mall.cz 询 retail media 费率卡",
+      "mechanism": "离购买最近的渠道，最可能在当前毛利下过线",
+      "guardrail": "促销位条款可能要求价格支持——毛利经不起，先问清",
+      "test": "费率代入 CAC 推算",
+      "gate": "零成本，立即执行"
+    },
+    {
+      "id": "A3",
+      "action": "财务确认毛利口径 + 拉胶囊订阅连带率",
+      "mechanism": "敏感性表前两位：这两个数字决定 CAC 上限本身",
+      "guardrail": "—",
+      "test": "上限重算，全部渠道判定刷新",
+      "gate": "零成本，内部数据"
+    },
+    {
+      "id": "A4",
+      "action": "Search 品牌 + 品类词小额试投",
+      "mechanism": "高意图承接；品牌词组内置 holdout 以回应 C1",
+      "guardrail": "品牌词 sure-thing 风险；品类词 CPC 超毛利承受力即停",
+      "test": "TP1：分词组增量 CAC",
+      "gate": "checkpoint 解锁，从 80,000 CZK 包络分配",
+      "owner": "投放负责人",
+      "due": "检查点 + 14 天"
+    }
   ],
-
   "rejected_options": [
-    {"option": "社媒拉新大额投放", "reason": "基准最优角 CAC（1,200 CZK）仅在最乐观组合下低于上限——在本地 CVR 确认前投入大额预算是押注，不是决策。"},
-    {"option": "降价比价竞赛", "reason": "毛利经不起折扣 + 无增量双重损耗；坚守 7,990 CZK 是任何投放策略的前提。"},
-    {"option": "KOL 大额投放", "reason": "单台毛利 2,797 CZK 无法覆盖达人费用结构，任何粉丝量级下都不成立。"}
+    {
+      "option": "社媒拉新大额投放",
+      "reason": "基准最优角 CAC（1,200 CZK）仅在最乐观组合下低于上限——在本地 CVR 确认前投入大额预算是押注，不是决策。"
+    },
+    {
+      "option": "降价比价竞赛",
+      "reason": "毛利经不起折扣 + 无增量双重损耗；坚守 7,990 CZK 是任何投放策略的前提。"
+    },
+    {
+      "option": "KOL 大额投放",
+      "reason": "单台毛利 2,797 CZK 无法覆盖达人费用结构，任何粉丝量级下都不成立。"
+    }
   ],
-
   "challenges": [
-    {"id": "C1", "target": "Search 品牌词",
-     "question": "搜索「Vela BrewPro」的用户大概率已决定购买。付费承接是否只是花钱买走自然转化？",
-     "status": "open",
-     "evidence_needed": "A4 内置品牌词 holdout——测试本身就是答案，数据未到前保持 open。"},
-    {"id": "C2", "target": "可触达市场天花板",
-     "question": "捷克已拥有全自动咖啡机的家庭增量机会接近零。品类搜索量中有多大比例来自不可转化用户？",
-     "status": "open",
-     "evidence_needed": "A1 产出的品类词量（按搜索意图分类）+ 可选的小规模渗透率调研。"},
-    {"id": "C3", "target": "Retargeting 增量性",
-     "question": "Retargeting 常规性地把本来就会发生的购买归因给广告。没有 holdout，汇报的 ROAS 因 sure-thing 通胀而虚高。",
-     "status": "open",
-     "evidence_needed": "任何 retargeting 试投中设置匹配 holdout；至少 7 天转化窗口 + 未触达对照组。"}
+    {
+      "id": "C1",
+      "target": "Search 品牌词",
+      "question": "搜索「Vela BrewPro」的用户大概率已决定购买。付费承接是否只是花钱买走自然转化？",
+      "status": "open",
+      "evidence_needed": "A4 内置品牌词 holdout——测试本身就是答案，数据未到前保持 open。"
+    },
+    {
+      "id": "C2",
+      "target": "可触达市场天花板",
+      "question": "捷克已拥有全自动咖啡机的家庭增量机会接近零。品类搜索量中有多大比例来自不可转化用户？",
+      "status": "open",
+      "evidence_needed": "A1 产出的品类词量（按搜索意图分类）+ 可选的小规模渗透率调研。"
+    },
+    {
+      "id": "C3",
+      "target": "Retargeting 增量性",
+      "question": "Retargeting 常规性地把本来就会发生的购买归因给广告。没有 holdout，汇报的 ROAS 因 sure-thing 通胀而虚高。",
+      "status": "open",
+      "evidence_needed": "任何 retargeting 试投中设置匹配 holdout；至少 7 天转化窗口 + 未触达对照组。"
+    }
   ],
-
   "test_plan": [
-    {"name": "TP1 · Search 分词组增量 CAC", "prediction": "品牌词增量 CAC 高于汇报 CAC（sure-thing 通胀）；品类词 CAC 若 CPC 落在基准低端则可行。",
-     "test": "checkpoint 解锁后两周，精确匹配，品牌词含 holdout；品类词与痛点词单独跟踪。",
-     "kill_line": "任一词组连续 7 天增量 CAC > 上限两倍 → 该词组假设宣告死亡。",
-     "decision_date": "2026-07-29"},
-    {"name": "TP2 · Retail media 增量核验", "prediction": "Retail CAC < 搜索品类词 CAC；促销位带来的单中相当比例无增量。",
-     "test": "单平台（先 Alza.cz）品类位小额测试，要求平台按新客 / 老客分报表。",
-     "kill_line": "扣除促销支持后增量 CAC 超上限 → 停止该平台，复盘合同条款。",
-     "decision_date": "2026-07-29"}
+    {
+      "name": "TP1 · Search 分词组增量 CAC",
+      "prediction": "品牌词增量 CAC 高于汇报 CAC（sure-thing 通胀）；品类词 CAC 若 CPC 落在基准低端则可行。",
+      "test": "checkpoint 解锁后两周，精确匹配，品牌词含 holdout；品类词与痛点词单独跟踪。",
+      "kill_line": "任一词组连续 7 天增量 CAC > 上限两倍 → 该词组假设宣告死亡。",
+      "decision_date": "2026-07-29",
+      "card": "A4"
+    },
+    {
+      "name": "TP2 · Retail media 增量核验",
+      "prediction": "Retail CAC < 搜索品类词 CAC；促销位带来的单中相当比例无增量。",
+      "test": "单平台（先 Alza.cz）品类位小额测试，要求平台按新客 / 老客分报表。",
+      "kill_line": "扣除促销支持后增量 CAC 超上限 → 停止该平台，复盘合同条款。",
+      "decision_date": "2026-07-29",
+      "card": "A2"
+    }
   ],
-
   "power_analysis": {
     "baseline_cvr": 0.012,
     "mde_abs": 0.004,
     "eligible_per_day": 5000
   },
-
   "facts": [
-    {"fact": "Vela 煮咖机 B1 规划售价 7,990 CZK（规划假设，尚无公开 listing）",
-     "source_url": "https://example.com/placeholder",
-     "source_label": "内部规划文档（占位）", "accessed": "2026-06-15"},
-    {"fact": "竞品入门段（Philips、DeLonghi）在 Alza.cz 定价 4,990–6,490 CZK（占位数据）",
-     "source_url": "https://example.com/placeholder-alza-category",
-     "source_label": "Alza.cz 品类页（占位）", "accessed": "2026-06-15"},
-    {"fact": "高端段（Jura）定价 29,990–59,990 CZK——不同购买场景，非直接竞品",
-     "source_url": "https://example.com/placeholder-jura",
-     "source_label": "Alza.cz 高端 listing（占位）", "accessed": "2026-06-15"}
+    {
+      "fact": "Vela 煮咖机 B1 规划售价 7,990 CZK（规划假设，尚无公开 listing）",
+      "source_url": "https://example.com/placeholder",
+      "source_label": "内部规划文档（占位）",
+      "accessed": "2026-06-15"
+    },
+    {
+      "fact": "竞品入门段（Philips、DeLonghi）在 Alza.cz 定价 4,990–6,490 CZK（占位数据）",
+      "source_url": "https://example.com/placeholder-alza-category",
+      "source_label": "Alza.cz 品类页（占位）",
+      "accessed": "2026-06-15"
+    },
+    {
+      "fact": "高端段（Jura）定价 29,990–59,990 CZK——不同购买场景，非直接竞品",
+      "source_url": "https://example.com/placeholder-jura",
+      "source_label": "Alza.cz 高端 listing（占位）",
+      "accessed": "2026-06-15"
+    }
   ]
 }

@@ -6,16 +6,30 @@
     "lang": "en",
     "_note": "Fictional brand and product — illustrative example only. No real brand or market data."
   },
-
   "decision_memo": {
     "verdict": "conditional",
     "thesis": "Unit margin 2,797 CZK; CAC ceiling 1,678 CZK. No channel has local data proving CAC below the ceiling — benchmarks span the ceiling for Search and are only marginally viable at the optimistic corner for social. Do not allocate media budget; complete three zero-cost data pulls first, then re-evaluate at the 2026-07-15 checkpoint.",
     "decisions": [
-      {"horizon": "now", "text": "Pull Czech keyword CPC for brand / category / pain-point terms (app-controlled coffee maker, grinder noise, etc.) via Google Keyword Planner. Zero cost; unlocks Search viability verdict."},
-      {"horizon": "now", "text": "Request Alza.cz sponsored placement rate card. One email; unlocks the channel closest to purchase intent."},
-      {"horizon": "now", "text": "Finance to confirm margin basis (gross vs net of retail share); also pull capsule subscription attach rate from historical orders — both shift the CAC ceiling directly."},
-      {"horizon": "checkpoint", "text": "2026-07-15: any channel projecting CAC below ceiling → unlock corresponding small pilot from envelope. All failing → rethink subscription upsell or bundle to raise effective LTV."},
-      {"horizon": "never", "text": "KOL hero spend, broad social prospecting — unit economics cannot support them at current margin (see rejected options)."}
+      {
+        "horizon": "now",
+        "text": "Pull Czech keyword CPC for brand / category / pain-point terms (app-controlled coffee maker, grinder noise, etc.) via Google Keyword Planner. Zero cost; unlocks Search viability verdict."
+      },
+      {
+        "horizon": "now",
+        "text": "Request Alza.cz sponsored placement rate card. One email; unlocks the channel closest to purchase intent."
+      },
+      {
+        "horizon": "now",
+        "text": "Finance to confirm margin basis (gross vs net of retail share); also pull capsule subscription attach rate from historical orders — both shift the CAC ceiling directly."
+      },
+      {
+        "horizon": "checkpoint",
+        "text": "2026-07-15: any channel projecting CAC below ceiling → unlock corresponding small pilot from envelope. All failing → rethink subscription upsell or bundle to raise effective LTV."
+      },
+      {
+        "horizon": "never",
+        "text": "KOL hero spend, broad social prospecting — unit economics cannot support them at current margin (see rejected options)."
+      }
     ],
     "overturn_conditions": [
       "Margin is actually 45%+ (ceiling rises to 2,157 CZK; Search mid-range benchmark becomes viable)",
@@ -24,184 +38,369 @@
     ],
     "weakest_point": "Local CPC, landing-page CVR, and retail rate card are all missing; channel screen rests on benchmark ranges. Czech fully-automatic espresso penetration (households that already own a competing machine) is unquantified — this may be a more fundamental ceiling than CAC arithmetic alone."
   },
-
   "numbers": {
     "price_plan": {
-      "label": "Planned retail price", "value": 7990, "unit": "CZK", "decimals": 0,
-      "provenance": "assumed", "basis": "Internal planning price; confirm against Alza / Mall listing before launch"
+      "label": "Planned retail price",
+      "value": 7990,
+      "unit": "CZK",
+      "decimals": 0,
+      "provenance": "assumed",
+      "basis": "Internal planning price; confirm against Alza / Mall listing before launch"
     },
     "price_competitor_entry": {
-      "label": "Competitor entry price (Philips, DeLonghi)", "value": [4990, 6490], "unit": "CZK", "decimals": 0,
+      "label": "Competitor entry price (Philips, DeLonghi)",
+      "value": [
+        4990,
+        6490
+      ],
+      "unit": "CZK",
+      "decimals": 0,
       "provenance": "sourced",
       "source_url": "https://example.com/placeholder-alza-category",
-      "source_label": "Alza.cz category page (placeholder)", "accessed": "2026-06-15"
+      "source_label": "Alza.cz category page (placeholder)",
+      "accessed": "2026-06-15"
     },
     "price_competitor_premium": {
-      "label": "Premium segment upper bound (Jura)", "value": [29990, 59990], "unit": "CZK", "decimals": 0,
+      "label": "Premium segment upper bound (Jura)",
+      "value": [
+        29990,
+        59990
+      ],
+      "unit": "CZK",
+      "decimals": 0,
       "provenance": "sourced",
       "source_url": "https://example.com/placeholder-jura",
-      "source_label": "Alza.cz premium listings (placeholder)", "accessed": "2026-06-15"
+      "source_label": "Alza.cz premium listings (placeholder)",
+      "accessed": "2026-06-15"
     },
     "margin_rate": {
-      "label": "Gross margin", "value": 0.35, "pct": true,
-      "provenance": "assumed", "basis": "User input; not confirmed by finance; needs net-of-retail-share clarification"
+      "label": "Gross margin",
+      "value": 0.35,
+      "pct": true,
+      "provenance": "assumed",
+      "basis": "User input; not confirmed by finance; needs net-of-retail-share clarification"
     },
     "margin_rate_alt": {
-      "label": "Gross margin (sensitivity scenario)", "value": 0.45, "pct": true,
-      "provenance": "assumed", "basis": "Sensitivity scenario: direct channel or higher rebate structure"
+      "label": "Gross margin (sensitivity scenario)",
+      "value": 0.45,
+      "pct": true,
+      "provenance": "assumed",
+      "basis": "Sensitivity scenario: direct channel or higher rebate structure"
     },
     "unit_margin": {
-      "label": "Unit margin", "unit": "CZK", "decimals": 0,
-      "provenance": "derived", "formula": "price_plan * margin_rate", "inputs": ["price_plan", "margin_rate"]
+      "label": "Unit margin",
+      "unit": "CZK",
+      "decimals": 0,
+      "provenance": "derived",
+      "formula": "price_plan * margin_rate",
+      "inputs": [
+        "price_plan",
+        "margin_rate"
+      ]
     },
     "cac_share": {
-      "label": "CAC share of margin", "value": 0.6, "pct": true,
-      "provenance": "assumed", "basis": "Convention: acquisition ≤ 60% of first-order margin; remainder covers fulfillment and returns"
+      "label": "CAC share of margin",
+      "value": 0.6,
+      "pct": true,
+      "provenance": "assumed",
+      "basis": "Convention: acquisition ≤ 60% of first-order margin; remainder covers fulfillment and returns"
     },
     "cac_ceiling": {
-      "label": "CAC ceiling", "unit": "CZK", "decimals": 0,
-      "provenance": "derived", "formula": "unit_margin * cac_share", "inputs": ["unit_margin", "cac_share"],
+      "label": "CAC ceiling",
+      "unit": "CZK",
+      "decimals": 0,
+      "provenance": "derived",
+      "formula": "unit_margin * cac_share",
+      "inputs": [
+        "unit_margin",
+        "cac_share"
+      ],
       "note": "Central number for this report — all channel verdicts are measured against this."
     },
     "cac_ceiling_margin45": {
-      "label": "CAC ceiling (45% margin scenario)", "unit": "CZK", "decimals": 0,
-      "provenance": "derived", "formula": "price_plan * margin_rate_alt * cac_share",
-      "inputs": ["price_plan", "margin_rate_alt", "cac_share"]
+      "label": "CAC ceiling (45% margin scenario)",
+      "unit": "CZK",
+      "decimals": 0,
+      "provenance": "derived",
+      "formula": "price_plan * margin_rate_alt * cac_share",
+      "inputs": [
+        "price_plan",
+        "margin_rate_alt",
+        "cac_share"
+      ]
     },
     "bench_social_cpm": {
-      "label": "Social prospecting CPM (benchmark)", "value": [180, 450], "unit": "CZK", "decimals": 0,
-      "provenance": "assumed", "basis": "Industry benchmark range; not local data (benchmarks falsify, not verify — ref 16)"
+      "label": "Social prospecting CPM (benchmark)",
+      "value": [
+        180,
+        450
+      ],
+      "unit": "CZK",
+      "decimals": 0,
+      "provenance": "assumed",
+      "basis": "Industry benchmark range; not local data (benchmarks falsify, not verify — ref 16)"
     },
     "bench_social_ctr": {
-      "label": "Social CTR (benchmark)", "value": [0.005, 0.015], "pct": true,
-      "provenance": "assumed", "basis": "Industry benchmark range; not local data"
+      "label": "Social CTR (benchmark)",
+      "value": [
+        0.005,
+        0.015
+      ],
+      "pct": true,
+      "provenance": "assumed",
+      "basis": "Industry benchmark range; not local data"
     },
     "bench_lp_cvr": {
-      "label": "Landing-page CVR — cold traffic (benchmark)", "value": [0.005, 0.02], "pct": true,
-      "provenance": "assumed", "basis": "Industry benchmark; cold traffic, below category search intent"
+      "label": "Landing-page CVR — cold traffic (benchmark)",
+      "value": [
+        0.005,
+        0.02
+      ],
+      "pct": true,
+      "provenance": "assumed",
+      "basis": "Industry benchmark; cold traffic, below category search intent"
     },
     "social_cac_bench": {
-      "label": "Social prospecting CAC (benchmark estimate)", "unit": "CZK", "decimals": 0,
+      "label": "Social prospecting CAC (benchmark estimate)",
+      "unit": "CZK",
+      "decimals": 0,
       "provenance": "derived",
       "formula": "bench_social_cpm / 1000 / (bench_social_ctr * bench_lp_cvr)",
-      "inputs": ["bench_social_cpm", "bench_social_ctr", "bench_lp_cvr"],
+      "inputs": [
+        "bench_social_cpm",
+        "bench_social_ctr",
+        "bench_lp_cvr"
+      ],
       "note": "Best-case corner (optimistic CPM + CTR + CVR): ~1,200 CZK — below ceiling, but only at the corner. Benchmark asymmetry: a range that spans the ceiling cannot confirm viability, only falsify it (ref 16). Verdict: undetermined."
     },
     "search_cpc": {
-      "label": "Czech keyword CPC (brand / category / pain-point)", "provenance": "missing",
-      "needed_from": "Google Keyword Planner", "cost_to_get": "0 budget, ~1 hour",
-      "blocks": ["Search channel verdict", "Search CAC projection"]
+      "label": "Czech keyword CPC (brand / category / pain-point)",
+      "provenance": "missing",
+      "needed_from": "Google Keyword Planner",
+      "cost_to_get": "0 budget, ~1 hour",
+      "blocks": [
+        "Search channel verdict",
+        "Search CAC projection"
+      ]
     },
     "lp_cvr_local": {
-      "label": "Landing-page CVR (local, BrewPro B1)", "provenance": "missing",
-      "needed_from": "Historical data or 2-week post-checkpoint pilot", "cost_to_get": "Within pilot budget",
-      "blocks": ["All CAC projections requiring a conversion denominator"]
+      "label": "Landing-page CVR (local, BrewPro B1)",
+      "provenance": "missing",
+      "needed_from": "Historical data or 2-week post-checkpoint pilot",
+      "cost_to_get": "Within pilot budget",
+      "blocks": [
+        "All CAC projections requiring a conversion denominator"
+      ]
     },
     "retail_rate_alza": {
-      "label": "Alza.cz sponsored placement rate card", "provenance": "missing",
-      "needed_from": "Direct inquiry to Alza account team", "cost_to_get": "0 budget, 1 email",
-      "blocks": ["Retail media channel verdict"]
+      "label": "Alza.cz sponsored placement rate card",
+      "provenance": "missing",
+      "needed_from": "Direct inquiry to Alza account team",
+      "cost_to_get": "0 budget, 1 email",
+      "blocks": [
+        "Retail media channel verdict"
+      ]
     },
     "subscription_attach": {
-      "label": "Capsule subscription attach rate", "provenance": "missing",
-      "needed_from": "Internal order data", "cost_to_get": "0 budget, internal data pull",
-      "blocks": ["LTV-adjusted CAC ceiling recalculation"]
+      "label": "Capsule subscription attach rate",
+      "provenance": "missing",
+      "needed_from": "Internal order data",
+      "cost_to_get": "0 budget, internal data pull",
+      "blocks": [
+        "LTV-adjusted CAC ceiling recalculation"
+      ]
     },
     "pilot_envelope": {
-      "label": "Pilot budget envelope", "value": 80000, "unit": "CZK", "decimals": 0,
-      "provenance": "assumed", "basis": "Planning envelope; not committed — unlocked per channel after checkpoint gate"
+      "label": "Pilot budget envelope",
+      "value": 80000,
+      "unit": "CZK",
+      "decimals": 0,
+      "provenance": "assumed",
+      "basis": "Planning envelope; not committed — unlocked per channel after checkpoint gate"
     }
   },
-
-  "derivations": ["unit_margin", "cac_ceiling", "cac_ceiling_margin45", "social_cac_bench"],
-
+  "derivations": [
+    "unit_margin",
+    "cac_ceiling",
+    "cac_ceiling_margin45",
+    "social_cac_bench"
+  ],
   "sensitivity": [
-    {"change": "Margin 35% → 45% (finance confirmation)", "effect": "CAC ceiling 1,678 → 2,157 CZK; Search mid-range benchmark becomes viable — highest-priority number to verify", "priority": 1},
-    {"change": "Capsule subscription attach rate > 25%", "effect": "Effective 12-month LTV +40%; CAC ceiling recalculates upward; all channel screens re-run", "priority": 2},
-    {"change": "Alza.cz rate card below benchmark", "effect": "Retail media flips from undetermined to viable — shortest path to a confirmed channel", "priority": 3},
-    {"change": "Price defended at 7,990 vs discounting to 6,490 CZK", "effect": "Ceiling drops to 1,373 CZK; most channels would exit — pricing decision precedes media strategy", "priority": 4}
+    {
+      "change": "Margin 35% → 45% (finance confirmation)",
+      "effect": "CAC ceiling 1,678 → 2,157 CZK; Search mid-range benchmark becomes viable — highest-priority number to verify",
+      "priority": 1
+    },
+    {
+      "change": "Capsule subscription attach rate > 25%",
+      "effect": "Effective 12-month LTV +40%; CAC ceiling recalculates upward; all channel screens re-run",
+      "priority": 2
+    },
+    {
+      "change": "Alza.cz rate card below benchmark",
+      "effect": "Retail media flips from undetermined to viable — shortest path to a confirmed channel",
+      "priority": 3
+    },
+    {
+      "change": "Price defended at 7,990 vs discounting to 6,490 CZK",
+      "effect": "Ceiling drops to 1,373 CZK; most channels would exit — pricing decision precedes media strategy",
+      "priority": 4
+    }
   ],
-
   "channel_screen": [
-    {"channel": "Alza.cz / Mall.cz retail media", "verdict": "undetermined", "cac_estimate": null,
-     "reasoning": "Closest to purchase intent; rate card missing (one email resolves). Highest-priority verification."},
-    {"channel": "Search — brand terms", "verdict": "undetermined", "cac_estimate": null,
-     "reasoning": "CPC missing; brand-term sure-thing risk (C1) means even if CAC looks good, holdout is required to prove incrementality."},
-    {"channel": "Search — category / pain-point terms", "verdict": "undetermined", "cac_estimate": null,
-     "reasoning": "CPC and volume missing; 'app-controlled coffee maker' searchers may be high-consideration, reducing CVR vs branded queries."},
-    {"channel": "Social prospecting (Meta / TikTok)", "verdict": "undetermined", "cac_estimate": "social_cac_bench",
-     "reasoning": "Benchmark best-case (1,200 CZK) is below ceiling but only at the optimistic corner — benchmark cannot confirm viability. Stays undetermined until local CVR is known."},
-    {"channel": "YouTube review content", "verdict": "role-only", "cac_estimate": null,
-     "reasoning": "Not evaluated on CAC. Role: answer the largest conversion barrier — 'why pay 7,990 CZK when a 4,990 CZK model exists'. Output is a content asset, not a direct-response acquisition channel."},
-    {"channel": "Retargeting", "verdict": "undetermined", "cac_estimate": null,
-     "reasoning": "Depends on site traffic volume (missing); if done, 7-day short window + matched holdout required to separate incrementality from sure-things."}
+    {
+      "channel": "Alza.cz / Mall.cz retail media",
+      "verdict": "undetermined",
+      "cac_estimate": null,
+      "reasoning": "Closest to purchase intent; rate card missing (one email resolves). Highest-priority verification."
+    },
+    {
+      "channel": "Search — brand terms",
+      "verdict": "undetermined",
+      "cac_estimate": null,
+      "reasoning": "CPC missing; brand-term sure-thing risk (C1) means even if CAC looks good, holdout is required to prove incrementality."
+    },
+    {
+      "channel": "Search — category / pain-point terms",
+      "verdict": "undetermined",
+      "cac_estimate": null,
+      "reasoning": "CPC and volume missing; 'app-controlled coffee maker' searchers may be high-consideration, reducing CVR vs branded queries."
+    },
+    {
+      "channel": "Social prospecting (Meta / TikTok)",
+      "verdict": "undetermined",
+      "cac_estimate": "social_cac_bench",
+      "reasoning": "Benchmark best-case (1,200 CZK) is below ceiling but only at the optimistic corner — benchmark cannot confirm viability. Stays undetermined until local CVR is known."
+    },
+    {
+      "channel": "YouTube review content",
+      "verdict": "role-only",
+      "cac_estimate": null,
+      "reasoning": "Not evaluated on CAC. Role: answer the largest conversion barrier — 'why pay 7,990 CZK when a 4,990 CZK model exists'. Output is a content asset, not a direct-response acquisition channel."
+    },
+    {
+      "channel": "Retargeting",
+      "verdict": "undetermined",
+      "cac_estimate": null,
+      "reasoning": "Depends on site traffic volume (missing); if done, 7-day short window + matched holdout required to separate incrementality from sure-things."
+    }
   ],
-
   "actions": [
-    {"id": "A1", "action": "Pull Czech keyword CPC and search volume",
-     "mechanism": "Unlocks Search viability verdict; category volume also gives first estimate of addressable market ceiling (C2 first data point)",
-     "guardrail": "—", "test": "Project CAC range vs ceiling 1,678 CZK", "gate": "Zero cost, immediate"},
-    {"id": "A2", "action": "Request Alza.cz / Mall.cz retail media rate card",
-     "mechanism": "Closest-to-purchase channel; most likely to pass the ceiling at current margin",
-     "guardrail": "Promo placement terms may require price support — check before committing", "test": "Rate substituted into CAC formula", "gate": "Zero cost, immediate"},
-    {"id": "A3", "action": "Finance to confirm margin basis + pull capsule subscription attach rate",
-     "mechanism": "Top two sensitivity levers — these shift the ceiling itself",
-     "guardrail": "—", "test": "Ceiling recalculation; all channel verdicts refresh", "gate": "Zero cost, internal data"},
-    {"id": "A4", "action": "Search brand + category terms pilot",
-     "mechanism": "High-intent capture; brand terms include built-in holdout to address C1",
-     "guardrail": "Brand-term sure-thing risk; stop if category CPC exceeds margin tolerance",
-     "test": "TP1: per-match-type incremental CAC", "gate": "Checkpoint unlock; drawn from 80,000 CZK envelope"}
+    {
+      "id": "A1",
+      "action": "Pull Czech keyword CPC and search volume",
+      "mechanism": "Unlocks Search viability verdict; category volume also gives first estimate of addressable market ceiling (C2 first data point)",
+      "guardrail": "—",
+      "test": "Project CAC range vs ceiling 1,678 CZK",
+      "gate": "Zero cost, immediate",
+      "owner": "Growth lead",
+      "due": "2026-06-22"
+    },
+    {
+      "id": "A2",
+      "action": "Request Alza.cz / Mall.cz retail media rate card",
+      "mechanism": "Closest-to-purchase channel; most likely to pass the ceiling at current margin",
+      "guardrail": "Promo placement terms may require price support — check before committing",
+      "test": "Rate substituted into CAC formula",
+      "gate": "Zero cost, immediate"
+    },
+    {
+      "id": "A3",
+      "action": "Finance to confirm margin basis + pull capsule subscription attach rate",
+      "mechanism": "Top two sensitivity levers — these shift the ceiling itself",
+      "guardrail": "—",
+      "test": "Ceiling recalculation; all channel verdicts refresh",
+      "gate": "Zero cost, internal data"
+    },
+    {
+      "id": "A4",
+      "action": "Search brand + category terms pilot",
+      "mechanism": "High-intent capture; brand terms include built-in holdout to address C1",
+      "guardrail": "Brand-term sure-thing risk; stop if category CPC exceeds margin tolerance",
+      "test": "TP1: per-match-type incremental CAC",
+      "gate": "Checkpoint unlock; drawn from 80,000 CZK envelope",
+      "owner": "Paid media lead",
+      "due": "checkpoint + 14d"
+    }
   ],
-
   "rejected_options": [
-    {"option": "Social prospecting hero spend", "reason": "Benchmark best-case CAC (1,200 CZK) is below ceiling only at the optimistic corner. Committing significant budget on a benchmark corner is a bet, not a decision."},
-    {"option": "Price-reduction competitive race", "reason": "Margin cannot absorb discount plus no-incrementality double loss. Defending 7,990 CZK is a prerequisite for any media strategy."},
-    {"option": "KOL hero campaign", "reason": "Unit margin 2,797 CZK cannot cover creator fee structures at any meaningful reach level under current margin."}
+    {
+      "option": "Social prospecting hero spend",
+      "reason": "Benchmark best-case CAC (1,200 CZK) is below ceiling only at the optimistic corner. Committing significant budget on a benchmark corner is a bet, not a decision."
+    },
+    {
+      "option": "Price-reduction competitive race",
+      "reason": "Margin cannot absorb discount plus no-incrementality double loss. Defending 7,990 CZK is a prerequisite for any media strategy."
+    },
+    {
+      "option": "KOL hero campaign",
+      "reason": "Unit margin 2,797 CZK cannot cover creator fee structures at any meaningful reach level under current margin."
+    }
   ],
-
   "challenges": [
-    {"id": "C1", "target": "Search brand terms",
-     "question": "Users searching 'Vela BrewPro' have likely already decided to buy. Does paid capture add incremental conversion or just pay for natural traffic?",
-     "status": "open",
-     "evidence_needed": "A4 includes a brand-term holdout — the test is its own answer; stays open until data arrives."},
-    {"id": "C2", "target": "Addressable market ceiling",
-     "question": "Czech households that already own a fully-automatic espresso machine represent near-zero incremental opportunity. What fraction of category search volume is non-convertible?",
-     "status": "open",
-     "evidence_needed": "Category search volume by intent type (A1 by-product) + optional survey on ownership penetration."},
-    {"id": "C3", "target": "Retargeting incrementality",
-     "question": "Retargeting routinely attributes purchases that would have happened anyway. Without a holdout, reported ROAS is inflated by sure-things.",
-     "status": "open",
-     "evidence_needed": "Matched holdout in any retargeting pilot; minimum 7-day conversion window and a non-exposed control group."}
+    {
+      "id": "C1",
+      "target": "Search brand terms",
+      "question": "Users searching 'Vela BrewPro' have likely already decided to buy. Does paid capture add incremental conversion or just pay for natural traffic?",
+      "status": "open",
+      "evidence_needed": "A4 includes a brand-term holdout — the test is its own answer; stays open until data arrives."
+    },
+    {
+      "id": "C2",
+      "target": "Addressable market ceiling",
+      "question": "Czech households that already own a fully-automatic espresso machine represent near-zero incremental opportunity. What fraction of category search volume is non-convertible?",
+      "status": "open",
+      "evidence_needed": "Category search volume by intent type (A1 by-product) + optional survey on ownership penetration."
+    },
+    {
+      "id": "C3",
+      "target": "Retargeting incrementality",
+      "question": "Retargeting routinely attributes purchases that would have happened anyway. Without a holdout, reported ROAS is inflated by sure-things.",
+      "status": "open",
+      "evidence_needed": "Matched holdout in any retargeting pilot; minimum 7-day conversion window and a non-exposed control group."
+    }
   ],
-
   "test_plan": [
-    {"name": "TP1 · Search per-match-type incremental CAC",
-     "prediction": "Brand-term incremental CAC > reported CAC due to sure-thing inflation; category-term CAC may be viable if CPC lands at benchmark low end.",
-     "test": "Post-checkpoint 2-week pilot, exact-match only. Brand terms run with holdout group; category and pain-point terms tracked separately.",
-     "kill_line": "Any match type: incremental CAC > 2× ceiling for 7 consecutive days → that match type's hypothesis is dead.",
-     "decision_date": "2026-07-29"},
-    {"name": "TP2 · Retail media incrementality",
-     "prediction": "Retail CAC < Search category CAC; promotional placements show lower incremental rate than standard placements.",
-     "test": "Single-platform (Alza.cz first) category placement pilot; require platform to segment new vs returning buyer reporting.",
-     "kill_line": "Net of any required price support, incremental CAC > ceiling → stop that platform; re-examine retail terms.",
-     "decision_date": "2026-07-29"}
+    {
+      "name": "TP1 · Search per-match-type incremental CAC",
+      "prediction": "Brand-term incremental CAC > reported CAC due to sure-thing inflation; category-term CAC may be viable if CPC lands at benchmark low end.",
+      "test": "Post-checkpoint 2-week pilot, exact-match only. Brand terms run with holdout group; category and pain-point terms tracked separately.",
+      "kill_line": "Any match type: incremental CAC > 2× ceiling for 7 consecutive days → that match type's hypothesis is dead.",
+      "decision_date": "2026-07-29",
+      "card": "A4"
+    },
+    {
+      "name": "TP2 · Retail media incrementality",
+      "prediction": "Retail CAC < Search category CAC; promotional placements show lower incremental rate than standard placements.",
+      "test": "Single-platform (Alza.cz first) category placement pilot; require platform to segment new vs returning buyer reporting.",
+      "kill_line": "Net of any required price support, incremental CAC > ceiling → stop that platform; re-examine retail terms.",
+      "decision_date": "2026-07-29",
+      "card": "A2"
+    }
   ],
-
   "power_analysis": {
     "baseline_cvr": 0.012,
     "mde_abs": 0.004,
     "eligible_per_day": 5000
   },
-
   "facts": [
-    {"fact": "Vela BrewPro B1 planned retail price: 7,990 CZK (planning assumption; no public listing yet)",
-     "source_url": "https://example.com/placeholder",
-     "source_label": "Internal planning doc (placeholder)", "accessed": "2026-06-15"},
-    {"fact": "Competitor entry segment (Philips, DeLonghi) priced 4,990–6,490 CZK on Alza.cz (placeholder data)",
-     "source_url": "https://example.com/placeholder-alza-category",
-     "source_label": "Alza.cz category page (placeholder)", "accessed": "2026-06-15"},
-    {"fact": "Premium segment (Jura) priced 29,990–59,990 CZK — different purchase occasion, not a direct competitor",
-     "source_url": "https://example.com/placeholder-jura",
-     "source_label": "Alza.cz premium listings (placeholder)", "accessed": "2026-06-15"}
+    {
+      "fact": "Vela BrewPro B1 planned retail price: 7,990 CZK (planning assumption; no public listing yet)",
+      "source_url": "https://example.com/placeholder",
+      "source_label": "Internal planning doc (placeholder)",
+      "accessed": "2026-06-15"
+    },
+    {
+      "fact": "Competitor entry segment (Philips, DeLonghi) priced 4,990–6,490 CZK on Alza.cz (placeholder data)",
+      "source_url": "https://example.com/placeholder-alza-category",
+      "source_label": "Alza.cz category page (placeholder)",
+      "accessed": "2026-06-15"
+    },
+    {
+      "fact": "Premium segment (Jura) priced 29,990–59,990 CZK — different purchase occasion, not a direct competitor",
+      "source_url": "https://example.com/placeholder-jura",
+      "source_label": "Alza.cz premium listings (placeholder)",
+      "accessed": "2026-06-15"
+    }
   ]
 }

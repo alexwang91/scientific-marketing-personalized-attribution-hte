@@ -159,7 +159,7 @@ Each reference follows a fixed template: **when to use → decision tree → min
 **Output & delivery**
 | Ref | Topic |
 |-----|-------|
-| `12` html-report-output | 6-element decision memo + 17-section analysis, provenance rendering |
+| `12` html-report-output | Five-question chapter spine (The Call / The Money / The Play / Execution / The Receipts), 6-element decision memo, provenance rendering |
 | `13` product-country-pipeline | 8-stage product × country pipeline |
 | `14` d-dimension-reviewer | D-dimension generation gate + independent adversarial review; open-blocking → BLOCKED budget linkage |
 | `15` writing-rules | Language policy, falsifiability obligation, honest-state vocabulary, anti-slop, narrative and theory-usability principles |
@@ -181,7 +181,7 @@ Re-validated by CI on every push ([`.github/workflows/validate.yml`](.github/wor
 | `ope_estimators.py` | IPS / SNIPS / DR off-policy evaluation + support check | §14 OPE support check |
 | `hte_starter.py` | T / X / DR-learner starter templates (sklearn, drop-in replaceable with EconML / CausalML) | — |
 | `policy_budget.py` | λ* budget-constrained allocation (ref 06 knapsack / shadow price), IPW policy value on a randomized holdout, profit-vs-budget curve | Layer 3 decision tool |
-| `generate_report.py` | Decision-memo HTML generator (v2) and interactive dashboard renderer. **Enforces the provenance contract**: build fails on any number not tagged sourced / assumed / derived / missing; report mode supports 5 ECharts causal-logic charts and `--depth quick / standard / deep`; dashboard mode adds a board-style cockpit with economics, channel screen, heatmap, treatment gates, and evidence ledger | **HTML output entry point** |
+| `generate_report.py` | Decision-memo HTML generator and interactive dashboard renderer. **Enforces the provenance contract**: build fails on any number not tagged sourced / assumed / derived / missing. **v3: organized as five reader questions** (spend or not? / the math / the play / execution / the receipts) with bilingual operator language built in (`meta.lang`), unified task cards (owner / due / stop-loss), 5 ECharts causal-logic charts, `--format dashboard` board-style cockpit, and three depth modes `--depth quick / standard / deep` | **HTML output entry point** |
 
 ---
 

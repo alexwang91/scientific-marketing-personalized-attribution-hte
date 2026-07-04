@@ -69,6 +69,61 @@ def test_demo_config_has_readable_fallbacks():
     assert data["heatmap"]["rows"]
     first = data["heatmap"]["columns"][0]
     assert first["id"] and first["label"]
+    # a grid inferred from verdicts must say so — it is not real data
+    assert data["heatmap"]["synthetic"] is True
+
+
+def test_real_heatmap_scores_are_used_not_synthesized():
+    # regression: the dashboard used to ignore cfg["heatmap"] and fabricate
+    # grades from channel verdicts, violating the no-invented-numbers stance
+    cfg = copy.deepcopy(rpt.DEMO_CONFIG)
+    cfg["heatmap"] = {
+        "channels": ["Search", "Social"],
+        "dimensions": ["D1", "D2"],
+        "dim_labels": {"D1": "Battery pain", "D2": "Android users"},
+        "scores": {"Search": {"D1": "H", "D2": "T"}, "Social": {"D1": "A", "D2": "N"}},
+    }
+    rpt.validate_and_resolve(cfg.get("numbers", {}))
+    data = data_mod.build_dashboard_data(cfg)
+    hm = data["heatmap"]
+    assert hm["synthetic"] is False
+    assert [c["label"] for c in hm["columns"]] == ["Battery pain", "Android users"]
+    by_name = {r["channel_name"]: r["grades"] for r in hm["rows"]}
+    assert by_name["Search"] == ["H", "T"]
+    assert by_name["Social"] == ["A", "N"]
+
+
+def test_budget_rows_reach_the_dashboard():
+    # regression: budgets read cfg["budget"] but the real schema field is
+    # budget_rows, so the dashboard budget panel was always empty
+    cfg = copy.deepcopy(rpt.DEMO_CONFIG)
+    cfg["budget_rows"] = [
+        {"phase": "P1", "item": "Search pilot", "budget_id": "price", "condition": "gate clears"},
+        {"phase": "P2", "item": "Scale", "budget_display": "unsized", "condition": "checkpoint"},
+    ]
+    rpt.validate_and_resolve(cfg.get("numbers", {}))
+    data = data_mod.build_dashboard_data(cfg)
+    assert len(data["budgets"]) == 2
+    assert data["budgets"][0]["budget_text"].startswith("100")
+    assert data["budgets"][1]["budget_text"] == "unsized"
+
+
+def test_dashboard_speaks_the_config_language():
+    cfg = copy.deepcopy(rpt.DEMO_CONFIG)
+    cfg["meta"]["lang"] = "zh"
+    rpt.validate_and_resolve(cfg.get("numbers", {}))
+    data = data_mod.build_dashboard_data(cfg)
+    assert data["strings"]["ch1_question"] == "这钱到底花不花？"
+    assert data["strings"]["grade_A"] == "别碰"
+    assert data["chapter_answers"]["ch1"].startswith("先不花")
+    # dimension fields follow the real schema
+    cfg["dimensions"] = [{"id": "D1", "name": "电池焦虑", "mechanism": "十天续航",
+                          "proxy": "关键词", "entry_score": "4/5",
+                          "verdict": "Retain", "resolution_status": "open"}]
+    data = data_mod.build_dashboard_data(cfg)
+    dim = data["dimensions"][0]
+    assert dim["label"] == "电池焦虑" and dim["logic"] == "十天续航"
+    assert dim["entry_score"] == "4/5" and dim["status"] == "open"
 
 
 if __name__ == "__main__":

@@ -53,6 +53,9 @@
   .toc-logo span{color:var(--accent)}
   .toc-group-label{padding:12px 18px 4px;font-size:9.5px;font-weight:700;
     text-transform:uppercase;letter-spacing:.1em;color:var(--muted-2)}
+  .toc-chapter{display:block;padding:12px 18px 4px;font-size:11px;font-weight:800;
+    color:var(--ink);text-decoration:none;line-height:1.35;letter-spacing:.01em}
+  .toc-chapter:hover{color:var(--accent)}
   .toc-link{display:block;padding:5px 18px 5px 16px;font-size:12px;
     color:var(--muted);text-decoration:none;line-height:1.4;
     border-left:2px solid transparent;transition:color .12s,border-color .12s,background .12s;
@@ -80,6 +83,21 @@
   .section-intro{font-size:13.5px;color:var(--ink-2);line-height:1.75;
     margin:0 0 18px;padding:13px 16px;background:var(--surface);
     border-radius:6px;border-left:3px solid var(--line-strong)}
+
+  /* ── Chapter banner: the question this chapter answers + one-line answer ── */
+  .chapter-head{margin:34px 0 10px;padding:18px 22px;border-radius:10px;
+    background:linear-gradient(135deg,var(--accent) 0%,#3730a3 100%);color:#fff;
+    scroll-margin-top:12px}
+  .chapter-head:first-child{margin-top:0}
+  .ch-num{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+    opacity:.75;margin-bottom:4px}
+  .ch-question{font-size:20px;font-weight:800;letter-spacing:-.015em;line-height:1.3}
+  .ch-answer{margin-top:10px;font-size:13.5px;line-height:1.6;
+    background:rgba(255,255,255,.14);border-radius:7px;padding:9px 12px}
+  .ch-answer span{font-weight:800;opacity:.8;margin-right:6px}
+  .hm-code{display:block;font-size:9px;font-weight:400;opacity:.55;margin-top:1px}
+  .card-ownerline{font-size:12px;color:var(--ink-2);background:var(--surface);
+    border:1px solid var(--line);border-radius:6px;padding:6px 10px;margin:2px 0 8px}
 
   /* ── Section card ── */
   section{background:var(--panel);border:1px solid var(--line);
@@ -544,28 +562,36 @@
 <div class="page-layout">
 <aside class="sidebar">
   <div class="toc-logo">Vela 煮咖机 B1<br><span>捷克</span></div>
-  <div class="toc-group-label">目录</div>
-  <a class="toc-link" href="#s0" id="toc-s0">0 · 总结</a>
-<a class="toc-link" href="#s1" id="toc-s1">1 · 决策备忘</a>
-<a class="toc-link" href="#s2" id="toc-s2">2 · 测算</a>
-<a class="toc-link" href="#s3" id="toc-s3">3 · 产品与市场事实</a>
-<a class="toc-link" href="#s4" id="toc-s4">4 · 本地渠道地图</a>
-<a class="toc-link" href="#s5" id="toc-s5">5 · D 维度表与因果激活评审</a>
-<a class="toc-link" href="#s7" id="toc-s7">7 · H-Main 拆解</a>
-<a class="toc-link" href="#s8" id="toc-s8">8 · 执行门禁与 Treatment Cards</a>
-<a class="toc-link" href="#s9" id="toc-s9">9 · 因果激活评审（campaign 级）</a>
-<a class="toc-link" href="#s11" id="toc-s11">11 · 优先打法与 ROI 情景</a>
-<a class="toc-link" href="#s14" id="toc-s14">14 · 测试计划</a>
-<a class="toc-link" href="#s16" id="toc-s16">16 · 证据与缺口</a>
-<a class="toc-link" href="#s17" id="toc-s17">17 · 来源与核验清单</a>
+  <div class="toc-group-label">五个问题</div>
+  <a class="toc-chapter" href="#ch1">这钱到底花不花？</a>
+<a class="toc-link" href="#s0" id="toc-s0">总结</a>
+<a class="toc-link" href="#s1" id="toc-s1">决策备忘</a>
+<a class="toc-link" href="#rej" id="toc-rej">绝对不做（此测算下）</a>
+<a class="toc-chapter" href="#ch2">为什么？账是怎么算出来的？</a>
+<a class="toc-link" href="#s2" id="toc-s2">测算</a>
+<a class="toc-link" href="#s3" id="toc-s3">产品与市场事实</a>
+<a class="toc-chapter" href="#ch3">对谁打、在哪打、说什么？</a>
+<a class="toc-link" href="#s4" id="toc-s4">本地渠道地图</a>
+<a class="toc-link" href="#s5" id="toc-s5">D 维度表与因果激活评审</a>
+<a class="toc-link" href="#s7" id="toc-s7">H-Main 拆解</a>
+<a class="toc-chapter" href="#ch4">谁去做、什么时候、花多少钱——怎么算赢？</a>
+<a class="toc-link" href="#s8" id="toc-s8">执行门禁与 Treatment Cards</a>
+<a class="toc-link" href="#s17" id="toc-s17">来源与核验清单</a>
+<a class="toc-chapter" href="#ch5">凭什么信这份报告？哪里可能翻车？</a>
+<a class="toc-link" href="#s9" id="toc-s9">因果激活评审（campaign 级）</a>
+<a class="toc-link" href="#s16" id="toc-s16">证据与缺口</a>
 
 </aside>
 <div class="content-col">
 <main>
-<section id="s0" class="tldr">
+<div class="chapter-head" id="ch1">
+  <div class="ch-num">1 · 拍板</div>
+  <div class="ch-question">这钱到底花不花？</div>
+  <div class="ch-answer"><span>一句话回答</span> 先不花——把零成本的事做完，到检查点再拍板。</div>
+</div><section id="s0" class="tldr">
   <div class="tldr-top">
     <span class="tldr-kicker">一句话结论</span>
-    <span class="verdict verdict-conditional">CONDITIONAL</span>
+    <span class="verdict verdict-conditional">先等等——查完再拍板</span>
     <span class="tldr-meta">Vela 煮咖机 B1 · 捷克 · 2026-06-15</span>
   </div>
   <p class="tldr-why"><span class="tldr-why-lab">为什么</span>单位毛利 2,797 CZK；CAC 上限 1,678 CZK。无渠道有本地数据证明 CAC 低于上限——搜索基准区间横跨上限，社媒拉新最优角接近但仍在基准范围内。结论：CONDITIONAL。暂不分配媒体预算；先完成三项零成本数据拉取，2026-07-15 checkpoint 重新评估。</p>
@@ -586,7 +612,7 @@
 </section><section id="s1" class="memo">
   <div class="memo-verdict-band">
     <div class="verdict-label">裁决</div>
-    <div><span class="verdict verdict-conditional">CONDITIONAL</span></div>
+    <div><span class="verdict verdict-conditional">先等等——查完再拍板</span></div>
     <div style="margin-top:14px;opacity:.7;font-size:13px;font-weight:500;letter-spacing:.02em">Vela 煮咖机 B1 · 捷克 · 2026-06-15</div>
   </div>
   <div class="memo-body">
@@ -602,11 +628,20 @@
     </div>
     <p class="mk-legend">数字标记：◆S 已溯源（带链接）· ◇A 假设（已述依据）· ⊕D 推导（展示链条）· ○M 缺失（无值，仅占位）</p>
   </div>
-</section><section id="s2">
+</section><section id="rej">
+  <h2>绝对不做（此测算下）</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>选项</th><th>否决原因</th></tr></thead>
+    <tbody><tr><td>社媒拉新大额投放</td><td>基准最优角 CAC（1,200 CZK）仅在最乐观组合下低于上限——在本地 CVR 确认前投入大额预算是押注，不是决策。</td></tr><tr><td>降价比价竞赛</td><td>毛利经不起折扣 + 无增量双重损耗；坚守 7,990 CZK 是任何投放策略的前提。</td></tr><tr><td>KOL 大额投放</td><td>单台毛利 2,797 CZK 无法覆盖达人费用结构，任何粉丝量级下都不成立。</td></tr></tbody></table></div>
+</section><div class="chapter-head" id="ch2">
+  <div class="ch-num">2 · 这笔账</div>
+  <div class="ch-question">为什么？账是怎么算出来的？</div>
+  <div class="ch-answer"><span>一句话回答</span> 卖一件赚 2,796.5 CZK，所以拉来一个买家最多花 1,677.9 CZK——0 条渠道确定能赚、5 条看不清、0 条必亏。</div>
+</div><section id="s2">
   <h2>2 · 测算</h2>
   <p class="section-intro">以上结论建立在一个核心经济逻辑上：单位毛利决定了客户获取成本（CAC）的上限。本报告中的每个渠道、每项行动，均以该上限为评判基准。基准估算只能证伪可行性——无法证实可行性。</p>
   <div class="echart-wrap"><div class="echart-head"><span class="echart-title">从归因收入到真实增量</span><span class="echart-badge illustrative">示意</span></div><p class="echart-sub">平台归因把碰过的每笔转化都算作自己的功劳。剔除本来就会买的人，再剔除自然与季节性需求，剩下的才是花费真正带来的。</p><div class="echart" id="ec-waterfall"><div class="echart-fallback">交互图表需加载 ECharts（联网获取）。断网时请联网后刷新查看。</div></div><div class="echart-rebuttal"><strong>推翻条件:</strong> 比例为示意；真实拆分需 holdout。若 holdout 增量与平台归因差距 &lt; 5%，则此拆分不成立，归因可直接采信。</div></div>
-  
+
   <div class="cac-chart">
   <div class="cac-chart-title">各渠道 CAC 区间 vs 上限（CZK）</div>
   <div class="cac-row"><div class="cac-name"></div><div class="cac-track" style="background:transparent;height:8px">
@@ -620,14 +655,15 @@
     <span><i style="background:#f59e0b"></i>待定（基准估算，无法据此判定可行）</span>
     <span><i style="background:#dc2626"></i>不可行（最优情况仍超上限）</span>
   </div>
-  <p style="font-size:11px;color:var(--muted);margin:10px 0 0">横条=基准 CAC 区间 · 竖线=上限 · 颜色=筛查结论。基准只能证伪（最优情况超上限即出局），无法证明可行——所以即便整条在上限左侧，未经本地数据确认前仍为「待定」。</p>
+  <p style="font-size:12px;color:var(--ink-2);margin:10px 0 0;font-weight:600">看图：柱子伸过红线＝亏钱 · 完全在红线内＝赚钱 · 横跨红线＝看不清、先拿数。本图：0 条能赚、1 条看不清、0 条必亏。</p>
+  <p style="font-size:11px;color:var(--muted);margin:4px 0 0">横条=基准 CAC 区间 · 竖线=上限 · 颜色=筛查结论。基准只能证伪（最优情况超上限即出局），无法证明可行——所以即便整条在上限左侧，未经本地数据确认前仍为「待定」。</p>
 </div>
   <div class="derivation">
   <div class="deriv-name">单台毛利</div>
   <div class="deriv-line">= price_plan × margin_rate</div>
   <div class="deriv-line">= 7,990 CZK<sup class="mk mk-assumed">A<÷sup> <span class="prov-note">(内部规划价，上线前按 SKU 与渠道逐日核对)<÷span> × 35%<sup class="mk mk-assumed">A<÷sup> <span class="prov-note">(用户输入，未经财务确认；需明确是否含渠道分成后净毛利口径)<÷span></div>
   <div class="deriv-result">= <strong>2,796 CZK</strong></div>
-  
+
 </div><div class="derivation">
   <div class="deriv-name">CAC 上限</div>
   <div class="deriv-line">= unit_margin × cac_share</div>
@@ -639,7 +675,7 @@
   <div class="deriv-line">= price_plan × margin_rate_alt × cac_share</div>
   <div class="deriv-line">= 7,990 CZK<sup class="mk mk-assumed">A<÷sup> <span class="prov-note">(内部规划价，上线前按 SKU 与渠道逐日核对)<÷span> × 45%<sup class="mk mk-assumed">A<÷sup> <span class="prov-note">(敏感性情景：直营或更高返点口径)<÷span> × 60%<sup class="mk mk-assumed">A<÷sup> <span class="prov-note">(惯例：获客成本不超过首单毛利的 60%，余量留给履约与退货)<÷span></div>
   <div class="deriv-result">= <strong>2,157 CZK</strong></div>
-  
+
 </div><div class="derivation">
   <div class="deriv-name">社媒拉新 CAC（基准推算）</div>
   <div class="deriv-line">= bench_social_cpm ÷ 1000 ÷ (bench_social_ctr × bench_lp_cvr)</div>
@@ -655,15 +691,19 @@
   <h3>渠道可行性筛查（阈值：上方 CAC 上限）</h3>
   <div class="table-wrap"><table>
     <thead><tr><th>渠道</th><th>结论</th><th>CAC 估算</th><th>原因 / 缺失数据</th></tr></thead>
-    <tbody><tr><td><strong>Alza.cz / Mall.cz retail media</strong></td><td><span class='pill pill-undetermined'>undetermined</span></td><td>—</td><td>离购买最近、最可能过线的渠道，但费率卡缺失（一封邮件可解）。最优先验证。</td></tr><tr><td><strong>Search 品牌词</strong></td><td><span class='pill pill-undetermined'>undetermined</span></td><td>—</td><td>CPC 缺失；且品牌词 sure-thing 风险（C1）意味着即使 CAC 好看也需 holdout 验证增量。</td></tr><tr><td><strong>Search 品类 / 痛点词</strong></td><td><span class='pill pill-undetermined'>undetermined</span></td><td>—</td><td>CPC 与词量缺失；搜索「全自动咖啡机」的用户决策周期长，CVR 预期低于品牌词。</td></tr><tr><td><strong>Meta / TikTok 泛兴趣拉新</strong></td><td><span class='pill pill-undetermined'>undetermined</span></td><td>600 CZK–18,000 CZK<sup class="mk mk-derived">D</sup></td><td>基准最优角约 1,200 CZK 低于上限，但仅在最乐观组合下成立——基准不对称：不能放行，只能证伪。本地 CVR 未知，结论维持待定。</td></tr><tr><td><strong>YouTube 评测内容</strong></td><td><span class='pill pill-role-only'>role-only</span></td><td>—</td><td>不按 CAC 评估。角色是回答最大转化障碍：「为什么花 7,990 CZK 而不买 4,990 CZK 的」。产出是内容资产，不是拉新渠道。</td></tr><tr><td><strong>Retargeting</strong></td><td><span class='pill pill-undetermined'>undetermined</span></td><td>—</td><td>依赖站点流量规模（缺失）；若做，7 天短窗 + 无触达对照是前置条件。</td></tr></tbody></table></div>
+    <tbody><tr><td><strong>Alza.cz / Mall.cz retail media</strong></td><td><span class='pill pill-undetermined'>看不清——先拿数 (undetermined)</span></td><td>—</td><td>离购买最近、最可能过线的渠道，但费率卡缺失（一封邮件可解）。最优先验证。</td></tr><tr><td><strong>Search 品牌词</strong></td><td><span class='pill pill-undetermined'>看不清——先拿数 (undetermined)</span></td><td>—</td><td>CPC 缺失；且品牌词 sure-thing 风险（C1）意味着即使 CAC 好看也需 holdout 验证增量。</td></tr><tr><td><strong>Search 品类 / 痛点词</strong></td><td><span class='pill pill-undetermined'>看不清——先拿数 (undetermined)</span></td><td>—</td><td>CPC 与词量缺失；搜索「全自动咖啡机」的用户决策周期长，CVR 预期低于品牌词。</td></tr><tr><td><strong>Meta / TikTok 泛兴趣拉新</strong></td><td><span class='pill pill-undetermined'>看不清——先拿数 (undetermined)</span></td><td>600 CZK–18,000 CZK<sup class="mk mk-derived">D</sup></td><td>基准最优角约 1,200 CZK 低于上限，但仅在最乐观组合下成立——基准不对称：不能放行，只能证伪。本地 CVR 未知，结论维持待定。</td></tr><tr><td><strong>YouTube 评测内容</strong></td><td><span class='pill pill-role-only'>只当辅助 (role-only)</span></td><td>—</td><td>不按 CAC 评估。角色是回答最大转化障碍：「为什么花 7,990 CZK 而不买 4,990 CZK 的」。产出是内容资产，不是拉新渠道。</td></tr><tr><td><strong>Retargeting</strong></td><td><span class='pill pill-undetermined'>看不清——先拿数 (undetermined)</span></td><td>—</td><td>依赖站点流量规模（缺失）；若做，7 天短窗 + 无触达对照是前置条件。</td></tr></tbody></table></div>
   <p style="font-size:13px;color:var(--muted)">规则：基准估算可以证明<em>不可行</em>（最优情况仍超上限），但<em>无法</em>证明可行——可行需要本地数据。<em>undetermined</em> 意味着区间横跨上限；行动是获取数据，而非选一个端点。</p>
 </section><section id="s3">
   <h2>3 · 产品与市场事实</h2>
   <p class="section-intro">经济模型划定了上限，本节将分析落地到产品现实：哪些功能具有差异化价值，产品如何在竞品中定位，哪些市场事实制约了渠道与受众策略。</p>
-  
-  
-  
-</section><section id="s4">
+
+
+
+</section><div class="chapter-head" id="ch3">
+  <div class="ch-num">3 · 打法</div>
+  <div class="ch-question">对谁打、在哪打、说什么？</div>
+  <div class="ch-answer"><span>一句话回答</span> 5 条渠道值得试；主攻人群：；0 类人绝对不碰。</div>
+</div><section id="s4">
   <h2>4 · 本地渠道地图</h2>
   <p class="section-intro">CAC 上限已确立，现对每个渠道进行筛查：其获客成本区间能否低于上限？下方的结论标签给出快速答案，表格提供详细推理。请记住：基准只能排除渠道，不能确认渠道。</p>
   <div class="cv-strip"><div class="cv-badge"><div class="cv-badge-dot" style="background:#d97706"></div><div><div class="cv-name">Alza.cz / Mall.cz retail media</div><div class="cv-task">离购买最近、最可能过线的渠道，但费率卡缺失（一封邮件可解）。最优先验证。</div></div></div><div class="cv-badge"><div class="cv-badge-dot" style="background:#d97706"></div><div><div class="cv-name">Search 品牌词</div><div class="cv-task">CPC 缺失；且品牌词 sure-thing 风险（C1）意味着即使 CAC 好看也需 holdout 验证增量。</div></div></div><div class="cv-badge"><div class="cv-badge-dot" style="background:#d97706"></div><div><div class="cv-name">Search 品类 / 痛点词</div><div class="cv-task">CPC 与词量缺失；搜索「全自动咖啡机」的用户决策周期长，CVR 预期低于品牌词。</div></div></div><div class="cv-badge"><div class="cv-badge-dot" style="background:#d97706"></div><div><div class="cv-name">Meta / TikTok 泛兴趣拉新</div><div class="cv-task">基准最优角约 1,200 CZK 低于上限，但仅在最乐观组合下成立——基准不对称：不能放行，只能证伪。本地 CVR 未知…</div></div></div><div class="cv-badge"><div class="cv-badge-dot" style="background:#9ca3af"></div><div><div class="cv-name">YouTube 评测内容</div><div class="cv-task">不按 CAC 评估。角色是回答最大转化障碍：「为什么花 7,990 CZK 而不买 4,990 CZK 的」。产出是内容…</div></div></div><div class="cv-badge"><div class="cv-badge-dot" style="background:#d97706"></div><div><div class="cv-name">Retargeting</div><div class="cv-task">依赖站点流量规模（缺失）；若做，7 天短窗 + 无触达对照是前置条件。</div></div></div></div>
@@ -676,70 +716,100 @@
   <p class="section-intro">渠道筛查告诉我们在哪里触达买家。维度表则提出另一个问题：在这些渠道中，哪些买家特征能预测增量响应？每个维度在获得预算前须通过四项标准：可部署代理指标、可检验增量性、转化机制合理、监管合规。</p>
   <div class="echart-wrap"><div class="echart-head"><span class="echart-title">谁值得投放：四种响应类型</span><span class="echart-badge">概念图</span></div><p class="echart-sub">按购买概率投放，命中的是「铁定会买」；按 uplift 投放，才找得到「可说服者」——唯一因你的动作才购买的人。</p><div class="echart" id="ec-quadrant"><div class="echart-fallback">交互图表需加载 ECharts（联网获取）。断网时请联网后刷新查看。</div></div></div>
   <div class="echart-wrap"><div class="echart-head"><span class="echart-title">到底该不该个性化？看 τ(x) 的分布形状</span><span class="echart-badge">示意图</span></div><p class="echart-sub">单一尖峰=人人反应一样，别个性化；宽分布或双峰=uplift 存在异质性，分层投放才划算。</p><div class="echart" id="ec-cate"><div class="echart-fallback">交互图表需加载 ECharts（联网获取）。断网时请联网后刷新查看。</div></div></div>
-  
+
   <div class="table-wrap"><table>
     <thead><tr><th>维度</th><th>机制</th><th>平台 Proxy</th><th>评分</th><th>判定</th><th>状态</th></tr></thead>
     <tbody></tbody></table></div>
   <p style="font-size:13px;color:var(--muted)">结论说明：Retain = 热力图 H 或 T · Retain (test) = T 或 S · Demote S = 仅 S · Suppression = 抑制目标 · Delete = 剔除。</p>
-  
+
 </section><section id="s7">
   <h2>7 · H-Main 拆解</h2>
   <p class="section-intro">热图识别了所有 H 和 T 格子，本节聚焦 H-main 格子：预期具有正向增量提升的渠道-维度组合。每行直接对应第 8 节的一张干预卡。优先级从上至下排列。</p>
   <div class="echart-wrap"><div class="echart-head"><span class="echart-title">treatment 必须撬动什么：四种力</span><span class="echart-badge">机制图</span></div><p class="echart-sub">Push 与 Pull 推向购买；Habit 与 Anxiety 拉住不买。只有当 treatment 移动了一个仍未定的力，才会产生增量。</p><div class="echart" id="ec-forces"><div class="echart-fallback">交互图表需加载 ECharts（联网获取）。断网时请联网后刷新查看。</div></div></div>
-  
+
   <p>以下是预期 HTE 为正的单元。每个对应执行门禁节中的一张 Treatment Card。优先级自上而下。</p>
   <div class="table-wrap"><table>
     <thead><tr><th>渠道 × 维度</th><th>HTE 假设</th><th>Treatment Card</th><th>备注</th></tr></thead>
     <tbody></tbody></table></div>
-</section><section id="s8">
+</section><div class="chapter-head" id="ch4">
+  <div class="ch-num">4 · 执行</div>
+  <div class="ch-question">谁去做、什么时候、花多少钱——怎么算赢？</div>
+  <div class="ch-answer"><span>一句话回答</span> 4 张任务卡，0 张冻结中等数据落地；每张卡都带止损线。</div>
+</div><section id="s8">
   <h2>8 · 执行门禁与 Treatment Cards</h2>
   <p class="section-intro">干预卡将第 7 节的 H-main 假设转化为可操作的执行方案。每张卡明确触达对象（受众）、执行内容（机制）、风险保护（护栏）和测量方式（测试）。被阻断的卡意味着存在未解决的阻断性挑战，在挑战关闭前不得分配预算。</p>
   <p><strong>成熟度: L0</strong> — 本分析支持试验设计与渠道筛查，不支持 CATE 断言或策略优化。</p>
-  
+
   <div class="callout"><strong>power_analysis.py</strong> — baseline CVR 1.2%, MDE 0.40%: ATE needs <strong>13,543/arm</strong>; an uplift-difference (HTE) test needs <strong>28,971/cell (115,884 total)</strong> ≈ <strong>24 days</strong> at 5,000 eligible/day. First round therefore runs coarse cells only (channel × primary message), not per-dimension HTE.</div>
-  <h3>Treatment Cards（仅 H-main 单元）</h3>
+  <div class="timeline"><div class="tl-item"><div class="tl-name">TP1 · Search 分词组增量 CAC</div><div class="tl-date">&#128197; 2026-07-29</div><div class="tl-desc">任一词组连续 7 天增量 CAC &gt; 上限两倍 → 该词组假设宣告死亡。</div></div><div class="tl-item"><div class="tl-name">TP2 · Retail media 增量核验</div><div class="tl-date">&#128197; 2026-07-29</div><div class="tl-desc">扣除促销支持后增量 CAC 超上限 → 停止该平台，复盘合同条款。</div></div></div>
+  <h3>任务卡（一张卡＝一件有人负责的事）</h3>
   <div class="cards"><div class="card">
   <h3>A1 · 拉捷克语关键词 CPC 与搜索量 </h3>
+  <div class="card-ownerline">负责人: <strong>增长负责人</strong> &nbsp;·&nbsp; 截止: <strong>2026-06-22</strong></div>
   <dl>
-    
-    
+
+
+
     <dt>机制</dt><dd>解锁搜索渠道判定，品类词量同时给出可触达市场天花板的第一块数据（C2 首个数据点）</dd>
     <dt>护栏</dt><dd>—</dd>
     <dt>测量</dt><dd>推算 CAC 区间 vs 上限 1,678 CZK</dd>
-    
+
+    <dt>放行条件</dt><dd>零成本，立即执行</dd>
+
   </dl>
 </div><div class="card">
   <h3>A2 · 向 Alza.cz / Mall.cz 询 retail media 费率卡 </h3>
+
   <dl>
-    
-    
+
+
+
     <dt>机制</dt><dd>离购买最近的渠道，最可能在当前毛利下过线</dd>
     <dt>护栏</dt><dd>促销位条款可能要求价格支持——毛利经不起，先问清</dd>
     <dt>测量</dt><dd>费率代入 CAC 推算</dd>
-    
+
+    <dt>放行条件</dt><dd>零成本，立即执行</dd>
+    <dt>试验与止损</dt><dd><strong>TP2 · Retail media 增量核验</strong> — 单平台（先 Alza.cz）品类位小额测试，要求平台按新客 / 老客分报表。<br>止损线: 扣除促销支持后增量 CAC 超上限 → 停止该平台，复盘合同条款。 · 决策日期: 2026-07-29</dd>
   </dl>
 </div><div class="card">
   <h3>A3 · 财务确认毛利口径 + 拉胶囊订阅连带率 </h3>
+
   <dl>
-    
-    
+
+
+
     <dt>机制</dt><dd>敏感性表前两位：这两个数字决定 CAC 上限本身</dd>
     <dt>护栏</dt><dd>—</dd>
     <dt>测量</dt><dd>上限重算，全部渠道判定刷新</dd>
-    
+
+    <dt>放行条件</dt><dd>零成本，内部数据</dd>
+
   </dl>
 </div><div class="card">
   <h3>A4 · Search 品牌 + 品类词小额试投 </h3>
+  <div class="card-ownerline">负责人: <strong>投放负责人</strong> &nbsp;·&nbsp; 截止: <strong>检查点 + 14 天</strong></div>
   <dl>
-    
-    
+
+
+
     <dt>机制</dt><dd>高意图承接；品牌词组内置 holdout 以回应 C1</dd>
     <dt>护栏</dt><dd>品牌词 sure-thing 风险；品类词 CPC 超毛利承受力即停</dd>
     <dt>测量</dt><dd>TP1：分词组增量 CAC</dd>
-    
+
+    <dt>放行条件</dt><dd>checkpoint 解锁，从 80,000 CZK 包络分配</dd>
+    <dt>试验与止损</dt><dd><strong>TP1 · Search 分词组增量 CAC</strong> — checkpoint 解锁后两周，精确匹配，品牌词含 holdout；品类词与痛点词单独跟踪。<br>止损线: 任一词组连续 7 天增量 CAC &gt; 上限两倍 → 该词组假设宣告死亡。 · 决策日期: 2026-07-29</dd>
   </dl>
 </div></div>
-</section><section id="s9">
+</section><section id="s17">
+  <h2>17 · 来源与核验清单</h2>
+  <p class="section-intro">上线前核查清单。所有条目须达到「完成」状态，才能解锁任何预算。待处理条目阻断对应的干预卡。本清单是上方缺失台账的操作转化。</p>
+
+  <ul class="checklist"></ul>
+</section><div class="chapter-head" id="ch5">
+  <div class="ch-num">5 · 底牌</div>
+  <div class="ch-question">凭什么信这份报告？哪里可能翻车？</div>
+  <div class="ch-answer"><span>一句话回答</span> 2 个数查证过（带链接）、8 个是假设（依据写明）、4 个还没拿到——最薄弱的点：本地 CPC、落地页 CVR、retail 费率卡全部缺失，渠道筛选目前建立在行业基准区间上；且捷克全自动咖啡机保有量（已有同类产品的家庭）完全未量化——可能比 CAC 问题更根本。</div>
+</div><section id="s9">
   <h2>9 · 因果激活评审（campaign 级）</h2>
   <p class="section-intro">以下挑战由独立复核在初步分析完成后提出，属于不可篡改的记录——分析可以回应，但不能重写。阻断性未解决挑战会在所有依赖该挑战的行动上盖上 BLOCKED 标记。</p>
   <div class="ch-visual"><div class="ch-card"><div class="ch-dot open"></div><div><div class="ch-title">C1 · Search 品牌词</div><div class="ch-target">搜索「Vela BrewPro」的用户大概率已决定购买。付费承接是否只是花钱买走自然转化？</div></div></div><div class="ch-card"><div class="ch-dot open"></div><div><div class="ch-title">C2 · 可触达市场天花板</div><div class="ch-target">捷克已拥有全自动咖啡机的家庭增量机会接近零。品类搜索量中有多大比例来自不可转化用户？</div></div></div><div class="ch-card"><div class="ch-dot open"></div><div><div class="ch-title">C3 · Retargeting 增量性</div><div class="ch-target">Retargeting 常规性地把本来就会发生的购买归因给广告。没有 holdout，汇报的 ROAS 因 sure-thing 通胀而虚高。</div></div></div></div>
@@ -747,35 +817,6 @@
   <div class="table-wrap"><table>
     <thead><tr><th>挑战</th><th>问题</th><th>状态</th><th>解决 / 所需证据</th></tr></thead>
     <tbody><tr><td><strong>C1</strong> · Search 品牌词</td><td>搜索「Vela BrewPro」的用户大概率已决定购买。付费承接是否只是花钱买走自然转化？</td><td><span class='pill pill-open'>open</span></td><td>A4 内置品牌词 holdout——测试本身就是答案，数据未到前保持 open。</td></tr><tr><td><strong>C2</strong> · 可触达市场天花板</td><td>捷克已拥有全自动咖啡机的家庭增量机会接近零。品类搜索量中有多大比例来自不可转化用户？</td><td><span class='pill pill-open'>open</span></td><td>A1 产出的品类词量（按搜索意图分类）+ 可选的小规模渗透率调研。</td></tr><tr><td><strong>C3</strong> · Retargeting 增量性</td><td>Retargeting 常规性地把本来就会发生的购买归因给广告。没有 holdout，汇报的 ROAS 因 sure-thing 通胀而虚高。</td><td><span class='pill pill-open'>open</span></td><td>任何 retargeting 试投中设置匹配 holdout；至少 7 天转化窗口 + 未触达对照组。</td></tr></tbody></table></div>
-</section><section id="s11">
-  <h2>11 · 优先打法与 ROI 情景</h2>
-  <p class="section-intro">综合渠道筛查、维度评分和预算结构，以下是未来 90 天预期回报最高的三个行动。每个策略对应其激活的干预卡，并附有终止线——一旦数据显示假设不成立，行动即停止。</p>
-  
-  <div class="callout">No uplift model scores available yet — AUUC gate will be applied when model predictions are generated after pilot data collection.</div>
-  <div class="cards"></div>
-</section><section id="s14">
-  <h2>14 · 测试计划</h2>
-  <p class="section-intro">第 8 节中的每张干预卡都附有可证伪的预测和终止线。这些不是里程碑——而是决策门。到决策日期，预测要么成为溯源证据，要么终止行动并回收预算。</p>
-  <div class="timeline"><div class="tl-item"><div class="tl-name">TP1 · Search 分词组增量 CAC</div><div class="tl-date">&#128197; 2026-07-29</div><div class="tl-desc">任一词组连续 7 天增量 CAC &gt; 上限两倍 → 该词组假设宣告死亡。</div></div><div class="tl-item"><div class="tl-name">TP2 · Retail media 增量核验</div><div class="tl-date">&#128197; 2026-07-29</div><div class="tl-desc">扣除促销支持后增量 CAC 超上限 → 停止该平台，复盘合同条款。</div></div></div>
-  <p>每个进入预算的主张都带有可证伪的预测、止损线和决策日期。在该日期，该线要么成为已溯源数据，要么被宣告无效。</p>
-  <div class="callout"><strong>power_analysis.py</strong> — baseline CVR 1.2%, MDE 0.40%: ATE needs <strong>13,543/arm</strong>; an uplift-difference (HTE) test needs <strong>28,971/cell (115,884 total)</strong> ≈ <strong>24 days</strong> at 5,000 eligible/day. First round therefore runs coarse cells only (channel × primary message), not per-dimension HTE.</div>
-  <div class="cards"><div class="card">
-  <h3>TP1 · Search 分词组增量 CAC</h3>
-  <dl>
-    <dt>预测</dt><dd>品牌词增量 CAC 高于汇报 CAC（sure-thing 通胀）；品类词 CAC 若 CPC 落在基准低端则可行。</dd>
-    <dt>测试</dt><dd>checkpoint 解锁后两周，精确匹配，品牌词含 holdout；品类词与痛点词单独跟踪。</dd>
-    <dt>止损线</dt><dd>任一词组连续 7 天增量 CAC &gt; 上限两倍 → 该词组假设宣告死亡。</dd>
-    <dt>决策日期</dt><dd>2026-07-29</dd>
-  </dl>
-</div><div class="card">
-  <h3>TP2 · Retail media 增量核验</h3>
-  <dl>
-    <dt>预测</dt><dd>Retail CAC &lt; 搜索品类词 CAC；促销位带来的单中相当比例无增量。</dd>
-    <dt>测试</dt><dd>单平台（先 Alza.cz）品类位小额测试，要求平台按新客 / 老客分报表。</dd>
-    <dt>止损线</dt><dd>扣除促销支持后增量 CAC 超上限 → 停止该平台，复盘合同条款。</dd>
-    <dt>决策日期</dt><dd>2026-07-29</dd>
-  </dl>
-</div></div>
 </section><section id="s16">
   <h2>16 · 证据与缺口</h2>
   <p class="section-intro">这是报告中每个数字的审计追踪记录。所有数值均为以下四种之一：已溯源（附链接）、已假设（明确陈述依据）、已推导（展示公式与输入）或缺失（占位符——无数值被发明）。</p>
@@ -792,11 +833,6 @@
   <div class="table-wrap"><table>
     <thead><tr><th>内容</th><th>从何获取</th><th>成本</th><th>阻塞</th></tr></thead>
     <tbody><tr><td>捷克语关键词 CPC（品牌 / 品类 / 痛点）</td><td>Google Keyword Planner</td><td>0 预算，约 1 小时</td><td>搜索渠道判定, 搜索 CAC 推算</td></tr><tr><td>落地页 CVR（本地，BrewPro B1）</td><td>历史数据或 checkpoint 后 2 周试投</td><td>试投预算内</td><td>所有依赖转化率的 CAC 推算</td></tr><tr><td>Alza.cz sponsored placement 费率卡</td><td>直接向 Alza 账户团队询价</td><td>0 预算，1 封邮件</td><td>Retail media 渠道判定</td></tr><tr><td>胶囊订阅连带率</td><td>历史订单数据</td><td>0 预算，内部数据</td><td>LTV 调整后 CAC 上限重算</td></tr></tbody></table></div>
-</section><section id="s17">
-  <h2>17 · 来源与核验清单</h2>
-  <p class="section-intro">上线前核查清单。所有条目须达到「完成」状态，才能解锁任何预算。待处理条目阻断对应的干预卡。本清单是上方缺失台账的操作转化。</p>
-  
-  <ul class="checklist"></ul>
 </section>
 </main>
 <footer>
