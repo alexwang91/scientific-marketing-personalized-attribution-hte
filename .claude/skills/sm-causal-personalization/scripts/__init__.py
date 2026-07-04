@@ -9,9 +9,13 @@ files that ship inside the Claude Code skill:
     from smcp import hte_starter      # T / X / DR-learner templates
     from smcp import policy_budget    # lambda* budget-constrained allocation
     from smcp import generate_report  # provenance-enforced decision memo (CLI: sm-report)
+    from smcp import dashboard_data   # config -> dashboard data normalization
+    from smcp import dashboard_render # single-file interactive dashboard renderer
 """
 
 __all__ = [
+    "dashboard_data",
+    "dashboard_render",
     "generate_report",
     "hte_starter",
     "ope_estimators",

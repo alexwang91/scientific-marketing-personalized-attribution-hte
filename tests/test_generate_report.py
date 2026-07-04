@@ -151,6 +151,18 @@ def test_validate_only_without_numbers_key_exits_cleanly():
     assert "Config valid" in proc.stderr
 
 
+def test_demo_dashboard_format_renders():
+    with tempfile.NamedTemporaryFile("w", suffix=".html", delete=False) as f:
+        path = f.name
+    proc = subprocess.run(
+        [sys.executable, str(REPORT_PATH), "--demo", "--format", "dashboard", "--output", path],
+        capture_output=True, text=True)
+    assert proc.returncode == 0, proc.stderr
+    html = Path(path).read_text(encoding="utf-8")
+    assert "decision-dashboard" in html
+    assert "DemoProduct" in html
+
+
 if __name__ == "__main__":
     tests = [name for name in sorted(globals()) if name.startswith("test_")]
     failures = 0

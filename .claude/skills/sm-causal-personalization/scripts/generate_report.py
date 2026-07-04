@@ -2871,6 +2871,16 @@ def generate_html(cfg: dict, depth: str = "standard", echarts_js: str | None = N
     return _page_shell(cfg, title, sidebar, body, echarts_block)
 
 
+def _load_dashboard_modules():
+    try:
+        from dashboard_data import build_dashboard_data
+        from dashboard_render import render_dashboard
+    except ImportError:
+        from .dashboard_data import build_dashboard_data
+        from .dashboard_render import render_dashboard
+    return build_dashboard_data, render_dashboard
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Demo config — minimal, shows the schema; real example: examples/sample-sku-en-config.json
 # ──────────────────────────────────────────────────────────────────────────────
@@ -2952,6 +2962,8 @@ def main():
     ap.add_argument("--config", help="JSON config path")
     ap.add_argument("--output", help="output HTML path (default stdout)")
     ap.add_argument("--validate-only", action="store_true", help="validate config, render nothing")
+    ap.add_argument("--format", choices=["report", "dashboard"], default="report",
+                    help="report = existing decision memo HTML; dashboard = interactive decision cockpit")
     ap.add_argument("--depth", choices=["quick", "standard", "deep"], default=None,
                     help="quick = decision-critical sections only; standard = full report (default); "
                          "deep = full report + consolidated validation roadmap (§18). "
@@ -2976,9 +2988,16 @@ def main():
                 print(f"LINT WARNING — {w}", file=sys.stderr)
             print("Config valid: provenance contract satisfied.", file=sys.stderr)
             return
-        depth = args.depth or cfg.get("depth", "standard")
-        echarts_js = Path(args.embed_echarts).read_text(encoding="utf-8") if args.embed_echarts else None
-        html = generate_html(cfg, depth=depth, echarts_js=echarts_js)
+        if args.format == "dashboard":
+            numbers = validate_and_resolve(cfg.get("numbers", {}))
+            for w in lint_prose(cfg, numbers):
+                print(f"LINT WARNING — {w}", file=sys.stderr)
+            build_dashboard_data, render_dashboard = _load_dashboard_modules()
+            html = render_dashboard(build_dashboard_data(cfg))
+        else:
+            depth = args.depth or cfg.get("depth", "standard")
+            echarts_js = Path(args.embed_echarts).read_text(encoding="utf-8") if args.embed_echarts else None
+            html = generate_html(cfg, depth=depth, echarts_js=echarts_js)
     except ConfigError as e:
         print(f"BUILD FAILED — {e}", file=sys.stderr)
         sys.exit(2)

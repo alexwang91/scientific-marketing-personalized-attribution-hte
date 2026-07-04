@@ -48,6 +48,16 @@ jobs:
           python generate_report.py --config ../examples/sample-sku-en-config.json --depth quick --output /tmp/quick.html
           python generate_report.py --config ../examples/sample-sku-en-config.json --depth deep  --output /tmp/deep.html
 
+      # ── Interactive dashboard renderer (same configs, cockpit output) ─────
+      - name: Render dashboard examples
+        run: |
+          for cfg in ../examples/*-config.json; do
+            echo "::group::dashboard $cfg"
+            python generate_report.py --config "$cfg" --format dashboard --output "/tmp/$(basename "$cfg" .json)-dashboard.html"
+            echo "::endgroup::"
+          done
+          python generate_report.py --demo --format dashboard > /tmp/demo-dashboard.html
+
       # ── Core scripts (each must run end-to-end and exit 0) ────────────────
       - name: Run core scripts
         run: |
