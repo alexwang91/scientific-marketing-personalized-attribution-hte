@@ -67,12 +67,17 @@ python generate_report.py --config ../examples/sample-sku-en-config.json --outpu
 python generate_report.py --config ../examples/sample-sku-en-config.json --validate-only   # 仅校验 provenance 合约
 python generate_report.py --config ../examples/sample-sku-en-config.json --depth quick      # 高管速览：结论+单位经济+门控+证据
 python generate_report.py --config ../examples/sample-sku-en-config.json --depth deep       # 完整报告 + 验证路线图（§18）
+python generate_report.py --config ../examples/sample-sku-en-config.json --format dashboard --output dashboard.html            # 交互式决策看板
+python generate_report.py --config ../examples/aurora-airpurifier-category-config.json --format dashboard --output portfolio-dashboard.html
 python generate_report.py --config ../examples/aurora-airpurifier-category-config.json      # 类目货盘诊断（ref 17）
 python generate_report.py --demo > demo.html                                               # 最小 schema 示例
+python generate_report.py --demo --format dashboard > demo-dashboard.html                   # 最小看板示例
 python generate_report.py --config c.json --embed-echarts echarts.min.js --output r.html   # 离线 HTML（图表库内嵌，不走 CDN）
 ```
 
 报告分三档深度（`--depth`）：`quick` 只渲染决策关键章节；`standard`（默认）完整报告；`deep` 在完整报告后追加一张**验证路线图（§18）**——把未决评审挑战、缺失台账、测试预测合并为一张按「能否改变决策」排序的清单。只用配置里已有的数据，绝不新造数字。
+
+当你想把同一套因果逻辑做成看板时，用 `--format dashboard`：KPI 条、单位经济卡片、渠道筛选、因果链路、热力图、treatment gates、evidence ledger 会被组织成一个可点击的 cockpit。输出仍然是单文件 HTML，内联 CSS/JS，不需要额外服务。
 
 **跑核心脚本：**
 
@@ -178,7 +183,7 @@ Layer 4 · 生成与服务（可选） LLM embedding 作特征（不进决策回
 | `ope_estimators.py` | IPS / SNIPS / DR off-policy 评估 + support 检查 | §14 OPE support |
 | `hte_starter.py` | T / X / DR-learner 起手式（sklearn，可换 EconML/CausalML） | — |
 | `policy_budget.py` | λ* 预算约束分配（ref 06 背包/影子价格）、随机化保留集上的 IPW 政策价值、利润-预算曲线 | Layer 3 决策工具 |
-| `generate_report.py` | 决策备忘 HTML 生成器（v2）。**强制 provenance 合约**；含 5 张因果逻辑交互图（ECharts）；三档深度 `--depth quick/standard/deep`（deep 追加验证路线图 §18） | **HTML 输出入口** |
+| `generate_report.py` | 决策备忘 HTML 生成器（v2）和交互式看板渲染器。**强制 provenance 合约**；report 模式含 5 张因果逻辑交互图（ECharts）和三档深度 `--depth quick/standard/deep`；dashboard 模式输出单位经济、渠道筛选、热力图、treatment gates、evidence ledger 组成的 board-style cockpit | **HTML 输出入口** |
 
 ---
 

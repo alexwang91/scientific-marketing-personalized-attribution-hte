@@ -65,12 +65,17 @@ python generate_report.py --config ../examples/sample-sku-en-config.json --outpu
 python generate_report.py --config ../examples/sample-sku-en-config.json --validate-only   # provenance contract check only
 python generate_report.py --config ../examples/sample-sku-en-config.json --depth quick      # executive view: verdict + math + gate + evidence
 python generate_report.py --config ../examples/sample-sku-en-config.json --depth deep       # full report + validation roadmap (§18)
+python generate_report.py --config ../examples/sample-sku-en-config.json --format dashboard --output dashboard.html            # interactive decision cockpit
+python generate_report.py --config ../examples/aurora-airpurifier-category-config.json --format dashboard --output portfolio-dashboard.html
 python generate_report.py --config ../examples/aurora-airpurifier-category-config.json      # category portfolio diagnostic (ref 17)
 python generate_report.py --demo > demo.html                                              # minimal schema demo
+python generate_report.py --demo --format dashboard > demo-dashboard.html                  # minimal dashboard demo
 python generate_report.py --config c.json --embed-echarts echarts.min.js --output r.html  # offline HTML (no CDN)
 ```
 
 Three depth modes (`--depth`): `quick` renders decision-critical sections only; `standard` (default) renders the full report; `deep` appends a **validation roadmap** (§18) — all open challenges, missing inputs, and test predictions consolidated into one list ranked by what would change the decision. Builds only from existing config data, invents nothing.
+
+Use `--format dashboard` when you want the same causal logic as a board-style cockpit: KPI strip, economics cards, channel screen, causal map, heatmap, treatment gates, and evidence ledger. The output is a self-contained HTML file with inline CSS/JS and no external app server.
 
 **Run the core scripts:**
 
@@ -176,7 +181,7 @@ Re-validated by CI on every push ([`.github/workflows/validate.yml`](.github/wor
 | `ope_estimators.py` | IPS / SNIPS / DR off-policy evaluation + support check | §14 OPE support check |
 | `hte_starter.py` | T / X / DR-learner starter templates (sklearn, drop-in replaceable with EconML / CausalML) | — |
 | `policy_budget.py` | λ* budget-constrained allocation (ref 06 knapsack / shadow price), IPW policy value on a randomized holdout, profit-vs-budget curve | Layer 3 decision tool |
-| `generate_report.py` | Decision-memo HTML generator (v2). **Enforces the provenance contract**: build fails on any number not tagged sourced / assumed / derived / missing; 5 interactive causal-logic charts (ECharts); three depth modes `--depth quick / standard / deep` (deep adds §18 validation roadmap) | **HTML output entry point** |
+| `generate_report.py` | Decision-memo HTML generator (v2) and interactive dashboard renderer. **Enforces the provenance contract**: build fails on any number not tagged sourced / assumed / derived / missing; report mode supports 5 ECharts causal-logic charts and `--depth quick / standard / deep`; dashboard mode adds a board-style cockpit with economics, channel screen, heatmap, treatment gates, and evidence ledger | **HTML output entry point** |
 
 ---
 
