@@ -1,0 +1,28 @@
+name: broken-links
+
+# The provenance contract says every sourced number links to a URL; a dead
+# link silently downgrades "Sourced" to hearsay. Check all markdown weekly
+# (borrowed practice from pymc-labs/pymc-marketing).
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # Mondays 06:00 UTC
+  workflow_dispatch:
+
+jobs:
+  link-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check links in all markdown files
+        uses: lycheeverse/lychee-action@v2
+        with:
+          # 403/429: hosts that rate-limit or block bots are not broken links
+          args: >-
+            --no-progress
+            --accept '200..=299,403,429'
+            --exclude 'example\.com'
+            --exclude '^mailto:'
+            './**/*.md'
+          fail: true

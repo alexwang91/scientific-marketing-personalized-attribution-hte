@@ -158,7 +158,7 @@ What is the user asking about?
 │
 │  ── Output & Delivery layer ───────────────────────────────────────────────
 ├─ "Generate a deliverable report / campaign brief / HTML output"
-│   → 12-html-report-output  (6-element decision memo + 17-section analysis,
+│   → 12-html-report-output  (five-question chapter spine + 6-element memo,
 │       provenance rendering, pill budget, short-report mode; generate_report.py
 │       enforces the contract and localizes every heading via L())
 ├─ "User gives a product + country; needs channel map, audience, treatment plan"
@@ -202,15 +202,20 @@ What is the user asking about?
 | `qini_auuc.py` | Qini curve, AUUC + bootstrap CI, decile calibration, two-model comparison | Section 11 AUUC launch gate |
 | `hte_starter.py` | T/X/DR-learner starter templates (sklearn, drop-in replaceable with EconML / CausalML) | — |
 | `ope_estimators.py` | IPS / SNIPS / Doubly Robust off-policy evaluation + support check | Section 14 OPE support check |
-| `generate_report.py` | Decision-memo HTML generator (v2). **Enforces the provenance contract**: build fails on any number that is not sourced / assumed / derived / missing; renders derivation chains; stamps BLOCKED on actions gated by open-blocking challenges; short-report mode when the pipeline terminates at the channel screen. **Depth modes**: `quick` (decision-critical sections only), `standard` (full report, default), `deep` (full + consolidated validation roadmap §18, built only from existing config data). **Category mode**: `report_type=category_portfolio` renders the ref 17 portfolio diagnostic (6 audit lenses, SKU verdicts, 4P matrix) instead of the single-SKU report | **Entry point for HTML output** |
+| `policy_budget.py` | λ* budget-constrained allocation (ref 06 knapsack / shadow price), IPW policy value on a randomized holdout, profit-vs-budget curve | Layer 3 decision tool |
+| `generate_report.py` | Decision-memo HTML generator (v2). **Enforces the provenance contract**: build fails on any number that is not sourced / assumed / derived / missing; renders derivation chains; stamps BLOCKED on actions gated by open-blocking challenges; short-report mode when the pipeline terminates at the channel screen. **Depth modes**: `quick` (decision-critical sections only), `standard` (full report, default), `deep` (full + consolidated validation roadmap §18, built only from existing config data). **Category mode**: `report_type=category_portfolio` renders the ref 17 portfolio diagnostic (6 audit lenses, SKU verdicts, 4P matrix) instead of the single-SKU report; an optional `investment_plan` on the same config adds the SKU × marketing-module budget-frontier allocation (see below). `--format dashboard` renders the same data as an interactive cockpit (`dashboard_data.py` + `dashboard_render.py`) instead of the document | **Entry point for HTML output** |
+| `investment_schema.py` / `investment_engine.py` / `investment_charts.py` | Budget-frontier allocation engine for `cfg["investment_plan"]` — domain-agnostic (no brand/category/country name anywhere in these three files). Schema validates allowed modules, forbidden discount-style levers, and hard-excludes any SKU verdicted harvest/exit; engine funds descending-marginal-ROI spend steps from a saturating response curve until the required-ROI floor or the budget stops it (mirrors `policy_budget.py`'s algorithm shape without importing it); charts build KPI cards, a two-panel frontier, and an SKU × module budget matrix. `confidence` (validated / mmm-calibrated / assumption-grade / blocked) is always computed from `tau_source` + `measurement_gate` + `readiness`, never a raw config field | Ch1 (verdict) / Ch2 (frontier) / Ch3 (matrix) / Ch4 (activation cards) / Ch5 (confidence + MMM) |
+| `mmm_bridge.py` | Optional macro-channel calibration bridge — normalizes an already-fitted MMM summary (`cfg["mmm"].mode="provided_summary"`, e.g. from [pymc-marketing](https://github.com/pymc-labs/pymc-marketing) run offline) into what Ch5 renders; `mode="pymc_marketing"` (live fitting) returns `status: "deferred"` rather than requiring the heavy dependency here | Ch5 macro-calibration panel |
 
 ```bash
 python scripts/generate_report.py --config config.json --validate-only  # contract check
 python scripts/generate_report.py --config config.json --output report.html
 python scripts/generate_report.py --config config.json --depth quick      # executive view: verdict + math + gate + evidence
 python scripts/generate_report.py --config config.json --depth deep       # full report + validation roadmap (§18)
+python scripts/generate_report.py --config config.json --format dashboard --output dashboard.html  # interactive cockpit
 python scripts/generate_report.py --demo > demo.html
-# Worked example: examples/ax3-romania-config.json
+# Worked example: examples/sample-sku-en-config.json
+# Category + investment-plan worked example: examples/aurora-airpurifier-category-config.json
 ```
 
 ---

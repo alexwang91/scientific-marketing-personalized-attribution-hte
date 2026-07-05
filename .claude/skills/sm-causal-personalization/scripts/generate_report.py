@@ -29,13 +29,15 @@ Usage:
   python generate_report.py --config c.json --validate-only
   python generate_report.py --config c.json --depth quick   # executive view
   python generate_report.py --config c.json --depth deep    # + validation roadmap
+  python generate_report.py --config c.json --embed-echarts echarts.min.js  # offline HTML
 
-Config schema: see examples/ax3-romania-config.json and references/12.
+Config schema: see examples/sample-sku-en-config.json and references/12.
 """
 
 from __future__ import annotations
 
 import argparse
+import ast
 import itertools
 import json
 import re
@@ -46,16 +48,33 @@ from typing import Any
 
 _HERE = Path(__file__).parent
 
+try:
+    import report_semantics as _sem
+except ImportError:
+    try:  # imported as part of the smcp package
+        from . import report_semantics as _sem
+    except ImportError:  # loaded by file path (importlib), e.g. from the test suite
+        import importlib.util as _ilu
+        _sem_spec = _ilu.spec_from_file_location("report_semantics", _HERE / "report_semantics.py")
+        _sem = _ilu.module_from_spec(_sem_spec)
+        _sem_spec.loader.exec_module(_sem)
+
 
 def L(cfg, key, default):
-    return cfg.get("labels", {}).get(key, default)
+    """Label lookup: per-config override > operator language pack (meta.lang)
+    > legacy zh base > the English default written at the call site."""
+    return _sem.lookup(cfg, key, default)
+
+
+def S(cfg, key):
+    """Operator-vocabulary lookup (key must exist in the bilingual pack)."""
+    return _sem.S(cfg, key)
 
 
 PROVENANCES = {"sourced", "assumed", "derived", "missing"}
 CHALLENGE_STATUSES = {"resolved", "open", "open-blocking"}
 CHANNEL_VERDICTS = {"viable", "not-viable", "undetermined", "role-only"}
-_FORMULA_TOKEN = re.compile(r"^[A-Za-z0-9_+\-*/(). ]+$")
-_IDENT = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+DECISION_HORIZONS = ("now", "checkpoint", "never")
 
 
 class ConfigError(Exception):
@@ -104,15 +123,18 @@ def validate_and_resolve(numbers: dict[str, dict]) -> dict[str, dict]:
         elif prov == "derived":
             if not spec.get("formula") or not spec.get("inputs"):
                 errors.append(f"{nid}: derived requires formula + inputs")
-            elif not _FORMULA_TOKEN.match(spec["formula"]):
-                errors.append(f"{nid}: formula contains illegal characters")
             else:
-                for ident in _IDENT.findall(spec["formula"]):
-                    if ident not in spec["inputs"]:
-                        errors.append(f"{nid}: formula references '{ident}' not listed in inputs")
-                for inp in spec["inputs"]:
-                    if inp not in numbers:
-                        errors.append(f"{nid}: input '{inp}' not in registry")
+                try:
+                    idents = _formula_names(_parse_formula(spec["formula"]))
+                except ConfigError as e:
+                    errors.append(f"{nid}: {e}")
+                else:
+                    for ident in sorted(idents):
+                        if ident not in spec["inputs"]:
+                            errors.append(f"{nid}: formula references '{ident}' not listed in inputs")
+                    for inp in spec["inputs"]:
+                        if inp not in numbers:
+                            errors.append(f"{nid}: input '{inp}' not in registry")
         elif prov == "missing":
             if "value" in spec:
                 errors.append(f"{nid}: missing numbers must NOT carry a value — that is a guess")
@@ -163,10 +185,64 @@ def _eval_interval(formula: str, inputs: dict[str, Any]) -> Any:
     return [min(corners), max(corners)]
 
 
+# Formula language: arithmetic only. Anything outside this whitelist —
+# including '**' (exponent blow-up can hang the build), attribute access,
+# calls, and subscripts — is rejected at validation time.
+_ALLOWED_BINOPS = (ast.Add, ast.Sub, ast.Mult, ast.Div)
+_ALLOWED_UNARYOPS = (ast.UAdd, ast.USub)
+
+
+def _parse_formula(formula: str) -> ast.Expression:
+    """Parse a formula, allowing only + - * / parentheses, numeric literals,
+    and bare identifiers. Raises ConfigError on anything else."""
+    try:
+        tree = ast.parse(formula, mode="eval")
+    except SyntaxError as e:
+        raise ConfigError(f"formula {formula!r} is not valid arithmetic: {e.msg}") from None
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Expression, ast.operator, ast.unaryop, ast.expr_context)):
+            continue
+        if isinstance(node, ast.BinOp) and isinstance(node.op, _ALLOWED_BINOPS):
+            continue
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, _ALLOWED_UNARYOPS):
+            continue
+        if (isinstance(node, ast.Constant) and _is_num(node.value)):
+            continue
+        if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load):
+            continue
+        raise ConfigError(
+            f"formula {formula!r} contains unsupported syntax "
+            f"({type(node).__name__}); only + - * / ( ) numbers and input names are allowed")
+    return tree
+
+
+def _formula_names(tree: ast.Expression) -> set[str]:
+    return {n.id for n in ast.walk(tree) if isinstance(n, ast.Name)}
+
+
 def _safe_eval(formula: str, env: dict[str, float]) -> float:
-    if not _FORMULA_TOKEN.match(formula):
-        raise ConfigError(f"illegal formula: {formula!r}")
-    return float(eval(formula, {"__builtins__": {}}, dict(env)))  # noqa: S307 — token-validated
+    def ev(node) -> float:
+        if isinstance(node, ast.Expression):
+            return ev(node.body)
+        if isinstance(node, ast.BinOp):
+            left, right = ev(node.left), ev(node.right)
+            if isinstance(node.op, ast.Add):
+                return left + right
+            if isinstance(node.op, ast.Sub):
+                return left - right
+            if isinstance(node.op, ast.Mult):
+                return left * right
+            return left / right
+        if isinstance(node, ast.UnaryOp):
+            v = ev(node.operand)
+            return v if isinstance(node.op, ast.UAdd) else -v
+        if isinstance(node, ast.Constant):
+            return float(node.value)
+        if node.id not in env:
+            raise ConfigError(f"formula {formula!r} references unknown input '{node.id}'")
+        return float(env[node.id])
+
+    return float(ev(_parse_formula(formula)))
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -351,6 +427,9 @@ _CSS = """
   .toc-logo span{color:var(--accent)}
   .toc-group-label{padding:12px 18px 4px;font-size:9.5px;font-weight:700;
     text-transform:uppercase;letter-spacing:.1em;color:var(--muted-2)}
+  .toc-chapter{display:block;padding:12px 18px 4px;font-size:11px;font-weight:800;
+    color:var(--ink);text-decoration:none;line-height:1.35;letter-spacing:.01em}
+  .toc-chapter:hover{color:var(--accent)}
   .toc-link{display:block;padding:5px 18px 5px 16px;font-size:12px;
     color:var(--muted);text-decoration:none;line-height:1.4;
     border-left:2px solid transparent;transition:color .12s,border-color .12s,background .12s;
@@ -379,6 +458,21 @@ _CSS = """
     margin:0 0 18px;padding:13px 16px;background:var(--surface);
     border-radius:6px;border-left:3px solid var(--line-strong)}
 
+  /* ── Chapter banner: the question this chapter answers + one-line answer ── */
+  .chapter-head{margin:34px 0 10px;padding:18px 22px;border-radius:10px;
+    background:linear-gradient(135deg,var(--accent) 0%,#3730a3 100%);color:#fff;
+    scroll-margin-top:12px}
+  .chapter-head:first-child{margin-top:0}
+  .ch-num{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+    opacity:.75;margin-bottom:4px}
+  .ch-question{font-size:20px;font-weight:800;letter-spacing:-.015em;line-height:1.3}
+  .ch-answer{margin-top:10px;font-size:13.5px;line-height:1.6;
+    background:rgba(255,255,255,.14);border-radius:7px;padding:9px 12px}
+  .ch-answer span{font-weight:800;opacity:.8;margin-right:6px}
+  .hm-code{display:block;font-size:9px;font-weight:400;opacity:.55;margin-top:1px}
+  .card-ownerline{font-size:12px;color:var(--ink-2);background:var(--surface);
+    border:1px solid var(--line);border-radius:6px;padding:6px 10px;margin:2px 0 8px}
+
   /* ── Section card ── */
   section{background:var(--panel);border:1px solid var(--line);
     border-radius:10px;padding:26px 30px;margin:14px 0;
@@ -396,6 +490,20 @@ _CSS = """
   .kpi-num .kpi-unit{font-size:13px;font-weight:600;color:var(--muted);margin-left:2px}
   .kpi-label{font-size:10.5px;color:var(--muted);text-transform:uppercase;
     letter-spacing:.06em;font-weight:600}
+  .kpi.inv-kpi-good::after{background:#16a34a}
+  .kpi.inv-kpi-warn::after{background:#d97706}
+  .kpi.inv-kpi-bad::after{background:#dc2626}
+
+  /* ── Investment dashboard: frontier / matrix ── */
+  .inv-frontier-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:12px 0}
+  @media(max-width:760px){.inv-frontier-grid{grid-template-columns:1fr}}
+  .inv-panel{background:var(--surface);border:1px solid var(--line);
+    border-radius:8px;padding:12px 14px}
+  .inv-panel-title{font-size:11.5px;font-weight:700;color:var(--ink-2);margin-bottom:6px}
+  .inv-svg{width:100%;height:auto;display:block}
+  .inv-svg-empty{color:var(--muted);font-size:12px;padding:20px 0;text-align:center}
+  .inv-conf-dot{display:inline-block;width:7px;height:7px;border-radius:50%;
+    margin-left:4px;vertical-align:middle}
 
   /* ── CAC bar chart ── */
   .cac-chart{margin:0 0 20px;background:var(--surface);border:1px solid var(--line);
@@ -1181,6 +1289,20 @@ def s_play_timeline(cfg: dict) -> str:
                   f'</div>')
     return f'<div class="timeline">{items}</div>'
 
+def _bucket_decisions(memo: dict) -> dict[str, list[str]]:
+    """Group memo decisions by horizon. Unknown horizons are a build error —
+    a silently dropped decision is worse than a failed build."""
+    buckets: dict[str, list[str]] = {h: [] for h in DECISION_HORIZONS}
+    for d in memo.get("decisions", []):
+        h = d.get("horizon")
+        if h not in buckets:
+            raise ConfigError(
+                f"decision {d.get('text', '')!r}: horizon must be one of "
+                f"{list(DECISION_HORIZONS)}, got {h!r}")
+        buckets[h].append(d["text"])
+    return buckets
+
+
 def s_tldr(cfg: dict) -> str:
     """Section 0 — one-glance plain-language summary: do / don't / ROI / why.
 
@@ -1191,11 +1313,10 @@ def s_tldr(cfg: dict) -> str:
     summary = cfg.get("summary", {})
     meta = cfg.get("meta", {})
     verdict = memo.get("verdict", "conditional")
-    vlabel = {"go": "GO", "no-go": "NO-GO", "conditional": "CONDITIONAL"}.get(verdict, verdict.upper())
+    vlabel = (S(cfg, f"verdict_big_{verdict}")
+              if verdict in ("go", "no-go", "conditional") else verdict.upper())
 
-    buckets: dict[str, list[str]] = {"now": [], "checkpoint": [], "never": []}
-    for d in memo.get("decisions", []):
-        buckets.setdefault(d["horizon"], []).append(d["text"])
+    buckets = _bucket_decisions(memo)
     do_items = summary.get("do") or (buckets["now"] + buckets["checkpoint"])
     dont_items = summary.get("dont") or buckets["never"]
     why = summary.get("why") or memo.get("thesis", "")
@@ -1244,17 +1365,16 @@ def s_memo(cfg: dict) -> str:
     memo = cfg["decision_memo"]
     meta = cfg.get("meta", {})
     verdict = memo.get("verdict", "conditional")
-    vlabel = {"go": "GO", "no-go": "NO-GO", "conditional": "CONDITIONAL"}.get(verdict, verdict.upper())
+    vlabel = (S(cfg, f"verdict_big_{verdict}")
+              if verdict in ("go", "no-go", "conditional") else verdict.upper())
     horizon_label = {
         "now": L(cfg, "horizon_now", "Now (zero cost)"),
         "checkpoint": L(cfg, "horizon_checkpoint", "At checkpoint"),
         "never": L(cfg, "horizon_never", "Not under this math"),
     }
-    buckets: dict[str, list[str]] = {"now": [], "checkpoint": [], "never": []}
-    for d in memo.get("decisions", []):
-        buckets.setdefault(d["horizon"], []).append(d["text"])
+    buckets = _bucket_decisions(memo)
     decision_html = ""
-    for h in ("now", "checkpoint", "never"):
+    for h in DECISION_HORIZONS:
         if buckets.get(h):
             items = "".join(f"<li>{esc(t)}</li>" for t in buckets[h])
             decision_html += f"<h3>{horizon_label[h]}</h3><ul>{items}</ul>"
@@ -1364,7 +1484,8 @@ def s_cac_chart(cfg: dict, numbers: dict) -> str:
     <span><i style="background:#f59e0b"></i>{leg_u}</span>
     <span><i style="background:#dc2626"></i>{leg_n}</span>
   </div>
-  <p style="font-size:11px;color:var(--muted);margin:10px 0 0">{esc(L(cfg, "cac_chart_caption", "Bar = benchmark CAC interval · vertical line = ceiling · colour = screen verdict. A benchmark can only disprove viability (best case over ceiling) — it can never prove it, so a bar fully under the ceiling is still 'undetermined' until local data confirms."))}</p>
+  <p style="font-size:12px;color:var(--ink-2);margin:10px 0 0;font-weight:600">{esc(_sem.cac_caption(cfg, bars))}</p>
+  <p style="font-size:11px;color:var(--muted);margin:4px 0 0">{esc(L(cfg, "cac_chart_caption", "Method note: a benchmark can only disprove viability (best case over ceiling) — it can never prove it, so a bar fully under the ceiling is still 'unclear' until local data confirms."))}</p>
 </div>"""
 
 
@@ -1592,7 +1713,7 @@ def s_math(cfg: dict, numbers: dict) -> str:
         v = ch["verdict"]
         cac = fmt_value(ch["cac_estimate"], numbers) if ch.get("cac_estimate") else "—"
         screen_rows += (f"<tr><td><strong>{esc(ch['channel'])}</strong></td>"
-                        f"<td><span class='pill pill-{esc(v)}'>{esc(v)}</span></td>"
+                        f"<td><span class='pill pill-{esc(v)}'>{esc(_sem.verdict_word(cfg, v))}</span></td>"
                         f"<td>{cac}</td><td>{esc(ch['reasoning'])}</td></tr>")
     screen = ""
     if screen_rows:
@@ -1623,39 +1744,20 @@ def _blocked_by(action: dict, challenges_by_id: dict) -> list[str]:
             if challenges_by_id.get(cid, {}).get("status") == "open-blocking"]
 
 
-def s_actions(cfg: dict, numbers: dict, challenges_by_id: dict) -> str:
-    cards = ""
-    for a in cfg.get("actions", []):
-        blockers = _blocked_by(a, challenges_by_id)
-        stamp = "".join(f'<span class="blocked-stamp">⊘ BLOCKED by {esc(b)}</span>' for b in blockers)
-        budget = ""
-        if a.get("budget"):
-            budget = f"<dt>{esc(L(cfg, 'budget_envelope_label', 'Budget envelope'))}</dt><dd>{fmt_value(a['budget'], numbers)}</dd>"
-        gate = f"<dt>{esc(L(cfg, 'unlocks_label', 'Unlocks'))}</dt><dd>{esc(a['gate'])}</dd>" if a.get("gate") else ""
-        cards += f"""<div class="card{' blocked' if blockers else ''}">
-  <h3>{esc(a['id'])} · {esc(a['action'])} {stamp}</h3>
-  <dl>
-    <dt>{esc(L(cfg, 'mechanism_label', 'Mechanism'))}</dt><dd>{esc(a['mechanism'])}</dd>
-    <dt>{esc(L(cfg, 'guardrail_label', 'Guardrail'))}</dt><dd>{esc(a['guardrail'])}</dd>
-    <dt>{esc(L(cfg, 'test_label', 'Test'))}</dt><dd>{esc(a.get('test', a.get('measurement', '')))}</dd>
-    {budget}{gate}
-  </dl>
-</div>"""
+def s_never_do(cfg: dict) -> str:
+    """Chapter 1 closer — the 'never do' record: rejected options with reasons.
+    Lives on the call page because 'what we refused and why' is part of the call."""
     rejected = "".join(
         f"<tr><td>{esc(r['option'])}</td><td>{esc(r['reason'])}</td></tr>"
         for r in cfg.get("rejected_options", [])
     )
-    rej_html = ""
-    if rejected:
-        rej_html = f"""<h3>{esc(L(cfg, "rejected_heading", "Rejected options (and why)"))}</h3>
+    if not rejected:
+        return ""
+    return f"""<section id="rej">
+  <h2>{esc(S(cfg, "never_do_heading"))}</h2>
   <div class="table-wrap"><table>
     <thead><tr><th>{esc(L(cfg, "rejected_th_option", "Option"))}</th><th>{esc(L(cfg, "rejected_th_reason", "Rejection reason"))}</th></tr></thead>
-    <tbody>{rejected}</tbody></table></div>"""
-    return f"""<section>
-  <h2>{esc(L(cfg, "actions_heading", "3 · Actions"))}</h2>
-  <p>{L(cfg, "actions_intro", "Only options that survived the viability screen appear as cards. A card stamped <strong>⊘ BLOCKED</strong> references an unresolved blocking challenge (section 4) and must not receive budget until that challenge is resolved.")}</p>
-  <div class="cards">{cards}</div>
-  {rej_html}
+    <tbody>{rejected}</tbody></table></div>
 </section>"""
 
 
@@ -1683,29 +1785,32 @@ def s_challenges(cfg: dict) -> str:
 </section>"""
 
 
-def s_test_plan(cfg: dict) -> str:
-    cards = ""
-    for t in cfg.get("test_plan", []):
-        cards += f"""<div class="card">
+def _test_card_html(cfg: dict, t: dict) -> str:
+    return f"""<div class="card">
   <h3>{esc(t['name'])}</h3>
   <dl>
     <dt>{esc(L(cfg, 'prediction_label', 'Prediction'))}</dt><dd>{esc(t['prediction'])}</dd>
     <dt>{esc(L(cfg, 'test_label', 'Test'))}</dt><dd>{esc(t['test'])}</dd>
-    <dt>{esc(L(cfg, 'kill_line_label', 'Kill line'))}</dt><dd>{esc(t['kill_line'])}</dd>
+    <dt>{esc(S(cfg, 'kill_line_word'))}</dt><dd>{esc(t['kill_line'])}</dd>
     <dt>{esc(L(cfg, 'decision_date_label', 'Decision date'))}</dt><dd>{esc(t['decision_date'])}</dd>
   </dl>
 </div>"""
-    test_tl = s_test_timeline(cfg)
+
+
+def s_test_plan(cfg: dict, loose_tests: list | None = None) -> str:
+    """Stand-alone tests only — tests linked to a task card via "card" render
+    inside that card in the execution section (no more triple description)."""
+    tests = cfg.get("test_plan", []) if loose_tests is None else loose_tests
+    if not tests:
+        return ""
+    cards = "".join(_test_card_html(cfg, t) for t in tests)
     intro = _narrative_intro(cfg, "s14_intro",
-        "Every Treatment Card from section 8 carries a falsifiable prediction and a kill line. "
-        "These are not milestones — they are decision gates. On the decision date, "
-        "the prediction either becomes Sourced evidence or the action is killed and the budget is returned.")
+        "Tests that stand on their own — not tied to a single task card. "
+        "Same rules as everywhere: a falsifiable prediction, a stop-loss line, "
+        "and a decision date on which the prediction either becomes verified evidence or the idea is killed.")
     return f"""<section id=\"s14\">
-  <h2>{esc(L(cfg, "testplan_heading", "14 · Test Plan"))}</h2>
+  <h2>{esc(S(cfg, "other_tests_heading"))}</h2>
   {intro}
-  {test_tl}
-  <p>{L(cfg, "testplan_intro", "Every claim that survives to budget carries a falsifiable prediction, a kill line, and a decision date. On that date the line either becomes Sourced or is declared dead.")}</p>
-  {power_bridge(cfg)}
   <div class="cards">{cards}</div>
 </section>"""
 
@@ -1798,7 +1903,7 @@ def s_channel_map(cfg: dict, numbers: dict) -> str:
         rows += (f"<tr><td><strong>{esc(ch['name'])}</strong></td>"
                  f"<td>{esc(ch.get('task','—'))}</td>"
                  f"<td>{esc(ch.get('proxy_quality','—'))}</td>"
-                 f"<td><span class='pill pill-{esc(v)}'>{esc(v)}</span></td>"
+                 f"<td><span class='pill pill-{esc(v)}'>{esc(_sem.verdict_word(cfg, v))}</span></td>"
                  f"<td>{cac_est}</td>"
                  f"<td>{esc(ch.get('note',''))}</td></tr>")
     cv_visual = s_channel_verdict_visual(cfg)
@@ -1897,8 +2002,13 @@ def s_heatmap(cfg: dict) -> str:
         for d in dims:
             sc = scores.get(ch, {}).get(d, "N")
             cls = _score_cls.get(sc, "hm-none")
-            rows += f'<div class="hm-cell {esc(cls)}">{esc(sc)}</div>'
-    legend = " · ".join(f'<span class="hm-cell {_score_cls[s]}" style="display:inline-block;padding:2px 8px;border-radius:4px">{s}</span> {lbl.split("—")[1].strip()}' for s, lbl in score_labels.items())
+            word = _sem.grade_label(cfg, sc)
+            rows += (f'<div class="hm-cell {esc(cls)}" title="{esc(word)}">'
+                     f'{esc(word)}<span class="hm-code">{esc(sc)}</span></div>')
+    legend = " · ".join(
+        f'<span class="hm-cell {_score_cls[s]}" style="display:inline-block;padding:2px 8px;'
+        f'border-radius:4px">{s}</span> {esc(_sem.grade_label(cfg, s))}'
+        for s in score_labels)
     intro = _narrative_intro(cfg, "s6_intro",
         "The heatmap cross-references every dimension against every channel. "
         "Cells marked H are the primary investment targets — where we expect the strongest positive uplift. "
@@ -1910,7 +2020,8 @@ def s_heatmap(cfg: dict) -> str:
   <div class="heatmap" style="grid-template-columns:{esc(col_def)};margin:12px 0">
     {header}{rows}
   </div>
-  <p style="font-size:12px;color:var(--muted);margin-top:8px">{esc(L(cfg, "heatmap_legend_label", "Legend"))}: {legend}</p>
+  <p style="font-size:12px;color:var(--ink-2);margin-top:8px;font-weight:600">{esc(S(cfg, "heatmap_caption"))}</p>
+  <p style="font-size:12px;color:var(--muted);margin-top:4px">{esc(L(cfg, "heatmap_legend_label", "Legend"))}: {legend}</p>
 </section>"""
 
 
@@ -1941,8 +2052,13 @@ def s_h_main(cfg: dict) -> str:
 </section>"""
 
 
-def s_execution_gates(cfg: dict, numbers: dict, challenges_by_id: dict) -> str:
-    """Section 9 — Execution gates + Treatment Cards (full T-card format)."""
+def s_execution_gates(cfg: dict, numbers: dict, challenges_by_id: dict,
+                      merged: dict | None = None) -> str:
+    """Chapter 4 core — release gates + unified task cards.
+
+    One card = one accountable move. Tests and priority ranking that used to
+    live in their own sections render inside the card they belong to
+    (linked via "card": "<action id>")."""
     gates = cfg.get("execution_gates", [])
     gate_rows = ""
     for g in gates:
@@ -1952,48 +2068,73 @@ def s_execution_gates(cfg: dict, numbers: dict, challenges_by_id: dict) -> str:
                       f"<td><span class='pill pill-{esc(gstatus)}'>{esc(gstatus)}</span></td>"
                       f"<td>{esc(g.get('note',''))}</td></tr>")
     gate_html = f"""<div class="table-wrap"><table>
-  <thead><tr><th>{esc(L(cfg, "eg_th_gate", "Gate"))}</th><th>{esc(L(cfg, "eg_th_input", "Input needed"))}</th><th>{esc(L(cfg, "eg_th_status", "Status"))}</th><th>{esc(L(cfg, "eg_th_note", "Note"))}</th></tr></thead>
+  <thead><tr><th>{esc(S(cfg, "gate_word"))}</th><th>{esc(L(cfg, "eg_th_input", "Input needed"))}</th><th>{esc(L(cfg, "eg_th_status", "Status"))}</th><th>{esc(L(cfg, "eg_th_note", "Note"))}</th></tr></thead>
   <tbody>{gate_rows}</tbody></table></div>""" if gate_rows else ""
 
+    merged = merged or _sem.merge_task_cards(cfg)
     audience_lbl = esc(L(cfg, "tc_audience", "Audience"))
     baseline_lbl = esc(L(cfg, "tc_baseline", "Baseline"))
     mechanism_lbl = esc(L(cfg, "tc_mechanism", "Mechanism"))
     guardrail_lbl = esc(L(cfg, "tc_guardrail", "Guardrail"))
     measurement_lbl = esc(L(cfg, "tc_measurement", "Measurement"))
     budget_lbl = esc(L(cfg, "tc_budget", "Budget envelope"))
-    blocked_lbl = esc(L(cfg, "tc_blocked_by", "BLOCKED by"))
+    blocked_lbl = esc(S(cfg, "blocked_word"))
+    owner_lbl = esc(S(cfg, "owner_word"))
+    due_lbl = esc(S(cfg, "due_word"))
+    whynow_lbl = esc(S(cfg, "why_now_label"))
+    testline_lbl = esc(S(cfg, "test_in_card_label"))
+    kill_lbl = esc(S(cfg, "kill_line_word"))
+    gate_lbl = esc(S(cfg, "gate_word"))
     cards = ""
-    for a in cfg.get("actions", []):
+    for a in merged["cards"]:
         blockers = _blocked_by(a, challenges_by_id)
         stamp = "".join(f'<span class="blocked-stamp">&#8856; {blocked_lbl} {esc(b)}</span>' for b in blockers)
+        owner_due = ""
+        if a.get("owner") or a.get("due"):
+            owner_due = (f'<div class="card-ownerline">'
+                         f'{owner_lbl}: <strong>{esc(a.get("owner", "—"))}</strong>'
+                         f' &nbsp;·&nbsp; {due_lbl}: <strong>{esc(a.get("due", "—"))}</strong></div>')
         audience = f"<dt>{audience_lbl}</dt><dd>{esc(a['audience'])}</dd>" if a.get("audience") else ""
         baseline = f"<dt>{baseline_lbl}</dt><dd>{esc(a['baseline'])}</dd>" if a.get("baseline") else ""
         budget = (f"<dt>{budget_lbl}</dt><dd>{fmt_value(a['budget'], numbers)}</dd>"
                   if a.get("budget") and a["budget"] in numbers else "")
+        gate = f"<dt>{gate_lbl}</dt><dd>{esc(a['gate'])}</dd>" if a.get("gate") else ""
+        why_now = ""
+        if a.get("play") and a["play"].get("why_now"):
+            why_now = f"<dt>{whynow_lbl}</dt><dd>{esc(a['play']['why_now'])}</dd>"
+        test_rows = ""
+        for t in a.get("tests", []):
+            test_rows += (f"<dt>{testline_lbl}</dt><dd><strong>{esc(t.get('name',''))}</strong> — "
+                          f"{esc(t.get('test',''))}<br>{kill_lbl}: {esc(t.get('kill_line','—'))} · "
+                          f"{esc(L(cfg, 'decision_date_label', 'Decision date'))}: {esc(t.get('decision_date','—'))}</dd>")
         cards += f"""<div class="card{' blocked' if blockers else ''}">
   <h3>{esc(a['id'])} · {esc(a['action'])} {stamp}</h3>
+  {owner_due}
   <dl>
+    {why_now}
     {audience}
     {baseline}
     <dt>{mechanism_lbl}</dt><dd>{esc(a.get('mechanism', '—'))}</dd>
     <dt>{guardrail_lbl}</dt><dd>{esc(a.get('guardrail', '—'))}</dd>
     <dt>{measurement_lbl}</dt><dd>{esc(a.get('measurement', a.get('test', '—')))}</dd>
     {budget}
+    {gate}
+    {test_rows}
   </dl>
 </div>"""
     maturity = cfg.get("measurement_plan", {}).get("maturity", "L0")
     intro = _narrative_intro(cfg, "s8_intro",
-        "Treatment Cards translate the H-main hypotheses from section 7 into operational plans. "
-        "Each card specifies who we reach (audience), what we do (mechanism), "
-        "what we protect against (guardrail), and how we measure (test). "
-        "Gates must be cleared before budget unlocks.")
+        "One card per move: who owns it, who it targets, what we do, what we protect against, "
+        "how much it may spend, and the stop-loss line that kills it. "
+        "A frozen card cannot receive budget until the item it is waiting on lands.")
     return f"""<section id=\"s8\">
-  <h2>{esc(L(cfg, "eg_heading", "8 · Execution Gates & Treatment Cards"))}</h2>
+  <h2>{esc(L(cfg, "eg_heading", "Release gates & task cards"))}</h2>
   {intro}
   <p><strong>{esc(L(cfg, "maturity_label", "Maturity"))}: {esc(maturity)}</strong> — {esc(L(cfg, "eg_maturity_note", "this analysis supports trial design and channel screening, not CATE claims or policy optimization."))}</p>
   {gate_html}
   {power_bridge(cfg)}
-  <h3>{esc(L(cfg, "eg_tcards_heading", "Treatment Cards (H-main cells only)"))}</h3>
+  {s_test_timeline(cfg)}
+  <h3>{esc(S(cfg, "task_cards_heading"))}</h3>
   <div class="cards">{cards}</div>
 </section>"""
 
@@ -2029,13 +2170,16 @@ def s_budget(cfg: dict, numbers: dict) -> str:
 </section>"""
 
 
-def s_priority_plays(cfg: dict, numbers: dict) -> str:
-    """Section 11 — Priority plays."""
-    plays = cfg.get("priority_plays", [])
-    whynow_lbl = esc(L(cfg, "pp_why_now", "Why now"))
+def s_priority_plays(cfg: dict, numbers: dict, loose_plays: list | None = None) -> str:
+    """Stand-alone priority plays — plays linked to a task card via "card"
+    render inside that card (why-now + ranking), not here."""
+    plays = cfg.get("priority_plays", []) if loose_plays is None else loose_plays
+    if not plays:
+        return ""
+    whynow_lbl = esc(S(cfg, "why_now_label"))
     cac_lbl = esc(L(cfg, "pp_expected_cac", "Expected incremental CAC"))
     needstest_lbl = esc(L(cfg, "tag_needs_test", "Needs test"))
-    killline_lbl = esc(L(cfg, "pp_kill_line", "Kill line"))
+    killline_lbl = esc(S(cfg, "kill_line_word"))
     cards = "".join(
         f"""<div class="card">
   <h3>{esc(p['play'])} — {esc(p['action'])}</h3>
@@ -2301,8 +2445,10 @@ def s_assumption_ledger(cfg: dict, numbers: dict, challenges_by_id: dict) -> str
 # container keeps its text fallback. Theme tracks the report's indigo palette.
 # ──────────────────────────────────────────────────────────────────────────────
 
+_ECHARTS_CDN_TAG = '<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>'
+
 _ECHARTS_JS = r"""
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+__ECHARTS_LIB__
 <script>
 (function(){
   if (typeof echarts === 'undefined') return;   // CDN blocked → fallbacks stay
@@ -2484,20 +2630,7 @@ _SEV = {
     "major":    ("sev-major",    "sv-major",    "Major"),
     "watch":    ("sev-watch",    "sv-watch",    "Watch"),
 }
-_GRADE_RANK = {"sourced": 2, "derived": 2, "assumed": 1, "hypothesis": 0, "missing": 0}
-_SEV_NEED = {"critical": 2, "major": 1, "watch": 0}
-
-
-def _cap_severity(sev: str, grade: str) -> tuple[str, bool]:
-    """Severity ≤ evidence grade. A claim on thin evidence is downgraded to the
-    highest severity its proof can carry. Returns (effective_sev, was_capped)."""
-    g = _GRADE_RANK.get((grade or "").lower(), 0)
-    if _SEV_NEED.get(sev, 0) <= g:
-        return sev, False
-    for cand in ("critical", "major", "watch"):
-        if _SEV_NEED[cand] <= g:
-            return cand, True
-    return "watch", True
+_cap_severity = _sem.cap_severity  # moved to report_semantics.py — shared with category_chapter_answers
 
 
 def _verdict_pill(cfg: dict, code: str) -> str:
@@ -2538,7 +2671,7 @@ def s_cat_diagnosis(cfg: dict) -> str:
         grade = d.get("evidence_grade", "hypothesis")
         sev, capped = _cap_severity(d.get("severity", "watch"), grade)
         items.append((sev, capped, grade, d))
-    items.sort(key=lambda t: -_SEV_NEED.get(t[0], 0))  # critical first
+    items.sort(key=lambda t: -_sem.SEV_NEED.get(t[0], 0))  # critical first
 
     cards = ""
     for sev, capped, grade, d in items:
@@ -2637,16 +2770,180 @@ def s_cat_handoff(cfg: dict) -> str:
 </section>"""
 
 
-def _build_sidebar(cfg: dict, toc_items: list) -> str:
-    meta = cfg.get("meta", {})
-    toc_links = "".join(
-        f'<a class="toc-link" href="#{sid}" id="toc-{sid}">{esc(label[:32])}</a>\n'
-        for sid, label in toc_items)
-    return f'''<aside class="sidebar">
-  <div class="toc-logo">{esc(meta.get("product","")[:20])}<br><span>{esc(meta.get("market",""))}</span></div>
-  <div class="toc-group-label">{esc(L(cfg, "toc_title", "CONTENTS"))}</div>
-  {toc_links}
-</aside>'''
+# ──────────────────────────────────────────────────────────────────────────────
+# Investment dashboard (cfg["investment_plan"]) — budget-frontier allocation.
+# Data comes from dashboard_data.build_investment_view(cfg), the same function
+# the --format dashboard path uses, so document and dashboard never disagree.
+# Charts are real inline SVG / CSS-grid markup, not JS placeholders — the
+# report must render meaningfully with no network access.
+# ──────────────────────────────────────────────────────────────────────────────
+
+_CONF_COLOR = {"validated": "#16a34a", "mmm_calibrated": "#2563eb",
+               "assumption_grade": "#d97706", "blocked": "#9ca3af"}
+
+
+def _svg_line_panel(points: list, cutoff_x: float | None, color: str,
+                    width: int = 520, height: int = 190) -> str:
+    return _svg_charts_mod().line_panel(points, cutoff_x, color, width, height)
+
+
+def _svg_charts_mod():
+    return _load_by_path("svg_charts")
+
+
+def s_inv_answer(cfg: dict, inv: dict) -> str:
+    """Chapter 1 addendum — the investment verdict in KPI cards, plus the
+    never-funded list, both before any supporting evidence is shown."""
+    kpis = _inv_charts_mod().investment_answer_kpis(inv["answer"], inv.get("currency", ""))
+    cards = ""
+    for k in kpis:
+        label = S(cfg, "inv_" + k["label_key"])
+        val = f'{k["value"]:,.2f}'.rstrip("0").rstrip(".") if isinstance(k["value"], float) else str(k["value"])
+        unit = esc(k.get("unit", ""))
+        cards += (f'<div class="kpi inv-kpi-{esc(k["tone"])}"><div class="kpi-num">{esc(val)}'
+                  f'<span class="kpi-unit">{unit}</span></div>'
+                  f'<div class="kpi-label">{esc(label)}</div></div>')
+    blocked = inv.get("blocked", [])
+    if blocked:
+        _reason_key = {"excluded verdict": "inv_reason_excluded_verdict",
+                       "confidence blocked": "inv_reason_confidence_blocked"}
+        rows = "".join(
+            f'<tr><td><strong>{esc(b.get("sku",""))}</strong></td><td>{esc(b.get("module",""))}</td>'
+            f'<td>{esc(S(cfg, _reason_key.get(b.get("reason"), "inv_reason_confidence_blocked")))}</td></tr>'
+            for b in blocked)
+        never_html = f"""<div class="table-wrap"><table>
+    <thead><tr><th>{esc(S(cfg, "inv_th_sku"))}</th><th>{esc(S(cfg, "inv_th_module"))}</th><th>{esc(S(cfg, "inv_th_reason"))}</th></tr></thead>
+    <tbody>{rows}</tbody></table></div>"""
+    else:
+        never_html = f'<p>{esc(S(cfg, "inv_never_funded_empty"))}</p>'
+    return f"""<section id="inv1">
+  <h2>{esc(S(cfg, "inv_ch1_heading"))}</h2>
+  <div class="kpi-strip">{cards}</div>
+  <h3>{esc(S(cfg, "inv_never_funded_heading"))}</h3>
+  {never_html}
+</section>"""
+
+
+def s_inv_frontier(cfg: dict, inv: dict) -> str:
+    """Chapter 2 addendum — the two-panel budget frontier: cumulative profit,
+    and marginal ROI with the funding cutoff marked. Two single-axis panels,
+    never one dual-axis chart (profit and ROI are different units)."""
+    frontier = inv["charts"]["frontier"]
+    cutoff = inv["answer"].get("recommended_spend", 0.0)
+    profit = frontier["profit_panel"]
+    roi = frontier["roi_panel"]
+    return f"""<section id="inv2">
+  <h2>{esc(S(cfg, "inv_frontier_heading"))}</h2>
+  <div class="inv-frontier-grid">
+    <div class="inv-panel">
+      <div class="inv-panel-title">{esc(S(cfg, "inv_frontier_profit_title"))}</div>
+      {_svg_line_panel(profit["points"], profit.get("cutoff_spend"), "#4f46e5")}
+    </div>
+    <div class="inv-panel">
+      <div class="inv-panel-title">{esc(S(cfg, "inv_frontier_roi_title"))}</div>
+      {_svg_line_panel(roi["points"], roi.get("cutoff_spend"), "#0891b2")}
+    </div>
+  </div>
+  <p style="font-size:12px;color:var(--ink-2);margin-top:8px;font-weight:600">{esc(S(cfg, "inv_frontier_caption"))}</p>
+</section>"""
+
+
+def s_inv_matrix(cfg: dict, inv: dict) -> str:
+    """Chapter 3 addendum — SKU x module budget matrix, reusing the same
+    .heatmap CSS grid as the semantic heatmap (s_heatmap). Spend is a
+    sequential-ramp fill; confidence is a secondary dot encoding, never
+    folded into the same hue as spend (dataviz one-encoding-per-channel rule)."""
+    bm = inv["charts"]["budget_matrix"]
+    x_axis, y_axis, cells = bm["x_axis"], bm["y_axis"], bm["cells"]
+    if not x_axis or not y_axis:
+        return f"""<section id="inv3">
+  <h2>{esc(S(cfg, "inv_matrix_heading"))}</h2>
+  <p>{esc(S(cfg, "inv_matrix_empty"))}</p>
+</section>"""
+    by_pos = {(c["sku"], c["module"]): c for c in cells}
+    max_spend = max((c["spend"] for c in cells), default=0.0) or 1.0
+    col_def = f"1fr repeat({len(x_axis)}, 1fr)"
+    header = f'<div class="hm-header">{esc(S(cfg, "inv_th_sku"))}</div>' + "".join(
+        f'<div class="hm-header">{esc(m)}</div>' for m in x_axis)
+    rows = ""
+    currency = esc(inv.get("currency", ""))
+    for sku in y_axis:
+        rows += f'<div class="hm-label">{esc(sku)}</div>'
+        for mod in x_axis:
+            cell = by_pos.get((sku, mod))
+            if not cell:
+                rows += '<div class="hm-cell hm-none"></div>'
+                continue
+            alpha = 0.18 + 0.72 * min(cell["spend"] / max_spend, 1.0)
+            dot = _CONF_COLOR.get(cell["confidence"], "#9ca3af")
+            rows += (f'<div class="hm-cell" style="background:rgba(79,70,229,{alpha:.2f});color:#1e1b3a" '
+                     f'title="{esc(cell["confidence"])}">{cell["spend"]:,.0f}'
+                     f'<span class="inv-conf-dot" style="background:{dot}"></span></div>')
+    return f"""<section id="inv3">
+  <h2>{esc(S(cfg, "inv_matrix_heading"))}</h2>
+  <div class="heatmap" style="grid-template-columns:{esc(col_def)};margin:12px 0">
+    {header}{rows}
+  </div>
+  <p style="font-size:12px;color:var(--ink-2);margin-top:8px;font-weight:600">{esc(S(cfg, "inv_matrix_caption"))}</p>
+  <p style="font-size:11px;color:var(--muted)">{currency}</p>
+</section>"""
+
+
+def s_inv_tasks(cfg: dict, inv: dict) -> str:
+    """Chapter 4 addendum — one card per funded (sku, module) row. Reuses the
+    same .card/.cards markup as the unified action task cards."""
+    allocation = inv["answer"].get("allocation", [])
+    currency = esc(inv.get("currency", ""))
+    cards = ""
+    for row in allocation:
+        conf = row.get("confidence", "assumption_grade")
+        conf_word = S(cfg, f"inv_confidence_{conf}")
+        cards += f"""<div class="card">
+  <h3>{esc(row.get("sku",""))} &nbsp;·&nbsp; {esc(row.get("module",""))}</h3>
+  <dl>
+    <dt>{esc(S(cfg, "inv_th_spend"))}</dt><dd>{row.get("spend",0.0):,.0f} {currency}</dd>
+    <dt>{esc(S(cfg, "inv_th_roi"))}</dt><dd>{row.get("roi",0.0):.2f}x</dd>
+    <dt>{esc(S(cfg, "inv_th_confidence"))}</dt><dd>{esc(conf_word)}</dd>
+  </dl></div>"""
+    return f"""<section id="inv4">
+  <h2>{esc(S(cfg, "inv_tasks_heading"))}</h2>
+  <div class="cards">{cards or '<p>—</p>'}</div>
+</section>"""
+
+
+def s_inv_confidence(cfg: dict, inv: dict) -> str:
+    """Chapter 5 addendum — confidence-badge counts (never a raw input, see
+    investment_engine.confidence_badge) plus the MMM macro-calibration status,
+    stated plainly when absent or deferred rather than silently skipped."""
+    counts = inv["charts"]["confidence"]
+    stats = "".join(
+        f'<div class="chk-stat"><div class="chk-stat-num" style="color:{_CONF_COLOR[k]}">{counts.get(k,0)}</div>'
+        f'<div class="chk-stat-label">{esc(S(cfg, f"inv_confidence_{k}"))}</div></div>'
+        for k in ("validated", "mmm_calibrated", "assumption_grade", "blocked"))
+    mmm = inv.get("mmm", {})
+    status = mmm.get("status", "missing")
+    mmm_text = S(cfg, f"inv_mmm_{status}" if f"inv_mmm_{status}" in _sem.OPERATOR_STRINGS["en"] else "inv_mmm_missing")
+    mmm_table = ""
+    if status == "available" and mmm.get("posterior_roas"):
+        rows = "".join(
+            f'<tr><td>{esc(r.get("channel",""))}</td><td>{r.get("mean",0):.2f}</td>'
+            f'<td>{r.get("lo",0):.2f}–{r.get("hi",0):.2f}</td></tr>'
+            for r in mmm["posterior_roas"])
+        mmm_table = f"""<div class="table-wrap"><table>
+    <thead><tr><th>Channel</th><th>Posterior ROAS</th><th>90% interval</th></tr></thead>
+    <tbody>{rows}</tbody></table></div>"""
+    return f"""<section id="inv5">
+  <h2>{esc(S(cfg, "inv_confidence_heading"))}</h2>
+  <div class="chk-summary">{stats}</div>
+  <h3>{esc(S(cfg, "inv_mmm_heading"))}</h3>
+  <p class="callout">{esc(mmm_text)}</p>
+  {mmm_table}
+  <p style="font-size:12px;color:var(--muted)">{esc(S(cfg, "inv_qini_missing"))}</p>
+</section>"""
+
+
+def _inv_charts_mod():
+    return _load_by_path("investment_charts")
 
 
 def _page_shell(cfg: dict, title: str, sidebar: str, body_html: str, echarts_block: str = "") -> str:
@@ -2695,34 +2992,98 @@ def _page_shell(cfg: dict, title: str, sidebar: str, body_html: str, echarts_blo
 
 
 def generate_category_html(cfg: dict, numbers: dict) -> str:
+    """Category-portfolio report — same five-question spine as generate_html().
+    Chapter mapping: c0 verdict matrix -> ch1 (the call); c1 diagnosis -> ch2
+    (the why); c2 tier map + c3 SKU detail -> ch3 (who/where); c4 handoff ->
+    ch4 (the next action); evidence -> ch5 (always last)."""
     meta = cfg.get("meta", {})
-    parts = [
-        s_cat_matrix(cfg),
-        s_cat_diagnosis(cfg),
-        s_cat_tiermap(cfg),
-        s_cat_skus(cfg),
-        s_cat_handoff(cfg),
-        s_evidence(cfg, numbers),
+    chapter_layout = [
+        ("ch1", [("c0", s_cat_matrix(cfg))]),
+        ("ch2", [("c1", s_cat_diagnosis(cfg))]),
+        ("ch3", [("c2", s_cat_tiermap(cfg)), ("c3", s_cat_skus(cfg))]),
+        ("ch4", [("c4", s_cat_handoff(cfg))]),
+        ("ch5", [("s16", s_evidence(cfg, numbers))]),
     ]
-    toc = [
-        ("c0",  L(cfg, "cat_matrix_heading",  "0 · Portfolio Verdict & 4P Matrix")),
-        ("c1",  L(cfg, "cat_diag_heading",    "1 · Category Diagnosis")),
-        ("c2",  L(cfg, "cat_tier_heading",    "2 · Price-Tier × Audience × Competitor Map")),
-        ("c3",  L(cfg, "cat_sku_heading",     "3 · SKU Detail & 4P")),
-        ("c4",  L(cfg, "cat_handoff_heading", "4 · Deep-Dive Handoff")),
-        ("s16", L(cfg, "evidence_heading",    "5 · Evidence & Gaps")),
-    ]
-    sidebar = _build_sidebar(cfg, toc)
+    section_names = {
+        "c0":  L(cfg, "cat_matrix_heading",  "Portfolio Verdict & 4P Matrix"),
+        "c1":  L(cfg, "cat_diag_heading",    "Category Diagnosis"),
+        "c2":  L(cfg, "cat_tier_heading",    "Price-Tier × Audience × Competitor Map"),
+        "c3":  L(cfg, "cat_sku_heading",     "SKU Detail & 4P"),
+        "c4":  L(cfg, "cat_handoff_heading", "Deep-Dive Handoff"),
+        "s16": L(cfg, "evidence_heading",    "Evidence & Gaps"),
+    }
+    answers = _sem.category_chapter_answers(cfg, numbers)
+
+    if cfg.get("investment_plan"):
+        inv = _get_investment_view(cfg)
+        chapter_layout[0][1].append(("inv1", s_inv_answer(cfg, inv)))
+        chapter_layout[1][1].append(("inv2", s_inv_frontier(cfg, inv)))
+        chapter_layout[2][1].append(("inv3", s_inv_matrix(cfg, inv)))
+        chapter_layout[3][1].append(("inv4", s_inv_tasks(cfg, inv)))
+        chapter_layout[4][1].append(("inv5", s_inv_confidence(cfg, inv)))
+        section_names.update({
+            "inv1": S(cfg, "inv_ch1_heading"),
+            "inv2": S(cfg, "inv_frontier_heading"),
+            "inv3": S(cfg, "inv_matrix_heading"),
+            "inv4": S(cfg, "inv_tasks_heading"),
+            "inv5": S(cfg, "inv_confidence_heading"),
+        })
+        answers["ch1"] = answers["ch1"] + _sem.investment_ch1_suffix(cfg, inv)
+
+    body, sidebar, _active_ids = _assemble_chapter_spine(
+        cfg, chapter_layout, set(_sem.CHAPTER_IDS), answers, section_names)
     title = (f'{meta.get("product", "")} — {meta.get("market", "")} '
              f'{L(cfg, "cat_title_suffix", "Category Diagnostic")}')
-    return _page_shell(cfg, title, sidebar, "".join(parts))
+    return _page_shell(cfg, title, sidebar, body)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Assembly
 # ──────────────────────────────────────────────────────────────────────────────
 
-def generate_html(cfg: dict, depth: str = "standard") -> str:
+def _assemble_chapter_spine(cfg: dict, chapter_layout: list, keep: set,
+                            answers: dict, section_names: dict) -> tuple[str, str, set]:
+    """Shared chapter-banner + sidebar-TOC assembly. Both the single-SKU report
+    and the category-portfolio report render under the same five-question
+    spine (report_semantics.CHAPTER_IDS) — this is the one place that spine
+    turns into HTML, so the two report types cannot drift into different
+    layouts. Returns (body_html, sidebar_html, active_section_ids)."""
+    parts: list[str] = []
+    active_ids: set[str] = set()
+    toc_groups: list[tuple[str, str, list[str]]] = []
+    for ch_id, sections in chapter_layout:
+        if ch_id not in keep:
+            continue
+        rendered = [(sid, html) for sid, html in sections if html]
+        if not rendered:
+            continue
+        question = S(cfg, f"{ch_id}_question")
+        banner = f"""<div class="chapter-head" id="{ch_id}">
+  <div class="ch-num">{esc(S(cfg, f"{ch_id}_title"))}</div>
+  <div class="ch-question">{esc(question)}</div>
+  <div class="ch-answer"><span>{esc(S(cfg, "ch_answer_label"))}</span> {esc(answers.get(ch_id, ""))}</div>
+</div>"""
+        parts.append(banner + "".join(html for _, html in rendered))
+        active_ids.update(sid for sid, _ in rendered)
+        toc_groups.append((ch_id, question, [sid for sid, _ in rendered]))
+
+    toc_html = ""
+    for ch_id, question, sids in toc_groups:
+        toc_html += f'<a class="toc-chapter" href="#{ch_id}">{esc(question[:40])}</a>\n'
+        for sid in sids:
+            name = re.sub(r"^\d+\s*·\s*", "", str(section_names.get(sid, sid)))
+            toc_html += f'<a class="toc-link" href="#{sid}" id="toc-{sid}">{esc(name[:32])}</a>\n'
+
+    meta = cfg.get("meta", {})
+    sidebar = f'''<aside class="sidebar">
+  <div class="toc-logo">{esc(meta.get("product", "")[:20])}<br><span>{esc(meta.get("market", ""))}</span></div>
+  <div class="toc-group-label">{esc(S(cfg, "toc_title"))}</div>
+  {toc_html}
+</aside>'''
+    return "".join(parts), sidebar, active_ids
+
+
+def generate_html(cfg: dict, depth: str = "standard", echarts_js: str | None = None) -> str:
     numbers = validate_and_resolve(cfg.get("numbers", {}))
     for w in lint_prose(cfg, numbers):
         print(f"LINT WARNING — {w}", file=sys.stderr)
@@ -2735,44 +3096,45 @@ def generate_html(cfg: dict, depth: str = "standard") -> str:
     short_mode = bool(cfg.get("termination"))
     depth = depth if depth in ("quick", "standard", "deep") else "standard"
 
-    # Single monotonic section sequence as (section_id, html). s_actions was
-    # removed: it duplicated the Treatment Cards already in s_execution_gates.
-    parts_spec = [
-        ("s0",   s_tldr(cfg)),
-        ("s1",   s_memo(cfg)),
-        ("term", s_termination(cfg)),   # empty unless the pipeline terminated
-        ("s2",   s_math(cfg, numbers)),
+    # Unified task cards: actions + linked tests + linked plays render once,
+    # inside chapter 4; unlinked rows keep their own stand-alone sections.
+    merged = _sem.merge_task_cards(cfg)
+
+    # The spine is the reader's five questions (report_semantics). Legacy
+    # section ids survive as anchors inside their owning chapter.
+    chapter_layout = [
+        ("ch1", [("s0",   s_tldr(cfg)),
+                 ("s1",   s_memo(cfg)),
+                 ("term", s_termination(cfg)),   # empty unless the pipeline stopped early
+                 ("rej",  s_never_do(cfg))]),
+        ("ch2", [("s2",   s_math(cfg, numbers)),
+                 ("s3",   s_product_facts(cfg, numbers))]),
+        ("ch3", [("s4",   s_channel_map(cfg, numbers)),
+                 ("s5",   s_dimensions(cfg)),
+                 ("s6",   s_heatmap(cfg)),
+                 ("s7",   s_h_main(cfg)),
+                 ("s12",  s_kol(cfg, numbers)),
+                 ("s15",  s_suppression(cfg))]),
+        ("ch4", [("s8",   s_execution_gates(cfg, numbers, challenges_by_id, merged)),
+                 ("s10",  s_budget(cfg, numbers)),
+                 ("s11",  s_priority_plays(cfg, numbers, merged["loose_plays"])),
+                 ("s14",  s_test_plan(cfg, merged["loose_tests"])),
+                 ("s17",  s_checklist(cfg))]),
+        ("ch5", [("s9",   s_challenges(cfg)),
+                 ("s13",  s_measurement(cfg)),
+                 ("s16",  s_evidence(cfg, numbers)),
+                 ("s18",  s_assumption_ledger(cfg, numbers, challenges_by_id)
+                          if depth == "deep" else "")]),
     ]
-    if short_mode:
-        parts_spec.append(("s16", s_evidence(cfg, numbers)))  # short: memo + math + evidence
-    else:
-        parts_spec += [
-            ("s3",  s_product_facts(cfg, numbers)),
-            ("s4",  s_channel_map(cfg, numbers)),
-            ("s5",  s_dimensions(cfg)),
-            ("s6",  s_heatmap(cfg)),
-            ("s7",  s_h_main(cfg)),
-            ("s8",  s_execution_gates(cfg, numbers, challenges_by_id)),
-            ("s9",  s_challenges(cfg)),
-            ("s10", s_budget(cfg, numbers)),
-            ("s11", s_priority_plays(cfg, numbers)),
-            ("s12", s_kol(cfg, numbers)),
-            ("s13", s_measurement(cfg)),
-            ("s14", s_test_plan(cfg)),
-            ("s15", s_suppression(cfg)),
-            ("s16", s_evidence(cfg, numbers)),
-            ("s17", s_checklist(cfg)),
-        ]
-    if depth == "deep":
-        parts_spec.append(("s18", s_assumption_ledger(cfg, numbers, challenges_by_id)))
 
-    # Quick mode keeps only the decision-critical sections.
     if depth == "quick":
-        quick_ids = {"s0", "s1", "term", "s2", "s8", "s16"}
-        parts_spec = [(sid, html) for sid, html in parts_spec if sid in quick_ids]
+        keep = _sem.QUICK_CHAPTERS
+    elif short_mode:
+        keep = _sem.TERMINATION_CHAPTERS
+    else:
+        keep = set(_sem.CHAPTER_IDS)
 
-    active_ids = {sid for sid, html in parts_spec if html}
-    parts = [html for _, html in parts_spec if html]
+    answers = _sem.chapter_answers(cfg, numbers)
 
     # Banner when the report is not the full standard view.
     depth_banner = ""
@@ -2785,40 +3147,93 @@ def generate_html(cfg: dict, depth: str = "standard") -> str:
 
     title = f'{meta.get("product", "")} — {meta.get("market", "")} Decision Memo'
 
-    echarts_block = _ECHARTS_JS.replace(
-        "__CHART_L__", json.dumps(_chart_labels(cfg), ensure_ascii=False))
+    # Inline a local echarts.min.js when supplied (offline / intranet delivery);
+    # otherwise load from the CDN — chart containers keep their text fallback.
+    lib_tag = f"<script>{echarts_js}</script>" if echarts_js else _ECHARTS_CDN_TAG
+    echarts_block = (_ECHARTS_JS
+                     .replace("__ECHARTS_LIB__", lib_tag)
+                     .replace("__CHART_L__", json.dumps(_chart_labels(cfg), ensure_ascii=False)))
 
-    # Build sidebar TOC, then keep only sections that actually rendered.
-    _toc_items = [
-        ("s0",  L(cfg, "tldr_heading",        "0 · Summary")),
-        ("s1",  L(cfg, "memo_heading",        "1 · Decision Memo")),
-        ("s2",  L(cfg, "math_heading",        "2 · The Math")),
-        ("s3",  L(cfg, "product_heading",     "3 · Product & Market Facts")),
-        ("s4",  L(cfg, "channel_heading",     "4 · Local Channel Map")),
-        ("s5",  L(cfg, "dim_heading",         "5 · D Dimensions")),
-        ("s6",  L(cfg, "heatmap_heading",     "6 · Heatmap")),
-        ("s7",  L(cfg, "hmain_heading",       "7 · H-Main")),
-        ("s8",  L(cfg, "eg_heading",          "8 · Execution Gates")),
-        ("s9",  L(cfg, "challenges_heading",  "9 · Challenges")),
-        ("s10", L(cfg, "budget_heading",      "10 · Budget")),
-        ("s11", L(cfg, "plays_heading",       "11 · Priority Plays")),
-        ("s12", L(cfg, "kol_heading",         "12 · KOL")),
-        ("s13", L(cfg, "measurement_heading", "13 · Measurement")),
-        ("s14", L(cfg, "testplan_heading",    "14 · Test Plan")),
-        ("s15", L(cfg, "suppression_heading", "15 · Suppression")),
-        ("s16", L(cfg, "evidence_heading",    "16 · Evidence")),
-        ("s17", L(cfg, "checklist_heading",   "17 · Checklist")),
-        ("s18", L(cfg, "ledger_heading",      "18 · Validation Roadmap")),
-    ]
-    _toc_items = [t for t in _toc_items if t[0] in active_ids]
-
-    sidebar = _build_sidebar(cfg, _toc_items)
-    body = depth_banner + "".join(parts)
+    # Sidebar TOC: the five questions as group labels, rendered sections below each.
+    section_names = {
+        "s0":   L(cfg, "tldr_heading",        "Summary"),
+        "s1":   L(cfg, "memo_heading",        "Decision Memo"),
+        "term": L(cfg, "toc_termination",     "Early stop"),
+        "rej":  S(cfg, "never_do_heading"),
+        "s2":   L(cfg, "math_heading",        "The Math"),
+        "s3":   L(cfg, "product_heading",     "Product & Market Facts"),
+        "s4":   L(cfg, "channel_heading",     "Channel Map"),
+        "s5":   L(cfg, "dim_heading",         "Audiences (D Dimensions)"),
+        "s6":   L(cfg, "heatmap_heading",     "Play Matrix"),
+        "s7":   L(cfg, "hmain_heading",       "Main Bets"),
+        "s8":   L(cfg, "eg_heading",          "Gates & Task Cards"),
+        "s9":   L(cfg, "challenges_heading",  "Self-critique"),
+        "s10":  L(cfg, "budget_heading",      "Budget"),
+        "s11":  L(cfg, "plays_heading",       "Stand-alone Plays"),
+        "s12":  L(cfg, "kol_heading",         "Creators"),
+        "s13":  L(cfg, "measurement_heading", "How We Measure"),
+        "s14":  S(cfg, "other_tests_heading"),
+        "s15":  L(cfg, "suppression_heading", "Who NOT to Touch"),
+        "s16":  L(cfg, "evidence_heading",    "Number Ledger"),
+        "s17":  L(cfg, "checklist_heading",   "Checklist"),
+        "s18":  L(cfg, "ledger_heading",      "Validation Roadmap"),
+    }
+    spine_body, sidebar, _active_ids = _assemble_chapter_spine(cfg, chapter_layout, keep, answers, section_names)
+    body = depth_banner + spine_body
     return _page_shell(cfg, title, sidebar, body, echarts_block)
 
 
+def _load_by_path(name: str):
+    """Load one of this package's sibling modules by file path, registering it
+    into sys.modules under its real name first. Required so a module defining
+    an exception class (investment_schema.InvestmentConfigError) is the same
+    class object everywhere it's loaded — see investment_schema.py's own note."""
+    import sys
+    if name in sys.modules:
+        return sys.modules[name]
+    import importlib.util as _ilu
+    spec = _ilu.spec_from_file_location(name, _HERE / f"{name}.py")
+    mod = _ilu.module_from_spec(spec)
+    sys.modules[name] = mod
+    spec.loader.exec_module(mod)
+    return mod
+
+
+InvestmentConfigError = _load_by_path("investment_schema").InvestmentConfigError
+
+
+def _load_dashboard_modules():
+    try:
+        from dashboard_data import build_dashboard_data, build_investment_view
+        from dashboard_render import render_dashboard
+    except ImportError:
+        try:
+            from .dashboard_data import build_dashboard_data, build_investment_view
+            from .dashboard_render import render_dashboard
+        except ImportError:
+            dd = _load_by_path("dashboard_data")
+            dr = _load_by_path("dashboard_render")
+            build_dashboard_data, build_investment_view = dd.build_dashboard_data, dd.build_investment_view
+            render_dashboard = dr.render_dashboard
+    return build_dashboard_data, render_dashboard, build_investment_view
+
+
+def _get_investment_view(cfg: dict):
+    """Lazy-load just dashboard_data.build_investment_view — the document
+    report needs this (not dashboard_render's HTML), so it avoids pulling in
+    the dashboard renderer for a plain document build."""
+    try:
+        from dashboard_data import build_investment_view
+    except ImportError:
+        try:
+            from .dashboard_data import build_investment_view
+        except ImportError:
+            build_investment_view = _load_by_path("dashboard_data").build_investment_view
+    return build_investment_view(cfg)
+
+
 # ──────────────────────────────────────────────────────────────────────────────
-# Demo config — minimal, shows the schema; real example: examples/ax3-romania-config.json
+# Demo config — minimal, shows the schema; real example: examples/sample-sku-en-config.json
 # ──────────────────────────────────────────────────────────────────────────────
 
 DEMO_CONFIG: dict[str, Any] = {
@@ -2898,30 +3313,46 @@ def main():
     ap.add_argument("--config", help="JSON config path")
     ap.add_argument("--output", help="output HTML path (default stdout)")
     ap.add_argument("--validate-only", action="store_true", help="validate config, render nothing")
+    ap.add_argument("--format", choices=["report", "dashboard"], default="report",
+                    help="report = existing decision memo HTML; dashboard = interactive decision cockpit")
     ap.add_argument("--depth", choices=["quick", "standard", "deep"], default=None,
                     help="quick = decision-critical sections only; standard = full report (default); "
                          "deep = full report + consolidated validation roadmap (§18). "
                          "Overrides cfg['depth'] if set.")
+    ap.add_argument("--embed-echarts", metavar="JS_PATH",
+                    help="inline a local echarts.min.js into the HTML instead of loading it "
+                         "from the CDN — for offline / intranet delivery of the report")
     args = ap.parse_args()
 
     if args.demo:
         cfg = DEMO_CONFIG
     elif args.config:
-        cfg = json.loads(Path(args.config).read_text())
+        cfg = json.loads(Path(args.config).read_text(encoding="utf-8"))
     else:
         ap.print_help()
         sys.exit(1)
 
     try:
         if args.validate_only:
-            validate_and_resolve(cfg.get("numbers", {}))
-            for w in lint_prose(cfg, cfg["numbers"]):
+            numbers = validate_and_resolve(cfg.get("numbers", {}))
+            for w in lint_prose(cfg, numbers):
                 print(f"LINT WARNING — {w}", file=sys.stderr)
             print("Config valid: provenance contract satisfied.", file=sys.stderr)
             return
-        depth = args.depth or cfg.get("depth", "standard")
-        html = generate_html(cfg, depth=depth)
+        if args.format == "dashboard":
+            numbers = validate_and_resolve(cfg.get("numbers", {}))
+            for w in lint_prose(cfg, numbers):
+                print(f"LINT WARNING — {w}", file=sys.stderr)
+            build_dashboard_data, render_dashboard, _biv = _load_dashboard_modules()
+            html = render_dashboard(build_dashboard_data(cfg))
+        else:
+            depth = args.depth or cfg.get("depth", "standard")
+            echarts_js = Path(args.embed_echarts).read_text(encoding="utf-8") if args.embed_echarts else None
+            html = generate_html(cfg, depth=depth, echarts_js=echarts_js)
     except ConfigError as e:
+        print(f"BUILD FAILED — {e}", file=sys.stderr)
+        sys.exit(2)
+    except InvestmentConfigError as e:
         print(f"BUILD FAILED — {e}", file=sys.stderr)
         sys.exit(2)
 

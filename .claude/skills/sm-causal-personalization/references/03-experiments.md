@@ -237,6 +237,12 @@ config — missing numbers + open challenges + test predictions in one ranked li
 - Howard et al. (2021) "Time-Uniform, Nonparametric, Nonasymptotic Confidence
   Sequences" — theoretical foundation for anytime-valid CIs
 - Meta GeoLift (open source) / Google TBR — geo incrementality measurement
+- [pymc-marketing](https://github.com/pymc-labs/pymc-marketing)
+  `customer_choice.MVITS` (open source) — multivariate interrupted time
+  series for geo / market-level quasi-experiments; its
+  `mmm.lift_test.add_lift_test_measurements` feeds holdout / geo-lift
+  results into an MMM as calibration constraints — the "experiments as
+  reusable assets" principle applied at the channel layer
 - Deng et al. (2013) "Improving the Sensitivity of Online Controlled
   Experiments by Utilizing Pre-Experiment Data" — CUPED
 - Athey & Imbens (2017) "The State of Applied Econometrics: Causality and

@@ -18,6 +18,42 @@ brief, trial plan, or formatted output after working through the pipeline.
 
 ---
 
+## v3 · The Five-Question Spine (rendering order)
+
+The renderer organizes everything under **the reader's five questions** — an
+operator (founder, sales or marketing lead) must be able to read the report
+without knowing any causal-inference vocabulary. Every chapter opens with the
+question it answers plus an auto-derived one-line plain-language answer
+(overridable via `cfg["chapter_answers"]`).
+
+| Chapter | Question it answers | Legacy sections inside (anchors preserved) |
+|---|---|---|
+| ch1 · The Call | Do we spend money or not? | s0 summary, s1 memo, termination, never-do (rejected options) |
+| ch2 · The Money | Why? How was the math done? | s2 math, s3 product & price anchors |
+| ch3 · The Play | Who, where, what message? | s4 channels, s5 audiences, s6 play matrix, s7 main bets, s12 creators, s15 who NOT to touch |
+| ch4 · Execution | Who does what, by when, for how much — how do we know we won? | s8 gates + unified task cards, s10 budget, s11 loose plays, s14 loose tests, s17 checklist |
+| ch5 · The Receipts | Why believe this? What could overturn it? | s9 self-critique, s13 measurement, s16 number ledger, s18 roadmap (deep) |
+
+**Unified task cards**: `actions`, `test_plan`, and `priority_plays` used to
+describe the same move three times. A test or play row may carry
+`"card": "<action id>"` — it then renders inside that card (tests as the
+stop-loss block, the play as why-now + rank). Unlinked rows keep their own
+stand-alone sections. Cards accept optional `owner` and `due` fields — a card
+without an owner is a wish, not a task.
+
+**Language**: `meta.lang` (`"zh"`/`"en"`) selects the built-in operator
+vocabulary pack (report_semantics.py); `cfg["labels"]` still overrides any
+key. Operator words lead, methodology terms follow in parentheses:
+获客成本红线 (CAC ceiling) · 止损线 (kill line) · 主攻/测试/小注/不投/别碰 (H/T/S/N/A).
+
+Depth modes on the chapter spine: `quick` = ch1+ch2 · `standard` = all five ·
+`deep` = all five + validation roadmap (s18) · early termination = ch1+ch2+ch5.
+
+The section-level contracts below are unchanged — they now describe the
+blocks *inside* the chapters.
+
+---
+
 ## Report Structure: Part A + Part B
 
 Every full report has two parts. The pipeline may emit only Part A when it
@@ -349,7 +385,7 @@ python scripts/generate_report.py --config config.json --output report.html
 python scripts/generate_report.py --demo > demo.html
 ```
 
-Worked example config: `examples/ax3-romania-config.json`.
+Worked example config: `examples/sample-sku-en-config.json`.
 
 ---
 

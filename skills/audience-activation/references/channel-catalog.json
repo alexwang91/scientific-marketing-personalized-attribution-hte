@@ -1,0 +1,15 @@
+{
+  "channels": [
+    {"channel": "Google Search", "funnel_role": "conversion", "mechanism": "local-language keywords, match types, negatives, shopping/search assets", "default_roi": {"purchase": 5, "lead": 5, "awareness": 3, "app_install": 4, "store_visit": 4, "unknown": 4}},
+    {"channel": "YouTube / video", "funnel_role": "awareness / consideration", "mechanism": "video placements, custom segments, contextual video inventory, remarketing", "default_roi": {"purchase": 3, "lead": 3, "awareness": 5, "app_install": 4, "store_visit": 3, "unknown": 3}},
+    {"channel": "Meta Facebook / Instagram", "funnel_role": "awareness / consideration / retargeting", "mechanism": "broad audiences, interest proxies, lookalikes, catalog ads, engagement retargeting", "default_roi": {"purchase": 4, "lead": 4, "awareness": 4, "app_install": 4, "store_visit": 3, "unknown": 4}},
+    {"channel": "TikTok", "funnel_role": "discovery / awareness", "mechanism": "interest proxies, creator content, short-form hooks, engagement retargeting", "default_roi": {"purchase": 3, "lead": 3, "awareness": 4, "app_install": 4, "store_visit": 2, "unknown": 3}},
+    {"channel": "Display / programmatic / contextual", "funnel_role": "awareness / retargeting", "mechanism": "contextual topics, managed placements, publisher lists, retargeting", "default_roi": {"purchase": 2, "lead": 3, "awareness": 3, "app_install": 2, "store_visit": 2, "unknown": 2}},
+    {"channel": "Marketplaces / retail media", "funnel_role": "conversion", "mechanism": "sponsored listings, sponsored brands, category search ads, product feed quality", "default_roi": {"purchase": 4, "lead": 2, "awareness": 2, "app_install": 1, "store_visit": 3, "unknown": 3}},
+    {"channel": "Local publishers / vertical communities", "funnel_role": "consideration / trust", "mechanism": "native articles, newsletters, forum presence, managed vertical placements", "default_roi": {"purchase": 3, "lead": 3, "awareness": 3, "app_install": 2, "store_visit": 3, "unknown": 3}},
+    {"channel": "Influencers / creators", "funnel_role": "trust / demand creation", "mechanism": "creator briefs, affiliate links, coupon codes, whitelisting, content rights", "default_roi": {"purchase": 3, "lead": 3, "awareness": 4, "app_install": 3, "store_visit": 3, "unknown": 3}},
+    {"channel": "SEO / content", "funnel_role": "durable intent capture", "mechanism": "local-language keyword clusters, buying guides, comparison pages, local intent content", "default_roi": {"purchase": 4, "lead": 4, "awareness": 3, "app_install": 3, "store_visit": 4, "unknown": 4}},
+    {"channel": "CRM / retargeting", "funnel_role": "conversion / retention", "mechanism": "consented first-party audiences, lifecycle triggers, cart recovery, suppression lists", "default_roi": {"purchase": 5, "lead": 4, "awareness": 2, "app_install": 4, "store_visit": 4, "unknown": 4}},
+    {"channel": "Partnerships / offline", "funnel_role": "trust / local access", "mechanism": "affiliates, events, clubs, retailers, referral codes, local partnerships", "default_roi": {"purchase": 3, "lead": 3, "awareness": 3, "app_install": 2, "store_visit": 4, "unknown": 3}}
+  ]
+}

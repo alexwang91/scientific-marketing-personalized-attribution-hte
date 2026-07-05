@@ -262,7 +262,7 @@ happens, named in the memo's checkpoint decisions.
 
 ## Stage 7 — Render
 
-Assemble the config (schema: `examples/ax3-romania-config.json`), then:
+Assemble the config (schema: `examples/sample-sku-en-config.json`), then:
 
 ```bash
 python scripts/generate_report.py --config config.json --validate-only   # must pass

@@ -10,7 +10,7 @@
 [![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)](#-dependencies--examples)
 [![References](https://img.shields.io/badge/references-19-44883e)](#-reference-library)
 [![CI](https://github.com/alexwang91/scientific-marketing-personalized-attribution-hte/actions/workflows/validate.yml/badge.svg)](https://github.com/alexwang91/scientific-marketing-personalized-attribution-hte/actions/workflows/validate.yml)
-[![Scripts](https://img.shields.io/badge/scripts-5-blue)](#-scripts)
+[![Scripts](https://img.shields.io/badge/scripts-6-blue)](#-scripts)
 [![Provenance contract](https://img.shields.io/badge/numbers-sourced%20%C2%B7%20assumed%20%C2%B7%20derived%20%C2%B7%20missing-orange)](#-methodology-stance)
 [![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
 
@@ -67,6 +67,7 @@ python generate_report.py --config ../examples/sample-sku-en-config.json --depth
 python generate_report.py --config ../examples/sample-sku-en-config.json --depth deep       # full report + validation roadmap (§18)
 python generate_report.py --config ../examples/aurora-airpurifier-category-config.json      # category portfolio diagnostic (ref 17)
 python generate_report.py --demo > demo.html                                              # minimal schema demo
+python generate_report.py --config c.json --embed-echarts echarts.min.js --output r.html  # offline HTML (no CDN)
 ```
 
 Three depth modes (`--depth`): `quick` renders decision-critical sections only; `standard` (default) renders the full report; `deep` appends a **validation roadmap** (§18) — all open challenges, missing inputs, and test predictions consolidated into one list ranked by what would change the decision. Builds only from existing config data, invents nothing.
@@ -78,6 +79,15 @@ python power_analysis.py    # uplift experiment power: sample size to detect inc
 python qini_auuc.py         # Qini / AUUC + bootstrap CI + decile calibration
 python ope_estimators.py    # IPS / SNIPS / Doubly-Robust off-policy evaluation + support check
 python hte_starter.py       # T / X / DR-learner starter templates (sklearn, swappable with EconML / CausalML)
+python policy_budget.py     # λ* budget-constrained allocation + IPW policy value + profit-vs-budget curve
+```
+
+Or install everything as a package (`smcp`) with a `sm-report` CLI:
+
+```bash
+pip install .               # from the repo root
+python -c "from smcp.policy_budget import allocate"
+sm-report --demo > demo.html
 ```
 
 ---
@@ -144,7 +154,7 @@ Each reference follows a fixed template: **when to use → decision tree → min
 **Output & delivery**
 | Ref | Topic |
 |-----|-------|
-| `12` html-report-output | 6-element decision memo + 17-section analysis, provenance rendering |
+| `12` html-report-output | Five-question chapter spine (The Call / The Money / The Play / Execution / The Receipts), 6-element decision memo, provenance rendering |
 | `13` product-country-pipeline | 8-stage product × country pipeline |
 | `14` d-dimension-reviewer | D-dimension generation gate + independent adversarial review; open-blocking → BLOCKED budget linkage |
 | `15` writing-rules | Language policy, falsifiability obligation, honest-state vocabulary, anti-slop, narrative and theory-usability principles |
@@ -157,7 +167,7 @@ Each reference follows a fixed template: **when to use → decision tree → min
 
 ## 🔧 Scripts
 
-Re-validated by CI on every push ([`.github/workflows/validate.yml`](.github/workflows/validate.yml)): the workflow runs all four core scripts end-to-end, validates every example config against the provenance contract, and renders each to HTML. Each script maps to a gating step in the report.
+Re-validated by CI on every push ([`.github/workflows/validate.yml`](.github/workflows/validate.yml)): the workflow runs all five core scripts end-to-end, validates every example config against the provenance contract, renders each to HTML, runs the unit-test suite, and smoke-tests the pip package. Each script maps to a gating step in the report.
 
 | Script | Purpose | Report bridge |
 |--------|---------|--------------|
@@ -165,7 +175,8 @@ Re-validated by CI on every push ([`.github/workflows/validate.yml`](.github/wor
 | `qini_auuc.py` | Qini curve, AUUC + bootstrap CI, decile calibration, two-model comparison | §11 AUUC launch gate |
 | `ope_estimators.py` | IPS / SNIPS / DR off-policy evaluation + support check | §14 OPE support check |
 | `hte_starter.py` | T / X / DR-learner starter templates (sklearn, drop-in replaceable with EconML / CausalML) | — |
-| `generate_report.py` | Decision-memo HTML generator (v2). **Enforces the provenance contract**: build fails on any number not tagged sourced / assumed / derived / missing; 5 interactive causal-logic charts (ECharts); three depth modes `--depth quick / standard / deep` (deep adds §18 validation roadmap) | **HTML output entry point** |
+| `policy_budget.py` | λ* budget-constrained allocation (ref 06 knapsack / shadow price), IPW policy value on a randomized holdout, profit-vs-budget curve | Layer 3 decision tool |
+| `generate_report.py` | Decision-memo HTML generator (v2). **Enforces the provenance contract**: build fails on any number not tagged sourced / assumed / derived / missing. **v3: organized as five reader questions** (spend or not? / the math / the play / execution / the receipts) with bilingual operator language built in (`meta.lang`), unified task cards (owner / due / stop-loss), 5 interactive causal-logic charts (ECharts), `--format dashboard` interactive cockpit, three depth modes `--depth quick / standard / deep` | **HTML output entry point** |
 
 ---
 
@@ -195,9 +206,9 @@ For production, swap in [EconML](https://github.com/py-why/EconML) / [CausalML](
 
 - `sample-sku-en-config.json` — English, standard single-SKU report (fictional brand / product)
 - `sample-sku-zh-config.json` — Chinese version with full UI label overrides, TL;DR page, and ECharts localization (fictional brand / product)
-- `aurora-airpurifier-category-config.json` — category portfolio diagnostic (ref 17), fictional brand / SKUs: `report_type=category_portfolio`
+- `aurora-airpurifier-category-config.json` — category portfolio diagnostic (ref 17), fictional brand / SKUs: `report_type=category_portfolio`, plus `investment_plan` + `mmm` — demonstrates the SKU × marketing-module budget-frontier allocation engine (`investment_schema.py` / `investment_engine.py` / `investment_charts.py` / `mmm_bridge.py`): where to spend, why, which cells are frozen for lack of evidence, and how confident each dollar is.
 
-Pre-rendered HTML of each config lives in [`examples/rendered/`](.claude/skills/sm-causal-personalization/examples/rendered) — open them to preview the deliverable without running anything.
+Pre-rendered HTML of each config lives in [`examples/rendered/`](.claude/skills/sm-causal-personalization/examples/rendered) — open them to preview the deliverable without running anything. `aurora-category.html` is the document report; `aurora-category-dashboard.html` is the same config's interactive cockpit (`--format dashboard`).
 
 **中文说明 / Chinese README** → [`README.zh.md`](README.zh.md)
 

@@ -108,7 +108,10 @@ room, not that the room is proven. Only the SKU pipeline's holdout / geo test
 5. **Hand the operator the report; collect corrections.** AI-scanned fields are
    Hypothesis; operator-supplied internals (sell-through, margin, contracts,
    inventory) promote to Sourced.
-6. **Route confirmed Grow SKUs** into ref 13 → ref 04 for deep analysis.
+6. **Route confirmed Grow SKUs** into ref 13 → ref 04 for deep analysis, or —
+   if the question is "how much do I spend, where, this cycle" rather than
+   "does this SKU have real incremental upside" — into the optional
+   investment plan below (Hold SKUs are also eligible; Harvest/Exit never are).
 
 ## Config Schema (generate_report.py)
 
@@ -119,6 +122,46 @@ evidence_grade, implication, recommendation), `portfolio[]` (sku, tier,
 lifecycle, verdict, note, fourP{product,price,place,promotion}). All figures go
 in the `numbers` registry under the provenance contract. Worked example:
 `examples/aurora-airpurifier-category-config.json` (fictional, illustrative).
+
+## Optional: Investment Plan (SKU × Marketing-Module Budget)
+
+Adding `investment_plan` to the same config turns the diagnostic into a budget
+decision: how much to spend, on which SKU, through which marketing lever, this
+cycle — the SKU-level tier of the three-tier λ* rule in ref 06. It renders
+into all five chapters (verdict + KPIs in ch1, the frontier chart in ch2, the
+SKU × module matrix in ch3, activation cards in ch4, confidence + optional MMM
+in ch5), in both the document report and `--format dashboard`.
+
+Hard gates, enforced by `investment_schema.py` at build time (not a style
+suggestion — a malformed plan fails the build):
+
+- **Verdict gate**: a SKU verdicted `harvest` or `exit` above can never appear
+  in `investment_plan.cells`, no matter how it would score. `grow` and `hold`
+  are the only eligible verdicts.
+- **No discount-style levers**: `modules[].id` must be a marketing lever
+  (`search`, `retail_media`, `paid_social_video`, `creator_review`,
+  `pdp_content`, `retail_activation`, `pr_reviews`, `crm_retention`,
+  `measurement`) — `discount` / `coupon` / `rebate` / `price_subsidy` are
+  rejected outright; this report recommends where to spend attention, never a
+  margin giveaway.
+- **`confidence` is computed, never a raw field**: each cell states its
+  `tau_hat` and `tau_source` (`randomized_hte` / `modeled_hte` /
+  `mmm_calibrated_prior` / `expert_assumption` / `missing`); the badge
+  (`validated` / `mmm_calibrated` / `assumption_grade` / `blocked`) is derived
+  from that plus `measurement_gate` and `readiness` — setting a `confidence`
+  field directly on a cell is a build error.
+- **A `tau_source: "missing"` cell carries no `tau_hat`** (that would be a
+  guess dressed as data) and must name `needed_from` — it renders in ch1's
+  "never funded this round" list, not silently dropped.
+
+Optional `mmm` block bridges an already-fit pymc-marketing macro-calibration
+summary (`mode: "provided_summary"`) into ch5; omit it and ch5 states plainly
+that no macro calibration was supplied this cycle, rather than guessing.
+
+Worked example: `examples/aurora-airpurifier-category-config.json` also
+carries an `investment_plan` (three Grow/Hold SKUs, mixed confidence tiers,
+one deliberately blocked cell) — see `examples/rendered/aurora-category.html`
+and `aurora-category-dashboard.html` for the rendered result.
 
 ## Common Failure Modes
 
