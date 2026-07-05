@@ -119,6 +119,10 @@ OPERATOR_STRINGS: dict[str, dict[str, str]] = {
         "cat_ans_ch3": "{tiers} price tier(s) mapped across {skus} SKUs against the competitive set.",
         "cat_ans_ch4": "{n} SKU(s) verdicted Grow ({skus}) — confirm, then send to the single-SKU pipeline.",
         "cat_ans_ch1_invest": " Investment: fund {spend} {currency} for {units} incremental units and {profit} {currency} gross profit ({roi}x ROI); {never} cell(s) never funded.",
+        "cat_ans_ch2_invest": " The spend above is ranked by marginal return and cut off at {lambda_star}x — the minimum acceptable return this cycle; see the frontier below.",
+        "cat_ans_ch3_invest": " Of that, {n_cells} SKU × module combination(s) get funded this cycle — see the budget matrix below for exactly where.",
+        "cat_ans_ch4_invest": " This cycle funds {n_cells} SKU × module activation(s) (see cards below); {never} cell(s) still need more evidence before they can be funded.",
+        "cat_ans_ch5_invest": " Of the funded budget, {validated} cell(s) rest on a validated test, {mmm_calibrated} on MMM calibration, {assumption_grade} still assumption-grade. {mmm_note}",
         # investment dashboard (budget-frontier allocation, ref 06 policy-nbt)
         "inv_ch1_heading": "Where the investment budget goes",
         "inv_kpi_spend": "Recommended spend",
@@ -145,7 +149,7 @@ OPERATOR_STRINGS: dict[str, dict[str, str]] = {
         "inv_th_roi": "ROI",
         "inv_tasks_heading": "Activation cards (this round's funded moves)",
         "inv_th_confidence": "Confidence",
-        "inv_confidence_heading": "How much of this budget rests on solid evidence",
+        "inv_confidence_heading": "Evidence quality across every cell considered this cycle (funded or not)",
         "inv_confidence_validated": "Validated (randomized test + measurement gate)",
         "inv_confidence_mmm_calibrated": "MMM-calibrated (macro model prior)",
         "inv_confidence_assumption_grade": "Assumption-grade (best guess, not yet tested)",
@@ -210,6 +214,10 @@ OPERATOR_STRINGS: dict[str, dict[str, str]] = {
         "cat_ans_ch3": "覆盖 {tiers} 个价格带、{skus} 个 SKU 的定位与竞对地图。",
         "cat_ans_ch4": "{n} 个 SKU 判定加大投入（{skus}）——确认后送入单品分析流程。",
         "cat_ans_ch1_invest": " 投资：投 {spend} {currency}，换 {units} 件增量销量、{profit} {currency} 增量毛利（ROI {roi}x）；{never} 个格子这轮没批钱。",
+        "cat_ans_ch2_invest": " 上面这笔钱是按边际回报从高到低排出来的，花到 {lambda_star}x 这道这轮最低达标线为止——具体曲线见下方。",
+        "cat_ans_ch3_invest": " 具体到打法上，这轮有 {n_cells} 个 SKU × 打法模块的组合拿到了预算——具体分布见下方矩阵。",
+        "cat_ans_ch4_invest": " 这轮共批出 {n_cells} 个 SKU × 打法模块的落地动作（见下方任务卡）；另有 {never} 个格子还需要更多证据才能批钱。",
+        "cat_ans_ch5_invest": " 拿到钱的部分里，{validated} 个格子有验证过的试验撑腰、{mmm_calibrated} 个靠 MMM 校准、{assumption_grade} 个还是假设级。{mmm_note}",
         "inv_ch1_heading": "预算花在哪",
         "inv_kpi_spend": "建议投入",
         "inv_kpi_units": "增量销量",
@@ -235,7 +243,7 @@ OPERATOR_STRINGS: dict[str, dict[str, str]] = {
         "inv_th_roi": "投产比",
         "inv_tasks_heading": "落地任务卡（这轮批到钱的动作）",
         "inv_th_confidence": "证据等级",
-        "inv_confidence_heading": "这笔预算有多少是站得住脚的证据",
+        "inv_confidence_heading": "这轮所有候选格子的证据等级（不管这轮批没批钱）",
         "inv_confidence_validated": "验证过（随机试验 + 有测量条件）",
         "inv_confidence_mmm_calibrated": "MMM 校准（宏观模型先验）",
         "inv_confidence_assumption_grade": "假设级（最佳猜测，还没测）",
@@ -480,17 +488,48 @@ def category_chapter_answers(cfg: dict, numbers: dict) -> dict[str, str]:
     return out
 
 
-def investment_ch1_suffix(cfg: dict, inv: dict) -> str:
-    """Appended to the ch1 one-line answer when cfg["investment_plan"] is
-    present — states the budget verdict up front, before any evidence."""
+def investment_chapter_answers(cfg: dict, inv: dict) -> dict[str, str]:
+    """One overlay sentence per chapter when cfg["investment_plan"] is
+    present, appended to that chapter's base one-line answer. Each chapter
+    now also carries an investment section (KPIs+never-funded in ch1, the
+    frontier chart in ch2, the budget matrix in ch3, activation cards in
+    ch4, confidence+MMM in ch5) — the banner must say so, not just the
+    portfolio-diagnosis story the chapter answered before this capability
+    existed."""
     answer = inv.get("answer", {})
-    return S(cfg, "cat_ans_ch1_invest").format(
-        spend=f'{answer.get("recommended_spend", 0.0):,.0f}',
-        currency=inv.get("currency", ""),
-        units=f'{answer.get("incremental_units", 0.0):,.0f}',
-        profit=f'{answer.get("incremental_gross_profit", 0.0):,.0f}',
-        roi=round(answer.get("roi", 0.0), 2),
-        never=len(inv.get("blocked", [])))
+    blocked = inv.get("blocked", [])
+    allocation = answer.get("allocation", [])
+    mmm = inv.get("mmm", {})
+    n_cells = len(allocation)
+
+    # ch5's sentence is about the money actually being spent, so it must
+    # count confidence over the FUNDED allocation rows, not inv["charts"]
+    # ["confidence"] (which — correctly, for the section it drives — spans
+    # every candidate cell, funded or not, including blocked ones).
+    funded_confidence = {"validated": 0, "mmm_calibrated": 0, "assumption_grade": 0}
+    for row in allocation:
+        badge = row.get("confidence", "assumption_grade")
+        funded_confidence[badge] = funded_confidence.get(badge, 0) + 1
+
+    out = {
+        "ch1": S(cfg, "cat_ans_ch1_invest").format(
+            spend=f'{answer.get("recommended_spend", 0.0):,.0f}',
+            currency=inv.get("currency", ""),
+            units=f'{answer.get("incremental_units", 0.0):,.0f}',
+            profit=f'{answer.get("incremental_gross_profit", 0.0):,.0f}',
+            roi=round(answer.get("roi", 0.0), 2),
+            never=len(blocked)),
+        "ch2": S(cfg, "cat_ans_ch2_invest").format(
+            lambda_star=round(answer.get("lambda_star", 0.0), 2)),
+        "ch3": S(cfg, "cat_ans_ch3_invest").format(n_cells=n_cells),
+        "ch4": S(cfg, "cat_ans_ch4_invest").format(n_cells=n_cells, never=len(blocked)),
+        "ch5": S(cfg, "cat_ans_ch5_invest").format(
+            validated=funded_confidence["validated"],
+            mmm_calibrated=funded_confidence["mmm_calibrated"],
+            assumption_grade=funded_confidence["assumption_grade"],
+            mmm_note=S(cfg, f'inv_mmm_{mmm.get("status", "missing")}')),
+    }
+    return out
 
 
 # ── Legacy Chinese label base (extracted from the zh sample config so zh

@@ -70,9 +70,20 @@ def validate_investment_plan(cfg: dict) -> list[str]:
 
     verdict_by_sku = {p.get("sku"): p.get("verdict") for p in cfg.get("portfolio", [])}
 
+    declared_modules = {str(m.get("id", "")) for m in modules or []}
+
     for cell in cells or []:
         cid = cell.get("id", "<no id>")
         sku = cell.get("sku")
+
+        module = cell.get("module")
+        if module in FORBIDDEN_LEVERS:
+            errors.append(f"{cid}: forbidden lever in cell.module: {module}")
+        elif module not in ALLOWED_MODULES:
+            errors.append(f"{cid}: unknown investment module: {module!r}")
+        elif module not in declared_modules:
+            errors.append(
+                f"{cid}: module '{module}' is not declared in investment_plan.modules")
 
         verdict = verdict_by_sku.get(sku)
         if verdict in EXCLUDED_VERDICTS:
