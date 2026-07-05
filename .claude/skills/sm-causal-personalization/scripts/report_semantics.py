@@ -113,6 +113,48 @@ OPERATOR_STRINGS: dict[str, dict[str, str]] = {
         "why_now_label": "Why now",
         # TOC
         "toc_title": "THE 5 QUESTIONS",
+        # category-portfolio chapter answers
+        "cat_ans_ch1": "{total} SKUs: {grow} Grow, {hold} Hold, {harvest} Harvest, {exit} Exit.",
+        "cat_ans_ch2": "{total} findings — {critical} critical, {major} major, {watch} watch (severity capped by evidence grade).",
+        "cat_ans_ch3": "{tiers} price tier(s) mapped across {skus} SKUs against the competitive set.",
+        "cat_ans_ch4": "{n} SKU(s) verdicted Grow ({skus}) — confirm, then send to the single-SKU pipeline.",
+        "cat_ans_ch1_invest": " Investment: fund {spend} {currency} for {units} incremental units and {profit} {currency} gross profit ({roi}x ROI); {never} cell(s) never funded.",
+        # investment dashboard (budget-frontier allocation, ref 06 policy-nbt)
+        "inv_ch1_heading": "Where the investment budget goes",
+        "inv_kpi_spend": "Recommended spend",
+        "inv_kpi_units": "Incremental units",
+        "inv_kpi_gross_profit": "Incremental gross profit",
+        "inv_kpi_net_profit": "Net profit",
+        "inv_kpi_roi": "ROI",
+        "inv_kpi_lambda_star": "Cutoff return (λ*)",
+        "inv_never_funded_heading": "Never funded this round",
+        "inv_never_funded_empty": "Every eligible cell got funded.",
+        "inv_reason_excluded_verdict": "SKU verdict excludes it (Harvest / Exit)",
+        "inv_reason_confidence_blocked": "confidence blocked — tau_source missing or not measurement-ready",
+        "inv_th_sku": "SKU",
+        "inv_th_module": "Module",
+        "inv_th_reason": "Why frozen",
+        "inv_frontier_heading": "The budget-vs-return curve (frontier)",
+        "inv_frontier_profit_title": "Cumulative gross profit as spend grows",
+        "inv_frontier_roi_title": "Marginal ROI — return on the next unit of spend",
+        "inv_frontier_caption": "How to read: follow the right-hand panel left to right — the dashed line marks where marginal ROI drops below the required return; funding stops there even if budget remains.",
+        "inv_matrix_heading": "Where the money lands: SKU × module",
+        "inv_matrix_caption": "How to read: darker cell = more spend; the dot color is the confidence badge — green = validated, blue = MMM-calibrated, amber = assumption-grade.",
+        "inv_matrix_empty": "No allocation cleared the ROI floor.",
+        "inv_th_spend": "Spend",
+        "inv_th_roi": "ROI",
+        "inv_tasks_heading": "Activation cards (this round's funded moves)",
+        "inv_th_confidence": "Confidence",
+        "inv_confidence_heading": "How much of this budget rests on solid evidence",
+        "inv_confidence_validated": "Validated (randomized test + measurement gate)",
+        "inv_confidence_mmm_calibrated": "MMM-calibrated (macro model prior)",
+        "inv_confidence_assumption_grade": "Assumption-grade (best guess, not yet tested)",
+        "inv_confidence_blocked": "Blocked (never funded)",
+        "inv_mmm_heading": "Macro channel calibration (MMM)",
+        "inv_mmm_available": "Macro calibration supplied — channel-level contribution below.",
+        "inv_mmm_deferred": "Live PyMC-Marketing fitting is deferred to a later phase — this cycle used no macro model.",
+        "inv_mmm_missing": "No macro calibration was supplied this cycle — every ROI number above is HTE-only, not MMM-blended.",
+        "inv_qini_missing": "No holdout validation (Qini/AUUC) was supplied — do not read the ROI numbers above as causally proven; they are the model's best estimate, not yet tested against a random holdout.",
     },
     "zh": {
         "ch1_title": "1 · 拍板",
@@ -163,6 +205,46 @@ OPERATOR_STRINGS: dict[str, dict[str, str]] = {
         "test_in_card_label": "试验与止损",
         "why_now_label": "为什么是现在",
         "toc_title": "五个问题",
+        "cat_ans_ch1": "共 {total} 个 SKU：{grow} 个加大投入、{hold} 个维持、{harvest} 个收割、{exit} 个退出。",
+        "cat_ans_ch2": "{total} 条诊断发现——{critical} 条严重、{major} 条重要、{watch} 条观察（严重度已按证据等级封顶）。",
+        "cat_ans_ch3": "覆盖 {tiers} 个价格带、{skus} 个 SKU 的定位与竞对地图。",
+        "cat_ans_ch4": "{n} 个 SKU 判定加大投入（{skus}）——确认后送入单品分析流程。",
+        "cat_ans_ch1_invest": " 投资：投 {spend} {currency}，换 {units} 件增量销量、{profit} {currency} 增量毛利（ROI {roi}x）；{never} 个格子这轮没批钱。",
+        "inv_ch1_heading": "预算花在哪",
+        "inv_kpi_spend": "建议投入",
+        "inv_kpi_units": "增量销量",
+        "inv_kpi_gross_profit": "增量毛利",
+        "inv_kpi_net_profit": "净利润",
+        "inv_kpi_roi": "投产比 (ROI)",
+        "inv_kpi_lambda_star": "止投线 (λ*)",
+        "inv_never_funded_heading": "这轮没批钱的",
+        "inv_never_funded_empty": "所有符合条件的格子都批到钱了。",
+        "inv_reason_excluded_verdict": "SKU 判定为收割/退出，规则上排除",
+        "inv_reason_confidence_blocked": "证据不够（tau_source 缺失或测量条件未就绪）",
+        "inv_th_sku": "SKU",
+        "inv_th_module": "打法模块",
+        "inv_th_reason": "为何冻结",
+        "inv_frontier_heading": "钱越花越多，账怎么变（预算曲线）",
+        "inv_frontier_profit_title": "投入越多，累计毛利怎么涨",
+        "inv_frontier_roi_title": "边际投产比——每多花一份钱，值不值",
+        "inv_frontier_caption": "看图：沿右图从左往右看，虚线是边际 ROI 跌破达标线的位置；就算预算还有富余，过了这条线也不再批钱。",
+        "inv_matrix_heading": "钱落在哪：SKU × 打法模块",
+        "inv_matrix_caption": "看图：格子越深＝花的钱越多；圆点颜色＝证据等级——绿＝验证过、蓝＝MMM 校准、黄＝假设级。",
+        "inv_matrix_empty": "没有一格过了投产比门槛。",
+        "inv_th_spend": "投入",
+        "inv_th_roi": "投产比",
+        "inv_tasks_heading": "落地任务卡（这轮批到钱的动作）",
+        "inv_th_confidence": "证据等级",
+        "inv_confidence_heading": "这笔预算有多少是站得住脚的证据",
+        "inv_confidence_validated": "验证过（随机试验 + 有测量条件）",
+        "inv_confidence_mmm_calibrated": "MMM 校准（宏观模型先验）",
+        "inv_confidence_assumption_grade": "假设级（最佳猜测，还没测）",
+        "inv_confidence_blocked": "冻结（没批钱）",
+        "inv_mmm_heading": "宏观渠道校准（MMM）",
+        "inv_mmm_available": "已提供宏观校准——渠道级贡献见下。",
+        "inv_mmm_deferred": "实时 PyMC-Marketing 拟合推迟到后续阶段——这轮没有用宏观模型。",
+        "inv_mmm_missing": "这轮没有提供宏观校准——上面所有 ROI 都只是 HTE 口径，没有和 MMM 融合。",
+        "inv_qini_missing": "没有提供 holdout 验证（Qini/AUUC）——上面的 ROI 数字不能当作因果已证实，只是模型的最佳估计，还没有拿随机 holdout 测过。",
     },
 }
 
@@ -328,6 +410,87 @@ def cac_caption(cfg: dict, bars: list) -> str:
     return S(cfg, "cac_caption").format(
         viable=counts["viable"], undetermined=counts["undetermined"],
         notviable=counts["not-viable"])
+
+
+# ── Severity-capping (shared by generate_report.py's category diagnosis
+#    renderer and category_chapter_answers below — a claim on thin evidence
+#    is downgraded to the highest severity its proof can carry) ──────────────
+
+GRADE_RANK = {"sourced": 2, "derived": 2, "assumed": 1, "hypothesis": 0, "missing": 0}
+SEV_NEED = {"critical": 2, "major": 1, "watch": 0}
+
+
+def cap_severity(sev: str, grade: str) -> tuple[str, bool]:
+    g = GRADE_RANK.get((grade or "").lower(), 0)
+    if SEV_NEED.get(sev, 0) <= g:
+        return sev, False
+    for cand in ("critical", "major", "watch"):
+        if SEV_NEED[cand] <= g:
+            return cand, True
+    return "watch", True
+
+
+# ── Category-portfolio chapter answers (parallel to chapter_answers() above,
+#    but for report_type=category_portfolio configs, which have no
+#    decision_memo/channel_screen — the counts come from portfolio/diagnosis) ──
+
+CATEGORY_ANSWER_KEYS = [
+    "cat_ans_ch1", "cat_ans_ch2", "cat_ans_ch3", "cat_ans_ch4", "cat_ans_ch5",
+]
+
+
+def category_chapter_answers(cfg: dict, numbers: dict) -> dict[str, str]:
+    overrides = cfg.get("chapter_answers", {})
+    portfolio = cfg.get("portfolio", [])
+    diagnosis = cfg.get("diagnosis", [])
+    lang = lang_of(cfg)
+    sep = "、" if lang == "zh" else ", "
+
+    counts = {"grow": 0, "hold": 0, "harvest": 0, "exit": 0}
+    for p in portfolio:
+        v = p.get("verdict", "hold")
+        counts[v] = counts.get(v, 0) + 1
+    out = {"ch1": S(cfg, "cat_ans_ch1").format(
+        total=len(portfolio), grow=counts["grow"], hold=counts["hold"],
+        harvest=counts["harvest"], exit=counts["exit"])}
+
+    sev_counts = {"critical": 0, "major": 0, "watch": 0}
+    for d in diagnosis:
+        sev, _ = cap_severity(d.get("severity", "watch"), d.get("evidence_grade", "hypothesis"))
+        sev_counts[sev] = sev_counts.get(sev, 0) + 1
+    out["ch2"] = S(cfg, "cat_ans_ch2").format(
+        total=len(diagnosis), critical=sev_counts["critical"],
+        major=sev_counts["major"], watch=sev_counts["watch"])
+
+    tiers = cfg.get("price_tiers", [])
+    out["ch3"] = S(cfg, "cat_ans_ch3").format(tiers=len(tiers), skus=len(portfolio))
+
+    grow_skus = [p.get("sku", "") for p in portfolio if p.get("verdict") == "grow"]
+    out["ch4"] = S(cfg, "cat_ans_ch4").format(
+        n=len(grow_skus), skus=sep.join(grow_skus[:3]) or "—")
+
+    prov = {"sourced": 0, "assumed": 0, "derived": 0, "missing": 0}
+    for spec in numbers.values():
+        prov[spec.get("provenance", "missing")] = prov.get(spec.get("provenance", "missing"), 0) + 1
+    out["ch5"] = S(cfg, "ans_receipts").format(
+        sourced=prov["sourced"], assumed=prov["assumed"], missing=prov["missing"],
+        weakest=cfg.get("_note", "—"))
+
+    out.update({k: v for k, v in overrides.items() if k in CHAPTER_IDS})
+    return out
+
+
+def investment_ch1_suffix(cfg: dict, inv: dict) -> str:
+    """Appended to the ch1 one-line answer when cfg["investment_plan"] is
+    present — states the budget verdict up front, before any evidence."""
+    answer = inv.get("answer", {})
+    return S(cfg, "cat_ans_ch1_invest").format(
+        spend=f'{answer.get("recommended_spend", 0.0):,.0f}',
+        currency=inv.get("currency", ""),
+        units=f'{answer.get("incremental_units", 0.0):,.0f}',
+        profit=f'{answer.get("incremental_gross_profit", 0.0):,.0f}',
+        roi=round(answer.get("roi", 0.0), 2),
+        never=len(inv.get("blocked", [])))
 
 
 # ── Legacy Chinese label base (extracted from the zh sample config so zh

@@ -50,6 +50,35 @@ organization" — a more useful management number than any single-point ROI.
 Multiple treatments sharing a budget, or sales capacity constraints (ref 10:
 SDR time), follow the exact same formulation — replace c_t with time cost.
 
+### Three Tiers of the Same λ* Rule
+
+The shadow-price allocation rule above applies at three different grains,
+each with its own script — pick the one that matches the decision you're
+actually making:
+
+```
+Person-level    (who gets which action):  policy_budget.py       — needs a
+                                            randomized holdout; τ̂ per user.
+SKU × module    (how much per SKU per     investment_engine.py   — business-
+                 marketing lever, e.g.     planning cells with a point τ̂
+                 "Search spend for SKU     estimate (randomized, modeled, MMM-
+                 A3"):                     calibrated, or expert-assumed) and
+                                           no holdout requirement; feeds ref 17
+                                           chapter 1 (verdict) through 5
+                                           (confidence). Config contract in
+                                           `investment_schema.py`.
+Channel-level   (how much per channel,    mmm_bridge.py bridges an externally
+                 no person or SKU          fit pymc-marketing summary into the
+                 granularity):             same report — see below.
+```
+
+All three fund a descending-marginal-ROI prefix and stop at the same kind of
+cutoff (`required_mroi` / λ*); none of them ever "skip and continue" past a
+step that fails the floor. A SKU-level cell's `confidence` badge
+(`validated` / `mmm_calibrated` / `assumption_grade` / `blocked`) is always
+computed from its evidence (`tau_source` + `measurement_gate` + `readiness`),
+never a raw input — see `investment_engine.confidence_badge`.
+
 ## Two-Stage vs End-to-End: Architectural Choice
 
 ```

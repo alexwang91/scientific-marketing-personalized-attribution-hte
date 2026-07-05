@@ -186,6 +186,32 @@ def test_old_config_without_new_fields_still_renders():
     assert 'class="chapter-head"' in html and "cac-chart" in html
 
 
+def test_category_portfolio_uses_the_same_five_chapter_spine():
+    # regression: category_portfolio used to render its own independent 6-section
+    # layout (c0-c4 + evidence) instead of the ch1-ch5 spine the single-SKU
+    # report uses — one report_type should not mean two different structures
+    cfg = {
+        "report_type": "category_portfolio",
+        "meta": {"product": "Demo Category", "market": "Testland"},
+        "portfolio": [
+            {"sku": "S1", "verdict": "grow", "fourP": {}},
+            {"sku": "S2", "verdict": "exit", "fourP": {}},
+        ],
+        "diagnosis": [{"lens": "L1", "title": "T1", "severity": "critical",
+                       "evidence_grade": "hypothesis", "finding": "f", "implication": "i",
+                       "recommendation": "r"}],
+        "price_tiers": [],
+        "numbers": {"x": {"provenance": "assumed", "basis": "b", "value": 1}},
+    }
+    html = rpt.generate_html(cfg)
+    for ch in ("ch1", "ch2", "ch3", "ch4", "ch5"):
+        assert f'id="{ch}"' in html, f"category report missing chapter {ch}"
+    assert html.count('class="chapter-head"') == 5
+    # severity capped to the evidence grade (hypothesis) shows in ch2's answer,
+    # not the raw uncapped "critical" count
+    assert "1 critical" not in html.split('id="ch2"')[1].split('id="ch3"')[0]
+
+
 def test_embed_echarts_inlines_local_js():
     html = rpt.generate_html(copy.deepcopy(rpt.DEMO_CONFIG),
                              echarts_js="/*local echarts*/")

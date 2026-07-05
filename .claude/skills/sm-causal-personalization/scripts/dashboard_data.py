@@ -18,16 +18,38 @@ from typing import Any, Dict, List
 
 _HERE = Path(__file__).parent
 
-try:
-    import report_semantics as _sem
-except ImportError:
+def _local_import(name: str):
+    """Three-tier import used throughout this package's scripts: plain
+    (installed side by side), package-relative (smcp), or by file path
+    (loaded via importlib, e.g. from the test suite).
+
+    Registers into sys.modules under its real name so a module defining an
+    exception class (e.g. investment_schema.InvestmentConfigError) is loaded
+    exactly once per process — an `except module.SomeError` in another file
+    that loads "the same" module via a second spec_from_file_location call
+    would otherwise see a distinct, non-matching class object."""
+    import sys
+    if name in sys.modules:
+        return sys.modules[name]
     try:
-        from . import report_semantics as _sem
+        return __import__(name)
     except ImportError:
-        import importlib.util as _ilu
-        _sem_spec = _ilu.spec_from_file_location("report_semantics", _HERE / "report_semantics.py")
-        _sem = _ilu.module_from_spec(_sem_spec)
-        _sem_spec.loader.exec_module(_sem)
+        try:
+            return __import__(f"{__package__}.{name}", fromlist=[name])
+        except (ImportError, TypeError):
+            import importlib.util as _ilu
+            spec = _ilu.spec_from_file_location(name, _HERE / f"{name}.py")
+            mod = _ilu.module_from_spec(spec)
+            sys.modules[name] = mod
+            spec.loader.exec_module(mod)
+            return mod
+
+
+_sem = _local_import("report_semantics")
+_inv_schema = _local_import("investment_schema")
+_inv_engine = _local_import("investment_engine")
+_inv_charts = _local_import("investment_charts")
+_mmm_bridge = _local_import("mmm_bridge")
 
 
 def build_dashboard_data(cfg: Dict[str, Any]) -> Dict[str, Any]:
@@ -280,6 +302,18 @@ def _strings(cfg: Dict[str, Any]) -> Dict[str, str]:
         "kill_line_word", "blocked_word", "gate_word", "owner_word", "due_word",
         "never_do_heading", "prov_legend", "heatmap_caption",
         "task_cards_heading", "toc_title",
+        "inv_ch1_heading", "inv_kpi_spend", "inv_kpi_units", "inv_kpi_gross_profit",
+        "inv_kpi_net_profit", "inv_kpi_roi", "inv_kpi_lambda_star",
+        "inv_never_funded_heading", "inv_never_funded_empty",
+        "inv_reason_excluded_verdict", "inv_reason_confidence_blocked",
+        "inv_th_sku", "inv_th_module", "inv_th_reason", "inv_th_spend", "inv_th_roi",
+        "inv_th_confidence", "inv_frontier_heading", "inv_frontier_profit_title",
+        "inv_frontier_roi_title", "inv_frontier_caption", "inv_matrix_heading",
+        "inv_matrix_caption", "inv_matrix_empty", "inv_tasks_heading",
+        "inv_confidence_heading", "inv_confidence_validated", "inv_confidence_mmm_calibrated",
+        "inv_confidence_assumption_grade", "inv_confidence_blocked",
+        "inv_mmm_heading", "inv_mmm_available", "inv_mmm_deferred", "inv_mmm_missing",
+        "inv_qini_missing",
     ]
     out = {k: _sem.S(cfg, k) for k in keys}
     for code in ("H", "T", "S", "N", "A"):
@@ -329,6 +363,48 @@ def _build_sku_dashboard(cfg: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
+def build_investment_view(cfg: Dict[str, Any]) -> Dict[str, Any] | None:
+    """Normalize cfg["investment_plan"] into dashboard-ready allocation +
+    chart data. Returns None when the capability was never invoked (no
+    investment_plan) — category dashboards without it are unaffected.
+
+    Raises investment_schema.InvestmentConfigError on a malformed plan (same
+    build-fails-hard posture as generate_report.py's provenance contract)."""
+    plan = cfg.get("investment_plan")
+    if not plan:
+        return None
+    _inv_schema.validate_or_raise(cfg)
+
+    verdict_by_sku = {p.get("sku"): p.get("verdict") for p in cfg.get("portfolio", [])}
+    eligible, blocked = _inv_engine.filter_investable_cells(plan["cells"], verdict_by_sku)
+    summary = _inv_engine.optimize_investment(
+        eligible, plan["total_budget"], plan["budget_step"], plan["required_mroi"])
+    mmm = _mmm_bridge.build_mmm_summary(cfg)
+
+    currency = plan.get("currency", "")
+    frontier = _inv_engine.expand_budget_steps(eligible, plan["budget_step"])
+    frontier.sort(key=lambda s: -s["marginal_roi"])
+    cumulative, cum_spend, running = [], 0.0, 0.0
+    for step in frontier:
+        cum_spend += step["step_spend"]
+        running += step["marginal_gross_profit"]
+        cumulative.append({"spend": cum_spend, "incremental_gross_profit": running,
+                           "marginal_roi": step["marginal_roi"]})
+
+    return {
+        "answer": summary,
+        "blocked": blocked,
+        "mmm": mmm,
+        "charts": {
+            "kpis": _inv_charts.investment_answer_kpis(summary, currency),
+            "frontier": _inv_charts.frontier_chart_spec(cumulative, summary["recommended_spend"]),
+            "budget_matrix": _inv_charts.budget_matrix_spec(summary["allocation"]),
+            "confidence": _inv_charts.confidence_strip_spec(plan["cells"]),
+        },
+        "currency": currency,
+    }
+
+
 def _build_category_dashboard(cfg: Dict[str, Any]) -> Dict[str, Any]:
     numbers = _numbers(cfg)
     portfolio = cfg.get("portfolio", [])
@@ -336,6 +412,7 @@ def _build_category_dashboard(cfg: Dict[str, Any]) -> Dict[str, Any]:
         "kind": "category_portfolio",
         "meta": _meta(cfg),
         "strings": _strings(cfg),
+        "chapter_answers": _sem.category_chapter_answers(cfg, cfg.get("numbers", {})),
         "overview": {
             "verdict": "portfolio",
             "thesis": cfg.get("_note", ""),
@@ -363,6 +440,7 @@ def _build_category_dashboard(cfg: Dict[str, Any]) -> Dict[str, Any]:
             "skus": portfolio,
             "verdict_counts": dict(Counter(row.get("verdict", "unknown") for row in portfolio)),
         },
+        "investment": build_investment_view(cfg),
     }
 
 
