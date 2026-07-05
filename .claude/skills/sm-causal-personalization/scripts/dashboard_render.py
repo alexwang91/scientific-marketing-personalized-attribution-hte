@@ -86,6 +86,7 @@ def _render_sku(data: Dict[str, Any]) -> str:
         _economics(data),
         ch("ch3"),
         _channels(data),
+        _dimensions(data),
         _heatmap(data),
         _suppression(data),
         ch("ch4"),
@@ -94,6 +95,7 @@ def _render_sku(data: Dict[str, Any]) -> str:
         _checklist(data),
         ch("ch5"),
         _causal_map(data),
+        _measurement(data),
         _challenges_section(data),
         _evidence(data),
     ])
@@ -309,6 +311,39 @@ def _causal_map(data: Dict[str, Any]) -> str:
         for n in nodes
     )
     return _section("map", "Causal Map", "The dashboard keeps the reasoning sequence visible.", [f'<div class="graph">{html}</div>'])
+
+
+def _dimensions(data: Dict[str, Any]) -> str:
+    dims = data.get("dimensions", [])
+    if not dims:
+        return _section("dimensions", "D Dimension Table", "", [_empty("No dimension table available.")])
+    cards = [
+        _wide_card(f'{d.get("id","")} · {d.get("label","")}', d.get("logic", ""), d,
+                  extra=f'<span class="status">{_esc(d.get("verdict",""))}</span>')
+        for d in dims
+    ]
+    return _section("dimensions", "D Dimension Table",
+                    "Buyer characteristics that predict incremental response, within the channels above.", cards)
+
+
+def _measurement(data: Dict[str, Any]) -> str:
+    mp = data.get("measurement", {})
+    if not mp:
+        return ""
+    rows = []
+    if mp.get("primary_metric"):
+        rows.append(_wide_card("Primary metric", mp["primary_metric"], mp))
+    for m in mp.get("secondary_metrics", []):
+        rows.append(_wide_card("Secondary metric", m, {"metric": m}))
+    if mp.get("scale_up_rule"):
+        rows.append(_wide_card("Scale-up rule", mp["scale_up_rule"], mp))
+    if mp.get("pause_rule"):
+        rows.append(_wide_card("Pause rule", mp["pause_rule"], mp))
+    if mp.get("gcg_design"):
+        rows.append(_wide_card("GCG design", mp["gcg_design"], mp))
+    maturity = mp.get("maturity", "L0")
+    return _section("measurement", f"Measurement Plan · maturity {_esc(maturity)}",
+                    mp.get("hte_note", ""), rows or [_empty("No measurement plan available.")])
 
 
 def _heatmap(data: Dict[str, Any]) -> str:
