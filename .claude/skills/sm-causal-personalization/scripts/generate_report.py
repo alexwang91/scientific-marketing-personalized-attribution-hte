@@ -3028,7 +3028,8 @@ def generate_category_html(cfg: dict, numbers: dict) -> str:
             "inv4": S(cfg, "inv_tasks_heading"),
             "inv5": S(cfg, "inv_confidence_heading"),
         })
-        answers["ch1"] = answers["ch1"] + _sem.investment_ch1_suffix(cfg, inv)
+        for ch_id, suffix in _sem.investment_chapter_answers(cfg, inv).items():
+            answers[ch_id] = answers[ch_id] + suffix
 
     body, sidebar, _active_ids = _assemble_chapter_spine(
         cfg, chapter_layout, set(_sem.CHAPTER_IDS), answers, section_names)
@@ -3337,6 +3338,8 @@ def main():
             numbers = validate_and_resolve(cfg.get("numbers", {}))
             for w in lint_prose(cfg, numbers):
                 print(f"LINT WARNING — {w}", file=sys.stderr)
+            if cfg.get("investment_plan"):
+                _load_by_path("investment_schema").validate_or_raise(cfg)
             print("Config valid: provenance contract satisfied.", file=sys.stderr)
             return
         if args.format == "dashboard":

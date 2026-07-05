@@ -102,6 +102,23 @@ def test_unknown_module_id_is_rejected():
     assert any("unknown investment module" in e for e in errors)
 
 
+def test_cell_referencing_a_forbidden_lever_module_is_rejected_even_if_declared_modules_list_is_clean():
+    # the modules[] list only declares legal levers, but a cell's own `module`
+    # field points at a forbidden discount-style lever directly — this must
+    # be caught at the cell too, not just when it leaks into modules[].
+    cfg = {"investment_plan": {"modules": [{"id": "search"}],
+           "cells": [_cell(module="discount")]}}
+    errors = schema.validate_investment_plan(cfg)
+    assert any("forbidden lever in cell.module" in e for e in errors)
+
+
+def test_cell_module_not_declared_in_investment_plan_modules_is_rejected():
+    cfg = {"investment_plan": {"modules": [{"id": "retail_media"}],
+           "cells": [_cell(module="search")]}}
+    errors = schema.validate_investment_plan(cfg)
+    assert any("not declared in investment_plan.modules" in e for e in errors)
+
+
 def test_expert_assumption_requires_tau_basis():
     cfg = {"investment_plan": {"modules": [{"id": "search"}],
            "cells": [_cell(tau_source="expert_assumption", measurement_gate=None)]}}

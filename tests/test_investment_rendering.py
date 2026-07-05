@@ -7,11 +7,15 @@ category config without investment_plan must render unaffected in both."""
 from __future__ import annotations
 
 import importlib.util
+import json
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / ".claude" / "skills" / "sm-causal-personalization" / "scripts"
+REPORT_PATH = SCRIPTS / "generate_report.py"
 
 
 def _load(name: str):
@@ -86,10 +90,66 @@ def test_document_ch1_answer_states_the_investment_verdict():
     assert "RON" in ch1_chunk
 
 
+def test_every_chapter_answer_banner_mentions_its_own_investment_section():
+    # regression: chapters 2-5 each gained an investment section (frontier /
+    # matrix / activation cards / confidence+MMM) but their auto-generated
+    # one-line "Short answer" banner used to only describe the pre-existing
+    # portfolio-diagnosis content — silently ignoring the investment content
+    # now also inside that same chapter. Each banner must say something
+    # about what was actually added to its own chapter.
+    html = rpt.generate_category_html(_cfg(), {})
+    import re
+    banners = dict(re.findall(
+        r'<div class="chapter-head" id="(ch\d)">.*?<div class="ch-answer">(.*?)</div>',
+        html, re.S))
+    assert "frontier" in banners["ch2"]
+    assert "budget matrix" in banners["ch3"]
+    assert "activation" in banners["ch4"]
+    assert "MMM" in banners["ch5"] or "validated test" in banners["ch5"]
+
+
+def test_ch4_investment_overlay_does_not_imply_a_false_subset_of_grow_skus():
+    # regression: an earlier phrasing said "N of those are funded moves"
+    # right after a sentence naming only the Grow-verdicted SKUs — but N
+    # (funded SKU x module cells) can exceed the Grow SKU count, which
+    # reads as a nonsensical subset claim ("6 of those 3").
+    html = rpt.generate_category_html(_cfg(), {})
+    idx = html.index('id="ch4"')
+    ch4_chunk = html[idx:idx + 2000]
+    assert "of those" not in ch4_chunk
+
+
 def test_document_report_renders_in_zh_with_investment_labels():
     html = rpt.generate_category_html(_cfg(lang="zh"), {})
     assert "预算花在哪" in html
     assert "钱越花越多" in html
+
+
+def test_cli_validate_only_catches_a_malformed_investment_plan():
+    # regression: --validate-only used to only check the numbers{} provenance
+    # contract, silently printing "Config valid" for a config whose
+    # investment_plan would fail InvestmentConfigError at actual build time.
+    cfg = _cfg()
+    cfg["investment_plan"]["modules"] = [{"id": "discount"}]
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
+        json.dump(cfg, f)
+        path = f.name
+    proc = subprocess.run(
+        [sys.executable, str(REPORT_PATH), "--config", path, "--validate-only"],
+        capture_output=True, text=True)
+    assert proc.returncode == 2, proc.stdout
+    assert "discount" in proc.stderr
+
+
+def test_cli_validate_only_passes_a_well_formed_investment_plan():
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
+        json.dump(_cfg(), f)
+        path = f.name
+    proc = subprocess.run(
+        [sys.executable, str(REPORT_PATH), "--config", path, "--validate-only"],
+        capture_output=True, text=True)
+    assert proc.returncode == 0, proc.stderr
+    assert "Config valid" in proc.stderr
 
 
 # ── dashboard_render.py (interactive cockpit) ─────────────────────────────────
