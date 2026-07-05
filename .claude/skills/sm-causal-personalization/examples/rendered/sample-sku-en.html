@@ -116,6 +116,20 @@
   .kpi-num .kpi-unit{font-size:13px;font-weight:600;color:var(--muted);margin-left:2px}
   .kpi-label{font-size:10.5px;color:var(--muted);text-transform:uppercase;
     letter-spacing:.06em;font-weight:600}
+  .kpi.inv-kpi-good::after{background:#16a34a}
+  .kpi.inv-kpi-warn::after{background:#d97706}
+  .kpi.inv-kpi-bad::after{background:#dc2626}
+
+  /* ── Investment dashboard: frontier / matrix ── */
+  .inv-frontier-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:12px 0}
+  @media(max-width:760px){.inv-frontier-grid{grid-template-columns:1fr}}
+  .inv-panel{background:var(--surface);border:1px solid var(--line);
+    border-radius:8px;padding:12px 14px}
+  .inv-panel-title{font-size:11.5px;font-weight:700;color:var(--ink-2);margin-bottom:6px}
+  .inv-svg{width:100%;height:auto;display:block}
+  .inv-svg-empty{color:var(--muted);font-size:12px;padding:20px 0;text-align:center}
+  .inv-conf-dot{display:inline-block;width:7px;height:7px;border-radius:50%;
+    margin-left:4px;vertical-align:middle}
 
   /* ── CAC bar chart ── */
   .cac-chart{margin:0 0 20px;background:var(--surface);border:1px solid var(--line);
@@ -709,7 +723,7 @@
   <div class="cv-strip"><div class="cv-badge"><div class="cv-badge-dot" style="background:#d97706"></div><div><div class="cv-name">Alza.cz / Mall.cz retail media</div><div class="cv-task">Closest to purchase intent; rate card missing (one email res…</div></div></div><div class="cv-badge"><div class="cv-badge-dot" style="background:#d97706"></div><div><div class="cv-name">Search — brand terms</div><div class="cv-task">CPC missing; brand-term sure-thing risk (C1) means even if C…</div></div></div><div class="cv-badge"><div class="cv-badge-dot" style="background:#d97706"></div><div><div class="cv-name">Search — category / pain-point terms</div><div class="cv-task">CPC and volume missing; 'app-controlled coffee maker' search…</div></div></div><div class="cv-badge"><div class="cv-badge-dot" style="background:#d97706"></div><div><div class="cv-name">Social prospecting (Meta / TikTok)</div><div class="cv-task">Benchmark best-case (1,200 CZK) is below ceiling but only at…</div></div></div><div class="cv-badge"><div class="cv-badge-dot" style="background:#9ca3af"></div><div><div class="cv-name">YouTube review content</div><div class="cv-task">Not evaluated on CAC. Role: answer the largest conversion ba…</div></div></div><div class="cv-badge"><div class="cv-badge-dot" style="background:#d97706"></div><div><div class="cv-name">Retargeting</div><div class="cv-task">Depends on site traffic volume (missing); if done, 7-day sho…</div></div></div></div>
   <div class="table-wrap"><table>
     <thead><tr><th>Channel</th><th>Task</th><th>Proxy quality</th><th>Verdict</th><th>CAC estimate</th><th>Note</th></tr></thead>
-    <tbody></tbody></table></div>
+    <tbody><tr><td><strong>Alza.cz / Mall.cz retail media</strong></td><td>—</td><td>—</td><td><span class='pill pill-undetermined'>unclear — get data first (undetermined)</span></td><td>—</td><td>Closest to purchase intent; rate card missing (one email resolves). Highest-priority verification.</td></tr><tr><td><strong>Search — brand terms</strong></td><td>—</td><td>—</td><td><span class='pill pill-undetermined'>unclear — get data first (undetermined)</span></td><td>—</td><td>CPC missing; brand-term sure-thing risk (C1) means even if CAC looks good, holdout is required to prove incrementality.</td></tr><tr><td><strong>Search — category / pain-point terms</strong></td><td>—</td><td>—</td><td><span class='pill pill-undetermined'>unclear — get data first (undetermined)</span></td><td>—</td><td>CPC and volume missing; 'app-controlled coffee maker' searchers may be high-consideration, reducing CVR vs branded queries.</td></tr><tr><td><strong>Social prospecting (Meta / TikTok)</strong></td><td>—</td><td>—</td><td><span class='pill pill-undetermined'>unclear — get data first (undetermined)</span></td><td>600 CZK–18,000 CZK<sup class="mk mk-derived">D</sup></td><td>Benchmark best-case (1,200 CZK) is below ceiling but only at the optimistic corner — benchmark cannot confirm viability. Stays undetermined until local CVR is known.</td></tr><tr><td><strong>YouTube review content</strong></td><td>—</td><td>—</td><td><span class='pill pill-role-only'>support role only (role-only)</span></td><td>—</td><td>Not evaluated on CAC. Role: answer the largest conversion barrier — 'why pay 7,990 CZK when a 4,990 CZK model exists'. Output is a content asset, not a direct-response acquisition channel.</td></tr><tr><td><strong>Retargeting</strong></td><td>—</td><td>—</td><td><span class='pill pill-undetermined'>unclear — get data first (undetermined)</span></td><td>—</td><td>Depends on site traffic volume (missing); if done, 7-day short window + matched holdout required to separate incrementality from sure-things.</td></tr></tbody></table></div>
   <p style="font-size:13px;color:var(--muted)">Benchmarks may prove <em>not-viable</em> (best case still fails ceiling) but never <em>viable</em>. <em>undetermined</em> = interval spans ceiling; data acquisition required.</p>
 </section><section id="s5">
   <h2>5 · D Dimension Table &amp; Causal Activation Reviewer</h2>

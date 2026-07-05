@@ -135,6 +135,22 @@ def test_demo_report_renders_all_core_sections():
         assert marker in html, f"missing {marker!r}"
 
 
+def test_local_channel_map_renders_channel_screen_rows():
+    # regression: s_channel_map() used to read cfg["channels"] (a field no
+    # config ever sets) while every other consumer of channel data — the
+    # CAC chart, chapter_answers(), dashboard_data.py — reads
+    # cfg["channel_screen"]. Section 4 ("Local Channel Map") silently
+    # rendered an empty table in every real report because of this
+    # field-name mismatch; DEMO_CONFIG's two channel_screen rows must now
+    # actually appear in the table.
+    html = rpt.generate_html(copy.deepcopy(rpt.DEMO_CONFIG))
+    idx = html.index('id="s4"')
+    s4_chunk = html[idx:idx + 3000]
+    assert "Search" in s4_chunk
+    assert "Social prospecting" in s4_chunk
+    assert "Best-case benchmark CAC already exceeds ceiling" in s4_chunk
+
+
 def test_report_has_five_chapter_banners_with_answers():
     html = rpt.generate_html(copy.deepcopy(rpt.DEMO_CONFIG))
     assert html.count('class="chapter-head"') == 5
