@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -98,7 +99,6 @@ def test_every_chapter_answer_banner_mentions_its_own_investment_section():
     # now also inside that same chapter. Each banner must say something
     # about what was actually added to its own chapter.
     html = rpt.generate_category_html(_cfg(), {})
-    import re
     banners = dict(re.findall(
         r'<div class="chapter-head" id="(ch\d)">.*?<div class="ch-answer">(.*?)</div>',
         html, re.S))
@@ -106,6 +106,34 @@ def test_every_chapter_answer_banner_mentions_its_own_investment_section():
     assert "budget matrix" in banners["ch3"]
     assert "activation" in banners["ch4"]
     assert "MMM" in banners["ch5"] or "validated test" in banners["ch5"]
+
+
+def test_ch5_confidence_counts_only_funded_cells_not_the_full_candidate_set():
+    # regression: the ch5 banner claims "of the funded budget", so its
+    # validated/mmm/assumption counts must come from what actually got
+    # funded (answer["allocation"]) — not inv["charts"]["confidence"],
+    # which (correctly, for the section it drives) spans every eligible
+    # cell whether or not it cleared the ROI floor. Construct a second,
+    # confidence-"validated" cell whose ROI never clears required_mroi:
+    # it's eligible (not "blocked"), so it inflates the all-cells count,
+    # but must NOT inflate the ch5 banner's funded-only count.
+    cfg = _cfg()
+    cfg["investment_plan"]["cells"].append({
+        "id": "be3_search_lowroi", "sku": "BE3", "module": "search", "channel": "Google Search",
+        "tau_hat": 0.0001, "tau_source": "randomized_hte", "measurement_gate": "holdout",
+        "reachable_population": 100, "unit_margin": 1, "max_spend": 2000,
+        "saturation_k": 0.0001, "readiness": 1.0,
+    })
+    inv = rpt._get_investment_view(cfg)
+    all_cells_validated = inv["charts"]["confidence"]["validated"]
+    funded_validated = sum(1 for r in inv["answer"]["allocation"] if r["confidence"] == "validated")
+    assert all_cells_validated == 2, "the low-ROI cell should still count as validated confidence"
+    assert funded_validated == 1, "but only the cell that actually got funded should count as funded"
+
+    banners = dict(re.findall(
+        r'<div class="chapter-head" id="(ch\d)">.*?<div class="ch-answer">(.*?)</div>',
+        rpt.generate_category_html(cfg, {}), re.S))
+    assert "1 cell(s) rest on a validated test" in banners["ch5"]
 
 
 def test_ch4_investment_overlay_does_not_imply_a_false_subset_of_grow_skus():

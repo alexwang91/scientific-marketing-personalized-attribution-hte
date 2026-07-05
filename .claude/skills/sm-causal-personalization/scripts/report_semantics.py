@@ -149,7 +149,7 @@ OPERATOR_STRINGS: dict[str, dict[str, str]] = {
         "inv_th_roi": "ROI",
         "inv_tasks_heading": "Activation cards (this round's funded moves)",
         "inv_th_confidence": "Confidence",
-        "inv_confidence_heading": "How much of this budget rests on solid evidence",
+        "inv_confidence_heading": "Evidence quality across every cell considered this cycle (funded or not)",
         "inv_confidence_validated": "Validated (randomized test + measurement gate)",
         "inv_confidence_mmm_calibrated": "MMM-calibrated (macro model prior)",
         "inv_confidence_assumption_grade": "Assumption-grade (best guess, not yet tested)",
@@ -243,7 +243,7 @@ OPERATOR_STRINGS: dict[str, dict[str, str]] = {
         "inv_th_roi": "投产比",
         "inv_tasks_heading": "落地任务卡（这轮批到钱的动作）",
         "inv_th_confidence": "证据等级",
-        "inv_confidence_heading": "这笔预算有多少是站得住脚的证据",
+        "inv_confidence_heading": "这轮所有候选格子的证据等级（不管这轮批没批钱）",
         "inv_confidence_validated": "验证过（随机试验 + 有测量条件）",
         "inv_confidence_mmm_calibrated": "MMM 校准（宏观模型先验）",
         "inv_confidence_assumption_grade": "假设级（最佳猜测，还没测）",
@@ -498,9 +498,18 @@ def investment_chapter_answers(cfg: dict, inv: dict) -> dict[str, str]:
     existed."""
     answer = inv.get("answer", {})
     blocked = inv.get("blocked", [])
-    confidence = inv.get("charts", {}).get("confidence", {})
+    allocation = answer.get("allocation", [])
     mmm = inv.get("mmm", {})
-    n_cells = len(answer.get("allocation", []))
+    n_cells = len(allocation)
+
+    # ch5's sentence is about the money actually being spent, so it must
+    # count confidence over the FUNDED allocation rows, not inv["charts"]
+    # ["confidence"] (which — correctly, for the section it drives — spans
+    # every candidate cell, funded or not, including blocked ones).
+    funded_confidence = {"validated": 0, "mmm_calibrated": 0, "assumption_grade": 0}
+    for row in allocation:
+        badge = row.get("confidence", "assumption_grade")
+        funded_confidence[badge] = funded_confidence.get(badge, 0) + 1
 
     out = {
         "ch1": S(cfg, "cat_ans_ch1_invest").format(
@@ -515,9 +524,9 @@ def investment_chapter_answers(cfg: dict, inv: dict) -> dict[str, str]:
         "ch3": S(cfg, "cat_ans_ch3_invest").format(n_cells=n_cells),
         "ch4": S(cfg, "cat_ans_ch4_invest").format(n_cells=n_cells, never=len(blocked)),
         "ch5": S(cfg, "cat_ans_ch5_invest").format(
-            validated=confidence.get("validated", 0),
-            mmm_calibrated=confidence.get("mmm_calibrated", 0),
-            assumption_grade=confidence.get("assumption_grade", 0),
+            validated=funded_confidence["validated"],
+            mmm_calibrated=funded_confidence["mmm_calibrated"],
+            assumption_grade=funded_confidence["assumption_grade"],
             mmm_note=S(cfg, f'inv_mmm_{mmm.get("status", "missing")}')),
     }
     return out
