@@ -490,6 +490,20 @@ _CSS = """
   .kpi-num .kpi-unit{font-size:13px;font-weight:600;color:var(--muted);margin-left:2px}
   .kpi-label{font-size:10.5px;color:var(--muted);text-transform:uppercase;
     letter-spacing:.06em;font-weight:600}
+  .kpi.inv-kpi-good::after{background:#16a34a}
+  .kpi.inv-kpi-warn::after{background:#d97706}
+  .kpi.inv-kpi-bad::after{background:#dc2626}
+
+  /* ── Investment dashboard: frontier / matrix ── */
+  .inv-frontier-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:12px 0}
+  @media(max-width:760px){.inv-frontier-grid{grid-template-columns:1fr}}
+  .inv-panel{background:var(--surface);border:1px solid var(--line);
+    border-radius:8px;padding:12px 14px}
+  .inv-panel-title{font-size:11.5px;font-weight:700;color:var(--ink-2);margin-bottom:6px}
+  .inv-svg{width:100%;height:auto;display:block}
+  .inv-svg-empty{color:var(--muted);font-size:12px;padding:20px 0;text-align:center}
+  .inv-conf-dot{display:inline-block;width:7px;height:7px;border-radius:50%;
+    margin-left:4px;vertical-align:middle}
 
   /* ── CAC bar chart ── */
   .cac-chart{margin:0 0 20px;background:var(--surface);border:1px solid var(--line);
@@ -2616,20 +2630,7 @@ _SEV = {
     "major":    ("sev-major",    "sv-major",    "Major"),
     "watch":    ("sev-watch",    "sv-watch",    "Watch"),
 }
-_GRADE_RANK = {"sourced": 2, "derived": 2, "assumed": 1, "hypothesis": 0, "missing": 0}
-_SEV_NEED = {"critical": 2, "major": 1, "watch": 0}
-
-
-def _cap_severity(sev: str, grade: str) -> tuple[str, bool]:
-    """Severity ≤ evidence grade. A claim on thin evidence is downgraded to the
-    highest severity its proof can carry. Returns (effective_sev, was_capped)."""
-    g = _GRADE_RANK.get((grade or "").lower(), 0)
-    if _SEV_NEED.get(sev, 0) <= g:
-        return sev, False
-    for cand in ("critical", "major", "watch"):
-        if _SEV_NEED[cand] <= g:
-            return cand, True
-    return "watch", True
+_cap_severity = _sem.cap_severity  # moved to report_semantics.py — shared with category_chapter_answers
 
 
 def _verdict_pill(cfg: dict, code: str) -> str:
@@ -2670,7 +2671,7 @@ def s_cat_diagnosis(cfg: dict) -> str:
         grade = d.get("evidence_grade", "hypothesis")
         sev, capped = _cap_severity(d.get("severity", "watch"), grade)
         items.append((sev, capped, grade, d))
-    items.sort(key=lambda t: -_SEV_NEED.get(t[0], 0))  # critical first
+    items.sort(key=lambda t: -_sem.SEV_NEED.get(t[0], 0))  # critical first
 
     cards = ""
     for sev, capped, grade, d in items:
@@ -2769,16 +2770,180 @@ def s_cat_handoff(cfg: dict) -> str:
 </section>"""
 
 
-def _build_sidebar(cfg: dict, toc_items: list) -> str:
-    meta = cfg.get("meta", {})
-    toc_links = "".join(
-        f'<a class="toc-link" href="#{sid}" id="toc-{sid}">{esc(label[:32])}</a>\n'
-        for sid, label in toc_items)
-    return f'''<aside class="sidebar">
-  <div class="toc-logo">{esc(meta.get("product","")[:20])}<br><span>{esc(meta.get("market",""))}</span></div>
-  <div class="toc-group-label">{esc(L(cfg, "toc_title", "CONTENTS"))}</div>
-  {toc_links}
-</aside>'''
+# ──────────────────────────────────────────────────────────────────────────────
+# Investment dashboard (cfg["investment_plan"]) — budget-frontier allocation.
+# Data comes from dashboard_data.build_investment_view(cfg), the same function
+# the --format dashboard path uses, so document and dashboard never disagree.
+# Charts are real inline SVG / CSS-grid markup, not JS placeholders — the
+# report must render meaningfully with no network access.
+# ──────────────────────────────────────────────────────────────────────────────
+
+_CONF_COLOR = {"validated": "#16a34a", "mmm_calibrated": "#2563eb",
+               "assumption_grade": "#d97706", "blocked": "#9ca3af"}
+
+
+def _svg_line_panel(points: list, cutoff_x: float | None, color: str,
+                    width: int = 520, height: int = 190) -> str:
+    return _svg_charts_mod().line_panel(points, cutoff_x, color, width, height)
+
+
+def _svg_charts_mod():
+    return _load_by_path("svg_charts")
+
+
+def s_inv_answer(cfg: dict, inv: dict) -> str:
+    """Chapter 1 addendum — the investment verdict in KPI cards, plus the
+    never-funded list, both before any supporting evidence is shown."""
+    kpis = _inv_charts_mod().investment_answer_kpis(inv["answer"], inv.get("currency", ""))
+    cards = ""
+    for k in kpis:
+        label = S(cfg, "inv_" + k["label_key"])
+        val = f'{k["value"]:,.2f}'.rstrip("0").rstrip(".") if isinstance(k["value"], float) else str(k["value"])
+        unit = esc(k.get("unit", ""))
+        cards += (f'<div class="kpi inv-kpi-{esc(k["tone"])}"><div class="kpi-num">{esc(val)}'
+                  f'<span class="kpi-unit">{unit}</span></div>'
+                  f'<div class="kpi-label">{esc(label)}</div></div>')
+    blocked = inv.get("blocked", [])
+    if blocked:
+        _reason_key = {"excluded verdict": "inv_reason_excluded_verdict",
+                       "confidence blocked": "inv_reason_confidence_blocked"}
+        rows = "".join(
+            f'<tr><td><strong>{esc(b.get("sku",""))}</strong></td><td>{esc(b.get("module",""))}</td>'
+            f'<td>{esc(S(cfg, _reason_key.get(b.get("reason"), "inv_reason_confidence_blocked")))}</td></tr>'
+            for b in blocked)
+        never_html = f"""<div class="table-wrap"><table>
+    <thead><tr><th>{esc(S(cfg, "inv_th_sku"))}</th><th>{esc(S(cfg, "inv_th_module"))}</th><th>{esc(S(cfg, "inv_th_reason"))}</th></tr></thead>
+    <tbody>{rows}</tbody></table></div>"""
+    else:
+        never_html = f'<p>{esc(S(cfg, "inv_never_funded_empty"))}</p>'
+    return f"""<section id="inv1">
+  <h2>{esc(S(cfg, "inv_ch1_heading"))}</h2>
+  <div class="kpi-strip">{cards}</div>
+  <h3>{esc(S(cfg, "inv_never_funded_heading"))}</h3>
+  {never_html}
+</section>"""
+
+
+def s_inv_frontier(cfg: dict, inv: dict) -> str:
+    """Chapter 2 addendum — the two-panel budget frontier: cumulative profit,
+    and marginal ROI with the funding cutoff marked. Two single-axis panels,
+    never one dual-axis chart (profit and ROI are different units)."""
+    frontier = inv["charts"]["frontier"]
+    cutoff = inv["answer"].get("recommended_spend", 0.0)
+    profit = frontier["profit_panel"]
+    roi = frontier["roi_panel"]
+    return f"""<section id="inv2">
+  <h2>{esc(S(cfg, "inv_frontier_heading"))}</h2>
+  <div class="inv-frontier-grid">
+    <div class="inv-panel">
+      <div class="inv-panel-title">{esc(S(cfg, "inv_frontier_profit_title"))}</div>
+      {_svg_line_panel(profit["points"], profit.get("cutoff_spend"), "#4f46e5")}
+    </div>
+    <div class="inv-panel">
+      <div class="inv-panel-title">{esc(S(cfg, "inv_frontier_roi_title"))}</div>
+      {_svg_line_panel(roi["points"], roi.get("cutoff_spend"), "#0891b2")}
+    </div>
+  </div>
+  <p style="font-size:12px;color:var(--ink-2);margin-top:8px;font-weight:600">{esc(S(cfg, "inv_frontier_caption"))}</p>
+</section>"""
+
+
+def s_inv_matrix(cfg: dict, inv: dict) -> str:
+    """Chapter 3 addendum — SKU x module budget matrix, reusing the same
+    .heatmap CSS grid as the semantic heatmap (s_heatmap). Spend is a
+    sequential-ramp fill; confidence is a secondary dot encoding, never
+    folded into the same hue as spend (dataviz one-encoding-per-channel rule)."""
+    bm = inv["charts"]["budget_matrix"]
+    x_axis, y_axis, cells = bm["x_axis"], bm["y_axis"], bm["cells"]
+    if not x_axis or not y_axis:
+        return f"""<section id="inv3">
+  <h2>{esc(S(cfg, "inv_matrix_heading"))}</h2>
+  <p>{esc(S(cfg, "inv_matrix_empty"))}</p>
+</section>"""
+    by_pos = {(c["sku"], c["module"]): c for c in cells}
+    max_spend = max((c["spend"] for c in cells), default=0.0) or 1.0
+    col_def = f"1fr repeat({len(x_axis)}, 1fr)"
+    header = f'<div class="hm-header">{esc(S(cfg, "inv_th_sku"))}</div>' + "".join(
+        f'<div class="hm-header">{esc(m)}</div>' for m in x_axis)
+    rows = ""
+    currency = esc(inv.get("currency", ""))
+    for sku in y_axis:
+        rows += f'<div class="hm-label">{esc(sku)}</div>'
+        for mod in x_axis:
+            cell = by_pos.get((sku, mod))
+            if not cell:
+                rows += '<div class="hm-cell hm-none"></div>'
+                continue
+            alpha = 0.18 + 0.72 * min(cell["spend"] / max_spend, 1.0)
+            dot = _CONF_COLOR.get(cell["confidence"], "#9ca3af")
+            rows += (f'<div class="hm-cell" style="background:rgba(79,70,229,{alpha:.2f});color:#1e1b3a" '
+                     f'title="{esc(cell["confidence"])}">{cell["spend"]:,.0f}'
+                     f'<span class="inv-conf-dot" style="background:{dot}"></span></div>')
+    return f"""<section id="inv3">
+  <h2>{esc(S(cfg, "inv_matrix_heading"))}</h2>
+  <div class="heatmap" style="grid-template-columns:{esc(col_def)};margin:12px 0">
+    {header}{rows}
+  </div>
+  <p style="font-size:12px;color:var(--ink-2);margin-top:8px;font-weight:600">{esc(S(cfg, "inv_matrix_caption"))}</p>
+  <p style="font-size:11px;color:var(--muted)">{currency}</p>
+</section>"""
+
+
+def s_inv_tasks(cfg: dict, inv: dict) -> str:
+    """Chapter 4 addendum — one card per funded (sku, module) row. Reuses the
+    same .card/.cards markup as the unified action task cards."""
+    allocation = inv["answer"].get("allocation", [])
+    currency = esc(inv.get("currency", ""))
+    cards = ""
+    for row in allocation:
+        conf = row.get("confidence", "assumption_grade")
+        conf_word = S(cfg, f"inv_confidence_{conf}")
+        cards += f"""<div class="card">
+  <h3>{esc(row.get("sku",""))} &nbsp;·&nbsp; {esc(row.get("module",""))}</h3>
+  <dl>
+    <dt>{esc(S(cfg, "inv_th_spend"))}</dt><dd>{row.get("spend",0.0):,.0f} {currency}</dd>
+    <dt>{esc(S(cfg, "inv_th_roi"))}</dt><dd>{row.get("roi",0.0):.2f}x</dd>
+    <dt>{esc(S(cfg, "inv_th_confidence"))}</dt><dd>{esc(conf_word)}</dd>
+  </dl></div>"""
+    return f"""<section id="inv4">
+  <h2>{esc(S(cfg, "inv_tasks_heading"))}</h2>
+  <div class="cards">{cards or '<p>—</p>'}</div>
+</section>"""
+
+
+def s_inv_confidence(cfg: dict, inv: dict) -> str:
+    """Chapter 5 addendum — confidence-badge counts (never a raw input, see
+    investment_engine.confidence_badge) plus the MMM macro-calibration status,
+    stated plainly when absent or deferred rather than silently skipped."""
+    counts = inv["charts"]["confidence"]
+    stats = "".join(
+        f'<div class="chk-stat"><div class="chk-stat-num" style="color:{_CONF_COLOR[k]}">{counts.get(k,0)}</div>'
+        f'<div class="chk-stat-label">{esc(S(cfg, f"inv_confidence_{k}"))}</div></div>'
+        for k in ("validated", "mmm_calibrated", "assumption_grade", "blocked"))
+    mmm = inv.get("mmm", {})
+    status = mmm.get("status", "missing")
+    mmm_text = S(cfg, f"inv_mmm_{status}" if f"inv_mmm_{status}" in _sem.OPERATOR_STRINGS["en"] else "inv_mmm_missing")
+    mmm_table = ""
+    if status == "available" and mmm.get("posterior_roas"):
+        rows = "".join(
+            f'<tr><td>{esc(r.get("channel",""))}</td><td>{r.get("mean",0):.2f}</td>'
+            f'<td>{r.get("lo",0):.2f}–{r.get("hi",0):.2f}</td></tr>'
+            for r in mmm["posterior_roas"])
+        mmm_table = f"""<div class="table-wrap"><table>
+    <thead><tr><th>Channel</th><th>Posterior ROAS</th><th>90% interval</th></tr></thead>
+    <tbody>{rows}</tbody></table></div>"""
+    return f"""<section id="inv5">
+  <h2>{esc(S(cfg, "inv_confidence_heading"))}</h2>
+  <div class="chk-summary">{stats}</div>
+  <h3>{esc(S(cfg, "inv_mmm_heading"))}</h3>
+  <p class="callout">{esc(mmm_text)}</p>
+  {mmm_table}
+  <p style="font-size:12px;color:var(--muted)">{esc(S(cfg, "inv_qini_missing"))}</p>
+</section>"""
+
+
+def _inv_charts_mod():
+    return _load_by_path("investment_charts")
 
 
 def _page_shell(cfg: dict, title: str, sidebar: str, body_html: str, echarts_block: str = "") -> str:
@@ -2827,32 +2992,96 @@ def _page_shell(cfg: dict, title: str, sidebar: str, body_html: str, echarts_blo
 
 
 def generate_category_html(cfg: dict, numbers: dict) -> str:
+    """Category-portfolio report — same five-question spine as generate_html().
+    Chapter mapping: c0 verdict matrix -> ch1 (the call); c1 diagnosis -> ch2
+    (the why); c2 tier map + c3 SKU detail -> ch3 (who/where); c4 handoff ->
+    ch4 (the next action); evidence -> ch5 (always last)."""
     meta = cfg.get("meta", {})
-    parts = [
-        s_cat_matrix(cfg),
-        s_cat_diagnosis(cfg),
-        s_cat_tiermap(cfg),
-        s_cat_skus(cfg),
-        s_cat_handoff(cfg),
-        s_evidence(cfg, numbers),
+    chapter_layout = [
+        ("ch1", [("c0", s_cat_matrix(cfg))]),
+        ("ch2", [("c1", s_cat_diagnosis(cfg))]),
+        ("ch3", [("c2", s_cat_tiermap(cfg)), ("c3", s_cat_skus(cfg))]),
+        ("ch4", [("c4", s_cat_handoff(cfg))]),
+        ("ch5", [("s16", s_evidence(cfg, numbers))]),
     ]
-    toc = [
-        ("c0",  L(cfg, "cat_matrix_heading",  "0 · Portfolio Verdict & 4P Matrix")),
-        ("c1",  L(cfg, "cat_diag_heading",    "1 · Category Diagnosis")),
-        ("c2",  L(cfg, "cat_tier_heading",    "2 · Price-Tier × Audience × Competitor Map")),
-        ("c3",  L(cfg, "cat_sku_heading",     "3 · SKU Detail & 4P")),
-        ("c4",  L(cfg, "cat_handoff_heading", "4 · Deep-Dive Handoff")),
-        ("s16", L(cfg, "evidence_heading",    "5 · Evidence & Gaps")),
-    ]
-    sidebar = _build_sidebar(cfg, toc)
+    section_names = {
+        "c0":  L(cfg, "cat_matrix_heading",  "Portfolio Verdict & 4P Matrix"),
+        "c1":  L(cfg, "cat_diag_heading",    "Category Diagnosis"),
+        "c2":  L(cfg, "cat_tier_heading",    "Price-Tier × Audience × Competitor Map"),
+        "c3":  L(cfg, "cat_sku_heading",     "SKU Detail & 4P"),
+        "c4":  L(cfg, "cat_handoff_heading", "Deep-Dive Handoff"),
+        "s16": L(cfg, "evidence_heading",    "Evidence & Gaps"),
+    }
+    answers = _sem.category_chapter_answers(cfg, numbers)
+
+    if cfg.get("investment_plan"):
+        inv = _get_investment_view(cfg)
+        chapter_layout[0][1].append(("inv1", s_inv_answer(cfg, inv)))
+        chapter_layout[1][1].append(("inv2", s_inv_frontier(cfg, inv)))
+        chapter_layout[2][1].append(("inv3", s_inv_matrix(cfg, inv)))
+        chapter_layout[3][1].append(("inv4", s_inv_tasks(cfg, inv)))
+        chapter_layout[4][1].append(("inv5", s_inv_confidence(cfg, inv)))
+        section_names.update({
+            "inv1": S(cfg, "inv_ch1_heading"),
+            "inv2": S(cfg, "inv_frontier_heading"),
+            "inv3": S(cfg, "inv_matrix_heading"),
+            "inv4": S(cfg, "inv_tasks_heading"),
+            "inv5": S(cfg, "inv_confidence_heading"),
+        })
+        answers["ch1"] = answers["ch1"] + _sem.investment_ch1_suffix(cfg, inv)
+
+    body, sidebar, _active_ids = _assemble_chapter_spine(
+        cfg, chapter_layout, set(_sem.CHAPTER_IDS), answers, section_names)
     title = (f'{meta.get("product", "")} — {meta.get("market", "")} '
              f'{L(cfg, "cat_title_suffix", "Category Diagnostic")}')
-    return _page_shell(cfg, title, sidebar, "".join(parts))
+    return _page_shell(cfg, title, sidebar, body)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Assembly
 # ──────────────────────────────────────────────────────────────────────────────
+
+def _assemble_chapter_spine(cfg: dict, chapter_layout: list, keep: set,
+                            answers: dict, section_names: dict) -> tuple[str, str, set]:
+    """Shared chapter-banner + sidebar-TOC assembly. Both the single-SKU report
+    and the category-portfolio report render under the same five-question
+    spine (report_semantics.CHAPTER_IDS) — this is the one place that spine
+    turns into HTML, so the two report types cannot drift into different
+    layouts. Returns (body_html, sidebar_html, active_section_ids)."""
+    parts: list[str] = []
+    active_ids: set[str] = set()
+    toc_groups: list[tuple[str, str, list[str]]] = []
+    for ch_id, sections in chapter_layout:
+        if ch_id not in keep:
+            continue
+        rendered = [(sid, html) for sid, html in sections if html]
+        if not rendered:
+            continue
+        question = S(cfg, f"{ch_id}_question")
+        banner = f"""<div class="chapter-head" id="{ch_id}">
+  <div class="ch-num">{esc(S(cfg, f"{ch_id}_title"))}</div>
+  <div class="ch-question">{esc(question)}</div>
+  <div class="ch-answer"><span>{esc(S(cfg, "ch_answer_label"))}</span> {esc(answers.get(ch_id, ""))}</div>
+</div>"""
+        parts.append(banner + "".join(html for _, html in rendered))
+        active_ids.update(sid for sid, _ in rendered)
+        toc_groups.append((ch_id, question, [sid for sid, _ in rendered]))
+
+    toc_html = ""
+    for ch_id, question, sids in toc_groups:
+        toc_html += f'<a class="toc-chapter" href="#{ch_id}">{esc(question[:40])}</a>\n'
+        for sid in sids:
+            name = re.sub(r"^\d+\s*·\s*", "", str(section_names.get(sid, sid)))
+            toc_html += f'<a class="toc-link" href="#{sid}" id="toc-{sid}">{esc(name[:32])}</a>\n'
+
+    meta = cfg.get("meta", {})
+    sidebar = f'''<aside class="sidebar">
+  <div class="toc-logo">{esc(meta.get("product", "")[:20])}<br><span>{esc(meta.get("market", ""))}</span></div>
+  <div class="toc-group-label">{esc(S(cfg, "toc_title"))}</div>
+  {toc_html}
+</aside>'''
+    return "".join(parts), sidebar, active_ids
+
 
 def generate_html(cfg: dict, depth: str = "standard", echarts_js: str | None = None) -> str:
     numbers = validate_and_resolve(cfg.get("numbers", {}))
@@ -2906,24 +3135,6 @@ def generate_html(cfg: dict, depth: str = "standard", echarts_js: str | None = N
         keep = set(_sem.CHAPTER_IDS)
 
     answers = _sem.chapter_answers(cfg, numbers)
-    parts: list[str] = []
-    active_ids: set[str] = set()
-    toc_groups: list[tuple[str, str, list[tuple[str, str]]]] = []
-    for ch_id, sections in chapter_layout:
-        if ch_id not in keep:
-            continue
-        rendered = [(sid, html) for sid, html in sections if html]
-        if not rendered:
-            continue
-        question = S(cfg, f"{ch_id}_question")
-        banner = f"""<div class="chapter-head" id="{ch_id}">
-  <div class="ch-num">{esc(S(cfg, f"{ch_id}_title"))}</div>
-  <div class="ch-question">{esc(question)}</div>
-  <div class="ch-answer"><span>{esc(S(cfg, "ch_answer_label"))}</span> {esc(answers.get(ch_id, ""))}</div>
-</div>"""
-        parts.append(banner + "".join(html for _, html in rendered))
-        active_ids.update(sid for sid, _ in rendered)
-        toc_groups.append((ch_id, question, [(sid, "") for sid, _ in rendered]))
 
     # Banner when the report is not the full standard view.
     depth_banner = ""
@@ -2967,29 +3178,58 @@ def generate_html(cfg: dict, depth: str = "standard", echarts_js: str | None = N
         "s17":  L(cfg, "checklist_heading",   "Checklist"),
         "s18":  L(cfg, "ledger_heading",      "Validation Roadmap"),
     }
-    toc_html = ""
-    for ch_id, question, secs in toc_groups:
-        toc_html += (f'<a class="toc-chapter" href="#{ch_id}">{esc(question[:40])}</a>\n')
-        for sid, _ in secs:
-            name = re.sub(r"^\d+\s*·\s*", "", str(section_names.get(sid, sid)))
-            toc_html += (f'<a class="toc-link" href="#{sid}" id="toc-{sid}">{esc(name[:32])}</a>\n')
-    sidebar = f'''<aside class="sidebar">
-  <div class="toc-logo">{esc(meta.get("product", "")[:20])}<br><span>{esc(meta.get("market", ""))}</span></div>
-  <div class="toc-group-label">{esc(S(cfg, "toc_title"))}</div>
-  {toc_html}
-</aside>'''
-    body = depth_banner + "".join(parts)
+    spine_body, sidebar, _active_ids = _assemble_chapter_spine(cfg, chapter_layout, keep, answers, section_names)
+    body = depth_banner + spine_body
     return _page_shell(cfg, title, sidebar, body, echarts_block)
+
+
+def _load_by_path(name: str):
+    """Load one of this package's sibling modules by file path, registering it
+    into sys.modules under its real name first. Required so a module defining
+    an exception class (investment_schema.InvestmentConfigError) is the same
+    class object everywhere it's loaded — see investment_schema.py's own note."""
+    import sys
+    if name in sys.modules:
+        return sys.modules[name]
+    import importlib.util as _ilu
+    spec = _ilu.spec_from_file_location(name, _HERE / f"{name}.py")
+    mod = _ilu.module_from_spec(spec)
+    sys.modules[name] = mod
+    spec.loader.exec_module(mod)
+    return mod
+
+
+InvestmentConfigError = _load_by_path("investment_schema").InvestmentConfigError
 
 
 def _load_dashboard_modules():
     try:
-        from dashboard_data import build_dashboard_data
+        from dashboard_data import build_dashboard_data, build_investment_view
         from dashboard_render import render_dashboard
     except ImportError:
-        from .dashboard_data import build_dashboard_data
-        from .dashboard_render import render_dashboard
-    return build_dashboard_data, render_dashboard
+        try:
+            from .dashboard_data import build_dashboard_data, build_investment_view
+            from .dashboard_render import render_dashboard
+        except ImportError:
+            dd = _load_by_path("dashboard_data")
+            dr = _load_by_path("dashboard_render")
+            build_dashboard_data, build_investment_view = dd.build_dashboard_data, dd.build_investment_view
+            render_dashboard = dr.render_dashboard
+    return build_dashboard_data, render_dashboard, build_investment_view
+
+
+def _get_investment_view(cfg: dict):
+    """Lazy-load just dashboard_data.build_investment_view — the document
+    report needs this (not dashboard_render's HTML), so it avoids pulling in
+    the dashboard renderer for a plain document build."""
+    try:
+        from dashboard_data import build_investment_view
+    except ImportError:
+        try:
+            from .dashboard_data import build_investment_view
+        except ImportError:
+            build_investment_view = _load_by_path("dashboard_data").build_investment_view
+    return build_investment_view(cfg)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -3103,13 +3343,16 @@ def main():
             numbers = validate_and_resolve(cfg.get("numbers", {}))
             for w in lint_prose(cfg, numbers):
                 print(f"LINT WARNING — {w}", file=sys.stderr)
-            build_dashboard_data, render_dashboard = _load_dashboard_modules()
+            build_dashboard_data, render_dashboard, _biv = _load_dashboard_modules()
             html = render_dashboard(build_dashboard_data(cfg))
         else:
             depth = args.depth or cfg.get("depth", "standard")
             echarts_js = Path(args.embed_echarts).read_text(encoding="utf-8") if args.embed_echarts else None
             html = generate_html(cfg, depth=depth, echarts_js=echarts_js)
     except ConfigError as e:
+        print(f"BUILD FAILED — {e}", file=sys.stderr)
+        sys.exit(2)
+    except InvestmentConfigError as e:
         print(f"BUILD FAILED — {e}", file=sys.stderr)
         sys.exit(2)
 
