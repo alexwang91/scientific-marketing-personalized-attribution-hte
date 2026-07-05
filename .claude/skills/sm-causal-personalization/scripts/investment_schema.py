@@ -8,8 +8,8 @@ verdict that was already decided upstream (ref 17): a SKU verdicted
 `harvest`/`exit` can never enter the allocation, no matter how it scores.
 
 Domain-agnostic by design: nothing here names a brand, category, country, or
-currency. A router portfolio in Romania and a skincare portfolio in Vietnam
-validate against the exact same rules — only the config differs.
+currency. Any product line in any market validates against the exact same
+rules — only the config differs.
 
 See references/06-policy-nbt.md and the investment-dashboard plan for the
 full data contract.

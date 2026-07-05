@@ -206,9 +206,9 @@ For production, swap in [EconML](https://github.com/py-why/EconML) / [CausalML](
 
 - `sample-sku-en-config.json` — English, standard single-SKU report (fictional brand / product)
 - `sample-sku-zh-config.json` — Chinese version with full UI label overrides, TL;DR page, and ECharts localization (fictional brand / product)
-- `aurora-airpurifier-category-config.json` — category portfolio diagnostic (ref 17), fictional brand / SKUs: `report_type=category_portfolio`
+- `aurora-airpurifier-category-config.json` — category portfolio diagnostic (ref 17), fictional brand / SKUs: `report_type=category_portfolio`, plus `investment_plan` + `mmm` — demonstrates the SKU × marketing-module budget-frontier allocation engine (`investment_schema.py` / `investment_engine.py` / `investment_charts.py` / `mmm_bridge.py`): where to spend, why, which cells are frozen for lack of evidence, and how confident each dollar is.
 
-Pre-rendered HTML of each config lives in [`examples/rendered/`](.claude/skills/sm-causal-personalization/examples/rendered) — open them to preview the deliverable without running anything.
+Pre-rendered HTML of each config lives in [`examples/rendered/`](.claude/skills/sm-causal-personalization/examples/rendered) — open them to preview the deliverable without running anything. `aurora-category.html` is the document report; `aurora-category-dashboard.html` is the same config's interactive cockpit (`--format dashboard`).
 
 **中文说明 / Chinese README** → [`README.zh.md`](README.zh.md)
 

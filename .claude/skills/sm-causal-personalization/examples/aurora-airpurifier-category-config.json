@@ -9,7 +9,6 @@
     "lang": "en"
   },
   "_note": "Illustrative example. Brand, SKUs, competitors and figures are fictional placeholders to demonstrate the category-portfolio report structure — not a real market study. Replace with operator-supplied data; AI-scanned fields stay Hypothesis-grade until confirmed.",
-
   "price_tiers": [
     {
       "id": "entry",
@@ -18,8 +17,18 @@
       "audience": "First-time, price-led buyers",
       "force": "Habit (low urgency, easy to defer)",
       "channel_fit": "Marketplace bidding + bundles",
-      "your_skus": ["Aurora A1 Mini", "Aurora S2"],
-      "competitors": [{"name": "Budget Rival X"}, {"name": "Budget Rival Y"}]
+      "your_skus": [
+        "Aurora A1 Mini",
+        "Aurora S2"
+      ],
+      "competitors": [
+        {
+          "name": "Budget Rival X"
+        },
+        {
+          "name": "Budget Rival Y"
+        }
+      ]
     },
     {
       "id": "mid",
@@ -28,8 +37,18 @@
       "audience": "Mainstream upgraders replacing a first unit",
       "force": "Push + Anxiety (old-unit pain; fear of buying wrong)",
       "channel_fit": "Comparison sites + review content",
-      "your_skus": ["Aurora A3", "Aurora A3 Plus"],
-      "competitors": [{"name": "Mid Rival M"}, {"name": "Mid Rival N"}]
+      "your_skus": [
+        "Aurora A3",
+        "Aurora A3 Plus"
+      ],
+      "competitors": [
+        {
+          "name": "Mid Rival M"
+        },
+        {
+          "name": "Mid Rival N"
+        }
+      ]
     },
     {
       "id": "premium",
@@ -38,11 +57,17 @@
       "audience": "Health-driven / large-home buyers",
       "force": "Pull (product capability itself attracts)",
       "channel_fit": "Brand media + expert reviews + DTC",
-      "your_skus": ["Aurora Pro", "Aurora Max"],
-      "competitors": [{"name": "Premium Rival P"}]
+      "your_skus": [
+        "Aurora Pro",
+        "Aurora Max"
+      ],
+      "competitors": [
+        {
+          "name": "Premium Rival P"
+        }
+      ]
     }
   ],
-
   "diagnosis": [
     {
       "lens": "L1",
@@ -105,10 +130,12 @@
       "recommendation": "Build a localized PDP, seed expert reviews, and lead with technical media — do not discount the flagship."
     }
   ],
-
   "portfolio": [
     {
-      "sku": "Aurora A1 Mini", "tier": "entry", "lifecycle": "declining", "verdict": "harvest",
+      "sku": "Aurora A1 Mini",
+      "tier": "entry",
+      "lifecycle": "declining",
+      "verdict": "harvest",
       "note": "Aging entry unit in a shrinking, price-warred tier. No room to grow profitably; milk margin and prepare a successor.",
       "fourP": {
         "product": "Entry value unit; freeze spec, no new investment",
@@ -118,7 +145,10 @@
       }
     },
     {
-      "sku": "Aurora S2", "tier": "entry", "lifecycle": "maintain", "verdict": "hold",
+      "sku": "Aurora S2",
+      "tier": "entry",
+      "lifecycle": "maintain",
+      "verdict": "hold",
       "note": "Defends the entry price band against Budget Rivals X/Y. Worth keeping as a price anchor, not worth scaling.",
       "fourP": {
         "product": "Keep as price-band defender",
@@ -128,7 +158,10 @@
       }
     },
     {
-      "sku": "Aurora A3", "tier": "mid", "lifecycle": "main", "verdict": "grow",
+      "sku": "Aurora A3",
+      "tier": "mid",
+      "lifecycle": "main",
+      "verdict": "grow",
       "note": "Mid-tier in a growing band with the clearest profit room. The hero SKU — consolidate the mid tier around it. → deep dive.",
       "fourP": {
         "product": "Mid-tier hero; lead on whole-home coverage",
@@ -138,7 +171,10 @@
       }
     },
     {
-      "sku": "Aurora A3 Plus", "tier": "mid", "lifecycle": "declining", "verdict": "exit",
+      "sku": "Aurora A3 Plus",
+      "tier": "mid",
+      "lifecycle": "declining",
+      "verdict": "exit",
       "note": "Cannibalizes A3 at the same price and position (see L3). No distinct job. Clear inventory and let A3 own the band.",
       "fourP": {
         "product": "Redundant with A3; discontinue",
@@ -148,7 +184,10 @@
       }
     },
     {
-      "sku": "Aurora Pro", "tier": "premium", "lifecycle": "main", "verdict": "grow",
+      "sku": "Aurora Pro",
+      "tier": "premium",
+      "lifecycle": "main",
+      "verdict": "grow",
       "note": "Entry-premium with room to climb into the empty 1,200–1,800 band (see L1). Confirm the promo-spiral risk first (L4). → deep dive.",
       "fourP": {
         "product": "Stretch into the open premium sub-band",
@@ -158,7 +197,10 @@
       }
     },
     {
-      "sku": "Aurora Max", "tier": "premium", "lifecycle": "new", "verdict": "grow",
+      "sku": "Aurora Max",
+      "tier": "premium",
+      "lifecycle": "new",
+      "verdict": "grow",
       "note": "Flagship that should set brand altitude but launched invisible (see L6). Fix the digital shelf, then it can anchor the premium narrative. → deep dive.",
       "fourP": {
         "product": "Premium flagship; build brand altitude",
@@ -168,21 +210,25 @@
       }
     }
   ],
-
   "numbers": {
     "premium_subband_share": {
       "label": "Aurora share in the 1,200–1,800 PLN sub-band",
       "provenance": "missing",
       "needed_from": "Marketplace share estimate or sell-through data",
       "cost_to_get": "~1 day desk research",
-      "blocks": ["L1 sizing", "Aurora Pro reposition decision"]
+      "blocks": [
+        "L1 sizing",
+        "Aurora Pro reposition decision"
+      ]
     },
     "pro_transaction_price_history": {
       "label": "Aurora Pro 90-day transaction-price history",
       "provenance": "missing",
       "needed_from": "Internal sales / marketplace transaction export",
       "cost_to_get": "Internal pull, ~2 hours",
-      "blocks": ["L4 promo-spiral confirmation"]
+      "blocks": [
+        "L4 promo-spiral confirmation"
+      ]
     },
     "entry_tier_trend": {
       "label": "Entry-tier category volume trend (YoY)",
@@ -191,7 +237,6 @@
       "basis": "Assumed −12% YoY from marketplace assortment thinning and price-drop frequency; not a measured figure"
     }
   },
-
   "facts": [
     {
       "fact": "Premium air-purifier demand is growing faster than entry in the local market",
@@ -200,7 +245,186 @@
       "accessed": "2026-06-15"
     }
   ],
-
+  "investment_plan": {
+    "currency": "PLN",
+    "planning_period": "2026-Q3",
+    "total_budget": 25000,
+    "required_mroi": 1.3,
+    "budget_step": 1000,
+    "modules": [
+      {
+        "id": "search",
+        "label": "Search"
+      },
+      {
+        "id": "retail_media",
+        "label": "Retail media"
+      },
+      {
+        "id": "creator_review",
+        "label": "Creator / review seeding"
+      },
+      {
+        "id": "pdp_content",
+        "label": "PDP content"
+      },
+      {
+        "id": "retail_activation",
+        "label": "Retail activation"
+      }
+    ],
+    "cells": [
+      {
+        "id": "a3_search",
+        "sku": "Aurora A3",
+        "module": "search",
+        "channel": "Google Search",
+        "tau_hat": 0.03,
+        "tau_source": "randomized_hte",
+        "measurement_gate": "holdout",
+        "reachable_population": 45000,
+        "unit_margin": 12.0,
+        "max_spend": 6000,
+        "saturation_k": 0.0008,
+        "readiness": 1.0
+      },
+      {
+        "id": "a3_creator",
+        "sku": "Aurora A3",
+        "module": "creator_review",
+        "channel": "Review seeding",
+        "tau_hat": 0.018,
+        "tau_source": "modeled_hte",
+        "reachable_population": 30000,
+        "unit_margin": 12.0,
+        "max_spend": 4000,
+        "saturation_k": 0.0009,
+        "readiness": 1.0
+      },
+      {
+        "id": "pro_retail_media",
+        "sku": "Aurora Pro",
+        "module": "retail_media",
+        "channel": "Marketplace retail media",
+        "tau_hat": 0.022,
+        "tau_source": "mmm_calibrated_prior",
+        "reachable_population": 20000,
+        "unit_margin": 20.0,
+        "max_spend": 8000,
+        "saturation_k": 0.0006,
+        "readiness": 1.0
+      },
+      {
+        "id": "pro_pdp",
+        "sku": "Aurora Pro",
+        "module": "pdp_content",
+        "channel": "PDP rebuild",
+        "tau_hat": 0.015,
+        "tau_source": "expert_assumption",
+        "tau_basis": "Category benchmark for PDP-led premium content uplift; no local test run yet",
+        "reachable_population": 15000,
+        "unit_margin": 20.0,
+        "max_spend": 3000,
+        "saturation_k": 0.001,
+        "readiness": 1.0
+      },
+      {
+        "id": "max_creator",
+        "sku": "Aurora Max",
+        "module": "creator_review",
+        "channel": "Expert review seeding",
+        "tau_hat": 0.028,
+        "tau_source": "randomized_hte",
+        "measurement_gate": "holdout",
+        "reachable_population": 8000,
+        "unit_margin": 25.0,
+        "max_spend": 5000,
+        "saturation_k": 0.0007,
+        "readiness": 1.0
+      },
+      {
+        "id": "max_search",
+        "sku": "Aurora Max",
+        "module": "search",
+        "channel": "Google Search",
+        "tau_source": "missing",
+        "needed_from": "Launch-market paid-search test — blocked until Aurora Max has a localized PDP (see L6)",
+        "reachable_population": 8000,
+        "unit_margin": 25.0,
+        "max_spend": 4000,
+        "saturation_k": 0.0007,
+        "readiness": 1.0
+      },
+      {
+        "id": "s2_retail_activation",
+        "sku": "Aurora S2",
+        "module": "retail_activation",
+        "channel": "In-store / bundle placement",
+        "tau_hat": 0.012,
+        "tau_source": "randomized_hte",
+        "measurement_gate": "holdout",
+        "reachable_population": 60000,
+        "unit_margin": 4.0,
+        "max_spend": 5000,
+        "saturation_k": 0.0012,
+        "readiness": 1.0
+      }
+    ]
+  },
+  "mmm": {
+    "mode": "provided_summary",
+    "channel_contribution": [
+      {
+        "channel": "Retail media",
+        "contribution": 42000
+      },
+      {
+        "channel": "Search",
+        "contribution": 31000
+      },
+      {
+        "channel": "Creator / review seeding",
+        "contribution": 18000
+      }
+    ],
+    "posterior_roas": [
+      {
+        "channel": "Retail media",
+        "mean": 2.4,
+        "lo": 1.8,
+        "hi": 3.1
+      },
+      {
+        "channel": "Search",
+        "mean": 1.9,
+        "lo": 1.5,
+        "hi": 2.3
+      },
+      {
+        "channel": "Creator / review seeding",
+        "mean": 1.6,
+        "lo": 1.1,
+        "hi": 2.0
+      }
+    ],
+    "adstock_curves": [],
+    "saturation_curves": [],
+    "optimized_channel_budget": [
+      {
+        "channel": "Retail media",
+        "budget": 15000
+      },
+      {
+        "channel": "Search",
+        "budget": 12000
+      },
+      {
+        "channel": "Creator / review seeding",
+        "budget": 8000
+      }
+    ],
+    "lift_calibration": []
+  },
   "labels": {
     "footer_note": "Illustrative example — fictional data; every real number must be sourced, assumed, derived, or missing"
   }

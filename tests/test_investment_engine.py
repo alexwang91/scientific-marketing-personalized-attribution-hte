@@ -30,6 +30,41 @@ schema = _load("investment_schema")
 engine = _load("investment_engine")
 
 
+# ── Genericity: the engine must never hardcode a brand/category/country/
+#    currency name. Mechanically checked, not just reviewed — covers both
+#    real customer data ever discussed (never committed, per the Local-Only
+#    Rule) and this repo's own fictional example brands (which belong only
+#    in examples/*.json, not in the reusable engine). ────────────────────────
+
+ENGINE_MODULES = (
+    "investment_schema", "investment_engine", "investment_charts",
+    "mmm_bridge", "svg_charts",
+)
+
+_BANNED_TERMS = (
+    # real-world product/brand names ever discussed for this capability —
+    # must never leak into the committed, reusable engine
+    "cloudlink", "huawei", "watch fit", "router", "romania",
+    # this repo's own fictional example brands/categories/markets — belong
+    # only in examples/*.json, never in the domain-agnostic engine itself
+    "vela", "brewpro", "czech", "aurora", "air purifier", "poland",
+)
+
+_BANNED_CURRENCY_CODES = ("CZK", "PLN", "RON", "HUF")
+
+
+def test_engine_modules_contain_no_hardcoded_example_domain_terms():
+    import re
+    for name in ENGINE_MODULES:
+        text = (SCRIPTS / f"{name}.py").read_text(encoding="utf-8")
+        lower = text.lower()
+        for term in _BANNED_TERMS:
+            assert term not in lower, f"{name}.py hardcodes domain term {term!r}"
+        for code in _BANNED_CURRENCY_CODES:
+            assert not re.search(rf"\b{code}\b", text), \
+                f"{name}.py hardcodes currency code {code!r}"
+
+
 def _cell(**overrides):
     base = {
         "id": "c1", "sku": "BE3", "module": "search", "channel": "Search",
