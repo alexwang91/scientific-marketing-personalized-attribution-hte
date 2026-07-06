@@ -2798,7 +2798,13 @@ def s_inv_answer(cfg: dict, inv: dict) -> str:
     cards = ""
     for k in kpis:
         label = S(cfg, "inv_" + k["label_key"])
-        val = f'{k["value"]:,.2f}'.rstrip("0").rstrip(".") if isinstance(k["value"], float) else str(k["value"])
+        v = k["value"]
+        # money and unit counts read as whole numbers (false precision on
+        # estimates); the two ratios (roi, lambda_star) keep 2 decimals
+        if isinstance(v, (int, float)):
+            val = f'{v:.2f}' if k["id"] in ("roi", "lambda_star") else f'{v:,.0f}'
+        else:
+            val = str(v)
         unit = esc(k.get("unit", ""))
         cards += (f'<div class="kpi inv-kpi-{esc(k["tone"])}"><div class="kpi-num">{esc(val)}'
                   f'<span class="kpi-unit">{unit}</span></div>'
@@ -2898,11 +2904,20 @@ def s_inv_tasks(cfg: dict, inv: dict) -> str:
     for row in allocation:
         conf = row.get("confidence", "assumption_grade")
         conf_word = S(cfg, f"inv_confidence_{conf}")
+        owner = (f'<dt>{esc(S(cfg, "owner_word"))}</dt><dd>{esc(row["owner"])}</dd>'
+                 if row.get("owner") else "")
+        measurement = (f'<dt>{esc(S(cfg, "inv_th_measurement"))}</dt><dd>{esc(row["measurement"])}</dd>'
+                       if row.get("measurement") else "")
+        stop_rule = (f'<dt>{esc(S(cfg, "kill_line_word"))}</dt><dd>{esc(row["stop_rule"])}</dd>'
+                     if row.get("stop_rule") else "")
         cards += f"""<div class="card">
   <h3>{esc(row.get("sku",""))} &nbsp;·&nbsp; {esc(row.get("module",""))}</h3>
   <dl>
+    {owner}
     <dt>{esc(S(cfg, "inv_th_spend"))}</dt><dd>{row.get("spend",0.0):,.0f} {currency}</dd>
     <dt>{esc(S(cfg, "inv_th_roi"))}</dt><dd>{row.get("roi",0.0):.2f}x</dd>
+    {measurement}
+    {stop_rule}
     <dt>{esc(S(cfg, "inv_th_confidence"))}</dt><dd>{esc(conf_word)}</dd>
   </dl></div>"""
     return f"""<section id="inv4">

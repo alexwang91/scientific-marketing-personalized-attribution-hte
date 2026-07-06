@@ -55,9 +55,9 @@ def render_dashboard(data: Dict[str, Any]) -> str:
     {body}
   </main>
   <aside class="detail-panel" id="detail-panel">
-    <div class="eyebrow">Detail</div>
-    <h2 id="detail-title">Select an item</h2>
-    <div id="detail-body"><p>Click a KPI, channel, heatmap cell, treatment, diagnosis, or evidence row to inspect its reasoning.</p></div>
+    <div class="eyebrow">{_esc(_s(data, "dash_detail_title", "Detail"))}</div>
+    <h2 id="detail-title">{_esc(_s(data, "dash_detail_empty_title", "Select an item"))}</h2>
+    <div id="detail-body"><p>{_esc(_s(data, "dash_detail_empty_hint", "Click a KPI, channel, heatmap cell, treatment, diagnosis, or evidence row to inspect its reasoning."))}</p></div>
   </aside>
 </div>
 <script>
@@ -111,39 +111,60 @@ def _chapter_head(ch_id: str, title: str, question: str, answer_label: str, answ
 
 
 def _render_category(data: Dict[str, Any]) -> str:
+    """Same five-question spine as _render_sku — the reading line is:
+    ch1 the call (verdicts + investment answer) → ch2 the why (diagnosis +
+    frontier) → ch3 the play (market tiers, SKU verdicts, where the money
+    lands) → ch4 execution (handoff + funded activation cards) → ch5 the
+    receipts (evidence + confidence + MMM)."""
+    s = data.get("strings", {})
+    answers = data.get("chapter_answers", {})
     inv = data.get("investment")
+
+    def ch(n: str) -> str:
+        return _chapter_head(n, s.get(f"{n}_title", n), s.get(f"{n}_question", ""),
+                             s.get("ch_answer_label", "Short answer"), answers.get(n, ""))
+
     parts = [
-        _hero(data, "Portfolio Verdict"),
+        ch("ch1"),
+        _hero(data, _s(data, "dash_hero_portfolio", "Portfolio Verdict")),
         _kpis(data),
     ]
     if inv:
         parts += [_investment_kpis(data, inv), _investment_never_funded(data, inv)]
-    parts += [
-        _portfolio_tiers(data),
-        _portfolio_diagnosis(data),
-    ]
+    parts += [ch("ch2"), _portfolio_diagnosis(data)]
     if inv:
         parts.append(_investment_frontier(data, inv))
-    parts.append(_portfolio_skus(data))
+    parts += [ch("ch3"), _portfolio_tiers(data), _portfolio_skus(data)]
     if inv:
-        parts += [_investment_matrix(data, inv), _investment_tasks(data, inv)]
-    parts.append(_evidence(data))
+        parts.append(_investment_matrix(data, inv))
+    parts += [ch("ch4"), _portfolio_handoff(data)]
+    if inv:
+        parts.append(_investment_tasks(data, inv))
+    parts += [ch("ch5"), _evidence(data)]
     if inv:
         parts.append(_investment_confidence_mmm(data, inv))
-    return "\n".join(parts)
+    return "\n".join(p for p in parts if p)
 
 
 def _s(data: Dict[str, Any], key: str, default: str = "") -> str:
     return data.get("strings", {}).get(key, default)
 
 
+def _kpi_value_text(k: Dict[str, Any]) -> str:
+    """Money and unit counts read as whole numbers — '13,802.48 units' is
+    false precision when every input is an estimate; ratios keep 2 decimals."""
+    v = k.get("value", 0)
+    if not isinstance(v, (int, float)):
+        return str(v)
+    txt = f'{v:.2f}' if k.get("id") in ("roi", "lambda_star") else f'{v:,.0f}'
+    return f'{txt} {k.get("unit", "")}'.strip()
+
+
 def _investment_kpis(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
     cards = []
     for k in inv.get("charts", {}).get("kpis", []):
         label = _s(data, "inv_" + k["label_key"], k["label_key"])
-        val = k["value"]
-        val_txt = f'{val:,.2f}'.rstrip("0").rstrip(".") if isinstance(val, float) else str(val)
-        text = f'{val_txt} {k.get("unit","")}'.strip()
+        text = _kpi_value_text(k)
         cards.append(f"""<button class="kpi-card tone-{_esc(k.get('tone','neutral'))}" data-detail='{_detail_json(label, text, k)}'>
   <span>{_esc(label)}</span>
   <strong>{_esc(text)}</strong>
@@ -165,7 +186,7 @@ def _investment_never_funded(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
             for b in blocked
         ]
     return _section("invest-never-funded", _s(data, "inv_never_funded_heading", "Never funded this round"),
-                    "Cells excluded by portfolio verdict or blocked confidence.", cards)
+                    "", cards)
 
 
 def _investment_frontier(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
@@ -218,16 +239,25 @@ def _investment_matrix(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
 
 def _investment_tasks(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
     allocation = inv.get("answer", {}).get("allocation", [])
+    currency = inv.get("currency", "")
     cards = []
     for row in allocation:
         conf = row.get("confidence", "assumption_grade")
-        text = (f'{_s(data, "inv_th_spend", "Spend")}: {row.get("spend",0):,.0f} · '
-               f'{_s(data, "inv_th_roi", "ROI")}: {row.get("roi",0):.2f}x · '
-               f'{_s(data, f"inv_confidence_{conf}", conf)}')
-        cards.append(_wide_card(f'{row.get("sku","")} · {row.get("module","")}', text, row,
+        bits = [
+            f'{_s(data, "inv_th_spend", "Spend")}: {row.get("spend", 0):,.0f} {currency}'.rstrip(),
+            f'{_s(data, "inv_th_roi", "ROI")}: {row.get("roi", 0):.2f}x',
+        ]
+        if row.get("owner"):
+            bits.append(f'{_s(data, "owner_word", "Owner")}: {row["owner"]}')
+        if row.get("measurement"):
+            bits.append(f'{_s(data, "inv_th_measurement", "Measurement")}: {row["measurement"]}')
+        if row.get("stop_rule"):
+            bits.append(f'{_s(data, "kill_line_word", "Stop-loss line")}: {row["stop_rule"]}')
+        bits.append(_s(data, f"inv_confidence_{conf}", conf))
+        cards.append(_wide_card(f'{row.get("sku","")} · {row.get("module","")}', " · ".join(bits), row,
                                 extra=f'<span class="status">{_esc(conf)}</span>'))
     return _section("invest-tasks", _s(data, "inv_tasks_heading", "Activation cards"),
-                    "This round's funded moves.", cards or [_empty("No funded rows.")])
+                    "", cards or [_empty("No funded rows.")])
 
 
 def _investment_confidence_mmm(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
@@ -255,8 +285,8 @@ def _hero(data: Dict[str, Any], label: str) -> str:
   </div>
   <div class="hero-actions">
     <button class="pill verdict" data-detail='{_detail_json("Verdict", overview.get("thesis", ""), overview)}'>{_esc(str(overview.get('verdict', 'undetermined')).upper())}</button>
-    <button class="pill" data-detail='{_detail_json("Top action", overview.get("top_action", ""), overview)}'>Top action</button>
-    <button class="pill muted" data-detail='{_detail_json("Top blocker", overview.get("top_blocker", ""), overview)}'>Top blocker</button>
+    <button class="pill" data-detail='{_detail_json(_s(data, "dash_top_action", "Top action"), overview.get("top_action", ""), overview)}'>{_esc(_s(data, "dash_top_action", "Top action"))}</button>
+    <button class="pill muted" data-detail='{_detail_json(_s(data, "dash_top_blocker", "Top blocker"), overview.get("top_blocker", ""), overview)}'>{_esc(_s(data, "dash_top_blocker", "Top blocker"))}</button>
   </div>
 </section>"""
 
@@ -281,8 +311,8 @@ def _economics(data: Dict[str, Any]) -> str:
         rows.append(_wide_card(row.get("change", "Sensitivity"), row.get("effect", ""), row))
     return _section(
         "economics",
-        "Economics",
-        "Unit economics, CAC ceiling, and sensitivity levers.",
+        _s(data, "dash_economics_title", "Economics"),
+        _s(data, "dash_economics_sub", "Unit economics, CAC ceiling, and sensitivity levers."),
         rows or [_empty("No economics rows available.")],
     )
 
@@ -298,8 +328,8 @@ def _channels(data: Dict[str, Any]) -> str:
         ))
     return _section(
         "channels",
-        "Channel Screen",
-        "Which channels can be defended before spend is unlocked.",
+        _s(data, "dash_channels_title", "Channel Screen"),
+        _s(data, "dash_channels_sub", "Which channels can be defended before spend is unlocked."),
         cards or [_empty("No channel screen available.")],
     )
 
@@ -310,20 +340,21 @@ def _causal_map(data: Dict[str, Any]) -> str:
         f'<button class="graph-node" data-detail=\'{_detail_json(n, "Layer in the causal decision chain.", {"layer": n})}\'>{_esc(n)}</button>'
         for n in nodes
     )
-    return _section("map", "Causal Map", "The dashboard keeps the reasoning sequence visible.", [f'<div class="graph">{html}</div>'])
+    return _section("map", _s(data, "dash_map_title", "Causal Map"),
+                    _s(data, "dash_map_sub", "The dashboard keeps the reasoning sequence visible."), [f'<div class="graph">{html}</div>'])
 
 
 def _dimensions(data: Dict[str, Any]) -> str:
     dims = data.get("dimensions", [])
     if not dims:
-        return _section("dimensions", "D Dimension Table", "", [_empty("No dimension table available.")])
+        return _section("dimensions", _s(data, "dash_dimensions_title", "D Dimension Table"), "", [_empty("No dimension table available.")])
     cards = [
         _wide_card(f'{d.get("id","")} · {d.get("label","")}', d.get("logic", ""), d,
                   extra=f'<span class="status">{_esc(d.get("verdict",""))}</span>')
         for d in dims
     ]
-    return _section("dimensions", "D Dimension Table",
-                    "Buyer characteristics that predict incremental response, within the channels above.", cards)
+    return _section("dimensions", _s(data, "dash_dimensions_title", "D Dimension Table"),
+                    _s(data, "dash_dimensions_sub", "Buyer characteristics that predict incremental response, within the channels above."), cards)
 
 
 def _measurement(data: Dict[str, Any]) -> str:
@@ -342,7 +373,7 @@ def _measurement(data: Dict[str, Any]) -> str:
     if mp.get("gcg_design"):
         rows.append(_wide_card("GCG design", mp["gcg_design"], mp))
     maturity = mp.get("maturity", "L0")
-    return _section("measurement", f"Measurement Plan · maturity {_esc(maturity)}",
+    return _section("measurement", f'{_s(data, "dash_measurement_title", "Measurement Plan")} · {_esc(maturity)}',
                     mp.get("hte_note", ""), rows or [_empty("No measurement plan available.")])
 
 
@@ -353,7 +384,7 @@ def _heatmap(data: Dict[str, Any]) -> str:
     s = data.get("strings", {})
     channels = {c["id"]: c for c in data.get("channels", [])}
     if not columns or not rows:
-        return _section("heatmap", "Play matrix", "Channel x audience fit.", [_empty("No heatmap data available.")])
+        return _section("heatmap", _s(data, "dash_heatmap_title", "Play matrix"), "", [_empty("No heatmap data available.")])
 
     head = "<div class='heat-head'>Channel</div>" + "".join(
         f"<div class='heat-head'>{_esc(c['id'])}<br><span>{_esc(c['label'])}</span></div>"
@@ -378,7 +409,7 @@ def _heatmap(data: Dict[str, Any]) -> str:
         synthetic_note = "<p class='synthetic-note'>Auto-inferred from channel verdicts — no real heatmap scores in the config yet.</p>"
     return _section(
         "heatmap",
-        "Play matrix",
+        _s(data, "dash_heatmap_title", "Play matrix"),
         caption or "Click a cell to inspect the causal hypothesis, proxy, and validation action.",
         [f"<div class='heatmap' style='--cols:{len(columns)}'>{head}{''.join(body)}</div>{synthetic_note}"],
     )
@@ -401,8 +432,8 @@ def _suppression(data: Dict[str, Any]) -> str:
     cards = [_wide_card(r.get("rule", ""), r.get("reason", ""), r,
                         extra=f'<span class="status">{_esc(r.get("dimension", ""))}</span>')
              for r in rows]
-    return _section("suppression", "Who NOT to touch",
-                    "Targeting these people burns money — exclusions are part of the play.", cards)
+    return _section("suppression", _s(data, "dash_suppression_title", "Who NOT to touch"),
+                    _s(data, "dash_suppression_sub", "Targeting these people burns money — exclusions are part of the play."), cards)
 
 
 def _budgets(data: Dict[str, Any]) -> str:
@@ -412,8 +443,8 @@ def _budgets(data: Dict[str, Any]) -> str:
     cards = [_wide_card(f'{r.get("phase", "")} · {r.get("item", "")}',
                         f'{r.get("budget_text", "—")} — {r.get("condition", "")}', r)
              for r in rows]
-    return _section("budgets", "Budget release",
-                    "Money unlocks stage by stage; each line names its release condition.", cards)
+    return _section("budgets", _s(data, "dash_budgets_title", "Budget release"),
+                    _s(data, "dash_budgets_sub", "Money unlocks stage by stage; each line names its release condition."), cards)
 
 
 def _checklist(data: Dict[str, Any]) -> str:
@@ -430,7 +461,7 @@ def _checklist(data: Dict[str, Any]) -> str:
         cards.append(_wide_card(i.get("item", ""), "", i,
                                 extra=f'<span class="status">{_esc(i.get("status", ""))}</span>'))
     return _section("gates", s.get("gate_word", "Release conditions"),
-                    "Everything that must land before budget unlocks.", cards)
+                    _s(data, "dash_gates_sub", "Everything that must land before budget unlocks."), cards)
 
 
 def _challenges_section(data: Dict[str, Any]) -> str:
@@ -440,8 +471,8 @@ def _challenges_section(data: Dict[str, Any]) -> str:
     cards = [_wide_card(f'{c.get("id", "")} · {c.get("target", "")}', c.get("question", ""), c,
                         extra=f'<span class="status">{_esc(c.get("status", ""))}</span>')
              for c in rows]
-    return _section("challenges", "Self-critique",
-                    "Independent challenges to this analysis — open items block dependent spend.", cards)
+    return _section("challenges", _s(data, "dash_challenges_title", "Self-critique"),
+                    _s(data, "dash_challenges_sub", "Independent challenges to this analysis — open items block dependent spend."), cards)
 
 
 def _treatments(data: Dict[str, Any]) -> str:
@@ -455,8 +486,8 @@ def _treatments(data: Dict[str, Any]) -> str:
         cards.append(_wide_card(f"{treatment.get('id')} {treatment.get('label')}", text, treatment))
     return _section(
         "treatments",
-        "Treatment Gates",
-        "Every action carries mechanism, guardrail, test, and gate.",
+        _s(data, "dash_treatments_title", "Treatment Gates"),
+        _s(data, "dash_treatments_sub", "Every action carries mechanism, guardrail, test, and gate."),
         cards or [_empty("No treatment/action cards available.")],
     )
 
@@ -466,7 +497,8 @@ def _portfolio_tiers(data: Dict[str, Any]) -> str:
         _wide_card(t.get("label", ""), f"{t.get('trend', '')} · {t.get('audience', '')} · {t.get('channel_fit', '')}", t)
         for t in data.get("portfolio", {}).get("tiers", [])
     ]
-    return _section("tiers", "Tier Map", "Price tiers, audiences, forces, and channel fit.", cards)
+    return _section("tiers", _s(data, "dash_tiers_title", "Tier Map"),
+                    _s(data, "dash_tiers_sub", "Price tiers, audiences, forces, and channel fit."), cards)
 
 
 def _portfolio_diagnosis(data: Dict[str, Any]) -> str:
@@ -479,15 +511,37 @@ def _portfolio_diagnosis(data: Dict[str, Any]) -> str:
         )
         for d in data.get("portfolio", {}).get("diagnosis", [])
     ]
-    return _section("diagnosis", "Diagnosis Lenses", "L1-L6 category and 4P diagnosis.", cards)
+    return _section("diagnosis", _s(data, "dash_diag_title", "Diagnosis Lenses"),
+                    _s(data, "dash_diag_sub", "L1-L6 category and 4P diagnosis."), cards)
+
+
+# reading order inside the SKU matrix: where to invest first, what to exit last
+_VERDICT_ORDER = {"grow": 0, "hold": 1, "harvest": 2, "exit": 3}
 
 
 def _portfolio_skus(data: Dict[str, Any]) -> str:
+    skus = sorted(data.get("portfolio", {}).get("skus", []),
+                  key=lambda r: _VERDICT_ORDER.get(str(r.get("verdict", "")), 9))
     cards = [
-        _wide_card(f"{s.get('sku', '')} · {s.get('verdict', '')}", s.get("note", ""), s)
-        for s in data.get("portfolio", {}).get("skus", [])
+        _wide_card(s.get("sku", ""), s.get("note", ""), s,
+                   extra=f'<span class="status">{_esc(_s(data, "verdict_" + str(s.get("verdict", "")), s.get("verdict", "")))}</span>')
+        for s in skus
     ]
-    return _section("skus", "SKU Matrix", "SKU verdicts and 4P moves.", cards)
+    return _section("skus", _s(data, "dash_skus_title", "SKU Matrix"),
+                    _s(data, "dash_skus_sub", "SKU verdicts and 4P moves."), cards)
+
+
+def _portfolio_handoff(data: Dict[str, Any]) -> str:
+    grow = [s for s in data.get("portfolio", {}).get("skus", []) if s.get("verdict") == "grow"]
+    if not grow:
+        return ""
+    cards = [
+        _wide_card(s.get("sku", ""), s.get("fourP", {}).get("promotion", "") or s.get("note", ""), s)
+        for s in grow
+    ]
+    return _section("handoff", _s(data, "dash_handoff_title", "Deep-Dive Handoff"),
+                    _s(data, "dash_handoff_sub",
+                       "Grow-verdict SKUs — confirm, then run each through the single-SKU pipeline."), cards)
 
 
 def _evidence(data: Dict[str, Any]) -> str:
@@ -505,8 +559,8 @@ def _evidence(data: Dict[str, Any]) -> str:
         rows.append(_wide_card("Fact", fact.get("fact", ""), fact))
     return _section(
         "evidence",
-        "Evidence Ledger",
-        "Sourced facts, assumptions, derivations, and missing values.",
+        _s(data, "dash_evidence_title", "Evidence Ledger"),
+        _s(data, "dash_evidence_sub", "Sourced facts, assumptions, derivations, and missing values."),
         rows or [_empty("No evidence rows available.")],
     )
 
@@ -538,11 +592,8 @@ def _empty(text: str) -> str:
 
 
 def _nav(data: Dict[str, Any]) -> str:
-    if data.get("kind") == "category_portfolio":
-        items = [("overview", "01"), ("kpis", "02"), ("tiers", "03"), ("diagnosis", "04"), ("skus", "05"), ("evidence", "06")]
-        if data.get("investment"):
-            items.append(("invest-kpis", "$"))
-        return "".join(f'<a href="#{sid}">{label}</a>' for sid, label in items)
+    # both report kinds share the five-question spine — the rail is the
+    # reading line: 1 the call, 2 the why, 3 the play, 4 execution, 5 receipts
     s = data.get("strings", {})
     return "".join(
         f'<a href="#{ch}" title="{_esc(s.get(f"{ch}_question", ""))}">{n}</a>'

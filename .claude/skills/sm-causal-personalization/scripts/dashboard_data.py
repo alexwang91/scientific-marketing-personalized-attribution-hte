@@ -313,7 +313,18 @@ def _strings(cfg: Dict[str, Any]) -> Dict[str, str]:
         "inv_confidence_heading", "inv_confidence_validated", "inv_confidence_mmm_calibrated",
         "inv_confidence_assumption_grade", "inv_confidence_blocked",
         "inv_mmm_heading", "inv_mmm_available", "inv_mmm_deferred", "inv_mmm_missing",
-        "inv_qini_missing",
+        "inv_qini_missing", "inv_th_measurement",
+        "verdict_grow", "verdict_hold", "verdict_harvest", "verdict_exit",
+        "dash_hero_portfolio", "dash_top_action", "dash_top_blocker",
+        "dash_detail_title", "dash_detail_empty_title", "dash_detail_empty_hint",
+        "dash_tiers_title", "dash_tiers_sub", "dash_diag_title", "dash_diag_sub",
+        "dash_skus_title", "dash_skus_sub", "dash_handoff_title", "dash_handoff_sub",
+        "dash_evidence_title", "dash_evidence_sub", "dash_economics_title", "dash_economics_sub",
+        "dash_channels_title", "dash_channels_sub", "dash_dimensions_title", "dash_dimensions_sub",
+        "dash_heatmap_title", "dash_suppression_title", "dash_suppression_sub",
+        "dash_treatments_title", "dash_treatments_sub", "dash_budgets_title", "dash_budgets_sub",
+        "dash_gates_sub", "dash_challenges_title", "dash_challenges_sub",
+        "dash_map_title", "dash_map_sub", "dash_measurement_title",
     ]
     out = {k: _sem.S(cfg, k) for k in keys}
     for code in ("H", "T", "S", "N", "A"):
@@ -381,6 +392,17 @@ def build_investment_view(cfg: Dict[str, Any]) -> Dict[str, Any] | None:
         eligible, plan["total_budget"], plan["budget_step"], plan["required_mroi"])
     mmm = _mmm_bridge.build_mmm_summary(cfg)
 
+    # optional accountability fields on cells flow through to the activation
+    # cards: who owns the move, how it's measured, and the stop rule
+    card_fields = ("owner", "measurement", "stop_rule")
+    meta_by_key: Dict[tuple, Dict[str, str]] = {}
+    for cell in plan["cells"]:
+        key = (cell.get("sku"), cell.get("module"))
+        if key not in meta_by_key and any(cell.get(f) for f in card_fields):
+            meta_by_key[key] = {f: cell[f] for f in card_fields if cell.get(f)}
+    for row in summary["allocation"]:
+        row.update(meta_by_key.get((row["sku"], row["module"]), {}))
+
     currency = plan.get("currency", "")
     frontier = _inv_engine.expand_budget_steps(eligible, plan["budget_step"])
     frontier.sort(key=lambda s: -s["marginal_roi"])
@@ -408,11 +430,18 @@ def build_investment_view(cfg: Dict[str, Any]) -> Dict[str, Any] | None:
 def _build_category_dashboard(cfg: Dict[str, Any]) -> Dict[str, Any]:
     numbers = _numbers(cfg)
     portfolio = cfg.get("portfolio", [])
+    investment = build_investment_view(cfg)
+    answers = _sem.category_chapter_answers(cfg, cfg.get("numbers", {}))
+    if investment:
+        # same per-chapter investment overlay the document report appends —
+        # the dashboard banner must state the budget verdict too
+        for ch_id, suffix in _sem.investment_chapter_answers(cfg, investment).items():
+            answers[ch_id] = answers[ch_id] + suffix
     return {
         "kind": "category_portfolio",
         "meta": _meta(cfg),
         "strings": _strings(cfg),
-        "chapter_answers": _sem.category_chapter_answers(cfg, cfg.get("numbers", {})),
+        "chapter_answers": answers,
         "overview": {
             "verdict": "portfolio",
             "thesis": cfg.get("_note", ""),
@@ -422,7 +451,7 @@ def _build_category_dashboard(cfg: Dict[str, Any]) -> Dict[str, Any]:
             "overturn_conditions": [],
             "decisions": [],
         },
-        "kpis": _portfolio_kpis(portfolio, numbers),
+        "kpis": _portfolio_kpis(cfg, portfolio, numbers),
         "economics": {"derivations": [], "sensitivity": []},
         "channels": [],
         "dimensions": [],
@@ -440,30 +469,31 @@ def _build_category_dashboard(cfg: Dict[str, Any]) -> Dict[str, Any]:
             "skus": portfolio,
             "verdict_counts": dict(Counter(row.get("verdict", "unknown") for row in portfolio)),
         },
-        "investment": build_investment_view(cfg),
+        "investment": investment,
     }
 
 
-def _portfolio_kpis(portfolio: List[Dict[str, Any]], numbers: Dict[str, Dict[str, Any]]) -> List[Dict[str, Any]]:
+def _portfolio_kpis(cfg: Dict[str, Any], portfolio: List[Dict[str, Any]],
+                    numbers: Dict[str, Dict[str, Any]]) -> List[Dict[str, Any]]:
     counts = Counter(row.get("verdict", "unknown") for row in portfolio)
     kpis = [
         {
             "id": "sku_count",
-            "label": "SKUs",
+            "label": _sem.S(cfg, "dash_kpi_skus"),
             "value": len(portfolio),
             "value_text": str(len(portfolio)),
             "provenance": "derived",
         },
         {
             "id": "grow_count",
-            "label": "Grow",
+            "label": _sem.S(cfg, "dash_kpi_grow"),
             "value": counts.get("grow", 0),
             "value_text": str(counts.get("grow", 0)),
             "provenance": "derived",
         },
         {
             "id": "exit_count",
-            "label": "Exit",
+            "label": _sem.S(cfg, "dash_kpi_exit"),
             "value": counts.get("exit", 0),
             "value_text": str(counts.get("exit", 0)),
             "provenance": "derived",
@@ -473,7 +503,7 @@ def _portfolio_kpis(portfolio: List[Dict[str, Any]], numbers: Dict[str, Dict[str
     if missing:
         kpis.append({
             "id": "missing_count",
-            "label": "Missing data",
+            "label": _sem.S(cfg, "dash_kpi_missing"),
             "value": len(missing),
             "value_text": str(len(missing)),
             "provenance": "missing",
