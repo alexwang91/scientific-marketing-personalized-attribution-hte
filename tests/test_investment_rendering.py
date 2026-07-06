@@ -38,9 +38,16 @@ dr = _load("dashboard_render")
 
 _CELL = {
     "id": "be3_search", "sku": "BE3", "module": "search", "channel": "Google Search",
-    "tau_hat": 0.025, "tau_source": "randomized_hte", "measurement_gate": "holdout",
+    "tau_hat": 0.025, "tau_source": "randomized_hte", "validation_ref": "be3_search_holdout",
+    "measurement_gate": "holdout",
     "reachable_population": 10000, "unit_margin": 120, "max_spend": 3000,
     "saturation_k": 0.001, "readiness": 1.0,
+    "owner": "Digital commerce",
+    "flight": "2026-Q3 weeks 1-4",
+    "kpi": "Incremental paid-search orders",
+    "measurement": "Geo holdout by county",
+    "stop_rule": "Pause if week-2 marginal ROI drops below 1.2x",
+    "why": "Highest validated uplift cell in the portfolio.",
 }
 
 
@@ -54,6 +61,39 @@ def _cfg(lang="en"):
             "required_mroi": 1.2, "budget_step": 1000,
             "modules": [{"id": "search", "label": "Search"}],
             "cells": [dict(_CELL)],
+            "hte_validation": {
+                "status": "available",
+                "method": "DR learner on randomized holdout",
+                "holdout_n": 24000,
+                "min_auuc": 0.15,
+                "max_calibration_mae": 0.02,
+                "validation_refs": [
+                    {"id": "be3_search_holdout", "cells": ["be3_search"], "learner": "dr_learner",
+                     "qini_auuc": 0.26, "calibration_mae": 0.01, "policy_value_ipw": 12000}
+                ],
+                "qini_curve": [
+                    {"targeted_pct": 0, "cumulative_lift_pct": 0},
+                    {"targeted_pct": 50, "cumulative_lift_pct": 73},
+                    {"targeted_pct": 100, "cumulative_lift_pct": 100},
+                ],
+                "decile_calibration": [
+                    {"decile": 1, "predicted_tau": 0.041, "observed_lift": 0.039, "audience_pct": 10}
+                ],
+                "tau_distribution": [{"bucket": "1-3%", "share": 1.0}],
+            },
+        },
+        "mmm": {
+            "mode": "provided_summary",
+            "channel_contribution": [{"channel": "Search", "contribution": 1200}],
+            "posterior_roas": [{"channel": "Search", "mean": 2.0, "lo": 1.5, "hi": 2.5}],
+            "adstock_curves": [{"channel": "Search", "points": [
+                {"spend": 0, "response": 0}, {"spend": 1000, "response": 0.7}
+            ]}],
+            "saturation_curves": [{"channel": "Search", "points": [
+                {"spend": 0, "response": 0}, {"spend": 3000, "response": 0.9}
+            ]}],
+            "optimized_channel_budget": [{"channel": "Search", "budget": 4000}],
+            "lift_calibration": [{"channel": "Search", "predicted": 0.05, "observed": 0.047}],
         },
     }
 
@@ -64,6 +104,15 @@ def test_document_report_renders_all_five_investment_sections():
     html = rpt.generate_category_html(_cfg(), {})
     for sid in ("inv1", "inv2", "inv3", "inv4", "inv5"):
         assert f'id="{sid}"' in html, f"missing investment section {sid}"
+
+
+def test_document_report_renders_hte_core_and_mmm_summary():
+    html = rpt.generate_category_html(_cfg(), {})
+    assert 'id="inv-hte"' in html
+    assert "HTE Core" in html
+    assert "Qini / AUUC" in html
+    assert 'id="inv-mmm"' in html
+    assert "Posterior ROAS" in html
 
 
 def test_document_frontier_is_real_svg_not_a_spec_string():
@@ -120,10 +169,15 @@ def test_ch5_confidence_counts_only_funded_cells_not_the_full_candidate_set():
     cfg = _cfg()
     cfg["investment_plan"]["cells"].append({
         "id": "be3_search_lowroi", "sku": "BE3", "module": "search", "channel": "Google Search",
-        "tau_hat": 0.0001, "tau_source": "randomized_hte", "measurement_gate": "holdout",
+        "tau_hat": 0.0001, "tau_source": "randomized_hte",
+        "validation_ref": "be3_search_lowroi_holdout", "measurement_gate": "holdout",
         "reachable_population": 100, "unit_margin": 1, "max_spend": 2000,
         "saturation_k": 0.0001, "readiness": 1.0,
     })
+    cfg["investment_plan"]["hte_validation"]["validation_refs"].append(
+        {"id": "be3_search_lowroi_holdout", "cells": ["be3_search_lowroi"],
+         "learner": "dr_learner", "qini_auuc": 0.22, "calibration_mae": 0.01,
+         "policy_value_ipw": 10})
     inv = rpt._get_investment_view(cfg)
     all_cells_validated = inv["charts"]["confidence"]["validated"]
     funded_validated = sum(1 for r in inv["answer"]["allocation"] if r["confidence"] == "validated")
@@ -185,9 +239,28 @@ def test_cli_validate_only_passes_a_well_formed_investment_plan():
 def test_dashboard_renders_all_investment_sections():
     data = dd.build_dashboard_data(_cfg())
     html = dr.render_dashboard(data)
-    for sid in ("invest-kpis", "invest-never-funded", "invest-frontier",
-               "invest-matrix", "invest-tasks", "invest-confidence"):
+    for sid in ("invest-kpis", "invest-hte", "invest-frontier",
+               "invest-matrix", "invest-tasks", "invest-mmm", "invest-confidence"):
         assert f'id="{sid}"' in html, f"missing dashboard section {sid}"
+
+
+def test_dashboard_is_investment_first_and_evidence_last():
+    data = dd.build_dashboard_data(_cfg())
+    html = dr.render_dashboard(data)
+    assert html.index('id="invest-hte"') < html.index('id="invest-frontier"')
+    assert html.index('id="invest-mmm"') < html.index('id="evidence"')
+    assert 'href="#invest-hte"' in html
+    assert 'href="#invest-mmm"' in html
+
+
+def test_dashboard_renders_hte_and_activation_operating_details():
+    data = dd.build_dashboard_data(_cfg())
+    html = dr.render_dashboard(data)
+    assert "HTE Core" in html
+    assert "Qini" in html
+    assert "Owner" in html
+    assert "Geo holdout by county" in html
+    assert "Stop rule" in html
 
 
 def test_dashboard_frontier_is_real_svg():

@@ -125,6 +125,11 @@ in the `numbers` registry under the provenance contract. Worked example:
 
 ## Optional: Investment Plan (SKU × Marketing-Module Budget)
 
+Randomized HTE cells must name `validation_ref`, and the matching
+`investment_plan.hte_validation` entry must pass Qini/AUUC and decile
+calibration gates before the dashboard calls that cell `validated`. A
+measurement-gate string alone is not enough.
+
 Adding `investment_plan` to the same config turns the diagnostic into a budget
 decision: how much to spend, on which SKU, through which marketing lever, this
 cycle — the SKU-level tier of the three-tier λ* rule in ref 06. It renders

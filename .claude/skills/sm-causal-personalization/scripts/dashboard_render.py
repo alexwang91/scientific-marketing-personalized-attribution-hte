@@ -117,19 +117,22 @@ def _render_category(data: Dict[str, Any]) -> str:
         _kpis(data),
     ]
     if inv:
-        parts += [_investment_kpis(data, inv), _investment_never_funded(data, inv)]
+        parts += [
+            _investment_kpis(data, inv),
+            _investment_never_funded(data, inv),
+            _investment_hte_core(data, inv),
+            _investment_frontier(data, inv),
+            _investment_matrix(data, inv),
+            _investment_tasks(data, inv),
+            _investment_mmm(data, inv),
+            _investment_confidence_mmm(data, inv),
+        ]
     parts += [
         _portfolio_tiers(data),
         _portfolio_diagnosis(data),
     ]
-    if inv:
-        parts.append(_investment_frontier(data, inv))
     parts.append(_portfolio_skus(data))
-    if inv:
-        parts += [_investment_matrix(data, inv), _investment_tasks(data, inv)]
     parts.append(_evidence(data))
-    if inv:
-        parts.append(_investment_confidence_mmm(data, inv))
     return "\n".join(parts)
 
 
@@ -186,6 +189,39 @@ def _investment_frontier(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
                     _s(data, "inv_frontier_caption", ""), [panels])
 
 
+def _investment_hte_core(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
+    hte = inv.get("hte", {})
+    charts = inv.get("charts", {}).get("hte", {})
+    qini = charts.get("qini", {})
+    decile = charts.get("decile_calibration", {})
+    distribution = charts.get("tau_distribution", {})
+    cards = [
+        _wide_card(
+            "HTE validation gate",
+            f"Method: {hte.get('method', 'missing')} | Holdout n: {hte.get('holdout_n', 0)}",
+            hte,
+            extra=f'<span class="status">{_esc(hte.get("status", "missing"))}</span>',
+        )
+    ]
+    if qini.get("status") == "available":
+        cards.append(f"""<div class="wide-card">
+  <strong>Qini / AUUC</strong>
+  <span>AUUC: {_esc(qini.get('auuc', ''))}</span>
+  {_svg.line_panel(qini.get("points", []), None, "#16a34a")}
+</div>""")
+    for row in decile.get("rows", [])[:4]:
+        text = (f"Predicted tau: {row.get('predicted_tau', 0):.3f} | "
+                f"Observed lift: {row.get('observed_lift', 0):.3f} | "
+                f"Gap: {row.get('gap', 0):.3f}")
+        cards.append(_wide_card(f"Decile {row.get('decile', '')}", text, row))
+    for row in distribution.get("bins", [])[:4]:
+        share = float(row.get("share") or 0.0)
+        cards.append(_wide_card(f"Tau bucket {row.get('bucket', '')}", f"{share:.0%} of audience", row))
+    return _section("invest-hte", "HTE Core",
+                    "Validated uplift, model quality, and tau distribution behind the budget math.",
+                    cards)
+
+
 def _investment_matrix(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
     bm = inv.get("charts", {}).get("budget_matrix", {})
     x_axis, y_axis, cells = bm.get("x_axis", []), bm.get("y_axis", []), bm.get("cells", [])
@@ -217,17 +253,59 @@ def _investment_matrix(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
 
 
 def _investment_tasks(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
-    allocation = inv.get("answer", {}).get("allocation", [])
+    allocation = inv.get("activation_cards") or inv.get("answer", {}).get("allocation", [])
     cards = []
     for row in allocation:
         conf = row.get("confidence", "assumption_grade")
-        text = (f'{_s(data, "inv_th_spend", "Spend")}: {row.get("spend",0):,.0f} · '
-               f'{_s(data, "inv_th_roi", "ROI")}: {row.get("roi",0):.2f}x · '
-               f'{_s(data, f"inv_confidence_{conf}", conf)}')
-        cards.append(_wide_card(f'{row.get("sku","")} · {row.get("module","")}', text, row,
+        text = (f'Spend: {row.get("spend", 0):,.0f} {row.get("currency", inv.get("currency", ""))} | '
+                f'ROI: {row.get("roi", 0):.2f}x | Owner: {row.get("owner", "Unassigned")} | '
+                f'Measurement: {row.get("measurement", "")} | Stop rule: {row.get("stop_rule", "")}')
+        cards.append(_wide_card(f'{row.get("sku", "")} | {row.get("module", "")}', text, row,
                                 extra=f'<span class="status">{_esc(conf)}</span>'))
     return _section("invest-tasks", _s(data, "inv_tasks_heading", "Activation cards"),
                     "This round's funded moves.", cards or [_empty("No funded rows.")])
+
+
+def _investment_mmm(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
+    charts = inv.get("charts", {}).get("mmm", {})
+    mmm = inv.get("mmm", {})
+    cards = [_wide_card(
+        "MMM status",
+        _s(data, f"inv_mmm_{mmm.get('status', 'missing')}", _s(data, "inv_mmm_missing", "")),
+        mmm,
+        extra=f'<span class="status">{_esc(mmm.get("status", "missing"))}</span>',
+    )]
+    for row in charts.get("contribution", {}).get("bars", [])[:5]:
+        cards.append(_wide_card(
+            f"Contribution | {row.get('channel', '')}",
+            f"{row.get('contribution', 0):,.0f}",
+            row,
+        ))
+    for row in charts.get("posterior_roas", {}).get("intervals", [])[:5]:
+        cards.append(_wide_card(
+            f"Posterior ROAS | {row.get('channel', '')}",
+            f"{row.get('mean', 0):.2f}x ({row.get('lo', 0):.2f}-{row.get('hi', 0):.2f})",
+            row,
+        ))
+    for panel in charts.get("adstock", {}).get("panels", [])[:2]:
+        cards.append(f"""<div class="wide-card">
+  <strong>Adstock / response | {_esc(panel.get('channel', ''))}</strong>
+  {_svg.line_panel(panel.get("points", []), None, "#0891b2")}
+</div>""")
+    for panel in charts.get("saturation", {}).get("panels", [])[:2]:
+        cards.append(f"""<div class="wide-card">
+  <strong>Saturation | {_esc(panel.get('channel', ''))}</strong>
+  {_svg.line_panel(panel.get("points", []), None, "#4f46e5")}
+</div>""")
+    lift = charts.get("lift_calibration", {})
+    if lift.get("status") == "available":
+        cards.append(f"""<div class="wide-card">
+  <strong>Lift calibration</strong>
+  {_svg.line_panel(lift.get("points", []), None, "#d97706")}
+</div>""")
+    return _section("invest-mmm", "Macro Calibration (MMM)",
+                    "Channel-level PyMC-Marketing style summary used to calibrate the SKU-level plan.",
+                    cards)
 
 
 def _investment_confidence_mmm(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
@@ -539,9 +617,11 @@ def _empty(text: str) -> str:
 
 def _nav(data: Dict[str, Any]) -> str:
     if data.get("kind") == "category_portfolio":
-        items = [("overview", "01"), ("kpis", "02"), ("tiers", "03"), ("diagnosis", "04"), ("skus", "05"), ("evidence", "06")]
+        items = [("overview", "01"), ("kpis", "02")]
         if data.get("investment"):
-            items.append(("invest-kpis", "$"))
+            items += [("invest-kpis", "$"), ("invest-hte", "HTE"), ("invest-frontier", "ROI"),
+                      ("invest-matrix", "SKU"), ("invest-tasks", "DO"), ("invest-mmm", "MMM")]
+        items += [("tiers", "03"), ("diagnosis", "04"), ("skus", "05"), ("evidence", "E")]
         return "".join(f'<a href="#{sid}">{label}</a>' for sid, label in items)
     s = data.get("strings", {})
     return "".join(

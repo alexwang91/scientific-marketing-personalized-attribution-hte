@@ -582,6 +582,7 @@
 <a class="toc-link" href="#inv1" id="toc-inv1">Where the investment budget goes</a>
 <a class="toc-chapter" href="#ch2">Why? How was this math done?</a>
 <a class="toc-link" href="#c1" id="toc-c1">Category Diagnosis</a>
+<a class="toc-link" href="#inv-hte" id="toc-inv-hte">HTE Core</a>
 <a class="toc-link" href="#inv2" id="toc-inv2">The budget-vs-return curve (fron</a>
 <a class="toc-chapter" href="#ch3">Who do we go after, where, and with what</a>
 <a class="toc-link" href="#c2" id="toc-c2">Price-Tier × Audience × Competit</a>
@@ -592,6 +593,7 @@
 <a class="toc-link" href="#inv4" id="toc-inv4">Activation cards (this round's f</a>
 <a class="toc-chapter" href="#ch5">Why believe any of this? What could prov</a>
 <a class="toc-link" href="#s16" id="toc-s16">Evidence &amp; Gaps</a>
+<a class="toc-link" href="#inv-mmm" id="toc-inv-mmm">Macro channel calibration (MMM)</a>
 <a class="toc-link" href="#inv5" id="toc-inv5">Evidence quality across every ce</a>
 
 </aside>
@@ -677,6 +679,31 @@
   <div class="finding-meta"><strong>Cost if ignored:</strong> If true, the premium anchor is already damaged; if false, no action needed. Cannot tell without transaction-price data.</div>
   <div class="finding-rec"><strong>→ </strong>Pull a 90-day transaction-price history; if permanent-discount confirmed, freeze promo and rebuild the anchor.</div>
 </div>
+</section><section id="inv-hte">
+  <h2>HTE Core</h2>
+  <p class="callout">Method: DR learner on randomized holdout summaries; holdout n: 36000. A cell is called validated only when its validation_ref passes the AUUC and calibration gates.</p>
+  <div class="inv-panel">
+      <div class="inv-panel-title">Qini / AUUC: 0.2433</div>
+      <svg class="inv-svg" viewBox="0 0 520 190" role="img">
+  <line x1="50" y1="12" x2="50" y2="166" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="50" y1="166" x2="506" y2="166" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="50" y1="166.0" x2="506" y2="166.0" stroke="#cbd5e1" stroke-width="1"/>
+
+  <polyline points="50.0,166.0 141.2,102.9 232.4,64.4 323.6,39.7 414.8,22.8 506.0,12.0" fill="none" stroke="#16a34a" stroke-width="2.2"/>
+  <circle cx="50.0" cy="166.0" r="2.6" fill="#16a34a"/><circle cx="141.2" cy="102.9" r="2.6" fill="#16a34a"/><circle cx="232.4" cy="64.4" r="2.6" fill="#16a34a"/><circle cx="323.6" cy="39.7" r="2.6" fill="#16a34a"/><circle cx="414.8" cy="22.8" r="2.6" fill="#16a34a"/><circle cx="506.0" cy="12.0" r="2.6" fill="#16a34a"/>
+  <text x="50" y="184" font-size="9" fill="#64748b">0</text>
+  <text x="506" y="184" font-size="9" fill="#64748b" text-anchor="end">100</text>
+</svg>
+    </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Validation ref</th><th>Learner</th><th>Qini / AUUC</th><th>Calibration MAE</th><th>Passes gate</th></tr></thead>
+    <tbody><tr><td>a3_search_holdout</td><td>dr_learner</td><td>0.31</td><td>0.009</td><td>True</td></tr><tr><td>max_creator_holdout</td><td>x_learner</td><td>0.24</td><td>0.013</td><td>True</td></tr><tr><td>s2_retail_holdout</td><td>t_learner</td><td>0.18</td><td>0.018</td><td>True</td></tr></tbody></table></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Decile</th><th>Predicted tau</th><th>Observed lift</th><th>Gap</th></tr></thead>
+    <tbody><tr><td>1</td><td>0.052</td><td>0.049</td><td>0.003</td></tr><tr><td>2</td><td>0.041</td><td>0.039</td><td>0.002</td></tr><tr><td>3</td><td>0.030</td><td>0.031</td><td>-0.001</td></tr><tr><td>4</td><td>0.020</td><td>0.018</td><td>0.002</td></tr><tr><td>5</td><td>0.012</td><td>0.011</td><td>0.001</td></tr></tbody></table></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Tau bucket</th><th>Audience share</th></tr></thead>
+    <tbody><tr><td>&lt;=0</td><td>14%</td></tr><tr><td>0-1%</td><td>19%</td></tr><tr><td>1-3%</td><td>42%</td></tr><tr><td>&gt;3%</td><td>25%</td></tr></tbody></table></div>
 </section><section id="inv2">
   <h2>The budget-vs-return curve (frontier)</h2>
   <div class="inv-frontier-grid">
@@ -852,6 +879,65 @@
   <div class="table-wrap"><table>
     <thead><tr><th>What</th><th>Where to get it</th><th>Cost</th><th>Blocks</th></tr></thead>
     <tbody><tr><td>Aurora share in the 1,200–1,800 PLN sub-band</td><td>Marketplace share estimate or sell-through data</td><td>~1 day desk research</td><td>L1 sizing, Aurora Pro reposition decision</td></tr><tr><td>Aurora Pro 90-day transaction-price history</td><td>Internal sales / marketplace transaction export</td><td>Internal pull, ~2 hours</td><td>L4 promo-spiral confirmation</td></tr></tbody></table></div>
+</section><section id="inv-mmm">
+  <h2>Macro channel calibration (MMM)</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Channel</th><th>Contribution</th></tr></thead>
+    <tbody><tr><td>Retail media</td><td>42,000</td></tr><tr><td>Search</td><td>31,000</td></tr><tr><td>Creator / review seeding</td><td>18,000</td></tr></tbody></table></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Channel</th><th>Posterior ROAS</th><th>90% interval</th></tr></thead>
+    <tbody><tr><td>Retail media</td><td>2.40</td><td>1.80-3.10</td></tr><tr><td>Search</td><td>1.90</td><td>1.50-2.30</td></tr><tr><td>Creator / review seeding</td><td>1.60</td><td>1.10-2.00</td></tr></tbody></table></div>
+  <div class="inv-frontier-grid"><div class="inv-panel"><div class="inv-panel-title">Adstock / response | Retail media</div>
+<svg class="inv-svg" viewBox="0 0 520 190" role="img">
+  <line x1="50" y1="12" x2="50" y2="166" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="50" y1="166" x2="506" y2="166" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="50" y1="166.0" x2="506" y2="166.0" stroke="#cbd5e1" stroke-width="1"/>
+
+  <polyline points="50.0,166.0 202.0,87.1 354.0,38.3 506.0,12.0" fill="none" stroke="#0891b2" stroke-width="2.2"/>
+  <circle cx="50.0" cy="166.0" r="2.6" fill="#0891b2"/><circle cx="202.0" cy="87.1" r="2.6" fill="#0891b2"/><circle cx="354.0" cy="38.3" r="2.6" fill="#0891b2"/><circle cx="506.0" cy="12.0" r="2.6" fill="#0891b2"/>
+  <text x="50" y="184" font-size="9" fill="#64748b">0</text>
+  <text x="506" y="184" font-size="9" fill="#64748b" text-anchor="end">15,000</text>
+</svg></div><div class="inv-panel"><div class="inv-panel-title">Adstock / response | Search</div>
+<svg class="inv-svg" viewBox="0 0 520 190" role="img">
+  <line x1="50" y1="12" x2="50" y2="166" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="50" y1="166" x2="506" y2="166" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="50" y1="166.0" x2="506" y2="166.0" stroke="#cbd5e1" stroke-width="1"/>
+
+  <polyline points="50.0,166.0 202.0,78.0 354.0,34.0 506.0,12.0" fill="none" stroke="#0891b2" stroke-width="2.2"/>
+  <circle cx="50.0" cy="166.0" r="2.6" fill="#0891b2"/><circle cx="202.0" cy="78.0" r="2.6" fill="#0891b2"/><circle cx="354.0" cy="34.0" r="2.6" fill="#0891b2"/><circle cx="506.0" cy="12.0" r="2.6" fill="#0891b2"/>
+  <text x="50" y="184" font-size="9" fill="#64748b">0</text>
+  <text x="506" y="184" font-size="9" fill="#64748b" text-anchor="end">12,000</text>
+</svg></div><div class="inv-panel"><div class="inv-panel-title">Saturation | Retail media</div>
+<svg class="inv-svg" viewBox="0 0 520 190" role="img">
+  <line x1="50" y1="12" x2="50" y2="166" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="50" y1="166" x2="506" y2="166" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="50" y1="166.0" x2="506" y2="166.0" stroke="#cbd5e1" stroke-width="1"/>
+
+  <polyline points="50.0,166.0 202.0,80.4 354.0,32.5 506.0,12.0" fill="none" stroke="#4f46e5" stroke-width="2.2"/>
+  <circle cx="50.0" cy="166.0" r="2.6" fill="#4f46e5"/><circle cx="202.0" cy="80.4" r="2.6" fill="#4f46e5"/><circle cx="354.0" cy="32.5" r="2.6" fill="#4f46e5"/><circle cx="506.0" cy="12.0" r="2.6" fill="#4f46e5"/>
+  <text x="50" y="184" font-size="9" fill="#64748b">0</text>
+  <text x="506" y="184" font-size="9" fill="#64748b" text-anchor="end">15,000</text>
+</svg></div><div class="inv-panel"><div class="inv-panel-title">Saturation | Creator / review seeding</div>
+<svg class="inv-svg" viewBox="0 0 520 190" role="img">
+  <line x1="50" y1="12" x2="50" y2="166" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="50" y1="166" x2="506" y2="166" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="50" y1="166.0" x2="506" y2="166.0" stroke="#cbd5e1" stroke-width="1"/>
+
+  <polyline points="50.0,166.0 202.0,78.3 354.0,29.5 506.0,12.0" fill="none" stroke="#4f46e5" stroke-width="2.2"/>
+  <circle cx="50.0" cy="166.0" r="2.6" fill="#4f46e5"/><circle cx="202.0" cy="78.3" r="2.6" fill="#4f46e5"/><circle cx="354.0" cy="29.5" r="2.6" fill="#4f46e5"/><circle cx="506.0" cy="12.0" r="2.6" fill="#4f46e5"/>
+  <text x="50" y="184" font-size="9" fill="#64748b">0</text>
+  <text x="506" y="184" font-size="9" fill="#64748b" text-anchor="end">9,000</text>
+</svg></div><div class="inv-panel"><div class="inv-panel-title">Lift calibration</div>
+<svg class="inv-svg" viewBox="0 0 520 190" role="img">
+  <line x1="50" y1="12" x2="50" y2="166" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="50" y1="166" x2="506" y2="166" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="50" y1="166.0" x2="506" y2="166.0" stroke="#cbd5e1" stroke-width="1"/>
+
+  <polyline points="50.0,72.8 363.5,28.2 506.0,12.0" fill="none" stroke="#d97706" stroke-width="2.2"/>
+  <circle cx="50.0" cy="72.8" r="2.6" fill="#d97706"/><circle cx="363.5" cy="28.2" r="2.6" fill="#d97706"/><circle cx="506.0" cy="12.0" r="2.6" fill="#d97706"/>
+  <text x="50" y="184" font-size="9" fill="#64748b">0</text>
+  <text x="506" y="184" font-size="9" fill="#64748b" text-anchor="end">0</text>
+</svg></div></div>
 </section><section id="inv5">
   <h2>Evidence quality across every cell considered this cycle (funded or not)</h2>
   <div class="chk-summary"><div class="chk-stat"><div class="chk-stat-num" style="color:#16a34a">3</div><div class="chk-stat-label">Validated (randomized test + measurement gate)</div></div><div class="chk-stat"><div class="chk-stat-num" style="color:#2563eb">1</div><div class="chk-stat-label">MMM-calibrated (macro model prior)</div></div><div class="chk-stat"><div class="chk-stat-num" style="color:#d97706">2</div><div class="chk-stat-label">Assumption-grade (best guess, not yet tested)</div></div><div class="chk-stat"><div class="chk-stat-num" style="color:#9ca3af">1</div><div class="chk-stat-label">Blocked (never funded)</div></div></div>
@@ -859,8 +945,8 @@
   <p class="callout">Macro calibration supplied — channel-level contribution below.</p>
   <div class="table-wrap"><table>
     <thead><tr><th>Channel</th><th>Posterior ROAS</th><th>90% interval</th></tr></thead>
-    <tbody><tr><td>Retail media</td><td>2.40</td><td>1.80–3.10</td></tr><tr><td>Search</td><td>1.90</td><td>1.50–2.30</td></tr><tr><td>Creator / review seeding</td><td>1.60</td><td>1.10–2.00</td></tr></tbody></table></div>
-  <p style="font-size:12px;color:var(--muted)">No holdout validation (Qini/AUUC) was supplied — do not read the ROI numbers above as causally proven; they are the model's best estimate, not yet tested against a random holdout.</p>
+    <tbody><tr><td>Retail media</td><td>2.40</td><td>1.80-3.10</td></tr><tr><td>Search</td><td>1.90</td><td>1.50-2.30</td></tr><tr><td>Creator / review seeding</td><td>1.60</td><td>1.10-2.00</td></tr></tbody></table></div>
+  <p style="font-size:12px;color:var(--muted)"></p>
 </section>
 </main>
 <footer>

@@ -38,7 +38,7 @@ engine = _load("investment_engine")
 
 ENGINE_MODULES = (
     "investment_schema", "investment_engine", "investment_charts",
-    "mmm_bridge", "svg_charts",
+    "mmm_bridge", "svg_charts", "hte_core",
 )
 
 _BANNED_TERMS = (
@@ -68,7 +68,8 @@ def test_engine_modules_contain_no_hardcoded_example_domain_terms():
 def _cell(**overrides):
     base = {
         "id": "c1", "sku": "BE3", "module": "search", "channel": "Search",
-        "tau_hat": 0.02, "tau_source": "randomized_hte", "measurement_gate": "holdout",
+        "tau_hat": 0.02, "tau_source": "randomized_hte", "validation_ref": "be3_holdout",
+        "measurement_gate": "holdout",
         "reachable_population": 10000, "unit_margin": 120, "max_spend": 3000,
         "saturation_k": 0.001, "readiness": 1.0,
     }
@@ -204,8 +205,12 @@ def test_expand_budget_steps_computes_declining_marginal_roi():
 
 
 def test_confidence_badge_matches_rules():
-    assert engine.confidence_badge(_cell(tau_source="randomized_hte", measurement_gate="g")) == "validated"
-    assert engine.confidence_badge(_cell(tau_source="randomized_hte", measurement_gate=None)) == "assumption_grade"
+    assert engine.confidence_badge(_cell(tau_source="randomized_hte", measurement_gate="g",
+                                         _hte_validated=True)) == "validated"
+    assert engine.confidence_badge(_cell(tau_source="randomized_hte", measurement_gate="g",
+                                         _hte_validated=False)) == "assumption_grade"
+    assert engine.confidence_badge(_cell(tau_source="randomized_hte", measurement_gate=None,
+                                         _hte_validated=True)) == "assumption_grade"
     assert engine.confidence_badge(_cell(tau_source="mmm_calibrated_prior")) == "mmm_calibrated"
     assert engine.confidence_badge(_cell(tau_source="expert_assumption")) == "assumption_grade"
     assert engine.confidence_badge(_cell(tau_source="missing")) == "blocked"

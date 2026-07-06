@@ -281,12 +281,19 @@
         "channel": "Google Search",
         "tau_hat": 0.03,
         "tau_source": "randomized_hte",
+        "validation_ref": "a3_search_holdout",
         "measurement_gate": "holdout",
         "reachable_population": 45000,
         "unit_margin": 12.0,
         "max_spend": 6000,
         "saturation_k": 0.0008,
-        "readiness": 1.0
+        "readiness": 1.0,
+        "owner": "Marketplace growth",
+        "flight": "2026-Q3 weeks 1-4",
+        "kpi": "Incremental paid-search orders",
+        "measurement": "Marketplace geo holdout",
+        "stop_rule": "Pause if week-2 marginal ROI falls below 1.3x",
+        "why": "Validated mid-tier uplift and the strongest marginal ROI in the first spend steps"
       },
       {
         "id": "a3_creator",
@@ -299,7 +306,13 @@
         "unit_margin": 12.0,
         "max_spend": 4000,
         "saturation_k": 0.0009,
-        "readiness": 1.0
+        "readiness": 1.0,
+        "owner": "Creator partnerships",
+        "flight": "2026-Q3 weeks 2-6",
+        "kpi": "Incremental review-led orders",
+        "measurement": "Matched-market creator holdout",
+        "stop_rule": "Stop if review traffic lifts but conversion does not move by week 4",
+        "why": "Supports the same mid-tier hero after the validated search cell is funded"
       },
       {
         "id": "pro_retail_media",
@@ -312,7 +325,13 @@
         "unit_margin": 20.0,
         "max_spend": 8000,
         "saturation_k": 0.0006,
-        "readiness": 1.0
+        "readiness": 1.0,
+        "owner": "Retail media lead",
+        "flight": "2026-Q3 weeks 1-5",
+        "kpi": "Incremental marketplace units",
+        "measurement": "Retail media platform lift read plus MMM calibration",
+        "stop_rule": "Cap spend when posterior ROAS lower bound drops below 1.3x",
+        "why": "Macro MMM supports retail media and Aurora Pro has the margin to absorb spend"
       },
       {
         "id": "pro_pdp",
@@ -326,7 +345,13 @@
         "unit_margin": 20.0,
         "max_spend": 3000,
         "saturation_k": 0.001,
-        "readiness": 1.0
+        "readiness": 1.0,
+        "owner": "DTC content",
+        "flight": "2026-Q3 weeks 1-3",
+        "kpi": "Premium PDP conversion rate",
+        "measurement": "Before/after PDP conversion with traffic mix guardrail",
+        "stop_rule": "Do not scale media until PDP conversion clears the premium benchmark",
+        "why": "Cheap enough to unlock Aurora Pro before larger paid media"
       },
       {
         "id": "max_creator",
@@ -335,12 +360,19 @@
         "channel": "Expert review seeding",
         "tau_hat": 0.028,
         "tau_source": "randomized_hte",
+        "validation_ref": "max_creator_holdout",
         "measurement_gate": "holdout",
         "reachable_population": 8000,
         "unit_margin": 25.0,
         "max_spend": 5000,
         "saturation_k": 0.0007,
-        "readiness": 1.0
+        "readiness": 1.0,
+        "owner": "PR and expert reviews",
+        "flight": "2026-Q3 weeks 3-8",
+        "kpi": "Incremental premium-band orders",
+        "measurement": "Expert-review exposed vs holdout audience",
+        "stop_rule": "Stop if expert-review traffic does not lift premium PDP sessions by week 4",
+        "why": "Validated uplift exists, but reach is smaller than Aurora A3"
       },
       {
         "id": "max_search",
@@ -353,7 +385,13 @@
         "unit_margin": 25.0,
         "max_spend": 4000,
         "saturation_k": 0.0007,
-        "readiness": 1.0
+        "readiness": 1.0,
+        "owner": "Marketplace growth",
+        "flight": "Blocked until PDP localization is live",
+        "kpi": "Search conversion after localized PDP",
+        "measurement": "Launch-market paid-search test",
+        "stop_rule": "Keep blocked until validation data exists",
+        "why": "Search demand exists but the flagship digital shelf is not ready"
       },
       {
         "id": "s2_retail_activation",
@@ -362,14 +400,75 @@
         "channel": "In-store / bundle placement",
         "tau_hat": 0.012,
         "tau_source": "randomized_hte",
+        "validation_ref": "s2_retail_holdout",
         "measurement_gate": "holdout",
         "reachable_population": 60000,
         "unit_margin": 4.0,
         "max_spend": 5000,
         "saturation_k": 0.0012,
-        "readiness": 1.0
+        "readiness": 1.0,
+        "owner": "Retail activation",
+        "flight": "2026-Q3 weeks 2-5",
+        "kpi": "Incremental entry-tier bundle units",
+        "measurement": "Store cluster holdout",
+        "stop_rule": "Stop if bundle lift shifts units from higher-margin Aurora A3",
+        "why": "Hold SKU gets limited defensive spend only while ROI clears the floor"
       }
-    ]
+    ],
+    "hte_validation": {
+      "status": "available",
+      "method": "DR learner on randomized holdout summaries",
+      "holdout_n": 36000,
+      "min_auuc": 0.15,
+      "max_calibration_mae": 0.02,
+      "validation_refs": [
+        {
+          "id": "a3_search_holdout",
+          "cells": ["a3_search"],
+          "learner": "dr_learner",
+          "qini_auuc": 0.31,
+          "calibration_mae": 0.009,
+          "policy_value_ipw": 16800
+        },
+        {
+          "id": "max_creator_holdout",
+          "cells": ["max_creator"],
+          "learner": "x_learner",
+          "qini_auuc": 0.24,
+          "calibration_mae": 0.013,
+          "policy_value_ipw": 6200
+        },
+        {
+          "id": "s2_retail_holdout",
+          "cells": ["s2_retail_activation"],
+          "learner": "t_learner",
+          "qini_auuc": 0.18,
+          "calibration_mae": 0.018,
+          "policy_value_ipw": 2800
+        }
+      ],
+      "qini_curve": [
+        {"targeted_pct": 0, "cumulative_lift_pct": 0},
+        {"targeted_pct": 20, "cumulative_lift_pct": 41},
+        {"targeted_pct": 40, "cumulative_lift_pct": 66},
+        {"targeted_pct": 60, "cumulative_lift_pct": 82},
+        {"targeted_pct": 80, "cumulative_lift_pct": 93},
+        {"targeted_pct": 100, "cumulative_lift_pct": 100}
+      ],
+      "decile_calibration": [
+        {"decile": 1, "predicted_tau": 0.052, "observed_lift": 0.049, "audience_pct": 10},
+        {"decile": 2, "predicted_tau": 0.041, "observed_lift": 0.039, "audience_pct": 10},
+        {"decile": 3, "predicted_tau": 0.030, "observed_lift": 0.031, "audience_pct": 10},
+        {"decile": 4, "predicted_tau": 0.020, "observed_lift": 0.018, "audience_pct": 10},
+        {"decile": 5, "predicted_tau": 0.012, "observed_lift": 0.011, "audience_pct": 10}
+      ],
+      "tau_distribution": [
+        {"bucket": "<=0", "share": 0.14},
+        {"bucket": "0-1%", "share": 0.19},
+        {"bucket": "1-3%", "share": 0.42},
+        {"bucket": ">3%", "share": 0.25}
+      ]
+    }
   },
   "mmm": {
     "mode": "provided_summary",
@@ -407,8 +506,46 @@
         "hi": 2.0
       }
     ],
-    "adstock_curves": [],
-    "saturation_curves": [],
+    "adstock_curves": [
+      {
+        "channel": "Retail media",
+        "points": [
+          {"spend": 0, "response": 0.0},
+          {"spend": 5000, "response": 0.42},
+          {"spend": 10000, "response": 0.68},
+          {"spend": 15000, "response": 0.82}
+        ]
+      },
+      {
+        "channel": "Search",
+        "points": [
+          {"spend": 0, "response": 0.0},
+          {"spend": 4000, "response": 0.48},
+          {"spend": 8000, "response": 0.72},
+          {"spend": 12000, "response": 0.84}
+        ]
+      }
+    ],
+    "saturation_curves": [
+      {
+        "channel": "Retail media",
+        "points": [
+          {"spend": 0, "response": 0.0},
+          {"spend": 5000, "response": 0.50},
+          {"spend": 10000, "response": 0.78},
+          {"spend": 15000, "response": 0.90}
+        ]
+      },
+      {
+        "channel": "Creator / review seeding",
+        "points": [
+          {"spend": 0, "response": 0.0},
+          {"spend": 3000, "response": 0.45},
+          {"spend": 6000, "response": 0.70},
+          {"spend": 9000, "response": 0.79}
+        ]
+      }
+    ],
     "optimized_channel_budget": [
       {
         "channel": "Retail media",
@@ -423,7 +560,23 @@
         "budget": 8000
       }
     ],
-    "lift_calibration": []
+    "lift_calibration": [
+      {
+        "channel": "Retail media",
+        "predicted": 0.041,
+        "observed": 0.038
+      },
+      {
+        "channel": "Search",
+        "predicted": 0.036,
+        "observed": 0.034
+      },
+      {
+        "channel": "Creator / review seeding",
+        "predicted": 0.025,
+        "observed": 0.023
+      }
+    ]
   },
   "labels": {
     "footer_note": "Illustrative example — fictional data; every real number must be sourced, assumed, derived, or missing"

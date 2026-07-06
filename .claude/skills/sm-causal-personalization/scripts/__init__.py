@@ -14,6 +14,7 @@ files that ship inside the Claude Code skill:
     from smcp import report_semantics # 5-chapter spine + bilingual operator vocabulary
     from smcp import investment_schema  # cfg["investment_plan"] validation contract
     from smcp import investment_engine  # budget-frontier allocation (SKU x module)
+    from smcp import hte_core           # HTE validation gate + Qini/decile/tau specs
     from smcp import investment_charts  # chart specs for the investment dashboard
     from smcp import mmm_bridge          # optional pymc-marketing macro-calibration bridge
     from smcp import svg_charts          # shared inline-SVG chart primitives
@@ -23,6 +24,7 @@ __all__ = [
     "dashboard_data",
     "dashboard_render",
     "generate_report",
+    "hte_core",
     "hte_starter",
     "investment_charts",
     "investment_engine",

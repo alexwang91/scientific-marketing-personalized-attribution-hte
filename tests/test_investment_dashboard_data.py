@@ -68,22 +68,62 @@ def test_mmm_bridge_missing_summary_fields_default_to_empty_lists():
 
 _CELL = {
     "id": "be3_search", "sku": "BE3", "module": "search", "channel": "Google Search",
-    "tau_hat": 0.025, "tau_source": "randomized_hte", "measurement_gate": "holdout",
+    "tau_hat": 0.025, "tau_source": "randomized_hte", "validation_ref": "be3_search_holdout",
+    "measurement_gate": "holdout",
     "reachable_population": 10000, "unit_margin": 120, "max_spend": 3000,
     "saturation_k": 0.001, "readiness": 1.0,
+    "owner": "Digital commerce",
+    "flight": "2026-Q3 weeks 1-4",
+    "kpi": "Incremental paid-search orders",
+    "measurement": "Geo holdout by county",
+    "stop_rule": "Pause if week-2 marginal ROI drops below 1.2x",
+    "why": "Highest validated uplift cell in the portfolio.",
 }
 
 
 def _category_cfg(**plan_overrides):
     plan = {"currency": "RON", "planning_period": "2026-Q3", "total_budget": 4000,
             "required_mroi": 1.2, "budget_step": 1000,
-            "modules": [{"id": "search", "label": "Search"}], "cells": [dict(_CELL)]}
+            "modules": [{"id": "search", "label": "Search"}], "cells": [dict(_CELL)],
+            "hte_validation": {
+                "status": "available",
+                "method": "DR learner on randomized holdout",
+                "holdout_n": 24000,
+                "min_auuc": 0.15,
+                "max_calibration_mae": 0.02,
+                "validation_refs": [
+                    {"id": "be3_search_holdout", "cells": ["be3_search"], "learner": "dr_learner",
+                     "qini_auuc": 0.26, "calibration_mae": 0.01, "policy_value_ipw": 12000}
+                ],
+                "qini_curve": [
+                    {"targeted_pct": 0, "cumulative_lift_pct": 0},
+                    {"targeted_pct": 50, "cumulative_lift_pct": 73},
+                    {"targeted_pct": 100, "cumulative_lift_pct": 100},
+                ],
+                "decile_calibration": [
+                    {"decile": 1, "predicted_tau": 0.041, "observed_lift": 0.039, "audience_pct": 10}
+                ],
+                "tau_distribution": [{"bucket": "1-3%", "share": 1.0}],
+            }}
     plan.update(plan_overrides)
     return {
         "report_type": "category_portfolio",
         "meta": {"product": "Test Portfolio", "market": "Testland"},
         "portfolio": [{"sku": "BE3", "verdict": "grow"}],
         "investment_plan": plan,
+        "mmm": {
+            "mode": "provided_summary",
+            "channel_contribution": [{"channel": "Search", "contribution": 1200}],
+            "posterior_roas": [{"channel": "Search", "mean": 2.0, "lo": 1.5, "hi": 2.5}],
+            "adstock_curves": [{"channel": "Search", "points": [
+                {"spend": 0, "response": 0}, {"spend": 1000, "response": 0.7}
+            ]}],
+            "saturation_curves": [{"channel": "Search", "points": [
+                {"spend": 0, "response": 0}, {"spend": 3000, "response": 0.9}
+            ]}],
+            "optimized_channel_budget": [{"channel": "Search", "budget": 4000}],
+            "lift_calibration": [{"channel": "Search", "predicted": 0.05, "observed": 0.047}],
+        },
     }
 
 
@@ -93,6 +133,18 @@ def test_category_config_with_investment_plan_builds_investment_dashboard_data()
     assert data["investment"]["answer"]["recommended_spend"] > 0
     assert data["investment"]["charts"]["frontier"]["profit_panel"]["title"]
     assert data["investment"]["charts"]["budget_matrix"]["y_axis"] == ["BE3"]
+    assert data["investment"]["hte"]["status"] == "available"
+    assert data["investment"]["charts"]["hte"]["qini"]["status"] == "available"
+    assert data["investment"]["charts"]["mmm"]["posterior_roas"]["status"] == "available"
+
+
+def test_investment_dashboard_data_includes_activation_cards_with_operating_details():
+    data = data_mod.build_dashboard_data(_category_cfg())
+    cards = data["investment"]["activation_cards"]
+    assert cards
+    assert cards[0]["owner"] == "Digital commerce"
+    assert cards[0]["measurement"] == "Geo holdout by county"
+    assert cards[0]["stop_rule"].startswith("Pause")
 
 
 def test_category_config_without_investment_plan_is_unaffected():
