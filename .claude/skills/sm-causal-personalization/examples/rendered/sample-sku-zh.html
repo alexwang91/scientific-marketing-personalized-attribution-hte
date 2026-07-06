@@ -116,6 +116,20 @@
   .kpi-num .kpi-unit{font-size:13px;font-weight:600;color:var(--muted);margin-left:2px}
   .kpi-label{font-size:10.5px;color:var(--muted);text-transform:uppercase;
     letter-spacing:.06em;font-weight:600}
+  .kpi.inv-kpi-good::after{background:#16a34a}
+  .kpi.inv-kpi-warn::after{background:#d97706}
+  .kpi.inv-kpi-bad::after{background:#dc2626}
+
+  /* ── Investment dashboard: frontier / matrix ── */
+  .inv-frontier-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:12px 0}
+  @media(max-width:760px){.inv-frontier-grid{grid-template-columns:1fr}}
+  .inv-panel{background:var(--surface);border:1px solid var(--line);
+    border-radius:8px;padding:12px 14px}
+  .inv-panel-title{font-size:11.5px;font-weight:700;color:var(--ink-2);margin-bottom:6px}
+  .inv-svg{width:100%;height:auto;display:block}
+  .inv-svg-empty{color:var(--muted);font-size:12px;padding:20px 0;text-align:center}
+  .inv-conf-dot{display:inline-block;width:7px;height:7px;border-radius:50%;
+    margin-left:4px;vertical-align:middle}
 
   /* ── CAC bar chart ── */
   .cac-chart{margin:0 0 20px;background:var(--surface);border:1px solid var(--line);
@@ -709,7 +723,7 @@
   <div class="cv-strip"><div class="cv-badge"><div class="cv-badge-dot" style="background:#d97706"></div><div><div class="cv-name">Alza.cz / Mall.cz retail media</div><div class="cv-task">离购买最近、最可能过线的渠道，但费率卡缺失（一封邮件可解）。最优先验证。</div></div></div><div class="cv-badge"><div class="cv-badge-dot" style="background:#d97706"></div><div><div class="cv-name">Search 品牌词</div><div class="cv-task">CPC 缺失；且品牌词 sure-thing 风险（C1）意味着即使 CAC 好看也需 holdout 验证增量。</div></div></div><div class="cv-badge"><div class="cv-badge-dot" style="background:#d97706"></div><div><div class="cv-name">Search 品类 / 痛点词</div><div class="cv-task">CPC 与词量缺失；搜索「全自动咖啡机」的用户决策周期长，CVR 预期低于品牌词。</div></div></div><div class="cv-badge"><div class="cv-badge-dot" style="background:#d97706"></div><div><div class="cv-name">Meta / TikTok 泛兴趣拉新</div><div class="cv-task">基准最优角约 1,200 CZK 低于上限，但仅在最乐观组合下成立——基准不对称：不能放行，只能证伪。本地 CVR 未知…</div></div></div><div class="cv-badge"><div class="cv-badge-dot" style="background:#9ca3af"></div><div><div class="cv-name">YouTube 评测内容</div><div class="cv-task">不按 CAC 评估。角色是回答最大转化障碍：「为什么花 7,990 CZK 而不买 4,990 CZK 的」。产出是内容…</div></div></div><div class="cv-badge"><div class="cv-badge-dot" style="background:#d97706"></div><div><div class="cv-name">Retargeting</div><div class="cv-task">依赖站点流量规模（缺失）；若做，7 天短窗 + 无触达对照是前置条件。</div></div></div></div>
   <div class="table-wrap"><table>
     <thead><tr><th>渠道</th><th>任务</th><th>Proxy 质量</th><th>结论</th><th>CAC 估算</th><th>备注</th></tr></thead>
-    <tbody></tbody></table></div>
+    <tbody><tr><td><strong>Alza.cz / Mall.cz retail media</strong></td><td>—</td><td>—</td><td><span class='pill pill-undetermined'>看不清——先拿数 (undetermined)</span></td><td>—</td><td>离购买最近、最可能过线的渠道，但费率卡缺失（一封邮件可解）。最优先验证。</td></tr><tr><td><strong>Search 品牌词</strong></td><td>—</td><td>—</td><td><span class='pill pill-undetermined'>看不清——先拿数 (undetermined)</span></td><td>—</td><td>CPC 缺失；且品牌词 sure-thing 风险（C1）意味着即使 CAC 好看也需 holdout 验证增量。</td></tr><tr><td><strong>Search 品类 / 痛点词</strong></td><td>—</td><td>—</td><td><span class='pill pill-undetermined'>看不清——先拿数 (undetermined)</span></td><td>—</td><td>CPC 与词量缺失；搜索「全自动咖啡机」的用户决策周期长，CVR 预期低于品牌词。</td></tr><tr><td><strong>Meta / TikTok 泛兴趣拉新</strong></td><td>—</td><td>—</td><td><span class='pill pill-undetermined'>看不清——先拿数 (undetermined)</span></td><td>600 CZK–18,000 CZK<sup class="mk mk-derived">D</sup></td><td>基准最优角约 1,200 CZK 低于上限，但仅在最乐观组合下成立——基准不对称：不能放行，只能证伪。本地 CVR 未知，结论维持待定。</td></tr><tr><td><strong>YouTube 评测内容</strong></td><td>—</td><td>—</td><td><span class='pill pill-role-only'>只当辅助 (role-only)</span></td><td>—</td><td>不按 CAC 评估。角色是回答最大转化障碍：「为什么花 7,990 CZK 而不买 4,990 CZK 的」。产出是内容资产，不是拉新渠道。</td></tr><tr><td><strong>Retargeting</strong></td><td>—</td><td>—</td><td><span class='pill pill-undetermined'>看不清——先拿数 (undetermined)</span></td><td>—</td><td>依赖站点流量规模（缺失）；若做，7 天短窗 + 无触达对照是前置条件。</td></tr></tbody></table></div>
   <p style="font-size:13px;color:var(--muted)">基准可以证明<em>不可行</em>（最优情况仍超上限），但<em>无法</em>证明可行。<em>undetermined</em> = 区间横跨上限；需要获取数据。</p>
 </section><section id="s5">
   <h2>5 · D 维度表与因果激活评审</h2>

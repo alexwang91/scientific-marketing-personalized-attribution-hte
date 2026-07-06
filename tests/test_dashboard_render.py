@@ -45,6 +45,34 @@ def test_sku_dashboard_html_contains_core_sections():
     assert "__PLACEHOLDER__" not in html
 
 
+def test_sku_dashboard_renders_dimensions_and_measurement_plan():
+    # regression: dashboard_data.py has always built data["dimensions"] and
+    # data["measurement"] from cfg["dimensions"]/cfg["measurement_plan"], but
+    # dashboard_render.py had no _dimensions()/_measurement() renderer at
+    # all — the D-dimension table and measurement plan silently never
+    # appeared in the interactive cockpit for any single-SKU report.
+    cfg = copy.deepcopy(rpt.DEMO_CONFIG)
+    cfg["dimensions"] = [{
+        "id": "D1", "name": "Existing dead-zone complainers", "mechanism": "Has an unmet pain point",
+        "proxy": "Search intent for coverage-problem terms", "entry_score": "5/5",
+        "verdict": "Retain", "resolution_status": "open",
+    }]
+    cfg["measurement_plan"] = {
+        "maturity": "L0", "primary_metric": "Incremental CAC per channel",
+        "secondary_metrics": ["PDP conversion rate"],
+        "scale_up_rule": "Scale once holdout confirms CAC under ceiling",
+        "pause_rule": "Pause if incremental CAC exceeds 2x ceiling for 7 days",
+        "gcg_design": "Hold out 25% of spend as a global control group",
+    }
+    rpt.validate_and_resolve(cfg.get("numbers", {}))
+    html = render_mod.render_dashboard(data_mod.build_dashboard_data(cfg))
+    assert 'id="dimensions"' in html
+    assert "Existing dead-zone complainers" in html
+    assert 'id="measurement"' in html
+    assert "Incremental CAC per channel" in html
+    assert "Hold out 25%" in html
+
+
 def test_category_dashboard_html_contains_portfolio_sections():
     html = _html(CAT_CONFIG)
     for marker in ["Portfolio Verdict", "Tier Map", "Diagnosis Lenses", "SKU Matrix"]:

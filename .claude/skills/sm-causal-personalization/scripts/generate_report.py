@@ -1895,17 +1895,17 @@ def s_product_facts(cfg: dict, numbers: dict) -> str:
 
 def s_channel_map(cfg: dict, numbers: dict) -> str:
     """Section 5 — Local channel map."""
-    channels = cfg.get("channels", [])
+    channels = cfg.get("channel_screen", [])
     rows = ""
     for ch in channels:
         v = ch.get("verdict", "undetermined")
         cac_est = fmt_value(ch["cac_estimate"], numbers) if ch.get("cac_estimate") and ch["cac_estimate"] in numbers else "—"
-        rows += (f"<tr><td><strong>{esc(ch['name'])}</strong></td>"
+        rows += (f"<tr><td><strong>{esc(ch.get('channel', ''))}</strong></td>"
                  f"<td>{esc(ch.get('task','—'))}</td>"
                  f"<td>{esc(ch.get('proxy_quality','—'))}</td>"
                  f"<td><span class='pill pill-{esc(v)}'>{esc(_sem.verdict_word(cfg, v))}</span></td>"
                  f"<td>{cac_est}</td>"
-                 f"<td>{esc(ch.get('note',''))}</td></tr>")
+                 f"<td>{esc(ch.get('reasoning',''))}</td></tr>")
     cv_visual = s_channel_verdict_visual(cfg)
     intro = _narrative_intro(cfg, "s4_intro",
         "With the CAC ceiling set above, each channel is now screened: can its cost-per-acquisition "
