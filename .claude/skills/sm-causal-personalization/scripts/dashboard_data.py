@@ -50,6 +50,7 @@ _inv_schema = _local_import("investment_schema")
 _inv_engine = _local_import("investment_engine")
 _inv_charts = _local_import("investment_charts")
 _mmm_bridge = _local_import("mmm_bridge")
+_hte_core = _local_import("hte_core")
 
 
 def build_dashboard_data(cfg: Dict[str, Any]) -> Dict[str, Any]:
@@ -325,6 +326,11 @@ def _strings(cfg: Dict[str, Any]) -> Dict[str, str]:
         "dash_treatments_title", "dash_treatments_sub", "dash_budgets_title", "dash_budgets_sub",
         "dash_gates_sub", "dash_challenges_title", "dash_challenges_sub",
         "dash_map_title", "dash_map_sub", "dash_measurement_title",
+        "inv_th_kpi", "inv_hte_heading", "inv_hte_sub", "inv_hte_gate_title", "inv_hte_gate_note",
+        "inv_th_auuc", "inv_th_decile", "inv_th_predicted_tau", "inv_th_observed_lift",
+        "inv_th_gap", "inv_th_tau_bucket", "inv_th_share", "inv_mmm_sub",
+        "inv_th_contribution", "inv_th_roas", "inv_mmm_adstock", "inv_mmm_saturation",
+        "inv_mmm_lift_calibration",
     ]
     out = {k: _sem.S(cfg, k) for k in keys}
     for code in ("H", "T", "S", "N", "A"):
@@ -386,8 +392,12 @@ def build_investment_view(cfg: Dict[str, Any]) -> Dict[str, Any] | None:
         return None
     _inv_schema.validate_or_raise(cfg)
 
+    raw_cells = plan["cells"]
+    hte_summary = _hte_core.build_hte_summary(plan.get("hte_validation"), raw_cells)
+    cells = _hte_core.annotate_cells_with_hte_validation(raw_cells, plan.get("hte_validation"))
+
     verdict_by_sku = {p.get("sku"): p.get("verdict") for p in cfg.get("portfolio", [])}
-    eligible, blocked = _inv_engine.filter_investable_cells(plan["cells"], verdict_by_sku)
+    eligible, blocked = _inv_engine.filter_investable_cells(cells, verdict_by_sku)
     summary = _inv_engine.optimize_investment(
         eligible, plan["total_budget"], plan["budget_step"], plan["required_mroi"])
     mmm = _mmm_bridge.build_mmm_summary(cfg)
@@ -417,14 +427,50 @@ def build_investment_view(cfg: Dict[str, Any]) -> Dict[str, Any] | None:
         "answer": summary,
         "blocked": blocked,
         "mmm": mmm,
+        "hte": _hte_core.serializable_summary(hte_summary),
+        "activation_cards": _investment_activation_cards(cfg, summary["allocation"], eligible, currency),
         "charts": {
             "kpis": _inv_charts.investment_answer_kpis(summary, currency),
             "frontier": _inv_charts.frontier_chart_spec(cumulative, summary["recommended_spend"]),
             "budget_matrix": _inv_charts.budget_matrix_spec(summary["allocation"]),
-            "confidence": _inv_charts.confidence_strip_spec(plan["cells"]),
+            "confidence": _inv_charts.confidence_strip_spec(cells),
+            "hte": hte_summary["charts"],
+            "mmm": {
+                "contribution": _inv_charts.mmm_contribution_spec(mmm.get("channel_contribution", [])),
+                "adstock": _inv_charts.adstock_saturation_spec(mmm.get("adstock_curves", [])),
+                "saturation": _inv_charts.adstock_saturation_spec(mmm.get("saturation_curves", [])),
+                "posterior_roas": _inv_charts.posterior_roas_spec(mmm.get("posterior_roas", [])),
+                "lift_calibration": _inv_charts.lift_calibration_spec(mmm.get("lift_calibration", [])),
+            },
         },
         "currency": currency,
     }
+
+
+def _investment_activation_cards(cfg: Dict[str, Any], allocation: list[dict],
+                                 cells: list[dict], currency: str) -> list[dict]:
+    by_key = {(c.get("sku"), c.get("module")): c for c in cells}
+    cards = []
+    for row in allocation:
+        cell = by_key.get((row.get("sku"), row.get("module")), {})
+        cards.append({
+            "sku": row.get("sku", ""),
+            "module": row.get("module", ""),
+            "channel": row.get("channel", cell.get("channel", "")),
+            "spend": row.get("spend", 0.0),
+            "currency": currency,
+            "roi": row.get("roi", 0.0),
+            "units": row.get("units", 0.0),
+            "gross_profit": row.get("gross_profit", 0.0),
+            "confidence": row.get("confidence", "assumption_grade"),
+            "owner": cell.get("owner") or _sem.S(cfg, "inv_default_owner"),
+            "flight": cell.get("flight") or _sem.S(cfg, "inv_default_flight"),
+            "kpi": cell.get("kpi") or _sem.S(cfg, "inv_default_kpi"),
+            "measurement": cell.get("measurement", cell.get("measurement_gate", "")),
+            "stop_rule": cell.get("stop_rule") or _sem.S(cfg, "inv_default_stop_rule"),
+            "why": cell.get("why") or _sem.S(cfg, "inv_default_why"),
+        })
+    return cards
 
 
 def _build_category_dashboard(cfg: Dict[str, Any]) -> Dict[str, Any]:

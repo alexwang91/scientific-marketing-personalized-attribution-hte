@@ -208,7 +208,7 @@ pip install numpy pandas scipy scikit-learn matplotlib
 
 - `sample-sku-en-config.json` — 英文，标准单品报告（虚构品牌与产品）
 - `sample-sku-zh-config.json` — 中文版，含完整 UI 标签覆盖、TL;DR 总结页和 ECharts 本地化（虚构品牌与产品）
-- `aurora-airpurifier-category-config.json` — 类目货盘诊断（ref 17），虚构品牌/型号示例：`report_type=category_portfolio`，另含 `investment_plan` + `mmm` —— 演示 SKU × 打法模块的预算前沿分配引擎（`investment_schema.py` / `investment_engine.py` / `investment_charts.py` / `mmm_bridge.py`）：钱花在哪、为什么、哪些格子因证据不足被冻结、每一块钱的证据等级有多硬。
+- `aurora-airpurifier-category-config.json` — 类目货盘诊断（ref 17），虚构品牌/型号示例：`report_type=category_portfolio`，另含 `investment_plan` + `hte_validation` + `mmm` —— 演示 SKU × 打法模块的预算前沿分配引擎（`investment_schema.py` / `hte_core.py` / `investment_engine.py` / `investment_charts.py` / `mmm_bridge.py`）：钱花在哪、为什么、Qini/AUUC 与 decile 验证、哪些格子因证据不足被冻结、每一块钱的证据等级有多硬。
 
 每个 config 的预渲染 HTML 放在 [`examples/rendered/`](.claude/skills/sm-causal-personalization/examples/rendered) — 不跑脚本即可预览交付物长什么样。`aurora-category.html` 是文档报告，`aurora-category-dashboard.html` 是同一个 config 的交互驾驶舱（`--format dashboard`）。
 

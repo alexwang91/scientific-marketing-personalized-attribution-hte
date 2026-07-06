@@ -2854,6 +2854,50 @@ def s_inv_frontier(cfg: dict, inv: dict) -> str:
 </section>"""
 
 
+def s_inv_hte_core(cfg: dict, inv: dict) -> str:
+    """HTE validation core: Qini/AUUC, decile calibration, and tau distribution."""
+    hte = inv.get("hte", {})
+    charts = inv.get("charts", {}).get("hte", {})
+    qini = charts.get("qini", {})
+    deciles = charts.get("decile_calibration", {}).get("rows", [])
+    distribution = charts.get("tau_distribution", {}).get("bins", [])
+    refs = hte.get("validation_refs", [])
+    ref_rows = "".join(
+        f'<tr><td>{esc(r.get("id",""))}</td><td>{esc(r.get("learner",""))}</td>'
+        f'<td>{r.get("qini_auuc",0):.2f}</td><td>{r.get("calibration_mae",0):.3f}</td>'
+        f'<td>{esc(str(r.get("passes_gate", False)))}</td></tr>'
+        for r in refs)
+    decile_rows = "".join(
+        f'<tr><td>{esc(d.get("decile",""))}</td><td>{d.get("predicted_tau",0):.3f}</td>'
+        f'<td>{d.get("observed_lift",0):.3f}</td><td>{d.get("gap",0):.3f}</td></tr>'
+        for d in deciles[:8])
+    dist_rows = "".join(
+        f'<tr><td>{esc(b.get("bucket",""))}</td><td>{float(b.get("share") or 0):.0%}</td></tr>'
+        for b in distribution)
+    qini_chart = ""
+    if qini.get("status") == "available":
+        qini_chart = f"""<div class="inv-panel">
+      <div class="inv-panel-title">{esc(S(cfg, "inv_th_auuc"))}: {esc(qini.get("auuc", ""))}</div>
+      {_svg_line_panel(qini.get("points", []), None, "#16a34a")}
+    </div>"""
+    gate_note = S(cfg, "inv_hte_gate_note").format(
+        method=hte.get("method") or "missing", n=hte.get("holdout_n", 0))
+    return f"""<section id="inv-hte">
+  <h2>{esc(S(cfg, "inv_hte_heading"))}</h2>
+  <p class="callout">{esc(gate_note)}</p>
+  {qini_chart}
+  <div class="table-wrap"><table>
+    <thead><tr><th>{esc(S(cfg, "inv_th_validation_ref"))}</th><th>{esc(S(cfg, "inv_th_learner"))}</th><th>{esc(S(cfg, "inv_th_auuc"))}</th><th>{esc(S(cfg, "inv_th_calibration_mae"))}</th><th>{esc(S(cfg, "inv_th_passes"))}</th></tr></thead>
+    <tbody>{ref_rows}</tbody></table></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>{esc(S(cfg, "inv_th_decile"))}</th><th>{esc(S(cfg, "inv_th_predicted_tau"))}</th><th>{esc(S(cfg, "inv_th_observed_lift"))}</th><th>{esc(S(cfg, "inv_th_gap"))}</th></tr></thead>
+    <tbody>{decile_rows}</tbody></table></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>{esc(S(cfg, "inv_th_tau_bucket"))}</th><th>{esc(S(cfg, "inv_th_share"))}</th></tr></thead>
+    <tbody>{dist_rows}</tbody></table></div>
+</section>"""
+
+
 def s_inv_matrix(cfg: dict, inv: dict) -> str:
     """Chapter 3 addendum — SKU x module budget matrix, reusing the same
     .heatmap CSS grid as the semantic heatmap (s_heatmap). Spend is a
@@ -2926,10 +2970,45 @@ def s_inv_tasks(cfg: dict, inv: dict) -> str:
 </section>"""
 
 
+def s_inv_mmm(cfg: dict, inv: dict) -> str:
+    """MMM macro-calibration summary from an already-fit PyMC-Marketing style source."""
+    charts = inv.get("charts", {}).get("mmm", {})
+    contrib = charts.get("contribution", {}).get("bars", [])
+    roas = charts.get("posterior_roas", {}).get("intervals", [])
+    adstock = charts.get("adstock", {}).get("panels", [])
+    saturation = charts.get("saturation", {}).get("panels", [])
+    lift = charts.get("lift_calibration", {})
+    contrib_rows = "".join(
+        f'<tr><td>{esc(r.get("channel",""))}</td><td>{r.get("contribution",0):,.0f}</td></tr>'
+        for r in contrib)
+    roas_rows = "".join(
+        f'<tr><td>{esc(r.get("channel",""))}</td><td>{r.get("mean",0):.2f}</td>'
+        f'<td>{r.get("lo",0):.2f}-{r.get("hi",0):.2f}</td></tr>'
+        for r in roas)
+    panels = ""
+    for p in adstock[:2]:
+        panels += f"""<div class="inv-panel"><div class="inv-panel-title">{esc(S(cfg, "inv_mmm_adstock"))} · {esc(p.get("channel",""))}</div>
+{_svg_line_panel(p.get("points", []), None, "#0891b2")}</div>"""
+    for p in saturation[:2]:
+        panels += f"""<div class="inv-panel"><div class="inv-panel-title">{esc(S(cfg, "inv_mmm_saturation"))} · {esc(p.get("channel",""))}</div>
+{_svg_line_panel(p.get("points", []), None, "#4f46e5")}</div>"""
+    if lift.get("status") == "available":
+        panels += f"""<div class="inv-panel"><div class="inv-panel-title">{esc(S(cfg, "inv_mmm_lift_calibration"))}</div>
+{_svg_line_panel(lift.get("points", []), None, "#d97706")}</div>"""
+    return f"""<section id="inv-mmm">
+  <h2>{esc(S(cfg, "inv_mmm_heading"))}</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>{esc(S(cfg, "inv_th_channel"))}</th><th>{esc(S(cfg, "inv_th_contribution"))}</th></tr></thead>
+    <tbody>{contrib_rows}</tbody></table></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>{esc(S(cfg, "inv_th_channel"))}</th><th>{esc(S(cfg, "inv_th_roas"))}</th><th>{esc(S(cfg, "inv_th_interval"))}</th></tr></thead>
+    <tbody>{roas_rows}</tbody></table></div>
+  <div class="inv-frontier-grid">{panels}</div>
+</section>"""
+
+
 def s_inv_confidence(cfg: dict, inv: dict) -> str:
-    """Chapter 5 addendum — confidence-badge counts (never a raw input, see
-    investment_engine.confidence_badge) plus the MMM macro-calibration status,
-    stated plainly when absent or deferred rather than silently skipped."""
+    """Confidence counts plus macro-calibration status, without a false Qini warning."""
     counts = inv["charts"]["confidence"]
     stats = "".join(
         f'<div class="chk-stat"><div class="chk-stat-num" style="color:{_CONF_COLOR[k]}">{counts.get(k,0)}</div>'
@@ -2942,18 +3021,21 @@ def s_inv_confidence(cfg: dict, inv: dict) -> str:
     if status == "available" and mmm.get("posterior_roas"):
         rows = "".join(
             f'<tr><td>{esc(r.get("channel",""))}</td><td>{r.get("mean",0):.2f}</td>'
-            f'<td>{r.get("lo",0):.2f}–{r.get("hi",0):.2f}</td></tr>'
+            f'<td>{r.get("lo",0):.2f}-{r.get("hi",0):.2f}</td></tr>'
             for r in mmm["posterior_roas"])
         mmm_table = f"""<div class="table-wrap"><table>
-    <thead><tr><th>Channel</th><th>Posterior ROAS</th><th>90% interval</th></tr></thead>
+    <thead><tr><th>{esc(S(cfg, "inv_th_channel"))}</th><th>{esc(S(cfg, "inv_th_roas"))}</th><th>{esc(S(cfg, "inv_th_interval"))}</th></tr></thead>
     <tbody>{rows}</tbody></table></div>"""
+    qini_note = ""
+    if inv.get("charts", {}).get("hte", {}).get("qini", {}).get("status") != "available":
+        qini_note = esc(S(cfg, "inv_qini_missing"))
     return f"""<section id="inv5">
   <h2>{esc(S(cfg, "inv_confidence_heading"))}</h2>
   <div class="chk-summary">{stats}</div>
   <h3>{esc(S(cfg, "inv_mmm_heading"))}</h3>
   <p class="callout">{esc(mmm_text)}</p>
   {mmm_table}
-  <p style="font-size:12px;color:var(--muted)">{esc(S(cfg, "inv_qini_missing"))}</p>
+  <p style="font-size:12px;color:var(--muted)">{qini_note}</p>
 </section>"""
 
 
@@ -3035,12 +3117,18 @@ def generate_category_html(cfg: dict, numbers: dict) -> str:
         chapter_layout[1][1].append(("inv2", s_inv_frontier(cfg, inv)))
         chapter_layout[2][1].append(("inv3", s_inv_matrix(cfg, inv)))
         chapter_layout[3][1].append(("inv4", s_inv_tasks(cfg, inv)))
+        # the receipts: HTE validation state, then macro calibration, then the
+        # confidence tally — same order as the dashboard's chapter 5
+        chapter_layout[4][1].append(("inv-hte", s_inv_hte_core(cfg, inv)))
+        chapter_layout[4][1].append(("inv-mmm", s_inv_mmm(cfg, inv)))
         chapter_layout[4][1].append(("inv5", s_inv_confidence(cfg, inv)))
         section_names.update({
             "inv1": S(cfg, "inv_ch1_heading"),
+            "inv-hte": S(cfg, "inv_hte_heading"),
             "inv2": S(cfg, "inv_frontier_heading"),
             "inv3": S(cfg, "inv_matrix_heading"),
             "inv4": S(cfg, "inv_tasks_heading"),
+            "inv-mmm": S(cfg, "inv_mmm_heading"),
             "inv5": S(cfg, "inv_confidence_heading"),
         })
         for ch_id, suffix in _sem.investment_chapter_answers(cfg, inv).items():

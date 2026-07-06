@@ -99,6 +99,8 @@ def validate_investment_plan(cfg: dict) -> list[str]:
         tau_source = cell.get("tau_source")
         if tau_source not in TAU_SOURCES:
             errors.append(f"{cid}: tau_source must be one of {sorted(TAU_SOURCES)}, got {tau_source!r}")
+        elif tau_source == "randomized_hte" and not cell.get("validation_ref"):
+            errors.append(f"{cid}: tau_source='randomized_hte' requires a validation_ref")
         elif tau_source == "expert_assumption" and not cell.get("tau_basis"):
             errors.append(f"{cid}: tau_source='expert_assumption' requires a 'tau_basis' string")
         elif tau_source == "missing":

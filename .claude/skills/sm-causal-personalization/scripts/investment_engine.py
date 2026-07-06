@@ -94,7 +94,7 @@ def confidence_badge(cell: dict) -> str:
     (investment_schema.py rejects a 'confidence' field in the config).
 
     - blocked:          tau_source == "missing", or readiness below the floor
-    - validated:        randomized_hte + a measurement_gate is in place
+    - validated:        randomized_hte + measurement_gate + HTE validation gate
     - mmm_calibrated:   mmm_calibrated_prior
     - assumption_grade: everything else (modeled_hte or randomized_hte
                         without a gate, or expert_assumption)
@@ -103,7 +103,7 @@ def confidence_badge(cell: dict) -> str:
     readiness = cell.get("readiness", 1.0)
     if tau_source == "missing" or readiness is None or readiness < MIN_READINESS:
         return "blocked"
-    if tau_source == "randomized_hte" and cell.get("measurement_gate"):
+    if tau_source == "randomized_hte" and cell.get("measurement_gate") and cell.get("_hte_validated"):
         return "validated"
     if tau_source == "mmm_calibrated_prior":
         return "mmm_calibrated"

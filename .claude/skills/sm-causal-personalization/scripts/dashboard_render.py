@@ -142,7 +142,10 @@ def _render_category(data: Dict[str, Any]) -> str:
         parts.append(_investment_tasks(data, inv))
     parts += [ch("ch5"), _evidence(data)]
     if inv:
-        parts.append(_investment_confidence_mmm(data, inv))
+        # the receipts: HTE validation state, macro calibration, then the
+        # confidence tally — why believe the budget math, all in one chapter
+        parts += [_investment_hte_core(data, inv), _investment_mmm(data, inv),
+                  _investment_confidence_mmm(data, inv)]
     return "\n".join(p for p in parts if p)
 
 
@@ -207,6 +210,42 @@ def _investment_frontier(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
                     _s(data, "inv_frontier_caption", ""), [panels])
 
 
+def _investment_hte_core(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
+    hte = inv.get("hte", {})
+    charts = inv.get("charts", {}).get("hte", {})
+    qini = charts.get("qini", {})
+    decile = charts.get("decile_calibration", {})
+    distribution = charts.get("tau_distribution", {})
+    gate_note = _s(data, "inv_hte_gate_note",
+                   "Method: {method} · holdout n: {n}.").format(
+        method=hte.get("method") or "missing", n=hte.get("holdout_n", 0))
+    cards = [
+        _wide_card(
+            _s(data, "inv_hte_gate_title", "HTE validation gate"),
+            gate_note,
+            hte,
+            extra=f'<span class="status">{_esc(hte.get("status", "missing"))}</span>',
+        )
+    ]
+    if qini.get("status") == "available":
+        cards.append(f"""<div class="wide-card">
+  <strong>{_esc(_s(data, "inv_th_auuc", "Qini / AUUC"))}</strong>
+  <span>AUUC: {_esc(qini.get('auuc', ''))}</span>
+  {_svg.line_panel(qini.get("points", []), None, "#16a34a")}
+</div>""")
+    for row in decile.get("rows", [])[:4]:
+        text = (f'{_s(data, "inv_th_predicted_tau", "Predicted tau")}: {row.get("predicted_tau", 0):.3f} · '
+                f'{_s(data, "inv_th_observed_lift", "Observed lift")}: {row.get("observed_lift", 0):.3f} · '
+                f'{_s(data, "inv_th_gap", "Gap")}: {row.get("gap", 0):.3f}')
+        cards.append(_wide_card(f'{_s(data, "inv_th_decile", "Decile")} {row.get("decile", "")}', text, row))
+    for row in distribution.get("bins", [])[:4]:
+        share = float(row.get("share") or 0.0)
+        cards.append(_wide_card(f'{_s(data, "inv_th_tau_bucket", "Tau bucket")} {row.get("bucket", "")}',
+                                f'{_s(data, "inv_th_share", "Audience share")}: {share:.0%}', row))
+    return _section("invest-hte", _s(data, "inv_hte_heading", "HTE Validation Core"),
+                    _s(data, "inv_hte_sub", ""), cards)
+
+
 def _investment_matrix(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
     bm = inv.get("charts", {}).get("budget_matrix", {})
     x_axis, y_axis, cells = bm.get("x_axis", []), bm.get("y_axis", []), bm.get("cells", [])
@@ -238,26 +277,73 @@ def _investment_matrix(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
 
 
 def _investment_tasks(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
-    allocation = inv.get("answer", {}).get("allocation", [])
+    allocation = inv.get("activation_cards") or inv.get("answer", {}).get("allocation", [])
     currency = inv.get("currency", "")
     cards = []
     for row in allocation:
         conf = row.get("confidence", "assumption_grade")
         bits = [
-            f'{_s(data, "inv_th_spend", "Spend")}: {row.get("spend", 0):,.0f} {currency}'.rstrip(),
+            f'{_s(data, "inv_th_spend", "Spend")}: {row.get("spend", 0):,.0f} {row.get("currency", currency)}'.rstrip(),
             f'{_s(data, "inv_th_roi", "ROI")}: {row.get("roi", 0):.2f}x',
         ]
         if row.get("owner"):
             bits.append(f'{_s(data, "owner_word", "Owner")}: {row["owner"]}')
+        if row.get("flight"):
+            bits.append(f'{_s(data, "due_word", "Due")}: {row["flight"]}')
+        if row.get("kpi"):
+            bits.append(f'{_s(data, "inv_th_kpi", "KPI")}: {row["kpi"]}')
         if row.get("measurement"):
             bits.append(f'{_s(data, "inv_th_measurement", "Measurement")}: {row["measurement"]}')
         if row.get("stop_rule"):
             bits.append(f'{_s(data, "kill_line_word", "Stop-loss line")}: {row["stop_rule"]}')
+        if row.get("why"):
+            bits.append(f'{_s(data, "why_now_label", "Why now")}: {row["why"]}')
         bits.append(_s(data, f"inv_confidence_{conf}", conf))
         cards.append(_wide_card(f'{row.get("sku","")} · {row.get("module","")}', " · ".join(bits), row,
                                 extra=f'<span class="status">{_esc(conf)}</span>'))
     return _section("invest-tasks", _s(data, "inv_tasks_heading", "Activation cards"),
                     "", cards or [_empty("No funded rows.")])
+
+
+def _investment_mmm(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
+    charts = inv.get("charts", {}).get("mmm", {})
+    mmm = inv.get("mmm", {})
+    cards = [_wide_card(
+        _s(data, "inv_mmm_heading", "Macro channel calibration (MMM)"),
+        _s(data, f"inv_mmm_{mmm.get('status', 'missing')}", _s(data, "inv_mmm_missing", "")),
+        mmm,
+        extra=f'<span class="status">{_esc(mmm.get("status", "missing"))}</span>',
+    )]
+    for row in charts.get("contribution", {}).get("bars", [])[:5]:
+        cards.append(_wide_card(
+            f'{_s(data, "inv_th_contribution", "Contribution")} · {row.get("channel", "")}',
+            f"{row.get('contribution', 0):,.0f}",
+            row,
+        ))
+    for row in charts.get("posterior_roas", {}).get("intervals", [])[:5]:
+        cards.append(_wide_card(
+            f'{_s(data, "inv_th_roas", "Posterior ROAS")} · {row.get("channel", "")}',
+            f"{row.get('mean', 0):.2f}x ({row.get('lo', 0):.2f}-{row.get('hi', 0):.2f})",
+            row,
+        ))
+    for panel in charts.get("adstock", {}).get("panels", [])[:2]:
+        cards.append(f"""<div class="wide-card">
+  <strong>{_esc(_s(data, "inv_mmm_adstock", "Adstock / response"))} · {_esc(panel.get('channel', ''))}</strong>
+  {_svg.line_panel(panel.get("points", []), None, "#0891b2")}
+</div>""")
+    for panel in charts.get("saturation", {}).get("panels", [])[:2]:
+        cards.append(f"""<div class="wide-card">
+  <strong>{_esc(_s(data, "inv_mmm_saturation", "Saturation"))} · {_esc(panel.get('channel', ''))}</strong>
+  {_svg.line_panel(panel.get("points", []), None, "#4f46e5")}
+</div>""")
+    lift = charts.get("lift_calibration", {})
+    if lift.get("status") == "available":
+        cards.append(f"""<div class="wide-card">
+  <strong>{_esc(_s(data, "inv_mmm_lift_calibration", "Lift calibration"))}</strong>
+  {_svg.line_panel(lift.get("points", []), None, "#d97706")}
+</div>""")
+    return _section("invest-mmm", _s(data, "inv_mmm_heading", "Macro channel calibration (MMM)"),
+                    _s(data, "inv_mmm_sub", ""), cards)
 
 
 def _investment_confidence_mmm(data: Dict[str, Any], inv: Dict[str, Any]) -> str:

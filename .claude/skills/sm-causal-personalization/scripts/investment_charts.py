@@ -100,17 +100,101 @@ def confidence_strip_spec(cells: list[dict]) -> dict:
 # ── Deferred to Phase 2 — signatures fixed now so mmm_bridge.py's output
 #    shape is stable when a live macro-calibration source lands ─────────────
 
+def hte_qini_spec(qini_curve: list[dict], auuc: float | None = None) -> dict:
+    points = [
+        (row.get("targeted_pct"), row.get("cumulative_lift_pct"))
+        for row in qini_curve
+        if _is_num(row.get("targeted_pct")) and _is_num(row.get("cumulative_lift_pct"))
+    ]
+    if not points:
+        return {"status": "missing", "points": [], "auuc": auuc}
+    points = sorted(points, key=lambda p: p[0])
+    return {
+        "status": "available",
+        "title": "Qini / AUUC",
+        "points": points,
+        "random_baseline": [(0, 0), (100, 100)],
+        "auuc": auuc,
+    }
+
+
+def hte_decile_calibration_spec(deciles: list[dict]) -> dict:
+    rows = []
+    for row in deciles:
+        predicted = row.get("predicted_tau")
+        observed = row.get("observed_lift")
+        if not _is_num(predicted) or not _is_num(observed):
+            continue
+        rows.append({
+            "decile": row.get("decile"),
+            "predicted_tau": predicted,
+            "observed_lift": observed,
+            "audience_pct": row.get("audience_pct"),
+            "gap": round(float(predicted) - float(observed), 4),
+        })
+    return {"status": "available" if rows else "missing", "rows": rows}
+
+
+def hte_tau_distribution_spec(distribution: list[dict]) -> dict:
+    bins = [
+        {"bucket": row.get("bucket", ""), "share": row.get("share", 0.0)}
+        for row in distribution
+        if row.get("bucket") is not None
+    ]
+    return {"status": "available" if bins else "missing", "bins": bins}
+
+
 def mmm_contribution_spec(channel_contribution: list[dict]) -> dict:
-    return {"status": "deferred"}
+    bars = [
+        {"channel": row.get("channel", ""), "contribution": row.get("contribution", 0.0)}
+        for row in channel_contribution
+        if row.get("channel")
+    ]
+    bars.sort(key=lambda r: -float(r.get("contribution") or 0.0))
+    return {"status": "available" if bars else "missing", "bars": bars}
 
 
 def adstock_saturation_spec(curves: list[dict]) -> dict:
-    return {"status": "deferred"}
+    panels = []
+    for row in curves:
+        points = _points(row.get("points", []), "spend", "response")
+        if points:
+            panels.append({"channel": row.get("channel", ""), "points": points})
+    return {"status": "available" if panels else "missing", "panels": panels}
 
 
 def posterior_roas_spec(posterior_roas: list[dict]) -> dict:
-    return {"status": "deferred"}
+    intervals = []
+    for row in posterior_roas:
+        if not row.get("channel"):
+            continue
+        intervals.append({
+            "channel": row.get("channel", ""),
+            "mean": row.get("mean", 0.0),
+            "lo": row.get("lo", 0.0),
+            "hi": row.get("hi", 0.0),
+        })
+    intervals.sort(key=lambda r: -float(r.get("mean") or 0.0))
+    return {"status": "available" if intervals else "missing", "intervals": intervals}
 
 
 def lift_calibration_spec(lift_calibration: list[dict]) -> dict:
-    return {"status": "deferred"}
+    points = _points(lift_calibration, "predicted", "observed")
+    labels = [
+        row.get("channel", "")
+        for row in lift_calibration
+        if _is_num(row.get("predicted")) and _is_num(row.get("observed"))
+    ]
+    return {"status": "available" if points else "missing", "points": points, "labels": labels}
+
+
+def _points(rows: list[dict], x_key: str, y_key: str) -> list[tuple]:
+    return [
+        (row.get(x_key), row.get(y_key))
+        for row in rows
+        if _is_num(row.get(x_key)) and _is_num(row.get(y_key))
+    ]
+
+
+def _is_num(value: Any) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool)

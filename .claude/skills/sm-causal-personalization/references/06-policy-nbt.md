@@ -81,6 +81,12 @@ never a raw input — see `investment_engine.confidence_badge`.
 
 ## Two-Stage vs End-to-End: Architectural Choice
 
+Current SKU-level investment rule: a `randomized_hte` cell must name
+`validation_ref`, and that ref must pass the supplied `hte_validation` gate
+(Qini/AUUC plus decile calibration) before the dashboard calls it `validated`.
+Without that gate it is treated as `assumption_grade`, even if a measurement
+gate string is present.
+
 ```
 Two-stage (default):
   estimate τ̂(x) → optimize π(x) based on τ̂

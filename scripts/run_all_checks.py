@@ -16,6 +16,7 @@ COMMANDS = [
     [sys.executable, "tests/test_generate_report.py"],
     [sys.executable, "tests/test_dashboard_data.py"],
     [sys.executable, "tests/test_dashboard_render.py"],
+    [sys.executable, "tests/test_hte_investment_core.py"],
     [sys.executable, "tests/test_investment_engine.py"],
     [sys.executable, "tests/test_investment_charts.py"],
     [sys.executable, "tests/test_investment_dashboard_data.py"],
