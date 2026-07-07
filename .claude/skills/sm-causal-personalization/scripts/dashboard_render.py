@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from html import escape
 from pathlib import Path
@@ -101,28 +102,33 @@ def _render_sku(data: Dict[str, Any]) -> str:
     ])
 
 
-def _chapter_head(ch_id: str, title: str, question: str, answer_label: str, answer: str) -> str:
+def _chapter_head(ch_id: str, title: str, question: str, answer_label: str, answer: str,
+                  bridge: str = "") -> str:
     answer_html = f'<p class="ch-ans"><b>{_esc(answer_label)}</b> {_esc(answer)}</p>' if answer else ""
+    bridge_html = f'<p class="ch-bridge">{_esc(bridge)}</p>' if bridge else ""
     return f"""<section class="chapter-band section" id="{_esc(ch_id)}">
   <div class="eyebrow">{_esc(title)}</div>
   <h2>{_esc(question)}</h2>
   {answer_html}
+  {bridge_html}
 </section>"""
 
 
 def _render_category(data: Dict[str, Any]) -> str:
     """Same five-question spine as _render_sku — the reading line is:
     ch1 the call (verdicts + investment answer) → ch2 the why (diagnosis +
-    frontier) → ch3 the play (market tiers, SKU verdicts, where the money
-    lands) → ch4 execution (handoff + funded activation cards) → ch5 the
-    receipts (evidence + confidence + MMM)."""
+    frontier, overall and by business line) → ch3 the play (tier→SKU drill,
+    SKU verdicts, where the money lands) → ch4 execution (handoff + funded
+    activation cards + the CSV data request) → ch5 evidence & risk, folded
+    shut by default."""
     s = data.get("strings", {})
     answers = data.get("chapter_answers", {})
     inv = data.get("investment")
 
     def ch(n: str) -> str:
         return _chapter_head(n, s.get(f"{n}_title", n), s.get(f"{n}_question", ""),
-                             s.get("ch_answer_label", "Short answer"), answers.get(n, ""))
+                             s.get("ch_answer_label", "Short answer"), answers.get(n, ""),
+                             bridge=s.get(f"cat_bridge_{n}", ""))
 
     parts = [
         ch("ch1"),
@@ -130,7 +136,7 @@ def _render_category(data: Dict[str, Any]) -> str:
         _kpis(data),
     ]
     if inv:
-        parts += [_investment_kpis(data, inv), _investment_never_funded(data, inv)]
+        parts.append(_investment_kpis(data, inv))
     parts += [ch("ch2"), _portfolio_diagnosis(data)]
     if inv:
         parts.append(_investment_frontier(data, inv))
@@ -139,14 +145,30 @@ def _render_category(data: Dict[str, Any]) -> str:
         parts.append(_investment_matrix(data, inv))
     parts += [ch("ch4"), _portfolio_handoff(data)]
     if inv:
-        parts.append(_investment_tasks(data, inv))
-    parts += [ch("ch5"), _evidence(data)]
+        # execution ends with the data request: what to fill in (CSV) so the
+        # next run computes — replaces the old never-funded card wall
+        parts += [_investment_tasks(data, inv), _investment_limits(data, inv)]
+    # evidence & risk: folded shut by default — open only what you need
+    parts.append(ch("ch5"))
+    parts.append(_fold(data, _evidence(data)))
     if inv:
-        # the receipts: HTE validation state, macro calibration, then the
-        # confidence tally — why believe the budget math, all in one chapter
-        parts += [_investment_hte_core(data, inv), _investment_mmm(data, inv),
-                  _investment_confidence_mmm(data, inv)]
+        parts += [_fold(data, _investment_hte_core(data, inv)),
+                  _fold(data, _investment_mmm(data, inv)),
+                  _fold(data, _investment_confidence_mmm(data, inv))]
     return "\n".join(p for p in parts if p)
+
+
+def _fold(data: Dict[str, Any], section_html: str) -> str:
+    """Collapse a rendered section behind its own title — the section's h2
+    becomes the clickable summary; everything else shows only when opened."""
+    if not section_html:
+        return ""
+    m = re.search(r'<h2>(.*?)</h2>', section_html, re.S)
+    title = m.group(1) if m else ""
+    return f"""<details class="fold section">
+  <summary>{title}</summary>
+  {section_html}
+</details>"""
 
 
 def _s(data: Dict[str, Any], key: str, default: str = "") -> str:
@@ -175,21 +197,37 @@ def _investment_kpis(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
     return f'<section class="kpi-strip section" id="invest-kpis">{"".join(cards)}</section>'
 
 
-def _investment_never_funded(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
-    blocked = inv.get("blocked", [])
-    _reason_key = {"excluded verdict": "inv_reason_excluded_verdict",
-                   "confidence blocked": "inv_reason_confidence_blocked"}
-    if not blocked:
-        cards = [_empty(_s(data, "inv_never_funded_empty", "Every eligible cell got funded."))]
-    else:
-        cards = [
-            _wide_card(f'{b.get("sku","")} · {b.get("module","")}',
-                      _s(data, _reason_key.get(b.get("reason"), "inv_reason_confidence_blocked")),
-                      b, extra=f'<span class="status">{_esc(b.get("reason",""))}</span>')
-            for b in blocked
-        ]
-    return _section("invest-never-funded", _s(data, "inv_never_funded_heading", "Never funded this round"),
-                    "", cards)
+def _investment_limits(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
+    """What limits this run + the CSV to fill — replaces the never-funded
+    card wall: state the constraint, name the blocked cells in one line each,
+    and hand over the exact template that unlocks the next run."""
+    limits = inv.get("limits") or {}
+    intro = _s(data, "inv_limits_intro", "").format(
+        funded=limits.get("funded", 0), assumption=limits.get("assumption", 0),
+        blocked=len(limits.get("blocked", [])), holdout=limits.get("holdout_n", 0))
+    blocked_html = ""
+    if limits.get("blocked"):
+        items = "".join(
+            f'<li><strong>{_esc(b.get("sku",""))}</strong> · {_esc(b.get("module",""))}'
+            f' — {_esc(_s(data, "inv_reason_excluded_verdict" if b.get("reason") == "excluded verdict" else "inv_reason_confidence_blocked", b.get("reason","")))}</li>'
+            for b in limits["blocked"])
+        blocked_html = (f'<p class="limits-blocked"><b>{_esc(_s(data, "inv_limits_blocked_line", "Not funded:"))}</b></p>'
+                        f'<ul class="limits-blocked-list">{items}</ul>')
+    csv_text = limits.get("csv", "")
+    csv_html = f"""<div class="csv-box">
+  <div class="csv-head">
+    <strong>{_esc(_s(data, "inv_csv_heading", "CSV template"))}</strong>
+    <span>
+      <button class="pill" onclick="smcpCopyCsv()">{_esc(_s(data, "inv_csv_copy", "Copy"))}</button>
+      <button class="pill" onclick="smcpDownloadCsv()">{_esc(_s(data, "inv_csv_download", "Download CSV"))}</button>
+    </span>
+  </div>
+  <p class="csv-hint">{_esc(_s(data, "inv_csv_hint", ""))}</p>
+  <pre id="smcp-csv-template">{_esc(csv_text)}</pre>
+</div>"""
+    body = f'<p class="limits-intro">{_esc(intro)}</p>{blocked_html}{csv_html}'
+    return _section("invest-limits", _s(data, "inv_limits_heading", "What limits this report"),
+                    "", [body])
 
 
 def _investment_frontier(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
@@ -206,8 +244,22 @@ def _investment_frontier(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
     {_svg.line_panel(roi.get("points", []), roi.get("cutoff_spend"), "#0891b2")}
   </div>
 </div>"""
+    groups = inv.get("charts", {}).get("frontier_groups", [])
+    group_html = ""
+    if len(groups) > 1:
+        currency = inv.get("currency", "")
+        cells = ""
+        for g in groups:
+            cells += f"""<div class="inv-panel">
+  <div class="inv-panel-title">{_esc(g.get("label", ""))}</div>
+  <div class="inv-panel-meta">{_esc(_s(data, "tier_spend_word", "funded this cycle"))}: {g.get("funded", 0):,.0f} {_esc(currency)}</div>
+  {_svg.line_panel(g.get("points", []), g.get("funded") or None, "#4f46e5", height=140)}
+</div>"""
+        group_html = f"""<h3 class="inv-subhead">{_esc(_s(data, "inv_frontier_by_group", "By business line"))}</h3>
+<p class="inv-subhint">{_esc(_s(data, "inv_frontier_group_sub", ""))}</p>
+<div class="inv-group-grid">{cells}</div>"""
     return _section("invest-frontier", _s(data, "inv_frontier_heading", "The budget-vs-return curve"),
-                    _s(data, "inv_frontier_caption", ""), [panels])
+                    _s(data, "inv_frontier_caption", ""), [panels + group_html])
 
 
 def _investment_hte_core(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
@@ -254,7 +306,9 @@ def _investment_matrix(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
                         "", [_empty(_s(data, "inv_matrix_empty", "No allocation cleared the ROI floor."))])
     by_pos = {(c["sku"], c["module"]): c for c in cells}
     max_spend = max((c["spend"] for c in cells), default=0.0) or 1.0
-    head = "<div class='heat-head'>SKU</div>" + "".join(f"<div class='heat-head'>{_esc(m)}</div>" for m in x_axis)
+    labels = inv.get("module_labels", {})
+    head = (f"<div class='heat-head'>{_esc(_s(data, 'inv_th_sku', 'SKU'))}</div>"
+            + "".join(f"<div class='heat-head'>{_esc(labels.get(m, m))}</div>" for m in x_axis))
     body = []
     for sku in y_axis:
         body.append(f"<div class='heat-channel'>{_esc(sku)}</div>")
@@ -299,7 +353,8 @@ def _investment_tasks(data: Dict[str, Any], inv: Dict[str, Any]) -> str:
         if row.get("why"):
             bits.append(f'{_s(data, "why_now_label", "Why now")}: {row["why"]}')
         bits.append(_s(data, f"inv_confidence_{conf}", conf))
-        cards.append(_wide_card(f'{row.get("sku","")} · {row.get("module","")}', " · ".join(bits), row,
+        module_word = row.get("module_label") or row.get("module", "")
+        cards.append(_wide_card(f'{row.get("sku","")} · {module_word}', " · ".join(bits), row,
                                 extra=f'<span class="status">{_esc(conf)}</span>'))
     return _section("invest-tasks", _s(data, "inv_tasks_heading", "Activation cards"),
                     "", cards or [_empty("No funded rows.")])
@@ -579,24 +634,67 @@ def _treatments(data: Dict[str, Any]) -> str:
 
 
 def _portfolio_tiers(data: Dict[str, Any]) -> str:
-    cards = [
-        _wide_card(t.get("label", ""), f"{t.get('trend', '')} · {t.get('audience', '')} · {t.get('channel_fit', '')}", t)
-        for t in data.get("portfolio", {}).get("tiers", [])
-    ]
+    drill = data.get("portfolio", {}).get("tier_drill", [])
+    if not drill:
+        cards = [
+            _wide_card(t.get("label", ""), f"{t.get('trend', '')} · {t.get('audience', '')} · {t.get('channel_fit', '')}", t)
+            for t in data.get("portfolio", {}).get("tiers", [])
+        ]
+        return _section("tiers", _s(data, "dash_tiers_title", "Tier Map"),
+                        _s(data, "dash_tiers_sub", "Price tiers, audiences, forces, and channel fit."), cards)
+
+    spend_word = _s(data, "tier_spend_word", "funded this cycle")
+    sku_word = _s(data, "tier_sku_count_word", "SKU(s)")
+    tiers_html = ""
+    for t in drill:
+        sku_rows = ""
+        for sku in t.get("skus", []):
+            verdict = str(sku.get("verdict", ""))
+            verdict_word = _s(data, f"verdict_{verdict}", verdict)
+            fourp = sku.get("fourP", {})
+            fourp_rows = "".join(
+                f'<div class="drill-fourp-row"><b>{_esc(_s(data, f"dash_4p_{key}", label))}</b>{_esc(fourp.get(key, "—"))}</div>'
+                for key, label in (("product", "Product"), ("price", "Price"),
+                                   ("place", "Place"), ("promotion", "Promotion"))
+                if fourp.get(key))
+            module_rows = "".join(
+                f'<div class="drill-module-row"><span>{_esc(m.get("module", ""))}</span>'
+                f'<span>{m.get("spend", 0):,.0f} · ROI {m.get("roi", 0):.2f}x</span></div>'
+                for m in sku.get("modules", []))
+            spend_badge = (f'<span class="drill-spend">{sku.get("spend", 0):,.0f}</span>'
+                           if sku.get("spend") else "")
+            sku_rows += f"""<details class="drill drill-sku">
+  <summary><span class="status">{_esc(verdict_word)}</span> <strong>{_esc(sku.get("sku", ""))}</strong>{spend_badge}</summary>
+  <p class="drill-note">{_esc(sku.get("note", ""))}</p>
+  {fourp_rows}
+  {module_rows}
+</details>"""
+        tiers_html += f"""<details class="drill drill-tier">
+  <summary><strong>{_esc(t.get("label", ""))}</strong>
+    <span class="drill-meta">{len(t.get("skus", []))} {_esc(sku_word)} · {_esc(spend_word)}: {t.get("spend", 0):,.0f}</span>
+  </summary>
+  <p class="drill-note">{_esc(" · ".join(x for x in (t.get("trend"), t.get("audience"), t.get("force"), t.get("channel_fit")) if x))}</p>
+  {sku_rows}
+</details>"""
+    hint = f'<p class="drill-hint">{_esc(_s(data, "dash_tiers_drill_hint", ""))}</p>'
     return _section("tiers", _s(data, "dash_tiers_title", "Tier Map"),
-                    _s(data, "dash_tiers_sub", "Price tiers, audiences, forces, and channel fit."), cards)
+                    _s(data, "dash_tiers_sub", ""), [hint + tiers_html])
 
 
 def _portfolio_diagnosis(data: Dict[str, Any]) -> str:
-    cards = [
-        _wide_card(
+    cards = []
+    for d in data.get("portfolio", {}).get("diagnosis", []):
+        badges = f'<span class="status">{_esc(d.get("severity", ""))}</span>'
+        stance = d.get("invest_stance")
+        if stance:
+            word = _s(data, f"stance_{stance}", stance)
+            badges = f'<span class="stance stance-{_esc(stance)}">{_esc(word)}</span> ' + badges
+        cards.append(_wide_card(
             f"{d.get('lens', '')} {d.get('title', '')}",
             d.get("implication", ""),
             d,
-            extra=f'<span class="status">{_esc(d.get("severity", ""))}</span>',
-        )
-        for d in data.get("portfolio", {}).get("diagnosis", [])
-    ]
+            extra=badges,
+        ))
     return _section("diagnosis", _s(data, "dash_diag_title", "Diagnosis Lenses"),
                     _s(data, "dash_diag_sub", "L1-L6 category and 4P diagnosis."), cards)
 
@@ -707,6 +805,43 @@ def _css() -> str:
 :root{--bg:#f3f3f1;--panel:rgba(255,255,255,.88);--line:#e4e5de;--ink:#111510;--muted:#6d7068;--green:#dff3e8;--amber:#fff1bf;--orange:#ffe1c2;--red:#f8d2cf;--blue:#e2f0f5;--select:#245d7c}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.55 "Microsoft YaHei UI","Microsoft YaHei",Arial,sans-serif;letter-spacing:0}.decision-dashboard{display:grid;grid-template-columns:64px minmax(0,1fr) 320px;gap:16px;padding:16px}.rail{position:sticky;top:16px;height:calc(100vh - 32px);background:var(--panel);border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px 8px}.rail-mark{font-size:10px;color:var(--muted);border-bottom:1px solid var(--line);width:100%;text-align:center;padding-bottom:8px}.rail a{color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:7px;padding:6px 8px;background:#fff}.rail a:hover{background:var(--blue);color:var(--select)}.workspace{display:flex;flex-direction:column;gap:14px;min-width:0}.section{scroll-margin-top:16px}.hero,.panel,.detail-panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 38px rgba(20,24,18,.06)}.hero{display:flex;justify-content:space-between;gap:16px;padding:16px}.hero h1{font-size:24px;line-height:1.15;margin:2px 0 6px}.hero h1 span{color:var(--muted);font-weight:500}.hero p{margin:0;color:var(--muted);max-width:820px}.hero-actions{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;justify-content:flex-end}.pill,.kpi-card,.wide-card,.heat-cell,.graph-node{font:inherit;cursor:pointer}.pill{border:1px solid var(--line);border-radius:999px;background:#fff;padding:6px 10px}.pill.verdict{background:var(--amber)}.pill.muted{color:var(--muted)}.kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}.kpi-card{border:1px solid var(--line);border-radius:9px;background:#fff;text-align:left;padding:12px;min-height:86px}.kpi-card span,.kpi-card em{display:block;color:var(--muted);font-style:normal}.kpi-card strong{display:block;font-size:22px;margin:4px 0}.panel{padding:16px}.section-head{display:flex;justify-content:space-between;gap:12px}.section-head h2{font-size:18px;margin:0}.section-head p{margin:2px 0 12px;color:var(--muted)}.eyebrow{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}.panel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}.wide-card{position:relative;border:1px solid var(--line);border-radius:8px;background:#fff;text-align:left;padding:12px;min-height:104px;overflow:hidden}.wide-card strong{display:block;font-size:14px;margin-bottom:6px}.wide-card span{color:var(--muted)}.card-extra{position:absolute;top:10px;right:10px}.status{border:1px solid var(--line);border-radius:999px;padding:3px 7px;background:#f8f9f6;color:var(--muted);font-size:11px}.graph{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;width:100%}.graph-node{border:1px solid var(--line);border-radius:8px;background:#fff;padding:14px;font-weight:700}.heatmap{display:grid;grid-template-columns:180px repeat(var(--cols),minmax(86px,1fr));gap:1px;background:var(--line);overflow:auto;border:1px solid var(--line);border-radius:8px}.heat-head,.heat-channel,.heat-cell{background:#fff;padding:10px;min-width:0}.heat-head{font-weight:700}.heat-head span{font-size:11px;color:var(--muted);font-weight:400}.heat-channel{font-weight:700}.heat-cell{border:0;font-weight:800;text-align:center}.grade-H{background:var(--green)}.grade-T{background:var(--amber)}.grade-S{background:var(--orange)}.grade-A{background:var(--red)}.grade-N{background:#f2f4f7}.empty{border:1px dashed var(--line);border-radius:8px;padding:18px;color:var(--muted);background:#fff}.chapter-band{background:linear-gradient(135deg,#245d7c,#173d52);color:#fff;border:0;border-radius:12px;padding:14px 18px}.chapter-band .eyebrow{color:rgba(255,255,255,.7)}.chapter-band h2{margin:2px 0 0;font-size:19px}.chapter-band .ch-ans{margin:8px 0 0;background:rgba(255,255,255,.14);border-radius:7px;padding:7px 10px;font-size:12.5px}.chapter-band .ch-ans b{margin-right:6px;opacity:.8}.synthetic-note{margin:8px 0 0;color:var(--muted);font-size:11.5px;font-style:italic}.detail-panel{position:sticky;top:16px;height:calc(100vh - 32px);padding:16px;overflow:auto}.detail-panel h2{font-size:20px;margin:4px 0 12px}.detail-panel p{color:var(--muted)}.detail-kv{display:grid;grid-template-columns:1fr;gap:7px}.detail-kv div{border:1px solid var(--line);border-radius:7px;padding:8px;background:#fff;overflow-wrap:anywhere}.detail-kv b{display:block;color:var(--muted);font-size:11px;text-transform:uppercase}@media(max-width:980px){.decision-dashboard{grid-template-columns:48px minmax(0,1fr)}.detail-panel{position:static;grid-column:2;height:auto}.hero{flex-direction:column}.heatmap{grid-template-columns:150px repeat(var(--cols),minmax(74px,1fr))}}@media(max-width:640px){.decision-dashboard{display:block;padding:10px}.rail{position:static;height:auto;flex-direction:row;margin-bottom:10px;overflow:auto}.workspace{gap:10px}.detail-panel{margin-top:10px}.panel-grid{grid-template-columns:1fr}}@media print{.rail,.detail-panel{display:none}.decision-dashboard{display:block}.hero,.panel{box-shadow:none;break-inside:avoid}}
 .kpi-card.tone-good strong{color:#16a34a}.kpi-card.tone-warn strong{color:#d97706}.kpi-card.tone-bad strong{color:#dc2626}
+.ch-bridge{margin:8px 0 0;font-size:12px;color:rgba(255,255,255,.75);line-height:1.55}
+details.fold{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:0}
+details.fold>summary{cursor:pointer;list-style:none;padding:14px 18px;font-weight:700;font-size:14px;color:var(--muted)}
+details.fold>summary::before{content:'▸ ';color:var(--select)}
+details.fold[open]>summary::before{content:'▾ '}
+details.fold>section{border:0;box-shadow:none;border-radius:0;border-top:1px solid var(--line)}
+details.drill{border:1px solid var(--line);border-radius:8px;background:#fff;margin:8px 0}
+details.drill>summary{cursor:pointer;list-style:none;padding:11px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+details.drill>summary::before{content:'▸';color:var(--muted)}
+details.drill[open]>summary::before{content:'▾'}
+details.drill-tier>summary strong{font-size:14px}
+.drill-meta{color:var(--muted);font-size:12px;margin-left:auto}
+details.drill-sku{margin:6px 12px;background:#fafaf8}
+.drill-spend{margin-left:auto;font-weight:700;color:var(--select)}
+.drill-note{margin:2px 14px 8px;color:var(--muted);font-size:12px;line-height:1.5}
+.drill-fourp-row{margin:3px 14px;font-size:12px;line-height:1.5}
+.drill-fourp-row b{display:inline-block;min-width:44px;color:var(--muted);font-weight:600}
+.drill-module-row{display:flex;justify-content:space-between;margin:3px 14px;padding:5px 9px;background:var(--blue);border-radius:6px;font-size:12px}
+.drill-hint{color:var(--muted);font-size:12px;margin:0 0 8px}
+.stance{border-radius:999px;padding:3px 9px;font-size:11px;font-weight:700}
+.stance-invest{background:var(--green);color:#14532d}
+.stance-test{background:var(--blue);color:#245d7c}
+.stance-hold{background:#f2f4f7;color:#6d7068}
+.stance-fix{background:var(--amber);color:#854d0e}
+.limits-intro{font-size:13px;line-height:1.6;margin:0 0 8px}
+.limits-blocked{margin:6px 0 2px;font-size:12.5px}
+.limits-blocked-list{margin:0 0 10px;padding-left:18px;font-size:12.5px;color:var(--muted)}
+.limits-blocked-list li{margin:3px 0}
+.csv-box{border:1px dashed var(--line);border-radius:8px;padding:12px;background:#fff}
+.csv-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.csv-head .pill{font-size:12px;cursor:pointer}
+.csv-hint{color:var(--muted);font-size:12px;line-height:1.55;margin:8px 0}
+.csv-box pre{max-height:180px;overflow:auto;background:#f8f9f6;border-radius:6px;padding:10px;font-size:11px;line-height:1.6;white-space:pre}
+.inv-subhead{margin:16px 0 2px;font-size:14px}
+.inv-subhint{color:var(--muted);font-size:12px;margin:0 0 8px}
+.inv-group-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;width:100%}
+.inv-panel-meta{color:var(--muted);font-size:11.5px;margin:0 0 4px}
 .inv-frontier-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%}
 @media(max-width:760px){.inv-frontier-grid{grid-template-columns:1fr}}
 .inv-panel{border:1px solid var(--line);border-radius:8px;background:#fff;padding:10px 12px}
@@ -738,4 +873,23 @@ function renderDetail(raw){
 document.querySelectorAll("[data-detail]").forEach((el) => {
   el.addEventListener("click", () => renderDetail(el.getAttribute("data-detail")));
 });
+function smcpCsvText(){
+  const el = document.getElementById("smcp-csv-template");
+  return el ? el.textContent : "";
+}
+function smcpCopyCsv(){
+  const text = smcpCsvText();
+  if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(text); return; }
+  const ta = document.createElement("textarea");
+  ta.value = text; document.body.appendChild(ta); ta.select();
+  document.execCommand("copy"); document.body.removeChild(ta);
+}
+function smcpDownloadCsv(){
+  const blob = new Blob(["﻿" + smcpCsvText()], {type: "text/csv;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "investment-cells-template.csv";
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(a.href);
+}
 """

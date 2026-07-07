@@ -295,12 +295,11 @@ def test_dashboard_without_investment_plan_has_no_investment_sections():
         assert f'id="{sid}"' not in html
 
 
-def test_dashboard_never_funded_lists_confidence_blocked_cell():
-    # a second, distinct SKU (still grow/hold) whose evidence is missing —
-    # schema requires tau_source='missing' cells to carry no tau_hat and to
-    # name needed_from; the engine then blocks it on computed confidence.
-    # (An excluded-verdict cell can't reach this codepath at all: schema
-    # validation rejects harvest/exit-sku cells before the engine ever runs.)
+def test_dashboard_limits_section_names_blocked_cells_and_ships_a_csv_template():
+    # the never-funded card wall is gone — blocked cells now appear as one
+    # line each inside the limits section, alongside a CSV template
+    # pre-filled with every cell so the operator knows exactly what data to
+    # supply (blank fields = the request).
     cfg = _cfg()
     cfg["portfolio"].append({"sku": "4G5", "verdict": "hold"})
     cfg["investment_plan"]["cells"].append({
@@ -311,9 +310,16 @@ def test_dashboard_never_funded_lists_confidence_blocked_cell():
     })
     data = dd.build_dashboard_data(cfg)
     html = dr.render_dashboard(data)
-    idx = html.index('id="invest-never-funded"')
-    chunk = html[idx:idx + 2000]
+    assert 'id="invest-never-funded"' not in html
+    idx = html.index('id="invest-limits"')
+    chunk = html[idx:html.index('id="ch5"')]
     assert "4G5" in chunk
+    assert 'id="smcp-csv-template"' in chunk
+    # the CSV template carries the header contract and the blocked cell's row
+    assert "sku,module,channel,tau_hat,tau_source,validation_ref" in chunk
+    assert "g5" not in chunk.split("smcp-csv-template")[0]  # blocked row lives in the CSV/blocked list, not a card wall
+    # limits section sits in ch4 (execution), after the activation cards
+    assert html.index('id="invest-tasks"') < idx < html.index('id="ch5"')
 
 
 if __name__ == "__main__":

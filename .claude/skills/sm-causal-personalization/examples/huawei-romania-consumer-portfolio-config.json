@@ -16,7 +16,7 @@
       "trend": "高客单但转化窄：更适合相机、折叠屏、旗舰用户细分，而不是大众转化买量。",
       "audience": "高端摄影、折叠屏尝鲜、既有 HUAWEI 用户、重视设计和影像的人群。",
       "force": "Pull + Trust：产品力必须先被证明，再用评测和门店体验降低疑虑。",
-      "channel_fit": "PR reviews, creator review, high-intent search, flagship PDP.",
+      "channel_fit": "公关/专业评测、达人评测、高意图搜索、旗舰 PDP。",
       "your_skus": [
         "HUAWEI Mate X7",
         "HUAWEI Pura 80 Ultra",
@@ -42,7 +42,7 @@
       "trend": "组合最厚，价格带宽，功能故事清晰；应作为本轮投资主引擎。",
       "audience": "运动、健康监测、长续航 smartwatch、礼品购买者。",
       "force": "Habit + Proof：用真实运动场景和健康功能证明日常佩戴价值。",
-      "channel_fit": "Paid social video, creator review, search, retail activation.",
+      "channel_fit": "付费短视频、达人评测、搜索、零售终端活动。",
       "your_skus": [
         "HUAWEI WATCH FIT 5 Pro",
         "HUAWEI WATCH FIT 5",
@@ -69,7 +69,7 @@
       "trend": "适合用套装、学生优惠和内容生产场景承接，而不是只靠硬件参数。",
       "audience": "学生、轻办公、内容创作者、跨设备协同用户。",
       "force": "Anxiety + Utility：解决买错设备、屏幕舒适、笔键配件价值的顾虑。",
-      "channel_fit": "Retail media, search, PDP content, student promos.",
+      "channel_fit": "零售媒体、搜索、PDP 内容、学生档促销位。",
       "your_skus": [
         "HUAWEI MateBook D 16 2024",
         "HUAWEI MateBook D 14 2024",
@@ -95,7 +95,7 @@
       "trend": "SKU 多、购买频次高、竞争拥挤；应用短链路 ROI 约束，而不是大预算品牌打法。",
       "audience": "通勤、通话降噪、开放式佩戴、轻运动用户。",
       "force": "Proof + Occasion：用通话、降噪、舒适佩戴的场景打动。",
-      "channel_fit": "Retail media, creator review, search, bundle cross-sell.",
+      "channel_fit": "零售媒体、达人评测、搜索、套装连带。",
       "your_skus": [
         "HUAWEI FreeBuds 7i",
         "HUAWEI FreeBuds Pro 5",
@@ -122,7 +122,7 @@
       "trend": "公开页能看到少数清晰产品，适合高意图搜索和零售解释，不适合大范围泛投。",
       "audience": "家庭 Wi-Fi 升级、远程办公、4G 家宽替代、租房用户。",
       "force": "Problem-solution：先命中网速、覆盖、安装和 SIM 使用问题。",
-      "channel_fit": "Search, retail activation, telco / electronics retail bundles.",
+      "channel_fit": "搜索、零售终端活动、运营商/电器渠道捆绑。",
       "your_skus": [
         "HUAWEI WiFi Mesh X3 Pro",
         "HUAWEI 4G CPE 5"
@@ -149,7 +149,8 @@
       "evidence": "官方首页、支持页和品类页均列出这些消费者品类。",
       "evidence_grade": "sourced",
       "implication": "预算会被旗舰手机的声量吸走，但增量销量可能来自更高频、更低摩擦的穿戴、音频和平板。",
-      "recommendation": "先做 portfolio budget，再做单 SKU deep dive；本轮把主预算放在穿戴、平板、音频，手机承担旗舰心智和高毛利验证。"
+      "recommendation": "先做 portfolio budget，再做单 SKU deep dive；本轮把主预算放在穿戴、平板、音频，手机承担旗舰心智和高毛利验证。",
+      "invest_stance": "hold"
     },
     {
       "lens": "L2",
@@ -159,7 +160,8 @@
       "evidence": "官方首页、wearables 页和 WATCH GT 6 / GT 6 Pro 页面。",
       "evidence_grade": "sourced",
       "implication": "穿戴可以承接短视频种草、搜索转化和零售体验，最适合拿来跑第一轮 HTE 投资曲线。",
-      "recommendation": "把 WATCH FIT 5 Pro、WATCH GT 6 Pro、WATCH GT 6 作为 A 组投资 SKU，按人群和内容模块拆分预算。"
+      "recommendation": "把 WATCH FIT 5 Pro、WATCH GT 6 Pro、WATCH GT 6 作为 A 组投资 SKU，按人群和内容模块拆分预算。",
+      "invest_stance": "invest"
     },
     {
       "lens": "L3",
@@ -169,7 +171,8 @@
       "evidence": "官方 phones 页、offer/telefoane 页和 AppGallery 说明。",
       "evidence_grade": "sourced",
       "implication": "大额手机预算若没有 holdout，很容易把自然旗舰兴趣误认为媒体增量。",
-      "recommendation": "Pura 80 Pro / Ultra 用 PR reviews 和 creator review 做高意图验证；Mate X7 暂不大规模放量，先补折叠屏人群 HTE。"
+      "recommendation": "Pura 80 Pro / Ultra 用 PR reviews 和 creator review 做高意图验证；Mate X7 暂不大规模放量，先补折叠屏人群 HTE。",
+      "invest_stance": "test"
     },
     {
       "lens": "L4",
@@ -179,7 +182,8 @@
       "evidence": "官方 tablets、MatePad 12 X、MatePad 11.5、MateBook D 16、MateBook D 14 页面。",
       "evidence_grade": "sourced",
       "implication": "如果只投规格流量，用户很难理解为什么该选 HUAWEI；如果投方案，客单和套装利润更容易打开。",
-      "recommendation": "把 MatePad 12 X 和 MateBook D 16 放进第二投资层，投 retail media + search + PDP content，配合学生/办公场景。"
+      "recommendation": "把 MatePad 12 X 和 MateBook D 16 放进第二投资层，投 retail media + search + PDP content，配合学生/办公场景。",
+      "invest_stance": "test"
     },
     {
       "lens": "L5",
@@ -189,7 +193,8 @@
       "evidence": "官方 audio offer 页面。",
       "evidence_grade": "sourced",
       "implication": "音频能提供频繁、可测的转化信号；但竞争拥挤，边际 ROI 会随投放迅速下滑。",
-      "recommendation": "FreeBuds Pro 5 与 FreeClip 2 进入本轮预算池，使用 search / retail media / creator review，达到 ROI 阈值即停。"
+      "recommendation": "FreeBuds Pro 5 与 FreeClip 2 进入本轮预算池，使用 search / retail media / creator review，达到 ROI 阈值即停。",
+      "invest_stance": "test"
     },
     {
       "lens": "L6",
@@ -199,7 +204,8 @@
       "evidence": "官方 routers 页和 4G CPE 5 specs 页。",
       "evidence_grade": "sourced",
       "implication": "泛投会浪费；但 search、零售解释和 telco 场景可能有稳定利润。",
-      "recommendation": "给 WiFi Mesh X3 Pro / 4G CPE 5 小额高意图预算，作为 portfolio 的补充利润池。"
+      "recommendation": "给 WiFi Mesh X3 Pro / 4G CPE 5 小额高意图预算，作为 portfolio 的补充利润池。",
+      "invest_stance": "test"
     },
     {
       "lens": "L7",
@@ -209,7 +215,8 @@
       "evidence": "本报告所有 tau_hat 都是 planning prior；没有内部 randomized holdout。",
       "evidence_grade": "sourced",
       "implication": "预算建议可以用于第一轮计划，但不能被当成 validated causal ROI。",
-      "recommendation": "上线时按 SKU x 模块建立 holdout：至少保留地区、门店或受众层级对照组，用 DR learner / X learner 输出 Qini、decile calibration 和 policy value。"
+      "recommendation": "上线时按 SKU x 模块建立 holdout：至少保留地区、门店或受众层级对照组，用 DR learner / X learner 输出 Qini、decile calibration 和 policy value。",
+      "invest_stance": "fix"
     }
   ],
   "portfolio": [
@@ -1145,39 +1152,39 @@
     "modules": [
       {
         "id": "category_brand",
-        "label": "Category brand / ecosystem education"
+        "label": "品类/生态教育"
       },
       {
         "id": "paid_social_video",
-        "label": "Paid social video"
+        "label": "付费短视频"
       },
       {
         "id": "creator_review",
-        "label": "Creator / review seeding"
+        "label": "达人/评测种草"
       },
       {
         "id": "search",
-        "label": "High-intent search"
+        "label": "高意图搜索"
       },
       {
         "id": "retail_media",
-        "label": "Retail media"
+        "label": "零售媒体（站内推广）"
       },
       {
         "id": "pdp_content",
-        "label": "PDP / decision content"
+        "label": "PDP/决策内容"
       },
       {
         "id": "retail_activation",
-        "label": "Retail activation"
+        "label": "零售终端活动"
       },
       {
         "id": "pr_reviews",
-        "label": "PR / expert reviews"
+        "label": "公关/专业评测"
       },
       {
         "id": "measurement",
-        "label": "HTE measurement"
+        "label": "HTE 测量建设"
       }
     ],
     "cells": [
@@ -1192,14 +1199,14 @@
         "reachable_population": 220000,
         "unit_margin": 150,
         "max_spend": 90000,
-        "saturation_k": 0.000025,
+        "saturation_k": 2.5e-05,
         "readiness": 0.9,
-        "owner": "Wearable growth lead",
-        "flight": "2026-Q3 weeks 1-8",
-        "kpi": "Incremental WATCH FIT 5 Pro units",
-        "measurement": "Audience holdout by paid-social cell",
-        "stop_rule": "Stop new spend when marginal ROI drops below 1.35x for two consecutive budget steps.",
-        "why": "Best scale candidate: broad audience, simple story, and enough reach to reveal a clean response curve."
+        "owner": "穿戴增长负责人",
+        "flight": "2026-Q3 第1–8周",
+        "kpi": "WATCH FIT 5 Pro 增量销量",
+        "measurement": "付费社媒分组人群 holdout 对照",
+        "stop_rule": "边际投产比连续两个预算档低于 1.35x，即停止追加。",
+        "why": "最适合放量的格子：人群宽、故事简单、触达量够大，能跑出一条干净的响应曲线。"
       },
       {
         "id": "watch_gt6pro_creator",
@@ -1212,14 +1219,14 @@
         "reachable_population": 90000,
         "unit_margin": 360,
         "max_spend": 70000,
-        "saturation_k": 0.000032,
+        "saturation_k": 3.2e-05,
         "readiness": 0.86,
-        "owner": "Creator partnerships",
-        "flight": "2026-Q3 weeks 1-6",
-        "kpi": "Incremental WATCH GT 6 Pro units",
-        "measurement": "Matched creator-exposed vs holdout audience",
-        "stop_rule": "Stop if review traffic rises but checkout conversion does not improve by week 4.",
-        "why": "Higher margin and clear outdoor/health proof points justify a premium creator cell."
+        "owner": "达人合作负责人",
+        "flight": "2026-Q3 第1–6周",
+        "kpi": "WATCH GT 6 Pro 增量销量",
+        "measurement": "达人触达组 vs 匹配 holdout 组对比",
+        "stop_rule": "第4周评测流量涨了但下单转化没改善，即停止。",
+        "why": "毛利更高、户外/健康卖点清晰，值得一个高端达人格子。"
       },
       {
         "id": "watch_gt6_search",
@@ -1232,14 +1239,14 @@
         "reachable_population": 110000,
         "unit_margin": 260,
         "max_spend": 60000,
-        "saturation_k": 0.00003,
+        "saturation_k": 3e-05,
         "readiness": 0.88,
-        "owner": "Search growth",
-        "flight": "2026-Q3 weeks 1-8",
-        "kpi": "Incremental WATCH GT 6 paid-search units",
-        "measurement": "Geo or campaign split holdout",
-        "stop_rule": "Cap spend when marginal ROI lower bound is below 1.35x.",
-        "why": "Mainstream wearable SKU should absorb efficient high-intent demand after FIT 5 Pro is funded."
+        "owner": "搜索增长负责人",
+        "flight": "2026-Q3 第1–8周",
+        "kpi": "WATCH GT 6 付费搜索增量销量",
+        "measurement": "分地域或分 campaign holdout 对照",
+        "stop_rule": "边际投产比下界低于 1.35x 即封顶，不再加钱。",
+        "why": "大众款穿戴应承接 FIT 5 Pro 批钱之后溢出的高意图需求。"
       },
       {
         "id": "matepad12x_retail_media",
@@ -1252,14 +1259,14 @@
         "reachable_population": 85000,
         "unit_margin": 430,
         "max_spend": 80000,
-        "saturation_k": 0.000026,
+        "saturation_k": 2.6e-05,
         "readiness": 0.82,
-        "owner": "Tablet retail lead",
-        "flight": "2026-Q3 weeks 2-8",
-        "kpi": "Incremental MatePad 12 X units",
-        "measurement": "Retail placement holdout by market/store cluster",
-        "stop_rule": "Stop if attach-rate or conversion lift is not visible after the first funding checkpoint.",
-        "why": "Best tablet candidate: strong productivity story plus enough margin to pay for retail media."
+        "owner": "平板零售负责人",
+        "flight": "2026-Q3 第2–8周",
+        "kpi": "MatePad 12 X 增量销量",
+        "measurement": "按市场/店群做零售陈列 holdout 对照",
+        "stop_rule": "第一个投放检查点后看不到连带率或转化提升，即停止。",
+        "why": "平板里最值得投的：生产力故事扎实，毛利也够付零售媒体的钱。"
       },
       {
         "id": "matepad115_pdp",
@@ -1272,14 +1279,14 @@
         "reachable_population": 120000,
         "unit_margin": 240,
         "max_spend": 40000,
-        "saturation_k": 0.000035,
+        "saturation_k": 3.5e-05,
         "readiness": 0.85,
-        "owner": "DTC content",
-        "flight": "2026-Q3 weeks 1-4",
-        "kpi": "PDP conversion and incremental MatePad 11.5 units",
-        "measurement": "PDP A/B with traffic-source guardrail",
-        "stop_rule": "Do not scale media until PDP conversion lift clears the pre-registered threshold.",
-        "why": "Cheap content lever that can unlock later paid traffic for the mainstream tablet SKU."
+        "owner": "官网内容负责人",
+        "flight": "2026-Q3 第1–4周",
+        "kpi": "PDP 转化率 + MatePad 11.5 增量销量",
+        "measurement": "PDP A/B 测试（按流量来源分层护栏）",
+        "stop_rule": "PDP 转化提升没过预先登记的门槛之前，不放大媒体投放。",
+        "why": "便宜的内容杠杆，为大众平板 SKU 的后续付费流量铺路。"
       },
       {
         "id": "matebook_d16_search",
@@ -1292,14 +1299,14 @@
         "reachable_population": 70000,
         "unit_margin": 520,
         "max_spend": 60000,
-        "saturation_k": 0.000028,
+        "saturation_k": 2.8e-05,
         "readiness": 0.78,
-        "owner": "PC growth lead",
-        "flight": "2026-Q3 weeks 1-8",
-        "kpi": "Incremental MateBook D 16 units",
-        "measurement": "Search campaign split holdout",
-        "stop_rule": "Stop if marginal ROI falls below 1.35x or if student offer inventory is constrained.",
-        "why": "PC has a clear high-intent surface and strong unit margin, but lower scale than wearables."
+        "owner": "PC 增长负责人",
+        "flight": "2026-Q3 第1–8周",
+        "kpi": "MateBook D 16 增量销量",
+        "measurement": "搜索 campaign 拆分 holdout 对照",
+        "stop_rule": "边际投产比跌破 1.35x 或学生优惠库存吃紧，即停止。",
+        "why": "PC 有明确的高意图入口和不错的单台毛利，但规模不如穿戴。"
       },
       {
         "id": "freebudspro5_retail_media",
@@ -1312,14 +1319,14 @@
         "reachable_population": 140000,
         "unit_margin": 140,
         "max_spend": 65000,
-        "saturation_k": 0.000033,
+        "saturation_k": 3.3e-05,
         "readiness": 0.84,
-        "owner": "Audio retail lead",
-        "flight": "2026-Q3 weeks 1-8",
-        "kpi": "Incremental FreeBuds Pro 5 units",
-        "measurement": "Retail media lift read plus holdout where available",
-        "stop_rule": "Stop when marginal ROI is under 1.35x or cannibalizes lower-margin audio SKUs.",
-        "why": "Audio can produce frequent conversion signal and stabilize the portfolio ROI curve."
+        "owner": "音频零售负责人",
+        "flight": "2026-Q3 第1–8周",
+        "kpi": "FreeBuds Pro 5 增量销量",
+        "measurement": "零售媒体增量读数 + 可行处加 holdout",
+        "stop_rule": "边际投产比低于 1.35x、或开始蚕食低毛利音频 SKU，即停止。",
+        "why": "音频转化频次高、信号快，能给整个组合的 ROI 曲线当稳定器。"
       },
       {
         "id": "freeclip2_creator",
@@ -1332,14 +1339,14 @@
         "reachable_population": 100000,
         "unit_margin": 160,
         "max_spend": 50000,
-        "saturation_k": 0.00003,
+        "saturation_k": 3e-05,
         "readiness": 0.8,
-        "owner": "Audio creator lead",
-        "flight": "2026-Q3 weeks 2-7",
-        "kpi": "Incremental FreeClip 2 units",
-        "measurement": "Creator audience holdout",
-        "stop_rule": "Stop if creator view-through traffic does not convert above audio category baseline.",
-        "why": "Distinct product shape needs demonstration; spend should be capped by observed response."
+        "owner": "音频达人合作负责人",
+        "flight": "2026-Q3 第2–7周",
+        "kpi": "FreeClip 2 增量销量",
+        "measurement": "达人受众 holdout 对照",
+        "stop_rule": "达人内容带来的流量转化率不高于音频品类基线，即停止。",
+        "why": "形态特殊需要演示种草；投放按实测响应封顶。"
       },
       {
         "id": "wifi_mesh_retail_activation",
@@ -1352,14 +1359,14 @@
         "reachable_population": 60000,
         "unit_margin": 220,
         "max_spend": 45000,
-        "saturation_k": 0.00003,
+        "saturation_k": 3e-05,
         "readiness": 0.72,
-        "owner": "Router retail lead",
-        "flight": "2026-Q3 weeks 3-8",
-        "kpi": "Incremental WiFi Mesh X3 Pro units",
-        "measurement": "Store-cluster holdout",
-        "stop_rule": "Stop if demo stores do not outperform control stores after first two weekends.",
-        "why": "Small but profitable high-intent problem-solving SKU."
+        "owner": "路由零售负责人",
+        "flight": "2026-Q3 第3–8周",
+        "kpi": "WiFi Mesh X3 Pro 增量销量",
+        "measurement": "店群 holdout 对照",
+        "stop_rule": "头两个周末体验店没有跑赢对照店，即停止。",
+        "why": "盘子小但有利润的高意图问题解决型 SKU。"
       },
       {
         "id": "cpe5_search",
@@ -1372,14 +1379,14 @@
         "reachable_population": 50000,
         "unit_margin": 170,
         "max_spend": 35000,
-        "saturation_k": 0.000032,
+        "saturation_k": 3.2e-05,
         "readiness": 0.72,
-        "owner": "Router search lead",
-        "flight": "2026-Q3 weeks 3-8",
-        "kpi": "Incremental 4G CPE 5 units",
-        "measurement": "Search campaign split holdout",
-        "stop_rule": "Stop when marginal ROI is below floor or stock cannot support demand.",
-        "why": "Useful add-on profit pool, but not a broad awareness candidate."
+        "owner": "路由搜索负责人",
+        "flight": "2026-Q3 第3–8周",
+        "kpi": "4G CPE 5 增量销量",
+        "measurement": "搜索 campaign 拆分 holdout 对照",
+        "stop_rule": "边际投产比低于达标线、或库存跟不上需求，即停止。",
+        "why": "有用的附加利润池，但不适合做大范围认知投放。"
       },
       {
         "id": "pura80pro_pr_reviews",
@@ -1392,14 +1399,14 @@
         "reachable_population": 60000,
         "unit_margin": 900,
         "max_spend": 70000,
-        "saturation_k": 0.000022,
+        "saturation_k": 2.2e-05,
         "readiness": 0.76,
-        "owner": "Phone PR lead",
-        "flight": "2026-Q3 weeks 1-8",
-        "kpi": "Incremental Pura 80 Pro units",
-        "measurement": "Review-exposed vs holdout audience",
-        "stop_rule": "Stop if high-intent traffic grows without incremental checkout lift.",
-        "why": "A profitable flagship cell, but should scale after proof rather than before it."
+        "owner": "手机公关负责人",
+        "flight": "2026-Q3 第1–8周",
+        "kpi": "Pura 80 Pro 增量销量",
+        "measurement": "评测触达组 vs holdout 组对比",
+        "stop_rule": "高意图流量涨了但下单增量没涨，即停止。",
+        "why": "旗舰格子有利润，但应该先见证据再放量，不是先放量再找证据。"
       },
       {
         "id": "pura80ultra_creator",
@@ -1412,14 +1419,14 @@
         "reachable_population": 35000,
         "unit_margin": 1500,
         "max_spend": 55000,
-        "saturation_k": 0.000024,
+        "saturation_k": 2.4e-05,
         "readiness": 0.7,
-        "owner": "Flagship phone lead",
-        "flight": "2026-Q3 weeks 2-8",
-        "kpi": "Incremental Pura 80 Ultra units",
-        "measurement": "Photography creator holdout",
-        "stop_rule": "Stop if cost per incremental high-ticket unit exceeds margin-safe threshold.",
-        "why": "High margin can justify spend, but reach is narrow and must be capped."
+        "owner": "旗舰手机负责人",
+        "flight": "2026-Q3 第2–8周",
+        "kpi": "Pura 80 Ultra 增量销量",
+        "measurement": "摄影达人内容 holdout 对照",
+        "stop_rule": "单台高客单增量的获客成本超过毛利安全线，即停止。",
+        "why": "毛利高撑得起投放，但人群窄，必须封顶。"
       },
       {
         "id": "nova14pro_paid_social",
@@ -1432,14 +1439,14 @@
         "reachable_population": 95000,
         "unit_margin": 500,
         "max_spend": 50000,
-        "saturation_k": 0.000026,
+        "saturation_k": 2.6e-05,
         "readiness": 0.72,
-        "owner": "Phone growth lead",
-        "flight": "2026-Q3 weeks 2-8",
-        "kpi": "Incremental nova 14 Pro units",
-        "measurement": "Audience holdout by social cell",
-        "stop_rule": "Stop if social engagement does not produce checkout lift.",
-        "why": "Phone volume test that should be capped below the wearable and tablet allocations."
+        "owner": "手机增长负责人",
+        "flight": "2026-Q3 第2–8周",
+        "kpi": "nova 14 Pro 增量销量",
+        "measurement": "社媒分组人群 holdout 对照",
+        "stop_rule": "社媒互动涨了但没带来下单提升，即停止。",
+        "why": "手机走量试投，额度应压在穿戴和平板之下。"
       },
       {
         "id": "ecosystem_category_brand",
@@ -1452,14 +1459,14 @@
         "reachable_population": 350000,
         "unit_margin": 90,
         "max_spend": 60000,
-        "saturation_k": 0.000018,
+        "saturation_k": 1.8e-05,
         "readiness": 0.7,
-        "owner": "Category marketing",
-        "flight": "2026-Q3 weeks 1-8",
-        "kpi": "Incremental cross-category assisted purchases",
-        "measurement": "Market-level or audience-level brand education holdout",
-        "stop_rule": "Stop if assisted conversion does not move after the first funded checkpoint.",
-        "why": "Category layer helps remove AppGallery/HMS anxiety, but must stay capped because attribution is weaker."
+        "owner": "品类市场负责人",
+        "flight": "2026-Q3 第1–8周",
+        "kpi": "跨品类助攻购买增量",
+        "measurement": "市场级或人群级品牌教育 holdout 对照",
+        "stop_rule": "第一个投放检查点后助攻转化没动静，即停止。",
+        "why": "品类层内容能消解 AppGallery/HMS 顾虑，但归因较弱，必须封顶。"
       },
       {
         "id": "matex7_hte_missing",
@@ -1471,14 +1478,14 @@
         "reachable_population": 22000,
         "unit_margin": 1800,
         "max_spend": 40000,
-        "saturation_k": 0.000025,
+        "saturation_k": 2.5e-05,
         "readiness": 0.55,
-        "owner": "Flagship phone lead",
-        "flight": "Blocked until foldable HTE is measured",
-        "kpi": "Incremental Mate X7 foldable units",
-        "measurement": "Foldable-interest audience holdout",
-        "stop_rule": "Keep blocked until tau_hat is measured.",
-        "why": "High-ticket foldable could be profitable, but public data cannot estimate incremental lift."
+        "owner": "旗舰手机负责人",
+        "flight": "冻结——折叠屏 HTE 实测前不排期",
+        "kpi": "Mate X7 折叠屏增量销量",
+        "measurement": "折叠屏兴趣人群 holdout 对照",
+        "stop_rule": "tau_hat 实测出来之前保持冻结。",
+        "why": "高客单折叠屏可能有利润，但公开数据估不出增量提升。"
       },
       {
         "id": "portfolio_hte_measurement_missing",
@@ -1490,19 +1497,19 @@
         "reachable_population": 350000,
         "unit_margin": 1,
         "max_spend": 30000,
-        "saturation_k": 0.00001,
+        "saturation_k": 1e-05,
         "readiness": 0.4,
-        "owner": "Measurement / analytics",
-        "flight": "Must be designed before Q3 scale-up",
-        "kpi": "AUUC, calibration MAE, policy value",
-        "measurement": "DR learner / X learner on randomized holdout",
-        "stop_rule": "Do not mark any cell validated until Qini AUUC and calibration gates pass.",
-        "why": "This is the gate that turns the report from planning prior into validated HTE."
+        "owner": "测量/分析负责人",
+        "flight": "须在 Q3 放量前完成设计",
+        "kpi": "AUUC、校准误差、策略价值",
+        "measurement": "随机 holdout 上跑 DR/X learner",
+        "stop_rule": "Qini AUUC 与校准两道门槛没过之前，任何格子不得标记为已验证。",
+        "why": "这道门把报告从规划先验变成验证过的 HTE——是下一轮的钥匙。"
       }
     ],
     "hte_validation": {
       "status": "missing",
-      "method": "Public web research cannot provide randomized treatment assignment, holdout outcomes, or SKU-level margins. The tau_hat values in this report are planning priors only.",
+      "method": "公开网页调研拿不到随机分组、holdout 结果和 SKU 级毛利——本报告所有 tau_hat 均为规划先验，必须用本地 holdout 实测替换",
       "holdout_n": 0,
       "min_auuc": 0.15,
       "max_calibration_mae": 0.02,
@@ -1533,53 +1540,53 @@
     "mode": "provided_summary",
     "channel_contribution": [
       {
-        "channel": "Planning prior - Retail media",
+        "channel": "规划先验 · 零售媒体",
         "contribution": 210000
       },
       {
-        "channel": "Planning prior - Search",
+        "channel": "规划先验 · 搜索",
         "contribution": 180000
       },
       {
-        "channel": "Planning prior - Paid social video",
+        "channel": "规划先验 · 付费短视频",
         "contribution": 160000
       },
       {
-        "channel": "Planning prior - Creator / reviews",
+        "channel": "规划先验 · 达人/评测",
         "contribution": 140000
       },
       {
-        "channel": "Planning prior - Category brand",
+        "channel": "规划先验 · 品类品牌",
         "contribution": 90000
       }
     ],
     "posterior_roas": [
       {
-        "channel": "Retail media prior",
+        "channel": "零售媒体（先验）",
         "mean": 2.4,
         "lo": 1.5,
         "hi": 3.2
       },
       {
-        "channel": "Search prior",
+        "channel": "搜索（先验）",
         "mean": 2.1,
         "lo": 1.4,
         "hi": 2.8
       },
       {
-        "channel": "Paid social prior",
+        "channel": "付费短视频（先验）",
         "mean": 1.7,
         "lo": 0.9,
         "hi": 2.4
       },
       {
-        "channel": "Creator prior",
+        "channel": "达人/评测（先验）",
         "mean": 1.8,
         "lo": 1.0,
         "hi": 2.6
       },
       {
-        "channel": "Category brand prior",
+        "channel": "品类品牌（先验）",
         "mean": 1.2,
         "lo": 0.5,
         "hi": 2.0
@@ -1587,7 +1594,7 @@
     ],
     "adstock_curves": [
       {
-        "channel": "Retail media prior",
+        "channel": "零售媒体（先验）",
         "points": [
           {
             "spend": 0,
@@ -1608,7 +1615,7 @@
         ]
       },
       {
-        "channel": "Paid social prior",
+        "channel": "付费短视频（先验）",
         "points": [
           {
             "spend": 0,
@@ -1629,7 +1636,7 @@
         ]
       },
       {
-        "channel": "Category brand prior",
+        "channel": "品类品牌（先验）",
         "points": [
           {
             "spend": 0,
@@ -1652,7 +1659,7 @@
     ],
     "saturation_curves": [
       {
-        "channel": "Wearable paid social prior",
+        "channel": "穿戴·付费短视频（先验）",
         "points": [
           {
             "spend": 0,
@@ -1673,7 +1680,7 @@
         ]
       },
       {
-        "channel": "Audio retail media prior",
+        "channel": "音频·零售媒体（先验）",
         "points": [
           {
             "spend": 0,
@@ -1694,7 +1701,7 @@
         ]
       },
       {
-        "channel": "Phone flagship proof prior",
+        "channel": "手机旗舰实证（先验）",
         "points": [
           {
             "spend": 0,
@@ -1717,35 +1724,35 @@
     ],
     "optimized_channel_budget": [
       {
-        "channel": "Paid social video prior",
+        "channel": "付费短视频（先验）",
         "budget": 140000
       },
       {
-        "channel": "Search prior",
+        "channel": "搜索（先验）",
         "budget": 140000
       },
       {
-        "channel": "Retail media prior",
+        "channel": "零售媒体（先验）",
         "budget": 140000
       },
       {
-        "channel": "Creator / reviews prior",
+        "channel": "达人/评测（先验）",
         "budget": 170000
       },
       {
-        "channel": "PR / expert reviews prior",
+        "channel": "公关/专业评测（先验）",
         "budget": 70000
       },
       {
-        "channel": "PDP content prior",
+        "channel": "PDP 内容（先验）",
         "budget": 40000
       },
       {
-        "channel": "Retail activation prior",
+        "channel": "零售终端活动（先验）",
         "budget": 40000
       },
       {
-        "channel": "Category brand prior",
+        "channel": "品类品牌（先验）",
         "budget": 30000
       }
     ],

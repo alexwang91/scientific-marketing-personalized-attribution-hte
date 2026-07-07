@@ -125,7 +125,7 @@ def test_category_dashboard_sku_cards_are_ordered_grow_first():
 
 def test_investment_kpis_render_whole_numbers_not_false_precision():
     html = _html(CAT_CONFIG)
-    kpi_chunk = html[html.index('id="invest-kpis"'):html.index('id="invest-never-funded"')]
+    kpi_chunk = html[html.index('id="invest-kpis"'):html.index('id="ch2"')]
     import re
     # money/units KPIs must not carry decimals; only roi/lambda keep 2 (x-suffixed)
     decimals = [m for m in re.findall(r'<strong>([\d,]+\.\d+)[^<]*</strong>', kpi_chunk)
@@ -134,6 +134,48 @@ def test_investment_kpis_render_whole_numbers_not_false_precision():
         # any decimal value present must belong to an x-ratio card
         idx = kpi_chunk.index(d)
         assert "x" in kpi_chunk[idx:idx + len(d) + 4], f"false-precision KPI value: {d}"
+
+
+def test_diagnosis_cards_show_invest_stance_badge_when_configured():
+    cfg = json.loads(CAT_CONFIG.read_text(encoding="utf-8"))
+    cfg["diagnosis"][0]["invest_stance"] = "invest"
+    cfg["diagnosis"][1]["invest_stance"] = "fix"
+    rpt.validate_and_resolve(cfg.get("numbers", {}))
+    html = render_mod.render_dashboard(data_mod.build_dashboard_data(cfg))
+    diag = html[html.index('id="diagnosis"'):html.index('id="invest-frontier"')]
+    assert 'class="stance stance-invest"' in diag
+    assert 'class="stance stance-fix"' in diag
+    assert "Invest more" in diag
+    assert "Fix first, then fund" in diag
+
+
+def test_tier_map_is_a_drilldown_from_tier_to_sku_to_funded_modules():
+    html = _html(CAT_CONFIG)
+    tiers = html[html.index('id="tiers"'):html.index('id="skus"')]
+    assert 'class="drill drill-tier"' in tiers
+    assert 'class="drill drill-sku"' in tiers
+    # a funded SKU's module spend rows appear inside its drill
+    assert 'class="drill-module-row"' in tiers
+
+
+def test_frontier_renders_per_business_line_panels():
+    html = _html(CAT_CONFIG)
+    frontier = html[html.index('id="invest-frontier"'):html.index('id="ch3"')]
+    # aurora has entry/mid/premium tiers with eligible cells -> group panels
+    assert 'class="inv-group-grid"' in frontier
+    assert frontier.count('inv-panel-meta') >= 2
+
+
+def test_ch5_sections_are_folded_shut_by_default():
+    html = _html(CAT_CONFIG)
+    ch5 = html[html.index('id="ch5"'):]
+    assert ch5.count('<details class="fold section">') >= 3
+    assert "<details open" not in ch5
+
+
+def test_chapter_bands_carry_narrative_bridges():
+    html = _html(CAT_CONFIG)
+    assert html.count('class="ch-bridge"') == 5
 
 
 def test_activation_cards_carry_owner_and_stop_rule_from_cells():

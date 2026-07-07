@@ -302,7 +302,7 @@ def _strings(cfg: Dict[str, Any]) -> Dict[str, str]:
         "ch5_title", "ch5_question", "ch_answer_label",
         "kill_line_word", "blocked_word", "gate_word", "owner_word", "due_word",
         "never_do_heading", "prov_legend", "heatmap_caption",
-        "task_cards_heading", "toc_title",
+        "task_cards_heading", "toc_title", "why_now_label",
         "inv_ch1_heading", "inv_kpi_spend", "inv_kpi_units", "inv_kpi_gross_profit",
         "inv_kpi_net_profit", "inv_kpi_roi", "inv_kpi_lambda_star",
         "inv_never_funded_heading", "inv_never_funded_empty",
@@ -331,6 +331,13 @@ def _strings(cfg: Dict[str, Any]) -> Dict[str, str]:
         "inv_th_gap", "inv_th_tau_bucket", "inv_th_share", "inv_mmm_sub",
         "inv_th_contribution", "inv_th_roas", "inv_mmm_adstock", "inv_mmm_saturation",
         "inv_mmm_lift_calibration",
+        "inv_limits_heading", "inv_limits_intro", "inv_limits_blocked_line",
+        "inv_csv_heading", "inv_csv_hint", "inv_csv_download", "inv_csv_copy",
+        "stance_invest", "stance_test", "stance_hold", "stance_fix",
+        "inv_frontier_by_group", "inv_frontier_group_sub",
+        "dash_tiers_drill_hint", "tier_spend_word", "tier_sku_count_word",
+        "cat_bridge_ch1", "cat_bridge_ch2", "cat_bridge_ch3", "cat_bridge_ch4", "cat_bridge_ch5",
+        "dash_4p_product", "dash_4p_price", "dash_4p_place", "dash_4p_promotion",
     ]
     out = {k: _sem.S(cfg, k) for k in keys}
     for code in ("H", "T", "S", "N", "A"):
@@ -423,15 +430,21 @@ def build_investment_view(cfg: Dict[str, Any]) -> Dict[str, Any] | None:
         cumulative.append({"spend": cum_spend, "incremental_gross_profit": running,
                            "marginal_roi": step["marginal_roi"]})
 
+    module_labels = {str(m.get("id", "")): m.get("label") or str(m.get("id", ""))
+                     for m in plan.get("modules", [])}
+
     return {
         "answer": summary,
         "blocked": blocked,
         "mmm": mmm,
         "hte": _hte_core.serializable_summary(hte_summary),
+        "module_labels": module_labels,
+        "limits": _investment_limits_view(cfg, plan, summary, blocked, hte_summary, module_labels),
         "activation_cards": _investment_activation_cards(cfg, summary["allocation"], eligible, currency),
         "charts": {
             "kpis": _inv_charts.investment_answer_kpis(summary, currency),
             "frontier": _inv_charts.frontier_chart_spec(cumulative, summary["recommended_spend"]),
+            "frontier_groups": _frontier_by_group(cfg, eligible, summary, plan),
             "budget_matrix": _inv_charts.budget_matrix_spec(summary["allocation"]),
             "confidence": _inv_charts.confidence_strip_spec(cells),
             "hte": hte_summary["charts"],
@@ -450,12 +463,15 @@ def build_investment_view(cfg: Dict[str, Any]) -> Dict[str, Any] | None:
 def _investment_activation_cards(cfg: Dict[str, Any], allocation: list[dict],
                                  cells: list[dict], currency: str) -> list[dict]:
     by_key = {(c.get("sku"), c.get("module")): c for c in cells}
+    module_labels = {str(m.get("id", "")): m.get("label") or str(m.get("id", ""))
+                     for m in cfg.get("investment_plan", {}).get("modules", [])}
     cards = []
     for row in allocation:
         cell = by_key.get((row.get("sku"), row.get("module")), {})
         cards.append({
             "sku": row.get("sku", ""),
             "module": row.get("module", ""),
+            "module_label": module_labels.get(row.get("module"), row.get("module", "")),
             "channel": row.get("channel", cell.get("channel", "")),
             "spend": row.get("spend", 0.0),
             "currency": currency,
@@ -471,6 +487,153 @@ def _investment_activation_cards(cfg: Dict[str, Any], allocation: list[dict],
             "why": cell.get("why") or _sem.S(cfg, "inv_default_why"),
         })
     return cards
+
+
+def _sku_group_map(cfg: Dict[str, Any]) -> Dict[str, str]:
+    """sku -> business-line label. price_tiers.your_skus wins; portfolio.tier
+    fills the gaps (using the tier id verbatim when no price_tiers entry names it)."""
+    label_by_tier = {str(t.get("id", "")): t.get("label") or str(t.get("id", ""))
+                     for t in cfg.get("price_tiers", [])}
+    out: Dict[str, str] = {}
+    for t in cfg.get("price_tiers", []):
+        for sku in t.get("your_skus", []):
+            out[sku] = t.get("label") or str(t.get("id", ""))
+    for p in cfg.get("portfolio", []):
+        sku = p.get("sku")
+        if sku and sku not in out:
+            tier = str(p.get("tier", ""))
+            out[sku] = label_by_tier.get(tier, tier)
+    return out
+
+
+def _frontier_by_group(cfg: Dict[str, Any], eligible: list[dict], summary: dict,
+                       plan: Dict[str, Any]) -> list[dict]:
+    """The overall frontier, split by business line (tier). One mini panel per
+    group: cumulative gross profit as that group's spend grows, plus how much
+    of it the overall allocation actually funded."""
+    group_of = _sku_group_map(cfg)
+    funded_by_group: Dict[str, float] = {}
+    for row in summary.get("allocation", []):
+        g = group_of.get(row.get("sku"), "")
+        funded_by_group[g] = funded_by_group.get(g, 0.0) + float(row.get("spend", 0.0))
+
+    cells_by_group: Dict[str, list] = {}
+    for cell in eligible:
+        g = group_of.get(cell.get("sku"), "")
+        cells_by_group.setdefault(g, []).append(cell)
+
+    groups = []
+    for g, cells in cells_by_group.items():
+        steps = _inv_engine.expand_budget_steps(cells, plan.get("budget_step", 0) or 0)
+        steps.sort(key=lambda s: -s["marginal_roi"])
+        points, cum_spend, running = [], 0.0, 0.0
+        for step in steps:
+            cum_spend += step["step_spend"]
+            running += step["marginal_gross_profit"]
+            points.append((cum_spend, running))
+        groups.append({
+            "label": g or "—",
+            "points": points,
+            "funded": funded_by_group.get(g, 0.0),
+            "cells": len(cells),
+        })
+    groups.sort(key=lambda r: -r["funded"])
+    return groups
+
+
+_CSV_COLUMNS = (
+    "sku", "module", "channel", "tau_hat", "tau_source", "validation_ref",
+    "measurement_gate", "reachable_population", "unit_margin", "max_spend",
+    "saturation_k", "readiness", "owner", "flight", "kpi", "measurement",
+    "stop_rule", "why",
+)
+
+
+def _csv_field(value: Any) -> str:
+    text = "" if value is None else str(value)
+    if any(c in text for c in (",", '"', "\n")):
+        text = '"' + text.replace('"', '""') + '"'
+    return text
+
+
+def _investment_limits_view(cfg: Dict[str, Any], plan: Dict[str, Any], summary: dict,
+                            blocked: list[dict], hte_summary: dict,
+                            module_labels: Dict[str, str] | None = None) -> Dict[str, Any]:
+    """What limits this run + the exact CSV to fill so the next run computes.
+    The template is pre-filled with every cell (funded or not); blank fields
+    are precisely the data being requested."""
+    allocation = summary.get("allocation", [])
+    module_labels = module_labels or {}
+    assumption = sum(1 for r in allocation if r.get("confidence") == "assumption_grade")
+    lines = [",".join(_CSV_COLUMNS)]
+    for cell in plan.get("cells", []):
+        lines.append(",".join(_csv_field(cell.get(col)) for col in _CSV_COLUMNS))
+    return {
+        "funded": len(allocation),
+        "assumption": assumption,
+        "blocked": [{"sku": b.get("sku", ""),
+                     "module": module_labels.get(b.get("module"), b.get("module", "")),
+                     "reason": b.get("reason", "")} for b in blocked],
+        "holdout_n": hte_summary.get("holdout_n", 0),
+        "csv": "\r\n".join(lines),
+    }
+
+
+def _tier_drill(cfg: Dict[str, Any], investment: Dict[str, Any] | None) -> list[dict]:
+    """Tier -> SKU -> plays/funded-spend drill-down for the play chapter."""
+    by_sku = {p.get("sku"): p for p in cfg.get("portfolio", [])}
+    spend_by_sku: Dict[str, list] = {}
+    module_labels = (investment or {}).get("module_labels", {})
+    for row in (investment or {}).get("answer", {}).get("allocation", []):
+        spend_by_sku.setdefault(row.get("sku"), []).append({
+            "module": module_labels.get(row.get("module"), row.get("module", "")),
+            "spend": float(row.get("spend", 0.0)),
+            "roi": float(row.get("roi", 0.0)),
+        })
+    group_of = _sku_group_map(cfg)
+    tiers = []
+    for t in cfg.get("price_tiers", []):
+        label = t.get("label") or str(t.get("id", ""))
+        skus = []
+        for sku_name in t.get("your_skus", []):
+            p = by_sku.get(sku_name, {})
+            modules = spend_by_sku.get(sku_name, [])
+            skus.append({
+                "sku": sku_name,
+                "verdict": p.get("verdict", ""),
+                "note": p.get("note", ""),
+                "fourP": p.get("fourP", {}),
+                "spend": sum(m["spend"] for m in modules),
+                "modules": sorted(modules, key=lambda m: -m["spend"]),
+            })
+        skus.sort(key=lambda s: -s["spend"])
+        tiers.append({
+            "label": label,
+            "trend": t.get("trend", ""),
+            "audience": t.get("audience", ""),
+            "force": t.get("force", ""),
+            "channel_fit": t.get("channel_fit", ""),
+            "spend": sum(s["spend"] for s in skus),
+            "skus": skus,
+        })
+    # portfolio SKUs whose tier has no price_tiers entry still deserve a row
+    leftover = [p for p in cfg.get("portfolio", [])
+                if p.get("sku") not in group_of or group_of.get(p.get("sku")) not in
+                {t["label"] for t in tiers}]
+    if leftover:
+        skus = []
+        for p in leftover:
+            modules = spend_by_sku.get(p.get("sku"), [])
+            skus.append({
+                "sku": p.get("sku", ""), "verdict": p.get("verdict", ""),
+                "note": p.get("note", ""), "fourP": p.get("fourP", {}),
+                "spend": sum(m["spend"] for m in modules),
+                "modules": sorted(modules, key=lambda m: -m["spend"]),
+            })
+        tiers.append({"label": "—", "trend": "", "audience": "", "force": "",
+                      "channel_fit": "", "spend": sum(s["spend"] for s in skus),
+                      "skus": skus})
+    return tiers
 
 
 def _build_category_dashboard(cfg: Dict[str, Any]) -> Dict[str, Any]:
@@ -511,6 +674,7 @@ def _build_category_dashboard(cfg: Dict[str, Any]) -> Dict[str, Any]:
         "evidence": _evidence(numbers, cfg),
         "portfolio": {
             "tiers": cfg.get("price_tiers", []),
+            "tier_drill": _tier_drill(cfg, investment),
             "diagnosis": cfg.get("diagnosis", []),
             "skus": portfolio,
             "verdict_counts": dict(Counter(row.get("verdict", "unknown") for row in portfolio)),
