@@ -135,6 +135,33 @@ def test_missing_tau_source_must_not_carry_tau_hat_and_needs_needed_from():
     assert any("needed_from" in e for e in errors)
 
 
+def test_modeled_hte_requires_an_identification_note():
+    # abstention made mechanical: an observational estimate that cannot state
+    # its confounding story + adjustment strategy cannot enter as modeled_hte
+    cfg = {"investment_plan": {"modules": [{"id": "search"}],
+           "cells": [_cell(tau_source="modeled_hte")]}}
+    errors = schema.validate_investment_plan(cfg)
+    assert any("identification" in e for e in errors)
+
+    cfg["investment_plan"]["cells"][0]["identification"] = (
+        "Confounders: seasonality + prior intent; adjusted via matched pre-period cohorts.")
+    assert schema.validate_investment_plan(cfg) == []
+
+
+def test_required_mroi_by_confidence_validates_badges_and_values():
+    cfg = {"investment_plan": {"modules": [{"id": "search"}], "cells": [_cell()],
+           "required_mroi_by_confidence": {"not_a_badge": 1.5}}}
+    errors = schema.validate_investment_plan(cfg)
+    assert any("unknown confidence badge" in e for e in errors)
+
+    cfg["investment_plan"]["required_mroi_by_confidence"] = {"assumption_grade": -1}
+    errors = schema.validate_investment_plan(cfg)
+    assert any("non-negative" in e for e in errors)
+
+    cfg["investment_plan"]["required_mroi_by_confidence"] = {"assumption_grade": 1.8, "validated": 1.2}
+    assert schema.validate_investment_plan(cfg) == []
+
+
 def test_missing_tau_source_with_needed_from_and_no_tau_hat_is_valid():
     cell = _cell(tau_source="missing", needed_from="local pilot")
     del cell["tau_hat"]
@@ -257,6 +284,32 @@ def test_optimizer_never_funds_below_required_mroi_even_with_budget_left():
     result = engine.optimize_investment(cells, total_budget=100000, budget_step=1000, required_mroi=5.0)
     assert result["recommended_spend"] == 0
     assert result["lambda_star"] == 0.0
+
+
+def test_per_confidence_floors_charge_assumption_cells_a_risk_premium():
+    # two cells with identical response curves, different evidence tiers: the
+    # assumption-grade one must clear a much higher floor (16x, above its best
+    # step's ~15.2x marginal ROI) while the validated cell only needs its own
+    # 1.2x — so only the validated cell gets funded, even though the
+    # assumption cell's raw ROI comfortably beats the flat required_mroi.
+    validated = _cell(id="v1", sku="V", tau_hat=0.02,
+                      tau_source="randomized_hte", measurement_gate="holdout",
+                      _hte_validated=True)
+    assumed = _cell(id="a1", sku="A", tau_hat=0.02,
+                    tau_source="expert_assumption", tau_basis="benchmark prior",
+                    measurement_gate=None)
+    result = engine.optimize_investment(
+        [validated, assumed], total_budget=100000, budget_step=1000, required_mroi=1.2,
+        required_mroi_by_confidence={"validated": 1.2, "assumption_grade": 16.0})
+    skus = {r["sku"] for r in result["allocation"]}
+    assert "V" in skus
+    assert "A" not in skus
+
+    # same cells, no per-tier floors -> both fund (sanity: the premium is
+    # what excluded the assumption cell, not its response curve)
+    flat = engine.optimize_investment(
+        [validated, assumed], total_budget=100000, budget_step=1000, required_mroi=1.2)
+    assert {r["sku"] for r in flat["allocation"]} == {"V", "A"}
 
 
 def test_score_skus_only_ranks_grow_and_hold_rows():

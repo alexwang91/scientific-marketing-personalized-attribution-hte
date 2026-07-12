@@ -1533,7 +1533,13 @@
           "bucket": ">3%",
           "share": 0
         }
-      ]
+      ],
+      "min_interval_coverage": 0.85
+    },
+    "required_mroi_by_confidence": {
+      "validated": 1.35,
+      "mmm_calibrated": 1.5,
+      "assumption_grade": 1.8
     }
   },
   "mmm": {

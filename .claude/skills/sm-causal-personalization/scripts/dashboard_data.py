@@ -200,6 +200,8 @@ def _dimensions(cfg: Dict[str, Any], treatments: List[Dict[str, Any]]) -> List[D
             "entry_score": row.get("entry_score", ""),
             "logic": row.get("mechanism") or row.get("logic") or row.get("reasoning", ""),
             "proxy": row.get("proxy", ""),
+            "post_treatment_check": row.get("post_treatment_check", ""),
+            "post_treatment_note": row.get("post_treatment_note", ""),
             "treatment_ids": row.get("treatment_ids", []),
         } for idx, row in enumerate(raw, 1)]
     fallback = []
@@ -338,6 +340,7 @@ def _strings(cfg: Dict[str, Any]) -> Dict[str, str]:
         "dash_tiers_drill_hint", "tier_spend_word", "tier_sku_count_word",
         "cat_bridge_ch1", "cat_bridge_ch2", "cat_bridge_ch3", "cat_bridge_ch4", "cat_bridge_ch5",
         "dash_4p_product", "dash_4p_price", "dash_4p_place", "dash_4p_promotion",
+        "post_treatment_warn",
     ]
     out = {k: _sem.S(cfg, k) for k in keys}
     for code in ("H", "T", "S", "N", "A"):
@@ -406,7 +409,8 @@ def build_investment_view(cfg: Dict[str, Any]) -> Dict[str, Any] | None:
     verdict_by_sku = {p.get("sku"): p.get("verdict") for p in cfg.get("portfolio", [])}
     eligible, blocked = _inv_engine.filter_investable_cells(cells, verdict_by_sku)
     summary = _inv_engine.optimize_investment(
-        eligible, plan["total_budget"], plan["budget_step"], plan["required_mroi"])
+        eligible, plan["total_budget"], plan["budget_step"], plan["required_mroi"],
+        plan.get("required_mroi_by_confidence"))
     mmm = _mmm_bridge.build_mmm_summary(cfg)
 
     # optional accountability fields on cells flow through to the activation

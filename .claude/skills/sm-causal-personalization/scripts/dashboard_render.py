@@ -489,11 +489,14 @@ def _dimensions(data: Dict[str, Any]) -> str:
     dims = data.get("dimensions", [])
     if not dims:
         return _section("dimensions", _s(data, "dash_dimensions_title", "D Dimension Table"), "", [_empty("No dimension table available.")])
-    cards = [
-        _wide_card(f'{d.get("id","")} · {d.get("label","")}', d.get("logic", ""), d,
-                  extra=f'<span class="status">{_esc(d.get("verdict",""))}</span>')
-        for d in dims
-    ]
+    cards = []
+    for d in dims:
+        extra = f'<span class="status">{_esc(d.get("verdict",""))}</span>'
+        if d.get("post_treatment_check") == "fail":
+            extra = (f'<span class="stance stance-fix">'
+                     f'{_esc(_s(data, "post_treatment_warn", "post-treatment proxy risk"))}</span> ') + extra
+        cards.append(_wide_card(f'{d.get("id","")} · {d.get("label","")}', d.get("logic", ""), d,
+                                extra=extra))
     return _section("dimensions", _s(data, "dash_dimensions_title", "D Dimension Table"),
                     _s(data, "dash_dimensions_sub", "Buyer characteristics that predict incremental response, within the channels above."), cards)
 

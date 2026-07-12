@@ -50,12 +50,44 @@ def _compute_curve_auuc(curve: list[dict]) -> float | None:
     return round(area / 10000.0, 4)
 
 
-def _passes_gate(ref: dict, min_auuc: float, max_calibration_mae: float) -> bool:
+def _compute_interval_coverage(decile_calibration: list[dict]) -> float | None:
+    """Empirical coverage of the model's tau intervals on holdout deciles:
+    the share of deciles whose observed lift falls inside [tau_lo, tau_hi].
+    Returns None when the decile rows carry no interval bounds."""
+    rows = [
+        r for r in decile_calibration
+        if _is_num(r.get("tau_lo")) and _is_num(r.get("tau_hi")) and _is_num(r.get("observed_lift"))
+    ]
+    if not rows:
+        return None
+    covered = sum(1 for r in rows
+                  if float(r["tau_lo"]) <= float(r["observed_lift"]) <= float(r["tau_hi"]))
+    return round(covered / len(rows), 4)
+
+
+def _passes_gate(ref: dict, min_auuc: float, max_calibration_mae: float,
+                 min_interval_coverage: float | None = None,
+                 fallback_coverage: float | None = None) -> bool:
+    """Three gates, all mandatory when configured: rank quality (AUUC),
+    magnitude calibration (MAE), and — when min_interval_coverage is set —
+    interval honesty (empirical coverage of the model's own uncertainty
+    intervals on holdout). The third gate exists because overconfident
+    intervals are the dominant failure mode: CausalDS (arXiv 2607.08093)
+    measured nominal 95% ATE intervals covering only 20-71% empirically
+    across every frontier model tested."""
     auuc = ref.get("qini_auuc")
     mae = ref.get("calibration_mae")
     if not _is_num(auuc) or not _is_num(mae):
         return False
-    return float(auuc) >= min_auuc and float(mae) <= max_calibration_mae
+    if float(auuc) < min_auuc or float(mae) > max_calibration_mae:
+        return False
+    if min_interval_coverage is not None:
+        coverage = ref.get("interval_coverage")
+        if not _is_num(coverage):
+            coverage = fallback_coverage
+        if not _is_num(coverage) or float(coverage) < min_interval_coverage:
+            return False
+    return True
 
 
 def build_hte_summary(validation: dict | None, cells: list[dict]) -> dict:
@@ -76,11 +108,18 @@ def build_hte_summary(validation: dict | None, cells: list[dict]) -> dict:
 
     min_auuc = float(validation.get("min_auuc", 0.0))
     max_mae = float(validation.get("max_calibration_mae", 1.0))
+    min_coverage = validation.get("min_interval_coverage")
+    min_coverage = float(min_coverage) if _is_num(min_coverage) else None
+    # a ref without its own interval_coverage falls back to the coverage
+    # computed from the shared decile_calibration rows (single-model case)
+    fallback_coverage = _compute_interval_coverage(validation.get("decile_calibration", []))
     refs = []
     validated_cell_ids: set[str] = set()
     for ref in validation.get("validation_refs", []):
         out = dict(ref)
-        out["passes_gate"] = _passes_gate(ref, min_auuc, max_mae)
+        if not _is_num(out.get("interval_coverage")) and fallback_coverage is not None:
+            out["interval_coverage"] = fallback_coverage
+        out["passes_gate"] = _passes_gate(ref, min_auuc, max_mae, min_coverage, fallback_coverage)
         if out["passes_gate"]:
             for cell_id in ref.get("cells", []):
                 validated_cell_ids.add(str(cell_id))
@@ -98,6 +137,7 @@ def build_hte_summary(validation: dict | None, cells: list[dict]) -> dict:
         "holdout_n": validation.get("holdout_n", 0),
         "min_auuc": min_auuc,
         "max_calibration_mae": max_mae,
+        "min_interval_coverage": min_coverage,
         "validated_cell_ids": validated_cell_ids,
         "validation_refs": refs,
         "charts": {

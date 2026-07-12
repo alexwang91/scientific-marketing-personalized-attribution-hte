@@ -117,6 +117,58 @@ def test_hte_validation_controls_validated_confidence_badge():
     assert engine.confidence_badge(no_validation[0]) == "assumption_grade"
 
 
+# ── third gate: interval coverage (CausalDS arXiv 2607.08093 — nominal 95%
+#    intervals covered only 20-71% empirically; overconfidence is the norm) ──
+
+def test_interval_coverage_gate_rejects_overconfident_refs():
+    hv = _hte_validation()
+    hv["min_interval_coverage"] = 0.85
+    hv["validation_refs"][0]["interval_coverage"] = 0.62  # overconfident intervals
+    summary = hte_core.build_hte_summary(hv, [_cell()])
+    assert summary["validation_refs"][0]["passes_gate"] is False
+    assert summary["validated_cell_ids"] == set()
+
+
+def test_interval_coverage_gate_passes_honest_refs():
+    hv = _hte_validation()
+    hv["min_interval_coverage"] = 0.85
+    hv["validation_refs"][0]["interval_coverage"] = 0.9
+    summary = hte_core.build_hte_summary(hv, [_cell()])
+    assert summary["validation_refs"][0]["passes_gate"] is True
+    assert summary["validated_cell_ids"] == {"be3_search"}
+
+
+def test_interval_coverage_gate_requires_coverage_evidence_when_configured():
+    # min_interval_coverage set but no coverage supplied anywhere -> the ref
+    # cannot prove its intervals are honest -> gate fails
+    hv = _hte_validation()
+    hv["min_interval_coverage"] = 0.85
+    summary = hte_core.build_hte_summary(hv, [_cell()])
+    assert summary["validation_refs"][0]["passes_gate"] is False
+
+
+def test_interval_coverage_falls_back_to_decile_bounds():
+    hv = _hte_validation()
+    hv["min_interval_coverage"] = 0.6
+    # 2 of 3 deciles covered -> fallback coverage 0.6667 >= 0.6 -> passes
+    hv["decile_calibration"] = [
+        {"decile": 1, "predicted_tau": 0.052, "observed_lift": 0.049, "tau_lo": 0.045, "tau_hi": 0.06},
+        {"decile": 2, "predicted_tau": 0.039, "observed_lift": 0.037, "tau_lo": 0.035, "tau_hi": 0.044},
+        {"decile": 3, "predicted_tau": 0.026, "observed_lift": 0.010, "tau_lo": 0.02, "tau_hi": 0.032},
+    ]
+    summary = hte_core.build_hte_summary(hv, [_cell()])
+    assert summary["validation_refs"][0]["interval_coverage"] == round(2 / 3, 4)
+    assert summary["validation_refs"][0]["passes_gate"] is True
+
+
+def test_without_min_interval_coverage_the_old_two_gates_still_apply():
+    # backward compat: configs that never set min_interval_coverage keep the
+    # original AUUC + calibration behaviour
+    summary = hte_core.build_hte_summary(_hte_validation(), [_cell()])
+    assert summary["validation_refs"][0]["passes_gate"] is True
+    assert summary["min_interval_coverage"] is None
+
+
 if __name__ == "__main__":
     tests = [name for name in sorted(globals()) if name.startswith("test_")]
     failures = 0

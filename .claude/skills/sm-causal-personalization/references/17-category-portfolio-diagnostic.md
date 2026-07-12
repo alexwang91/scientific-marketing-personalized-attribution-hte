@@ -155,6 +155,15 @@ suggestion — a malformed plan fails the build):
   (`validated` / `mmm_calibrated` / `assumption_grade` / `blocked`) is derived
   from that plus `measurement_gate` and `readiness` — setting a `confidence`
   field directly on a cell is a build error.
+- **Evidence-tier ROI floors** (optional): `required_mroi_by_confidence`
+  maps a confidence badge to its own minimum marginal return — e.g.
+  `{"validated": 1.3, "assumption_grade": 1.7}` — so unvalidated cells must
+  clear a higher bar before they out-compete validated ones for budget.
+- **Interval-coverage gate** (optional): `hte_validation.min_interval_coverage`
+  adds a third validation gate — a model's tau intervals must empirically
+  cover reality on holdout (per-ref `interval_coverage`, or computed from
+  `decile_calibration` rows carrying `tau_lo`/`tau_hi`) before its cells can
+  wear the "validated" badge.
 - **A `tau_source: "missing"` cell carries no `tau_hat`** (that would be a
   guess dressed as data) and must name `needed_from` — it renders in ch1's
   "never funded this round" list, not silently dropped.

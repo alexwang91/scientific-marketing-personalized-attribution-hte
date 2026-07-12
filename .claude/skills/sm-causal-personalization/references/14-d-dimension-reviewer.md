@@ -136,6 +136,18 @@ passes the Reviewer with a verdict of "Retain" or "Retain (test)".
 
 Score 0/1 per condition. Threshold: ≥ 3.
 
+**Criterion 5b — post-treatment / collider check (hard cap, not a score):**
+does the proxy condition on behaviour that happens *after* (or because of)
+exposure — site visits, cart adds, retargeting pools — or on a collider of
+treatment and outcome? If yes, mark the dimension
+`post_treatment_check: "fail"` in the config: the report stamps a ⚠ on its
+row and caps its heatmap grade at T (Test) — a dimension selected by its own
+outcome can never be a primary investment target, because the "lift" observed
+there is self-selection, not causation. This is the classic mechanism behind
+inflated retargeting ROAS. (Benchmarked in CausalDS, arXiv 2607.08093:
+collider / forbidden-control recognition is a distinct Rung-2 skill that
+agents frequently miss — hence a mechanical check, not a judgment call.)
+
 ---
 
 ## Full D Dimension Candidate Template

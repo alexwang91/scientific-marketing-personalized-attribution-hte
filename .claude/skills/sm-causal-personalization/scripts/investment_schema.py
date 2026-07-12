@@ -28,6 +28,10 @@ FORBIDDEN_LEVERS = {"discount", "coupon", "rebate", "price_subsidy"}
 
 TAU_SOURCES = {"randomized_hte", "modeled_hte", "mmm_calibrated_prior", "expert_assumption", "missing"}
 
+# computed confidence badges (investment_engine.confidence_badge) — the valid
+# keys for per-evidence-tier ROI floors in required_mroi_by_confidence
+CONFIDENCE_BADGES = {"validated", "mmm_calibrated", "assumption_grade", "blocked"}
+
 # verdicts that permanently exclude a SKU from investment_plan.cells,
 # regardless of any priority score (ref 17: a Grow verdict is the gate,
 # not a suggestion)
@@ -68,6 +72,19 @@ def validate_investment_plan(cfg: dict) -> list[str]:
         if val is not None and (not _is_num(val) or val < 0):
             errors.append(f"investment_plan.{key} must be a non-negative number")
 
+    floors = plan.get("required_mroi_by_confidence")
+    if floors is not None:
+        if not isinstance(floors, dict):
+            errors.append("investment_plan.required_mroi_by_confidence must be an object")
+        else:
+            for badge, val in floors.items():
+                if badge not in CONFIDENCE_BADGES:
+                    errors.append(
+                        f"required_mroi_by_confidence: unknown confidence badge {badge!r} "
+                        f"(must be one of {sorted(CONFIDENCE_BADGES)})")
+                if not _is_num(val) or val < 0:
+                    errors.append(f"required_mroi_by_confidence.{badge} must be a non-negative number")
+
     verdict_by_sku = {p.get("sku"): p.get("verdict") for p in cfg.get("portfolio", [])}
 
     declared_modules = {str(m.get("id", "")) for m in modules or []}
@@ -101,6 +118,15 @@ def validate_investment_plan(cfg: dict) -> list[str]:
             errors.append(f"{cid}: tau_source must be one of {sorted(TAU_SOURCES)}, got {tau_source!r}")
         elif tau_source == "randomized_hte" and not cell.get("validation_ref"):
             errors.append(f"{cid}: tau_source='randomized_hte' requires a validation_ref")
+        elif tau_source == "modeled_hte" and not cell.get("identification"):
+            # abstention made mechanical (CausalDS finding: agents rarely
+            # decline unidentifiable claims on their own): an observational
+            # estimate must state its confounding story + adjustment strategy,
+            # or it cannot enter the plan as modeled_hte at all
+            errors.append(
+                f"{cid}: tau_source='modeled_hte' requires an 'identification' note "
+                f"(confounding story + adjustment strategy — why is this effect identifiable "
+                f"from observational data?)")
         elif tau_source == "expert_assumption" and not cell.get("tau_basis"):
             errors.append(f"{cid}: tau_source='expert_assumption' requires a 'tau_basis' string")
         elif tau_source == "missing":

@@ -1942,11 +1942,15 @@ def s_dimensions(cfg: dict) -> str:
     for d in dims:
         status = d.get("resolution_status", "open")
         v = d.get("verdict", "Retain")
+        warn = ""
+        if d.get("post_treatment_check") == "fail":
+            warn = (f" <span class='pill pill-open-blocking' title='{esc(d.get('post_treatment_note',''))}'>"
+                    f"{esc(S(cfg, 'post_treatment_warn'))}</span>")
         rows += (f"<tr><td><strong>{esc(d['id'])}</strong> {esc(d['name'])}</td>"
                  f"<td style='font-size:12px'>{esc(d['mechanism'])}</td>"
                  f"<td style='font-size:12px'>{esc(d['proxy'])}</td>"
                  f"<td>{_score_dots(d.get('entry_score','—'))}</td>"
-                 f"<td>{esc(v)}</td>"
+                 f"<td>{esc(v)}{warn}</td>"
                  f"<td><span class='pill pill-{esc(status)}'>{esc(status)}</span></td></tr>")
     reviewer_rows = "".join(
         f"<tr><td>{esc(r['dimension'])}</td><td>{esc(r['challenge'])}</td>"
@@ -1996,15 +2000,24 @@ def s_heatmap(cfg: dict) -> str:
     header = f'<div class="hm-header">{corner}</div>' + "".join(
         f'<div class="hm-header">{esc(label_map.get(d, d))}</div>' for d in dims
     )
+    # criterion 5 (ref 14): a dimension whose proxy conditions on
+    # post-treatment behaviour can never be a primary investment target —
+    # its H cells render capped to T (same capping philosophy as severity)
+    fail_dims = {d.get("id") for d in cfg.get("dimensions", [])
+                 if d.get("post_treatment_check") == "fail"}
     rows = ""
     for ch in channels:
         rows += f'<div class="hm-label">{esc(ch)}</div>'
         for d in dims:
             sc = scores.get(ch, {}).get(d, "N")
+            capped = d in fail_dims and sc == "H"
+            if capped:
+                sc = "T"
             cls = _score_cls.get(sc, "hm-none")
             word = _sem.grade_label(cfg, sc)
+            mark = "⚠" if capped else ""
             rows += (f'<div class="hm-cell {esc(cls)}" title="{esc(word)}">'
-                     f'{esc(word)}<span class="hm-code">{esc(sc)}</span></div>')
+                     f'{esc(word)}{mark}<span class="hm-code">{esc(sc)}</span></div>')
     legend = " · ".join(
         f'<span class="hm-cell {_score_cls[s]}" style="display:inline-block;padding:2px 8px;'
         f'border-radius:4px">{s}</span> {esc(_sem.grade_label(cfg, s))}'
@@ -2022,6 +2035,7 @@ def s_heatmap(cfg: dict) -> str:
   </div>
   <p style="font-size:12px;color:var(--ink-2);margin-top:8px;font-weight:600">{esc(S(cfg, "heatmap_caption"))}</p>
   <p style="font-size:12px;color:var(--muted);margin-top:4px">{esc(L(cfg, "heatmap_legend_label", "Legend"))}: {legend}</p>
+  {f'<p style="font-size:12px;color:var(--warn-ink);margin-top:4px">{esc(S(cfg, "post_treatment_capped_note"))}</p>' if fail_dims else ""}
 </section>"""
 
 
@@ -2862,9 +2876,13 @@ def s_inv_hte_core(cfg: dict, inv: dict) -> str:
     deciles = charts.get("decile_calibration", {}).get("rows", [])
     distribution = charts.get("tau_distribution", {}).get("bins", [])
     refs = hte.get("validation_refs", [])
+    def _cov(r):
+        c = r.get("interval_coverage")
+        return f"{c:.0%}" if isinstance(c, (int, float)) else "—"
     ref_rows = "".join(
         f'<tr><td>{esc(r.get("id",""))}</td><td>{esc(r.get("learner",""))}</td>'
         f'<td>{r.get("qini_auuc",0):.2f}</td><td>{r.get("calibration_mae",0):.3f}</td>'
+        f'<td>{esc(_cov(r))}</td>'
         f'<td>{esc(str(r.get("passes_gate", False)))}</td></tr>'
         for r in refs)
     decile_rows = "".join(
@@ -2887,7 +2905,7 @@ def s_inv_hte_core(cfg: dict, inv: dict) -> str:
   <p class="callout">{esc(gate_note)}</p>
   {qini_chart}
   <div class="table-wrap"><table>
-    <thead><tr><th>{esc(S(cfg, "inv_th_validation_ref"))}</th><th>{esc(S(cfg, "inv_th_learner"))}</th><th>{esc(S(cfg, "inv_th_auuc"))}</th><th>{esc(S(cfg, "inv_th_calibration_mae"))}</th><th>{esc(S(cfg, "inv_th_passes"))}</th></tr></thead>
+    <thead><tr><th>{esc(S(cfg, "inv_th_validation_ref"))}</th><th>{esc(S(cfg, "inv_th_learner"))}</th><th>{esc(S(cfg, "inv_th_auuc"))}</th><th>{esc(S(cfg, "inv_th_calibration_mae"))}</th><th>{esc(S(cfg, "inv_th_coverage"))}</th><th>{esc(S(cfg, "inv_th_passes"))}</th></tr></thead>
     <tbody>{ref_rows}</tbody></table></div>
   <div class="table-wrap"><table>
     <thead><tr><th>{esc(S(cfg, "inv_th_decile"))}</th><th>{esc(S(cfg, "inv_th_predicted_tau"))}</th><th>{esc(S(cfg, "inv_th_observed_lift"))}</th><th>{esc(S(cfg, "inv_th_gap"))}</th></tr></thead>
