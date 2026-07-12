@@ -179,6 +179,12 @@ What is the user asking about?
 ├─ "How to generate / challenge D dimensions; adversarial review"
 │   → 14-d-dimension-reviewer  (generation gate; independent review pass,
 │       immutable challenges, open-blocking → BLOCKED budget linkage)
+├─ "Who exactly, how many of them, where do I reach them, how big is the pool"
+│   → 18-audience-card  (product read → 20-dimension audience card → four-layer
+│       sizing with A/B/C/D grade on the provenance contract → platform proxy +
+│       match quality → causal filter; turns "人群 D" from a label into a sized,
+│       graded, reachable number. Companion to 14: 14 asks *is the cut real*, 18
+│       asks *how big and how do I reach it*)
 ├─ "How should the output be written; language; how to state uncertainty"
 │   → 15-writing-rules  (language policy, falsifiability obligation,
 │       honest-state vocabulary, anti-slop, form budget)

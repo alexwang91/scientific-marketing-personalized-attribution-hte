@@ -81,6 +81,13 @@ For each mechanism + path, identify the reachable proxy:
 - Behavioral retargeting (cart abandon, product page visit)
 - Retail category position (smartwatch category visitor on Alza)
 
+A proxy that names *who* but not *how many* is half a dimension. When the
+dimension survives this gate and needs a pool size, a reachable estimate, and a
+platform match-quality read, hand it to ref 18 (audience card): it sizes the
+proxy in four layers with an A/B/C/D grade and states what leaks in through the
+platform control. This reviewer decides *is the cut real*; ref 18 decides *how
+big and how do I reach it*.
+
 **Step 4: Measurability check**
 
 Is the incremental effect of targeting this proxy testable?
