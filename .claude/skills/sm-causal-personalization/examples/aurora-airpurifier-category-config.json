@@ -9,6 +9,56 @@
     "lang": "en"
   },
   "_note": "Illustrative example. Brand, SKUs, competitors and figures are fictional placeholders to demonstrate the category-portfolio report structure — not a real market study. Replace with operator-supplied data; AI-scanned fields stay Hypothesis-grade until confirmed.",
+  "audience_cards": [
+    {
+      "id": "aud_mid_upgraders",
+      "name": "Mid-tier upgraders comparing purifiers after their first unit",
+      "causal_role": "persuadable",
+      "dimensions": {
+        "funnel_state": "comparing 2-3 models, not yet decided",
+        "category_interest": "owns a basic purifier, wants better filtration / coverage",
+        "price_sensitivity": "pays for proof, not discount-only",
+        "recency": "viewed a mid-tier PDP in the last 30 days"
+      },
+      "sizing": {
+        "country_reachable": {"value": 3100000, "grade": "B", "source": "urban-household count (GUS) crossed with platform reach-planner estimate"},
+        "category_or_intent_share": {"value": 0.14, "grade": "C", "source": "keyword volume for comparison queries ('oczyszczacz powietrza porownanie')"},
+        "activation_match_rate": {"value": 0.55, "grade": "C", "source": "share expressible through search + retail-media proxies"},
+        "eligibility_rate": {"value": 0.92, "grade": "B", "source": "nationwide shipping, no sensitive-category block"},
+        "persuadable_share": {"value": 0.28, "grade": "C", "source": "prior Poland geo test on the mid tier (directional, pre-registration)"}
+      },
+      "reach": [
+        {"platform": "Search", "proxy": "competitor + comparison queries", "match_quality": "high"},
+        {"platform": "Retail media", "proxy": "category + competitor product viewers on the marketplace", "match_quality": "medium", "what_leaks": "includes first-unit buyers already set on the entry tier"},
+        {"platform": "Social", "proxy": "home-air / allergy interest", "match_quality": "low", "what_leaks": "broad interest — a large share is out-of-market"}
+      ],
+      "suppression": "exclude existing Aurora owners and anyone who purchased in the last 90 days",
+      "measurement": "geo holdout across matched voivodeships on the search arm before scaling",
+      "weakest_assumption": "the 14% comparison-intent share is a keyword-volume proxy, not a measured in-market count"
+    },
+    {
+      "id": "aud_brand_owners",
+      "name": "Existing Aurora owners searching the brand for a replacement or filter",
+      "causal_role": "sure_thing",
+      "dimensions": {
+        "brand_familiarity": "customer / repeat buyer",
+        "funnel_state": "ready — branded search",
+        "channel_preference": "search + marketplace"
+      },
+      "sizing": {
+        "country_reachable": {"value": 180000, "grade": "A", "source": "first-party CRM count + branded-search volume"},
+        "activation_match_rate": {"value": 0.95, "grade": "A", "source": "CRM customer-match + branded-query coverage"},
+        "eligibility_rate": {"value": 1.0, "grade": "A", "source": "all existing customers eligible"}
+      },
+      "reach": [
+        {"platform": "Search", "proxy": "branded queries", "match_quality": "high"},
+        {"platform": "CRM", "proxy": "customer list", "match_quality": "high"}
+      ],
+      "suppression": "this card IS a suppression list — hold out from paid prospecting; serve organic + CRM only",
+      "measurement": "not applicable to paid prospecting; track organic + CRM repurchase against a small holdout",
+      "weakest_assumption": "assumes branded search = existing owner; some share may be new buyers researching the brand"
+    }
+  ],
   "price_tiers": [
     {
       "id": "entry",
