@@ -178,8 +178,11 @@ def test_compute_sizing_uses_persuadable_share_when_present():
     assert got["persuadable_known"] is True
     # 233,280 × 0.3 = 69,984
     assert round(got["expected_persuadable"]) == 69984
-    # worst now includes D
-    assert got["worst_grade"] == "D"
+    # persuadable's D grade rides on the persuadable number, not the reachable
+    # badge — worst_grade stays the reachable chain's worst (B,C,C,B -> C)
+    assert got["worst_grade"] == "C"
+    p_grade = next(g for name, _v, g in got["factors"] if name == "persuadable_share")
+    assert p_grade == "D"
 
 
 def test_compute_sizing_without_country_reachable_cannot_size():

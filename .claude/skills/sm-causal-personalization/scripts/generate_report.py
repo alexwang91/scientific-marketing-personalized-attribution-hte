@@ -1982,6 +1982,142 @@ def s_dimensions(cfg: dict) -> str:
 </section>"""
 
 
+_AUD_GRADE_COLORS = {"A": "#1a7f47", "B": "#2f8f83", "C": "#b8860b", "D": "#c0392b"}
+_AUD_ROLE_COLORS = {
+    "persuadable": "#1a7f47", "sure_thing": "#c0392b", "lost_cause": "#8a8f98",
+    "sleeping_dog": "#c0392b", "unknown": "#b8860b",
+}
+_AUD_SHARE_FACTORS = {"category_or_intent_share", "activation_match_rate",
+                      "eligibility_rate", "persuadable_share"}
+
+
+def _aud_grade_badge(cfg: dict, grade: str | None) -> str:
+    if not grade:
+        return ""
+    color = _AUD_GRADE_COLORS.get(grade, "#8a8f98")
+    return (f'<span title="{esc(S(cfg, "aud_grade_word"))}" style="display:inline-block;'
+            f'min-width:15px;text-align:center;padding:0 5px;margin-left:5px;border-radius:9px;'
+            f'background:{color};color:#fff;font-size:11px;font-weight:700">{esc(grade)}</span>')
+
+
+def _aud_fmt(name: str, value) -> str:
+    if value is None:
+        return "—"
+    if name in _AUD_SHARE_FACTORS:
+        pct = value * 100
+        return f"{pct:.0f}%" if (pct == 0 or pct >= 1) else f"{pct:.1f}%"
+    return f"{value:,.0f}"
+
+
+def s_audience_cards(cfg: dict) -> str:
+    """Chapter 3 — audience cards (ref 18): who exactly, how big the pool is,
+    how to reach them. One card per target audience: 20-dimension definition,
+    a four-layer sizing chain (derived, graded), a reach path with match
+    quality, suppression, measurement, and the single weakest assumption."""
+    cards = cfg.get("audience_cards")
+    if not cards:
+        return ""
+    aud = _load_by_path("audience_schema")
+    blocks = []
+    for card in cards:
+        comp = aud.compute_sizing(card)
+        role = card.get("causal_role")
+        role_badge = ""
+        if role:
+            rc = _AUD_ROLE_COLORS.get(role, "#8a8f98")
+            role_badge = (f'<span style="display:inline-block;padding:2px 9px;border-radius:11px;'
+                          f'background:{rc};color:#fff;font-size:12px;font-weight:600">'
+                          f'{esc(S(cfg, "aud_role_" + role))}</span>')
+        # who they are — dimension values as chips
+        who = ""
+        dims = card.get("dimensions") or {}
+        if dims:
+            chips = "".join(
+                f'<span style="display:inline-block;padding:1px 8px;margin:2px 4px 2px 0;'
+                f'border:1px solid var(--border,#d8dbe0);border-radius:11px;font-size:12px">'
+                f'{esc(str(v))}</span>' for v in dims.values())
+            who = (f'<div style="margin:6px 0"><span style="font-size:12px;color:var(--muted)">'
+                   f'{esc(S(cfg, "aud_who_word"))}:</span> {chips}</div>')
+        # sizing chain
+        chain = ""
+        if comp["factors"]:
+            parts = []
+            for i, (fname, fval, fgrade) in enumerate(comp["factors"]):
+                if fname == "persuadable_share":
+                    continue  # persuadable rendered on its own line below
+                sep = " × " if i > 0 else ""
+                parts.append(
+                    f'{sep}<span style="white-space:nowrap"><span style="font-size:11px;'
+                    f'color:var(--muted)">{esc(S(cfg, "aud_factor_" + fname))}</span> '
+                    f'<b>{esc(_aud_fmt(fname, fval))}</b>{_aud_grade_badge(cfg, fgrade)}</span>')
+            reachable = comp["reachable_target_size"]
+            result = ""
+            if reachable is not None:
+                result = (f' = <span style="font-size:16px;font-weight:700">'
+                          f'{esc(f"{reachable:,.0f}")}</span> '
+                          f'<span style="font-size:12px;color:var(--muted)">'
+                          f'{esc(S(cfg, "aud_reachable_word"))}</span>'
+                          f'{_aud_grade_badge(cfg, comp["worst_grade"])}')
+            chain = (f'<div style="margin:8px 0;line-height:2">'
+                     f'{"".join(parts)}{result}</div>')
+        # persuadable line
+        persuadable = ""
+        if comp["persuadable_known"] and comp["expected_persuadable"] is not None:
+            p_grade = None
+            for fname, _fv, fg in comp["factors"]:
+                if fname == "persuadable_share":
+                    p_grade = fg
+            exp_p = f"{comp['expected_persuadable']:,.0f}"
+            persuadable = (f'<div style="margin:4px 0;font-size:13px">'
+                           f'<span style="color:var(--muted)">{esc(S(cfg, "aud_persuadable_word"))}:</span> '
+                           f'<b>{esc(exp_p)}</b>'
+                           f'{_aud_grade_badge(cfg, p_grade)}</div>')
+        elif comp["reachable_target_size"] is not None:
+            persuadable = (f'<div style="margin:4px 0;font-size:13px;color:var(--muted)">'
+                           f'⚠ {esc(S(cfg, "aud_persuadable_unknown"))}</div>')
+        # reach table
+        reach = card.get("reach") or []
+        reach_html = ""
+        if reach:
+            rrows = ""
+            for r in reach:
+                mq = r.get("match_quality", "")
+                mq_word = S(cfg, "aud_mq_" + mq) if mq else ""
+                rrows += (f"<tr><td>{esc(r.get('platform',''))}</td>"
+                          f"<td style='font-size:12px'>{esc(r.get('proxy',''))}</td>"
+                          f"<td>{esc(mq_word)}</td>"
+                          f"<td style='font-size:12px;color:var(--muted)'>{esc(r.get('what_leaks',''))}</td></tr>")
+            reach_html = (f'<div style="margin-top:8px"><span style="font-size:12px;color:var(--muted)">'
+                          f'{esc(S(cfg, "aud_reach_word"))}</span>'
+                          f'<div class="table-wrap"><table><thead><tr>'
+                          f'<th>{esc(S(cfg, "aud_th_platform"))}</th>'
+                          f'<th>{esc(S(cfg, "aud_th_proxy"))}</th>'
+                          f'<th>{esc(S(cfg, "aud_th_match"))}</th>'
+                          f'<th>{esc(S(cfg, "aud_th_leaks"))}</th></tr></thead>'
+                          f'<tbody>{rrows}</tbody></table></div></div>')
+        # footer rows
+        def _foot(key, val):
+            return (f'<div style="font-size:12px;margin:3px 0"><span style="color:var(--muted)">'
+                    f'{esc(S(cfg, key))}:</span> {esc(val)}</div>') if val else ""
+        footer = (_foot("aud_suppression_word", card.get("suppression"))
+                  + _foot("aud_measurement_word", card.get("measurement"))
+                  + _foot("aud_weakest_word", card.get("weakest_assumption")))
+        blocks.append(
+            f'<div style="border:1px solid var(--border,#d8dbe0);border-radius:10px;'
+            f'padding:14px 16px;margin:12px 0">'
+            f'<div style="display:flex;justify-content:space-between;align-items:center;gap:10px">'
+            f'<strong style="font-size:15px">{esc(card.get("name",""))}</strong>{role_badge}</div>'
+            f'{who}{chain}{persuadable}{reach_html}'
+            f'<div style="margin-top:8px">{footer}</div></div>')
+    return f"""<section id="s5b">
+  <h2>{esc(S(cfg, "aud_heading"))}</h2>
+  <p style="color:var(--muted)">{esc(S(cfg, "aud_intro"))}</p>
+  {"".join(blocks)}
+  <p style="font-size:12px;color:var(--muted)">{esc(S(cfg, "aud_grade_legend"))}</p>
+  <div class="callout">{esc(S(cfg, "aud_caption"))}</div>
+</section>"""
+
+
 def s_heatmap(cfg: dict) -> str:
     """Section 7 — Semantic heatmap (channel × dimension)."""
     hm = cfg.get("heatmap")
@@ -3115,7 +3251,8 @@ def generate_category_html(cfg: dict, numbers: dict) -> str:
     chapter_layout = [
         ("ch1", [("c0", s_cat_matrix(cfg))]),
         ("ch2", [("c1", s_cat_diagnosis(cfg))]),
-        ("ch3", [("c2", s_cat_tiermap(cfg)), ("c3", s_cat_skus(cfg))]),
+        ("ch3", [("c2", s_cat_tiermap(cfg)), ("c3", s_cat_skus(cfg)),
+                 ("s5b", s_audience_cards(cfg))]),
         ("ch4", [("c4", s_cat_handoff(cfg))]),
         ("ch5", [("s16", s_evidence(cfg, numbers))]),
     ]
@@ -3124,6 +3261,7 @@ def generate_category_html(cfg: dict, numbers: dict) -> str:
         "c1":  L(cfg, "cat_diag_heading",    "Category Diagnosis"),
         "c2":  L(cfg, "cat_tier_heading",    "Price-Tier × Audience × Competitor Map"),
         "c3":  L(cfg, "cat_sku_heading",     "SKU Detail & 4P"),
+        "s5b": S(cfg, "aud_heading"),
         "c4":  L(cfg, "cat_handoff_heading", "Deep-Dive Handoff"),
         "s16": L(cfg, "evidence_heading",    "Evidence & Gaps"),
     }
@@ -3233,6 +3371,7 @@ def generate_html(cfg: dict, depth: str = "standard", echarts_js: str | None = N
                  ("s3",   s_product_facts(cfg, numbers))]),
         ("ch3", [("s4",   s_channel_map(cfg, numbers)),
                  ("s5",   s_dimensions(cfg)),
+                 ("s5b",  s_audience_cards(cfg)),
                  ("s6",   s_heatmap(cfg)),
                  ("s7",   s_h_main(cfg)),
                  ("s12",  s_kol(cfg, numbers)),
@@ -3286,6 +3425,7 @@ def generate_html(cfg: dict, depth: str = "standard", echarts_js: str | None = N
         "s3":   L(cfg, "product_heading",     "Product & Market Facts"),
         "s4":   L(cfg, "channel_heading",     "Channel Map"),
         "s5":   L(cfg, "dim_heading",         "Audiences (D Dimensions)"),
+        "s5b":  S(cfg, "aud_heading"),
         "s6":   L(cfg, "heatmap_heading",     "Play Matrix"),
         "s7":   L(cfg, "hmain_heading",       "Main Bets"),
         "s8":   L(cfg, "eg_heading",          "Gates & Task Cards"),

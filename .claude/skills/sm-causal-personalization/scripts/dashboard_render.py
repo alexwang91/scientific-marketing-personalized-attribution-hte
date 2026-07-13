@@ -88,6 +88,7 @@ def _render_sku(data: Dict[str, Any]) -> str:
         ch("ch3"),
         _channels(data),
         _dimensions(data),
+        _audience_cards(data),
         _heatmap(data),
         _suppression(data),
         ch("ch4"),
@@ -140,7 +141,7 @@ def _render_category(data: Dict[str, Any]) -> str:
     parts += [ch("ch2"), _portfolio_diagnosis(data)]
     if inv:
         parts.append(_investment_frontier(data, inv))
-    parts += [ch("ch3"), _portfolio_tiers(data), _portfolio_skus(data)]
+    parts += [ch("ch3"), _portfolio_tiers(data), _portfolio_skus(data), _audience_cards(data)]
     if inv:
         parts.append(_investment_matrix(data, inv))
     parts += [ch("ch4"), _portfolio_handoff(data)]
@@ -501,6 +502,83 @@ def _dimensions(data: Dict[str, Any]) -> str:
                     _s(data, "dash_dimensions_sub", "Buyer characteristics that predict incremental response, within the channels above."), cards)
 
 
+def _aud_grade_badge(grade: str | None) -> str:
+    if not grade:
+        return ""
+    return f'<span class="aud-grade aud-grade-{_esc(grade)}">{_esc(grade)}</span>'
+
+
+def _audience_cards(data: Dict[str, Any]) -> str:
+    """Audience cards (ref 18): who exactly, how big the pool is (the four-layer
+    sizing chain, graded), how to reach them (match quality), suppression,
+    measurement, weakest assumption. Rendered inside chapter 3 (the play)."""
+    cards = data.get("audience_cards", [])
+    if not cards:
+        return ""
+    blocks = []
+    for c in cards:
+        role = c.get("causal_role")
+        role_html = (f'<span class="aud-role aud-role-{_esc(role)}">{_esc(c.get("role_label", ""))}</span>'
+                     if role else "")
+        who = ""
+        if c.get("dimensions"):
+            chips = "".join(f'<span class="aud-chip">{_esc(v)}</span>' for v in c["dimensions"])
+            who = f'<div class="aud-who">{_esc(_s(data, "aud_who_word", "Who they are"))}: {chips}</div>'
+        chain = ""
+        if c.get("factors"):
+            parts = []
+            for i, f in enumerate(c["factors"]):
+                sep = " × " if i > 0 else ""
+                parts.append(f'{sep}<span class="aud-factor"><span class="lab">{_esc(f["label"])}</span> '
+                             f'<b>{_esc(f["value_text"])}</b>{_aud_grade_badge(f.get("grade"))}</span>')
+            result = ""
+            if c.get("reachable_text"):
+                result = (f' = <span class="aud-result">{_esc(c["reachable_text"])}</span> '
+                          f'<span class="lab" style="font-size:12px;color:var(--muted)">'
+                          f'{_esc(_s(data, "aud_reachable_word", "Reachable pool"))}</span>'
+                          f'{_aud_grade_badge(c.get("worst_grade"))}')
+            chain = f'<div class="aud-chain">{"".join(parts)}{result}</div>'
+        pers = ""
+        if c.get("persuadable_known") and c.get("persuadable_text"):
+            pers = (f'<div class="aud-persuadable"><span class="lab">'
+                    f'{_esc(_s(data, "aud_persuadable_word", "Of which persuadable"))}:</span> '
+                    f'<b>{_esc(c["persuadable_text"])}</b>{_aud_grade_badge(c.get("persuadable_grade"))}</div>')
+        elif c.get("reachable_text"):
+            pers = (f'<div class="aud-unknown">⚠ '
+                    f'{_esc(_s(data, "aud_persuadable_unknown", "Persuadable share unknown"))}</div>')
+        reach = ""
+        if c.get("reach"):
+            rows = "".join(
+                f'<tr><td>{_esc(r["platform"])}</td><td>{_esc(r["proxy"])}</td>'
+                f'<td>{_esc(r["match_label"])}</td><td>{_esc(r["what_leaks"])}</td></tr>'
+                for r in c["reach"])
+            reach = (f'<table class="aud-reach"><thead><tr>'
+                     f'<th>{_esc(_s(data, "aud_th_platform", "Platform"))}</th>'
+                     f'<th>{_esc(_s(data, "aud_th_proxy", "Proxy"))}</th>'
+                     f'<th>{_esc(_s(data, "aud_th_match", "Match"))}</th>'
+                     f'<th>{_esc(_s(data, "aud_th_leaks", "Leaks"))}</th></tr></thead>'
+                     f'<tbody>{rows}</tbody></table>')
+
+        def foot(key: str, default: str, val: str) -> str:
+            return (f'<div><span class="lab">{_esc(_s(data, key, default))}:</span> {_esc(val)}</div>'
+                    if val else "")
+        footer = (foot("aud_suppression_word", "Exclude", c.get("suppression", ""))
+                  + foot("aud_measurement_word", "How we'd measure it", c.get("measurement", ""))
+                  + foot("aud_weakest_word", "Weakest assumption", c.get("weakest_assumption", "")))
+        blocks.append(
+            f'<div class="aud-card"><div class="aud-head">'
+            f'<strong>{_esc(c.get("name", ""))}</strong>{role_html}</div>'
+            f'{who}{chain}{pers}{reach}<div class="aud-foot">{footer}</div></div>')
+    legend = f'<p class="aud-legend">{_esc(_s(data, "aud_grade_legend", ""))}</p>'
+    cap = f'<p class="aud-legend">{_esc(_s(data, "aud_caption", ""))}</p>'
+    body = (f'<div style="display:flex;flex-direction:column;gap:10px">{"".join(blocks)}</div>'
+            f'{legend}{cap}')
+    return f"""<section class="panel section" id="audience">
+  <div class="section-head"><div><div class="eyebrow">audience</div><h2>{_esc(_s(data, "dash_audience_title", "Audience cards"))}</h2><p>{_esc(_s(data, "dash_audience_sub", ""))}</p></div></div>
+  {body}
+</section>"""
+
+
 def _measurement(data: Dict[str, Any]) -> str:
     mp = data.get("measurement", {})
     if not mp:
@@ -852,6 +930,26 @@ details.drill-sku{margin:6px 12px;background:#fafaf8}
 .inv-svg{width:100%;height:auto;display:block}
 .inv-svg-empty{color:var(--muted);font-size:12px;padding:20px 0;text-align:center}
 .inv-conf-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-left:4px;vertical-align:middle}
+.aud-card{border:1px solid var(--line);border-radius:10px;background:#fff;padding:14px 16px;width:100%}
+.aud-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.aud-head strong{font-size:15px}
+.aud-role{border-radius:11px;padding:2px 10px;font-size:12px;font-weight:600;color:#fff;white-space:nowrap}
+.aud-role-persuadable{background:#1a7f47}.aud-role-sure_thing,.aud-role-sleeping_dog{background:#c0392b}
+.aud-role-lost_cause{background:#8a8f98}.aud-role-unknown{background:#b8860b}
+.aud-who{margin:8px 0;font-size:12px;color:var(--muted)}
+.aud-chip{display:inline-block;padding:1px 8px;margin:2px 4px 2px 0;border:1px solid var(--line);border-radius:11px;font-size:12px;color:var(--ink)}
+.aud-chain{margin:8px 0;line-height:2}
+.aud-factor{white-space:nowrap}.aud-factor .lab{font-size:11px;color:var(--muted)}
+.aud-grade{display:inline-block;min-width:15px;text-align:center;padding:0 5px;margin-left:5px;border-radius:9px;color:#fff;font-size:11px;font-weight:700}
+.aud-grade-A{background:#1a7f47}.aud-grade-B{background:#2f8f83}.aud-grade-C{background:#b8860b}.aud-grade-D{background:#c0392b}
+.aud-result{font-size:16px;font-weight:700}
+.aud-persuadable{margin:4px 0;font-size:13px}.aud-persuadable .lab{color:var(--muted)}
+.aud-unknown{margin:4px 0;font-size:13px;color:var(--muted)}
+.aud-reach{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px}
+.aud-reach th{text-align:left;color:var(--muted);font-weight:600;border-bottom:1px solid var(--line);padding:4px 6px}
+.aud-reach td{border-bottom:1px solid var(--line);padding:4px 6px;vertical-align:top}
+.aud-foot{margin-top:8px;font-size:12px}.aud-foot div{margin:3px 0}.aud-foot .lab{color:var(--muted)}
+.aud-legend{color:var(--muted);font-size:11.5px;margin:6px 0 0}
 """
 
 

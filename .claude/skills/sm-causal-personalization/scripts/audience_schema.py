@@ -194,9 +194,10 @@ def compute_sizing(card: dict) -> dict:
     p_spec = sizing.get(PERSUADABLE_FACTOR)
     if isinstance(p_spec, dict) and _is_num(p_spec.get("value")):
         persuadable_known = True
+        # persuadable is a separate derivation on top of the reachable pool; its
+        # grade rides on the persuadable number, not on the reachable badge, so
+        # it is NOT folded into worst_grade (which stamps the reachable chain)
         factors.append((PERSUADABLE_FACTOR, float(p_spec["value"]), p_spec.get("grade")))
-        if p_spec.get("grade"):
-            grades.append(p_spec["grade"])
         if reach_val is not None:
             expected_persuadable = reach_val * float(p_spec["value"])
 

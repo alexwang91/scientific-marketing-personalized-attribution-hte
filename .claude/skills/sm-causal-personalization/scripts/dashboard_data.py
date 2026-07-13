@@ -51,6 +51,7 @@ _inv_engine = _local_import("investment_engine")
 _inv_charts = _local_import("investment_charts")
 _mmm_bridge = _local_import("mmm_bridge")
 _hte_core = _local_import("hte_core")
+_aud_schema = _local_import("audience_schema")
 
 
 def build_dashboard_data(cfg: Dict[str, Any]) -> Dict[str, Any]:
@@ -296,6 +297,78 @@ def _budget_rows(cfg: Dict[str, Any], numbers: Dict[str, Dict[str, Any]]) -> Lis
     return rows
 
 
+_AUD_SHARE_FACTORS = {"category_or_intent_share", "activation_match_rate",
+                      "eligibility_rate", "persuadable_share"}
+
+
+def _aud_fmt(name: str, value: Any) -> str:
+    if value is None:
+        return "—"
+    if name in _AUD_SHARE_FACTORS:
+        pct = value * 100
+        return f"{pct:.0f}%" if (pct == 0 or pct >= 1) else f"{pct:.1f}%"
+    return f"{value:,.0f}"
+
+
+def _audience_cards_view(cfg: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Normalize cfg["audience_cards"] into dashboard-ready cards (ref 18):
+    each card's four-layer sizing chain is computed here (derived, never raw),
+    and its labels/grades resolved through the operator string pack. Empty list
+    when the section was never invoked. Raises AudienceConfigError on a
+    malformed card — same build-fails-hard posture as the investment plan."""
+    cards = cfg.get("audience_cards")
+    if not cards:
+        return []
+    _aud_schema.validate_or_raise(cfg)
+    out: List[Dict[str, Any]] = []
+    for card in cards:
+        comp = _aud_schema.compute_sizing(card)
+        role = card.get("causal_role")
+        reach_factors = []
+        persuadable_grade = None
+        for name, val, grade in comp["factors"]:
+            if name == "persuadable_share":
+                persuadable_grade = grade
+                continue
+            reach_factors.append({
+                "name": name,
+                "label": _sem.S(cfg, "aud_factor_" + name),
+                "value_text": _aud_fmt(name, val),
+                "grade": grade,
+            })
+        reach = []
+        for r in card.get("reach") or []:
+            mq = r.get("match_quality", "")
+            reach.append({
+                "platform": r.get("platform", ""),
+                "proxy": r.get("proxy", ""),
+                "match_quality": mq,
+                "match_label": _sem.S(cfg, "aud_mq_" + mq) if mq else "",
+                "what_leaks": r.get("what_leaks", ""),
+            })
+        reachable = comp["reachable_target_size"]
+        persuadable = comp["expected_persuadable"]
+        out.append({
+            "id": card.get("id"),
+            "name": card.get("name", ""),
+            "causal_role": role,
+            "role_label": _sem.S(cfg, "aud_role_" + role) if role else "",
+            "dimensions": [str(v) for v in (card.get("dimensions") or {}).values()],
+            "factors": reach_factors,
+            "reachable_target_size": reachable,
+            "reachable_text": f"{reachable:,.0f}" if reachable is not None else "",
+            "worst_grade": comp["worst_grade"],
+            "persuadable_known": comp["persuadable_known"],
+            "persuadable_text": f"{persuadable:,.0f}" if persuadable is not None else "",
+            "persuadable_grade": persuadable_grade,
+            "reach": reach,
+            "suppression": card.get("suppression", ""),
+            "measurement": card.get("measurement", ""),
+            "weakest_assumption": card.get("weakest_assumption", ""),
+        })
+    return out
+
+
 def _strings(cfg: Dict[str, Any]) -> Dict[str, str]:
     """UI vocabulary for the renderer, in the config's language."""
     keys = [
@@ -341,6 +414,12 @@ def _strings(cfg: Dict[str, Any]) -> Dict[str, str]:
         "cat_bridge_ch1", "cat_bridge_ch2", "cat_bridge_ch3", "cat_bridge_ch4", "cat_bridge_ch5",
         "dash_4p_product", "dash_4p_price", "dash_4p_place", "dash_4p_promotion",
         "post_treatment_warn",
+        "aud_heading", "aud_intro", "aud_role_word", "aud_who_word", "aud_size_word",
+        "aud_reachable_word", "aud_persuadable_word", "aud_persuadable_unknown",
+        "aud_grade_word", "aud_worst_grade_note", "aud_reach_word",
+        "aud_th_platform", "aud_th_proxy", "aud_th_match", "aud_th_leaks",
+        "aud_suppression_word", "aud_measurement_word", "aud_weakest_word",
+        "aud_grade_legend", "aud_caption", "dash_audience_title", "dash_audience_sub",
     ]
     out = {k: _sem.S(cfg, k) for k in keys}
     for code in ("H", "T", "S", "N", "A"):
@@ -375,6 +454,7 @@ def _build_sku_dashboard(cfg: Dict[str, Any]) -> Dict[str, Any]:
         "channels": channels,
         "dimensions": dimensions,
         "heatmap": _heatmap(cfg, channels, dimensions),
+        "audience_cards": _audience_cards_view(cfg),
         "treatments": treatments,
         "budgets": _budget_rows(cfg, numbers),
         "gates": cfg.get("execution_gates", []),
@@ -655,6 +735,7 @@ def _build_category_dashboard(cfg: Dict[str, Any]) -> Dict[str, Any]:
         "meta": _meta(cfg),
         "strings": _strings(cfg),
         "chapter_answers": answers,
+        "audience_cards": _audience_cards_view(cfg),
         "overview": {
             "verdict": "portfolio",
             "thesis": cfg.get("_note", ""),
