@@ -73,13 +73,24 @@ Channel-level   (how much per channel,    mmm_bridge.py bridges an externally
 ```
 
 All three fund a descending-marginal-ROI prefix and stop at the same kind of
-cutoff (`required_mroi` / λ*); none of them ever "skip and continue" past a
-step that fails the floor. A SKU-level cell's `confidence` badge
+cutoff (`required_mroi` / λ*). At the SKU × module tier the floor may differ
+by evidence grade — `required_mroi_by_confidence` charges assumption-grade
+cells a higher required return than validated ones (a risk premium for the
+systematic optimism of unvalidated estimates; CausalDS, arXiv 2607.08093,
+measured every frontier model's nominal 95% intervals covering only 20-71%
+empirically). A step below its own tier's floor is skipped; the budget cutoff
+still ends the prefix. A SKU-level cell's `confidence` badge
 (`validated` / `mmm_calibrated` / `assumption_grade` / `blocked`) is always
 computed from its evidence (`tau_source` + `measurement_gate` + `readiness`),
 never a raw input — see `investment_engine.confidence_badge`.
 
 ## Two-Stage vs End-to-End: Architectural Choice
+
+Current SKU-level investment rule: a `randomized_hte` cell must name
+`validation_ref`, and that ref must pass the supplied `hte_validation` gate
+(Qini/AUUC plus decile calibration) before the dashboard calls it `validated`.
+Without that gate it is treated as `assumption_grade`, even if a measurement
+gate string is present.
 
 ```
 Two-stage (default):

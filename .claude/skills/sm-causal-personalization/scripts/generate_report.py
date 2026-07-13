@@ -1942,11 +1942,15 @@ def s_dimensions(cfg: dict) -> str:
     for d in dims:
         status = d.get("resolution_status", "open")
         v = d.get("verdict", "Retain")
+        warn = ""
+        if d.get("post_treatment_check") == "fail":
+            warn = (f" <span class='pill pill-open-blocking' title='{esc(d.get('post_treatment_note',''))}'>"
+                    f"{esc(S(cfg, 'post_treatment_warn'))}</span>")
         rows += (f"<tr><td><strong>{esc(d['id'])}</strong> {esc(d['name'])}</td>"
                  f"<td style='font-size:12px'>{esc(d['mechanism'])}</td>"
                  f"<td style='font-size:12px'>{esc(d['proxy'])}</td>"
                  f"<td>{_score_dots(d.get('entry_score','—'))}</td>"
-                 f"<td>{esc(v)}</td>"
+                 f"<td>{esc(v)}{warn}</td>"
                  f"<td><span class='pill pill-{esc(status)}'>{esc(status)}</span></td></tr>")
     reviewer_rows = "".join(
         f"<tr><td>{esc(r['dimension'])}</td><td>{esc(r['challenge'])}</td>"
@@ -1978,6 +1982,142 @@ def s_dimensions(cfg: dict) -> str:
 </section>"""
 
 
+_AUD_GRADE_COLORS = {"A": "#1a7f47", "B": "#2f8f83", "C": "#b8860b", "D": "#c0392b"}
+_AUD_ROLE_COLORS = {
+    "persuadable": "#1a7f47", "sure_thing": "#c0392b", "lost_cause": "#8a8f98",
+    "sleeping_dog": "#c0392b", "unknown": "#b8860b",
+}
+_AUD_SHARE_FACTORS = {"category_or_intent_share", "activation_match_rate",
+                      "eligibility_rate", "persuadable_share"}
+
+
+def _aud_grade_badge(cfg: dict, grade: str | None) -> str:
+    if not grade:
+        return ""
+    color = _AUD_GRADE_COLORS.get(grade, "#8a8f98")
+    return (f'<span title="{esc(S(cfg, "aud_grade_word"))}" style="display:inline-block;'
+            f'min-width:15px;text-align:center;padding:0 5px;margin-left:5px;border-radius:9px;'
+            f'background:{color};color:#fff;font-size:11px;font-weight:700">{esc(grade)}</span>')
+
+
+def _aud_fmt(name: str, value) -> str:
+    if value is None:
+        return "—"
+    if name in _AUD_SHARE_FACTORS:
+        pct = value * 100
+        return f"{pct:.0f}%" if (pct == 0 or pct >= 1) else f"{pct:.1f}%"
+    return f"{value:,.0f}"
+
+
+def s_audience_cards(cfg: dict) -> str:
+    """Chapter 3 — audience cards (ref 18): who exactly, how big the pool is,
+    how to reach them. One card per target audience: 20-dimension definition,
+    a four-layer sizing chain (derived, graded), a reach path with match
+    quality, suppression, measurement, and the single weakest assumption."""
+    cards = cfg.get("audience_cards")
+    if not cards:
+        return ""
+    aud = _load_by_path("audience_schema")
+    blocks = []
+    for card in cards:
+        comp = aud.compute_sizing(card)
+        role = card.get("causal_role")
+        role_badge = ""
+        if role:
+            rc = _AUD_ROLE_COLORS.get(role, "#8a8f98")
+            role_badge = (f'<span style="display:inline-block;padding:2px 9px;border-radius:11px;'
+                          f'background:{rc};color:#fff;font-size:12px;font-weight:600">'
+                          f'{esc(S(cfg, "aud_role_" + role))}</span>')
+        # who they are — dimension values as chips
+        who = ""
+        dims = card.get("dimensions") or {}
+        if dims:
+            chips = "".join(
+                f'<span style="display:inline-block;padding:1px 8px;margin:2px 4px 2px 0;'
+                f'border:1px solid var(--border,#d8dbe0);border-radius:11px;font-size:12px">'
+                f'{esc(str(v))}</span>' for v in dims.values())
+            who = (f'<div style="margin:6px 0"><span style="font-size:12px;color:var(--muted)">'
+                   f'{esc(S(cfg, "aud_who_word"))}:</span> {chips}</div>')
+        # sizing chain
+        chain = ""
+        if comp["factors"]:
+            parts = []
+            for i, (fname, fval, fgrade) in enumerate(comp["factors"]):
+                if fname == "persuadable_share":
+                    continue  # persuadable rendered on its own line below
+                sep = " × " if i > 0 else ""
+                parts.append(
+                    f'{sep}<span style="white-space:nowrap"><span style="font-size:11px;'
+                    f'color:var(--muted)">{esc(S(cfg, "aud_factor_" + fname))}</span> '
+                    f'<b>{esc(_aud_fmt(fname, fval))}</b>{_aud_grade_badge(cfg, fgrade)}</span>')
+            reachable = comp["reachable_target_size"]
+            result = ""
+            if reachable is not None:
+                result = (f' = <span style="font-size:16px;font-weight:700">'
+                          f'{esc(f"{reachable:,.0f}")}</span> '
+                          f'<span style="font-size:12px;color:var(--muted)">'
+                          f'{esc(S(cfg, "aud_reachable_word"))}</span>'
+                          f'{_aud_grade_badge(cfg, comp["worst_grade"])}')
+            chain = (f'<div style="margin:8px 0;line-height:2">'
+                     f'{"".join(parts)}{result}</div>')
+        # persuadable line
+        persuadable = ""
+        if comp["persuadable_known"] and comp["expected_persuadable"] is not None:
+            p_grade = None
+            for fname, _fv, fg in comp["factors"]:
+                if fname == "persuadable_share":
+                    p_grade = fg
+            exp_p = f"{comp['expected_persuadable']:,.0f}"
+            persuadable = (f'<div style="margin:4px 0;font-size:13px">'
+                           f'<span style="color:var(--muted)">{esc(S(cfg, "aud_persuadable_word"))}:</span> '
+                           f'<b>{esc(exp_p)}</b>'
+                           f'{_aud_grade_badge(cfg, p_grade)}</div>')
+        elif comp["reachable_target_size"] is not None:
+            persuadable = (f'<div style="margin:4px 0;font-size:13px;color:var(--muted)">'
+                           f'⚠ {esc(S(cfg, "aud_persuadable_unknown"))}</div>')
+        # reach table
+        reach = card.get("reach") or []
+        reach_html = ""
+        if reach:
+            rrows = ""
+            for r in reach:
+                mq = r.get("match_quality", "")
+                mq_word = S(cfg, "aud_mq_" + mq) if mq else ""
+                rrows += (f"<tr><td>{esc(r.get('platform',''))}</td>"
+                          f"<td style='font-size:12px'>{esc(r.get('proxy',''))}</td>"
+                          f"<td>{esc(mq_word)}</td>"
+                          f"<td style='font-size:12px;color:var(--muted)'>{esc(r.get('what_leaks',''))}</td></tr>")
+            reach_html = (f'<div style="margin-top:8px"><span style="font-size:12px;color:var(--muted)">'
+                          f'{esc(S(cfg, "aud_reach_word"))}</span>'
+                          f'<div class="table-wrap"><table><thead><tr>'
+                          f'<th>{esc(S(cfg, "aud_th_platform"))}</th>'
+                          f'<th>{esc(S(cfg, "aud_th_proxy"))}</th>'
+                          f'<th>{esc(S(cfg, "aud_th_match"))}</th>'
+                          f'<th>{esc(S(cfg, "aud_th_leaks"))}</th></tr></thead>'
+                          f'<tbody>{rrows}</tbody></table></div></div>')
+        # footer rows
+        def _foot(key, val):
+            return (f'<div style="font-size:12px;margin:3px 0"><span style="color:var(--muted)">'
+                    f'{esc(S(cfg, key))}:</span> {esc(val)}</div>') if val else ""
+        footer = (_foot("aud_suppression_word", card.get("suppression"))
+                  + _foot("aud_measurement_word", card.get("measurement"))
+                  + _foot("aud_weakest_word", card.get("weakest_assumption")))
+        blocks.append(
+            f'<div style="border:1px solid var(--border,#d8dbe0);border-radius:10px;'
+            f'padding:14px 16px;margin:12px 0">'
+            f'<div style="display:flex;justify-content:space-between;align-items:center;gap:10px">'
+            f'<strong style="font-size:15px">{esc(card.get("name",""))}</strong>{role_badge}</div>'
+            f'{who}{chain}{persuadable}{reach_html}'
+            f'<div style="margin-top:8px">{footer}</div></div>')
+    return f"""<section id="s5b">
+  <h2>{esc(S(cfg, "aud_heading"))}</h2>
+  <p style="color:var(--muted)">{esc(S(cfg, "aud_intro"))}</p>
+  {"".join(blocks)}
+  <p style="font-size:12px;color:var(--muted)">{esc(S(cfg, "aud_grade_legend"))}</p>
+  <div class="callout">{esc(S(cfg, "aud_caption"))}</div>
+</section>"""
+
+
 def s_heatmap(cfg: dict) -> str:
     """Section 7 — Semantic heatmap (channel × dimension)."""
     hm = cfg.get("heatmap")
@@ -1996,15 +2136,24 @@ def s_heatmap(cfg: dict) -> str:
     header = f'<div class="hm-header">{corner}</div>' + "".join(
         f'<div class="hm-header">{esc(label_map.get(d, d))}</div>' for d in dims
     )
+    # criterion 5 (ref 14): a dimension whose proxy conditions on
+    # post-treatment behaviour can never be a primary investment target —
+    # its H cells render capped to T (same capping philosophy as severity)
+    fail_dims = {d.get("id") for d in cfg.get("dimensions", [])
+                 if d.get("post_treatment_check") == "fail"}
     rows = ""
     for ch in channels:
         rows += f'<div class="hm-label">{esc(ch)}</div>'
         for d in dims:
             sc = scores.get(ch, {}).get(d, "N")
+            capped = d in fail_dims and sc == "H"
+            if capped:
+                sc = "T"
             cls = _score_cls.get(sc, "hm-none")
             word = _sem.grade_label(cfg, sc)
+            mark = "⚠" if capped else ""
             rows += (f'<div class="hm-cell {esc(cls)}" title="{esc(word)}">'
-                     f'{esc(word)}<span class="hm-code">{esc(sc)}</span></div>')
+                     f'{esc(word)}{mark}<span class="hm-code">{esc(sc)}</span></div>')
     legend = " · ".join(
         f'<span class="hm-cell {_score_cls[s]}" style="display:inline-block;padding:2px 8px;'
         f'border-radius:4px">{s}</span> {esc(_sem.grade_label(cfg, s))}'
@@ -2022,6 +2171,7 @@ def s_heatmap(cfg: dict) -> str:
   </div>
   <p style="font-size:12px;color:var(--ink-2);margin-top:8px;font-weight:600">{esc(S(cfg, "heatmap_caption"))}</p>
   <p style="font-size:12px;color:var(--muted);margin-top:4px">{esc(L(cfg, "heatmap_legend_label", "Legend"))}: {legend}</p>
+  {f'<p style="font-size:12px;color:var(--warn-ink);margin-top:4px">{esc(S(cfg, "post_treatment_capped_note"))}</p>' if fail_dims else ""}
 </section>"""
 
 
@@ -2798,7 +2948,13 @@ def s_inv_answer(cfg: dict, inv: dict) -> str:
     cards = ""
     for k in kpis:
         label = S(cfg, "inv_" + k["label_key"])
-        val = f'{k["value"]:,.2f}'.rstrip("0").rstrip(".") if isinstance(k["value"], float) else str(k["value"])
+        v = k["value"]
+        # money and unit counts read as whole numbers (false precision on
+        # estimates); the two ratios (roi, lambda_star) keep 2 decimals
+        if isinstance(v, (int, float)):
+            val = f'{v:.2f}' if k["id"] in ("roi", "lambda_star") else f'{v:,.0f}'
+        else:
+            val = str(v)
         unit = esc(k.get("unit", ""))
         cards += (f'<div class="kpi inv-kpi-{esc(k["tone"])}"><div class="kpi-num">{esc(val)}'
                   f'<span class="kpi-unit">{unit}</span></div>'
@@ -2845,6 +3001,54 @@ def s_inv_frontier(cfg: dict, inv: dict) -> str:
     </div>
   </div>
   <p style="font-size:12px;color:var(--ink-2);margin-top:8px;font-weight:600">{esc(S(cfg, "inv_frontier_caption"))}</p>
+</section>"""
+
+
+def s_inv_hte_core(cfg: dict, inv: dict) -> str:
+    """HTE validation core: Qini/AUUC, decile calibration, and tau distribution."""
+    hte = inv.get("hte", {})
+    charts = inv.get("charts", {}).get("hte", {})
+    qini = charts.get("qini", {})
+    deciles = charts.get("decile_calibration", {}).get("rows", [])
+    distribution = charts.get("tau_distribution", {}).get("bins", [])
+    refs = hte.get("validation_refs", [])
+    def _cov(r):
+        c = r.get("interval_coverage")
+        return f"{c:.0%}" if isinstance(c, (int, float)) else "—"
+    ref_rows = "".join(
+        f'<tr><td>{esc(r.get("id",""))}</td><td>{esc(r.get("learner",""))}</td>'
+        f'<td>{r.get("qini_auuc",0):.2f}</td><td>{r.get("calibration_mae",0):.3f}</td>'
+        f'<td>{esc(_cov(r))}</td>'
+        f'<td>{esc(str(r.get("passes_gate", False)))}</td></tr>'
+        for r in refs)
+    decile_rows = "".join(
+        f'<tr><td>{esc(d.get("decile",""))}</td><td>{d.get("predicted_tau",0):.3f}</td>'
+        f'<td>{d.get("observed_lift",0):.3f}</td><td>{d.get("gap",0):.3f}</td></tr>'
+        for d in deciles[:8])
+    dist_rows = "".join(
+        f'<tr><td>{esc(b.get("bucket",""))}</td><td>{float(b.get("share") or 0):.0%}</td></tr>'
+        for b in distribution)
+    qini_chart = ""
+    if qini.get("status") == "available":
+        qini_chart = f"""<div class="inv-panel">
+      <div class="inv-panel-title">{esc(S(cfg, "inv_th_auuc"))}: {esc(qini.get("auuc", ""))}</div>
+      {_svg_line_panel(qini.get("points", []), None, "#16a34a")}
+    </div>"""
+    gate_note = S(cfg, "inv_hte_gate_note").format(
+        method=hte.get("method") or "missing", n=hte.get("holdout_n", 0))
+    return f"""<section id="inv-hte">
+  <h2>{esc(S(cfg, "inv_hte_heading"))}</h2>
+  <p class="callout">{esc(gate_note)}</p>
+  {qini_chart}
+  <div class="table-wrap"><table>
+    <thead><tr><th>{esc(S(cfg, "inv_th_validation_ref"))}</th><th>{esc(S(cfg, "inv_th_learner"))}</th><th>{esc(S(cfg, "inv_th_auuc"))}</th><th>{esc(S(cfg, "inv_th_calibration_mae"))}</th><th>{esc(S(cfg, "inv_th_coverage"))}</th><th>{esc(S(cfg, "inv_th_passes"))}</th></tr></thead>
+    <tbody>{ref_rows}</tbody></table></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>{esc(S(cfg, "inv_th_decile"))}</th><th>{esc(S(cfg, "inv_th_predicted_tau"))}</th><th>{esc(S(cfg, "inv_th_observed_lift"))}</th><th>{esc(S(cfg, "inv_th_gap"))}</th></tr></thead>
+    <tbody>{decile_rows}</tbody></table></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>{esc(S(cfg, "inv_th_tau_bucket"))}</th><th>{esc(S(cfg, "inv_th_share"))}</th></tr></thead>
+    <tbody>{dist_rows}</tbody></table></div>
 </section>"""
 
 
@@ -2898,11 +3102,20 @@ def s_inv_tasks(cfg: dict, inv: dict) -> str:
     for row in allocation:
         conf = row.get("confidence", "assumption_grade")
         conf_word = S(cfg, f"inv_confidence_{conf}")
+        owner = (f'<dt>{esc(S(cfg, "owner_word"))}</dt><dd>{esc(row["owner"])}</dd>'
+                 if row.get("owner") else "")
+        measurement = (f'<dt>{esc(S(cfg, "inv_th_measurement"))}</dt><dd>{esc(row["measurement"])}</dd>'
+                       if row.get("measurement") else "")
+        stop_rule = (f'<dt>{esc(S(cfg, "kill_line_word"))}</dt><dd>{esc(row["stop_rule"])}</dd>'
+                     if row.get("stop_rule") else "")
         cards += f"""<div class="card">
   <h3>{esc(row.get("sku",""))} &nbsp;·&nbsp; {esc(row.get("module",""))}</h3>
   <dl>
+    {owner}
     <dt>{esc(S(cfg, "inv_th_spend"))}</dt><dd>{row.get("spend",0.0):,.0f} {currency}</dd>
     <dt>{esc(S(cfg, "inv_th_roi"))}</dt><dd>{row.get("roi",0.0):.2f}x</dd>
+    {measurement}
+    {stop_rule}
     <dt>{esc(S(cfg, "inv_th_confidence"))}</dt><dd>{esc(conf_word)}</dd>
   </dl></div>"""
     return f"""<section id="inv4">
@@ -2911,10 +3124,45 @@ def s_inv_tasks(cfg: dict, inv: dict) -> str:
 </section>"""
 
 
+def s_inv_mmm(cfg: dict, inv: dict) -> str:
+    """MMM macro-calibration summary from an already-fit PyMC-Marketing style source."""
+    charts = inv.get("charts", {}).get("mmm", {})
+    contrib = charts.get("contribution", {}).get("bars", [])
+    roas = charts.get("posterior_roas", {}).get("intervals", [])
+    adstock = charts.get("adstock", {}).get("panels", [])
+    saturation = charts.get("saturation", {}).get("panels", [])
+    lift = charts.get("lift_calibration", {})
+    contrib_rows = "".join(
+        f'<tr><td>{esc(r.get("channel",""))}</td><td>{r.get("contribution",0):,.0f}</td></tr>'
+        for r in contrib)
+    roas_rows = "".join(
+        f'<tr><td>{esc(r.get("channel",""))}</td><td>{r.get("mean",0):.2f}</td>'
+        f'<td>{r.get("lo",0):.2f}-{r.get("hi",0):.2f}</td></tr>'
+        for r in roas)
+    panels = ""
+    for p in adstock[:2]:
+        panels += f"""<div class="inv-panel"><div class="inv-panel-title">{esc(S(cfg, "inv_mmm_adstock"))} · {esc(p.get("channel",""))}</div>
+{_svg_line_panel(p.get("points", []), None, "#0891b2")}</div>"""
+    for p in saturation[:2]:
+        panels += f"""<div class="inv-panel"><div class="inv-panel-title">{esc(S(cfg, "inv_mmm_saturation"))} · {esc(p.get("channel",""))}</div>
+{_svg_line_panel(p.get("points", []), None, "#4f46e5")}</div>"""
+    if lift.get("status") == "available":
+        panels += f"""<div class="inv-panel"><div class="inv-panel-title">{esc(S(cfg, "inv_mmm_lift_calibration"))}</div>
+{_svg_line_panel(lift.get("points", []), None, "#d97706")}</div>"""
+    return f"""<section id="inv-mmm">
+  <h2>{esc(S(cfg, "inv_mmm_heading"))}</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>{esc(S(cfg, "inv_th_channel"))}</th><th>{esc(S(cfg, "inv_th_contribution"))}</th></tr></thead>
+    <tbody>{contrib_rows}</tbody></table></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>{esc(S(cfg, "inv_th_channel"))}</th><th>{esc(S(cfg, "inv_th_roas"))}</th><th>{esc(S(cfg, "inv_th_interval"))}</th></tr></thead>
+    <tbody>{roas_rows}</tbody></table></div>
+  <div class="inv-frontier-grid">{panels}</div>
+</section>"""
+
+
 def s_inv_confidence(cfg: dict, inv: dict) -> str:
-    """Chapter 5 addendum — confidence-badge counts (never a raw input, see
-    investment_engine.confidence_badge) plus the MMM macro-calibration status,
-    stated plainly when absent or deferred rather than silently skipped."""
+    """Confidence counts plus macro-calibration status, without a false Qini warning."""
     counts = inv["charts"]["confidence"]
     stats = "".join(
         f'<div class="chk-stat"><div class="chk-stat-num" style="color:{_CONF_COLOR[k]}">{counts.get(k,0)}</div>'
@@ -2927,18 +3175,21 @@ def s_inv_confidence(cfg: dict, inv: dict) -> str:
     if status == "available" and mmm.get("posterior_roas"):
         rows = "".join(
             f'<tr><td>{esc(r.get("channel",""))}</td><td>{r.get("mean",0):.2f}</td>'
-            f'<td>{r.get("lo",0):.2f}–{r.get("hi",0):.2f}</td></tr>'
+            f'<td>{r.get("lo",0):.2f}-{r.get("hi",0):.2f}</td></tr>'
             for r in mmm["posterior_roas"])
         mmm_table = f"""<div class="table-wrap"><table>
-    <thead><tr><th>Channel</th><th>Posterior ROAS</th><th>90% interval</th></tr></thead>
+    <thead><tr><th>{esc(S(cfg, "inv_th_channel"))}</th><th>{esc(S(cfg, "inv_th_roas"))}</th><th>{esc(S(cfg, "inv_th_interval"))}</th></tr></thead>
     <tbody>{rows}</tbody></table></div>"""
+    qini_note = ""
+    if inv.get("charts", {}).get("hte", {}).get("qini", {}).get("status") != "available":
+        qini_note = esc(S(cfg, "inv_qini_missing"))
     return f"""<section id="inv5">
   <h2>{esc(S(cfg, "inv_confidence_heading"))}</h2>
   <div class="chk-summary">{stats}</div>
   <h3>{esc(S(cfg, "inv_mmm_heading"))}</h3>
   <p class="callout">{esc(mmm_text)}</p>
   {mmm_table}
-  <p style="font-size:12px;color:var(--muted)">{esc(S(cfg, "inv_qini_missing"))}</p>
+  <p style="font-size:12px;color:var(--muted)">{qini_note}</p>
 </section>"""
 
 
@@ -3000,7 +3251,8 @@ def generate_category_html(cfg: dict, numbers: dict) -> str:
     chapter_layout = [
         ("ch1", [("c0", s_cat_matrix(cfg))]),
         ("ch2", [("c1", s_cat_diagnosis(cfg))]),
-        ("ch3", [("c2", s_cat_tiermap(cfg)), ("c3", s_cat_skus(cfg))]),
+        ("ch3", [("c2", s_cat_tiermap(cfg)), ("c3", s_cat_skus(cfg)),
+                 ("s5b", s_audience_cards(cfg))]),
         ("ch4", [("c4", s_cat_handoff(cfg))]),
         ("ch5", [("s16", s_evidence(cfg, numbers))]),
     ]
@@ -3009,6 +3261,7 @@ def generate_category_html(cfg: dict, numbers: dict) -> str:
         "c1":  L(cfg, "cat_diag_heading",    "Category Diagnosis"),
         "c2":  L(cfg, "cat_tier_heading",    "Price-Tier × Audience × Competitor Map"),
         "c3":  L(cfg, "cat_sku_heading",     "SKU Detail & 4P"),
+        "s5b": S(cfg, "aud_heading"),
         "c4":  L(cfg, "cat_handoff_heading", "Deep-Dive Handoff"),
         "s16": L(cfg, "evidence_heading",    "Evidence & Gaps"),
     }
@@ -3020,12 +3273,18 @@ def generate_category_html(cfg: dict, numbers: dict) -> str:
         chapter_layout[1][1].append(("inv2", s_inv_frontier(cfg, inv)))
         chapter_layout[2][1].append(("inv3", s_inv_matrix(cfg, inv)))
         chapter_layout[3][1].append(("inv4", s_inv_tasks(cfg, inv)))
+        # the receipts: HTE validation state, then macro calibration, then the
+        # confidence tally — same order as the dashboard's chapter 5
+        chapter_layout[4][1].append(("inv-hte", s_inv_hte_core(cfg, inv)))
+        chapter_layout[4][1].append(("inv-mmm", s_inv_mmm(cfg, inv)))
         chapter_layout[4][1].append(("inv5", s_inv_confidence(cfg, inv)))
         section_names.update({
             "inv1": S(cfg, "inv_ch1_heading"),
+            "inv-hte": S(cfg, "inv_hte_heading"),
             "inv2": S(cfg, "inv_frontier_heading"),
             "inv3": S(cfg, "inv_matrix_heading"),
             "inv4": S(cfg, "inv_tasks_heading"),
+            "inv-mmm": S(cfg, "inv_mmm_heading"),
             "inv5": S(cfg, "inv_confidence_heading"),
         })
         for ch_id, suffix in _sem.investment_chapter_answers(cfg, inv).items():
@@ -3112,6 +3371,7 @@ def generate_html(cfg: dict, depth: str = "standard", echarts_js: str | None = N
                  ("s3",   s_product_facts(cfg, numbers))]),
         ("ch3", [("s4",   s_channel_map(cfg, numbers)),
                  ("s5",   s_dimensions(cfg)),
+                 ("s5b",  s_audience_cards(cfg)),
                  ("s6",   s_heatmap(cfg)),
                  ("s7",   s_h_main(cfg)),
                  ("s12",  s_kol(cfg, numbers)),
@@ -3165,6 +3425,7 @@ def generate_html(cfg: dict, depth: str = "standard", echarts_js: str | None = N
         "s3":   L(cfg, "product_heading",     "Product & Market Facts"),
         "s4":   L(cfg, "channel_heading",     "Channel Map"),
         "s5":   L(cfg, "dim_heading",         "Audiences (D Dimensions)"),
+        "s5b":  S(cfg, "aud_heading"),
         "s6":   L(cfg, "heatmap_heading",     "Play Matrix"),
         "s7":   L(cfg, "hmain_heading",       "Main Bets"),
         "s8":   L(cfg, "eg_heading",          "Gates & Task Cards"),
@@ -3201,6 +3462,7 @@ def _load_by_path(name: str):
 
 
 InvestmentConfigError = _load_by_path("investment_schema").InvestmentConfigError
+AudienceConfigError = _load_by_path("audience_schema").AudienceConfigError
 
 
 def _load_dashboard_modules():
@@ -3340,6 +3602,8 @@ def main():
                 print(f"LINT WARNING — {w}", file=sys.stderr)
             if cfg.get("investment_plan"):
                 _load_by_path("investment_schema").validate_or_raise(cfg)
+            if cfg.get("audience_cards") is not None:
+                _load_by_path("audience_schema").validate_or_raise(cfg)
             print("Config valid: provenance contract satisfied.", file=sys.stderr)
             return
         if args.format == "dashboard":
@@ -3356,6 +3620,9 @@ def main():
         print(f"BUILD FAILED — {e}", file=sys.stderr)
         sys.exit(2)
     except InvestmentConfigError as e:
+        print(f"BUILD FAILED — {e}", file=sys.stderr)
+        sys.exit(2)
+    except AudienceConfigError as e:
         print(f"BUILD FAILED — {e}", file=sys.stderr)
         sys.exit(2)
 

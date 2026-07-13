@@ -1,0 +1,1796 @@
+{
+  "report_type": "category_portfolio",
+  "meta": {
+    "product": "HUAWEI Romania Consumer Portfolio",
+    "market": "Romania",
+    "brand": "HUAWEI",
+    "category": "Consumer Electronics",
+    "date": "2026-07-06",
+    "lang": "zh"
+  },
+  "_note": "本地案例包：基于 2026-07-06 能公开检索到的 HUAWEI Romania 消费者官网、官方商店、品类页和规格页，建立一版 SKU 组合诊断与 HTE 投资规划。公开网页不能替代内部 sell-out、库存、毛利和随机实验，所以本报告把预算建议拆成两层：可立即执行的 planning-prior 投放，以及必须补齐的 HTE holdout 验证。",
+  "price_tiers": [
+    {
+      "id": "flagship_phone",
+      "label": "旗舰手机 / 3,499-9,999 RON",
+      "trend": "高客单但转化窄：更适合相机、折叠屏、旗舰用户细分，而不是大众转化买量。",
+      "audience": "高端摄影、折叠屏尝鲜、既有 HUAWEI 用户、重视设计和影像的人群。",
+      "force": "Pull + Trust：产品力必须先被证明，再用评测和门店体验降低疑虑。",
+      "channel_fit": "公关/专业评测、达人评测、高意图搜索、旗舰 PDP。",
+      "your_skus": [
+        "HUAWEI Mate X7",
+        "HUAWEI Pura 80 Ultra",
+        "HUAWEI Pura 80 Pro",
+        "HUAWEI nova 14 Pro",
+        "HUAWEI Pura 70 Ultra"
+      ],
+      "competitors": [
+        {
+          "name": "Samsung Galaxy S / Z series"
+        },
+        {
+          "name": "Apple iPhone Pro"
+        },
+        {
+          "name": "Xiaomi flagship phones"
+        }
+      ]
+    },
+    {
+      "id": "wearable_health",
+      "label": "穿戴健康 / 主力增长层",
+      "trend": "组合最厚，价格带宽，功能故事清晰；应作为本轮投资主引擎。",
+      "audience": "运动、健康监测、长续航 smartwatch、礼品购买者。",
+      "force": "Habit + Proof：用真实运动场景和健康功能证明日常佩戴价值。",
+      "channel_fit": "付费短视频、达人评测、搜索、零售终端活动。",
+      "your_skus": [
+        "HUAWEI WATCH FIT 5 Pro",
+        "HUAWEI WATCH FIT 5",
+        "HUAWEI WATCH GT 6 Pro",
+        "HUAWEI WATCH GT 6",
+        "HUAWEI WATCH Ultimate 2",
+        "HUAWEI Band 11 Pro"
+      ],
+      "competitors": [
+        {
+          "name": "Apple Watch"
+        },
+        {
+          "name": "Samsung Galaxy Watch"
+        },
+        {
+          "name": "Garmin / Fitbit"
+        }
+      ]
+    },
+    {
+      "id": "productivity",
+      "label": "PC + 平板 / 生产力与学生层",
+      "trend": "适合用套装、学生优惠和内容生产场景承接，而不是只靠硬件参数。",
+      "audience": "学生、轻办公、内容创作者、跨设备协同用户。",
+      "force": "Anxiety + Utility：解决买错设备、屏幕舒适、笔键配件价值的顾虑。",
+      "channel_fit": "零售媒体、搜索、PDP 内容、学生档促销位。",
+      "your_skus": [
+        "HUAWEI MateBook D 16 2024",
+        "HUAWEI MateBook D 14 2024",
+        "HUAWEI MatePad 12 X 2025",
+        "HUAWEI MatePad 11.5 2025",
+        "HUAWEI MatePad Pro 13.2-inch 2025"
+      ],
+      "competitors": [
+        {
+          "name": "Lenovo / ASUS / HP"
+        },
+        {
+          "name": "Samsung Galaxy Tab"
+        },
+        {
+          "name": "Apple iPad / MacBook"
+        }
+      ]
+    },
+    {
+      "id": "audio",
+      "label": "音频 / 高频转化层",
+      "trend": "SKU 多、购买频次高、竞争拥挤；应用短链路 ROI 约束，而不是大预算品牌打法。",
+      "audience": "通勤、通话降噪、开放式佩戴、轻运动用户。",
+      "force": "Proof + Occasion：用通话、降噪、舒适佩戴的场景打动。",
+      "channel_fit": "零售媒体、达人评测、搜索、套装连带。",
+      "your_skus": [
+        "HUAWEI FreeBuds 7i",
+        "HUAWEI FreeBuds Pro 5",
+        "HUAWEI FreeBuds Pro 4",
+        "HUAWEI FreeArc",
+        "HUAWEI FreeBuds 6",
+        "HUAWEI FreeClip 2"
+      ],
+      "competitors": [
+        {
+          "name": "Apple AirPods"
+        },
+        {
+          "name": "Samsung Buds"
+        },
+        {
+          "name": "Sony / JBL / Xiaomi audio"
+        }
+      ]
+    },
+    {
+      "id": "home_network",
+      "label": "家庭网络 / 低 SKU 高意图层",
+      "trend": "公开页能看到少数清晰产品，适合高意图搜索和零售解释，不适合大范围泛投。",
+      "audience": "家庭 Wi-Fi 升级、远程办公、4G 家宽替代、租房用户。",
+      "force": "Problem-solution：先命中网速、覆盖、安装和 SIM 使用问题。",
+      "channel_fit": "搜索、零售终端活动、运营商/电器渠道捆绑。",
+      "your_skus": [
+        "HUAWEI WiFi Mesh X3 Pro",
+        "HUAWEI 4G CPE 5"
+      ],
+      "competitors": [
+        {
+          "name": "TP-Link / ASUS routers"
+        },
+        {
+          "name": "Operator CPE bundles"
+        },
+        {
+          "name": "Xiaomi router ecosystem"
+        }
+      ]
+    }
+  ],
+  "diagnosis": [
+    {
+      "lens": "L1",
+      "title": "公开产品组合已经不是单一手机生意，而是 6 个消费电子战场",
+      "severity": "critical",
+      "finding": "HUAWEI Romania 官方消费页同时覆盖手机、穿戴、PC、平板、音频和路由；如果预算仍按单 SKU 或单品类思路分配，会把真正能放量的穿戴、平板、音频层低估。",
+      "evidence": "官方首页、支持页和品类页均列出这些消费者品类。",
+      "evidence_grade": "sourced",
+      "implication": "预算会被旗舰手机的声量吸走，但增量销量可能来自更高频、更低摩擦的穿戴、音频和平板。",
+      "recommendation": "先做 portfolio budget，再做单 SKU deep dive；本轮把主预算放在穿戴、平板、音频，手机承担旗舰心智和高毛利验证。",
+      "invest_stance": "hold"
+    },
+    {
+      "lens": "L2",
+      "title": "穿戴是本轮最像“可规模化投放”的核心引擎",
+      "severity": "critical",
+      "finding": "官网和搜索结果能看到 WATCH FIT、WATCH GT、WATCH Ultimate、Band 等多个层级，覆盖入门、运动、旗舰和户外场景，SKU 密度和用户场景都比其他品类更完整。",
+      "evidence": "官方首页、wearables 页和 WATCH GT 6 / GT 6 Pro 页面。",
+      "evidence_grade": "sourced",
+      "implication": "穿戴可以承接短视频种草、搜索转化和零售体验，最适合拿来跑第一轮 HTE 投资曲线。",
+      "recommendation": "把 WATCH FIT 5 Pro、WATCH GT 6 Pro、WATCH GT 6 作为 A 组投资 SKU，按人群和内容模块拆分预算。",
+      "invest_stance": "invest"
+    },
+    {
+      "lens": "L3",
+      "title": "手机高客单，但不能把大众转化假设写得太满",
+      "severity": "major",
+      "finding": "Pura 80、Mate X7、nova 14 Pro 给了旗舰和中高端声量，但官网同时提示 AppGallery 应用兼容需要用户自行确认，说明手机转化必须以细分人群和验证为前提。",
+      "evidence": "官方 phones 页、offer/telefoane 页和 AppGallery 说明。",
+      "evidence_grade": "sourced",
+      "implication": "大额手机预算若没有 holdout，很容易把自然旗舰兴趣误认为媒体增量。",
+      "recommendation": "Pura 80 Pro / Ultra 用 PR reviews 和 creator review 做高意图验证；Mate X7 暂不大规模放量，先补折叠屏人群 HTE。",
+      "invest_stance": "test"
+    },
+    {
+      "lens": "L4",
+      "title": "平板与 PC 应作为生产力方案，而不是孤立硬件卖点",
+      "severity": "major",
+      "finding": "MatePad 12 X / 11.5、MateBook D 16 / D 14 的公开卖点集中在屏幕、续航、PaperMatte、笔键配件和办公协同，适合做学生、轻办公和内容创作者方案。",
+      "evidence": "官方 tablets、MatePad 12 X、MatePad 11.5、MateBook D 16、MateBook D 14 页面。",
+      "evidence_grade": "sourced",
+      "implication": "如果只投规格流量，用户很难理解为什么该选 HUAWEI；如果投方案，客单和套装利润更容易打开。",
+      "recommendation": "把 MatePad 12 X 和 MateBook D 16 放进第二投资层，投 retail media + search + PDP content，配合学生/办公场景。",
+      "invest_stance": "test"
+    },
+    {
+      "lens": "L5",
+      "title": "音频适合做 ROI 稳定器，不适合做无边界品牌预算",
+      "severity": "major",
+      "finding": "FreeBuds Pro 5、FreeClip 2、FreeBuds 6 等公开页面强调 ANC、清晰通话、舒适佩戴和开放式场景，适合短链路转化和跨品类 bundle。",
+      "evidence": "官方 audio offer 页面。",
+      "evidence_grade": "sourced",
+      "implication": "音频能提供频繁、可测的转化信号；但竞争拥挤，边际 ROI 会随投放迅速下滑。",
+      "recommendation": "FreeBuds Pro 5 与 FreeClip 2 进入本轮预算池，使用 search / retail media / creator review，达到 ROI 阈值即停。",
+      "invest_stance": "test"
+    },
+    {
+      "lens": "L6",
+      "title": "路由器是高意图小盘，不该和手机穿戴抢大预算",
+      "severity": "watch",
+      "finding": "官方 router 页能看到 WiFi Mesh X3 Pro 和 4G CPE 5，并有明确起价；这类产品更像问题解决型购买，而非广泛兴趣型购买。",
+      "evidence": "官方 routers 页和 4G CPE 5 specs 页。",
+      "evidence_grade": "sourced",
+      "implication": "泛投会浪费；但 search、零售解释和 telco 场景可能有稳定利润。",
+      "recommendation": "给 WiFi Mesh X3 Pro / 4G CPE 5 小额高意图预算，作为 portfolio 的补充利润池。",
+      "invest_stance": "test"
+    },
+    {
+      "lens": "L7",
+      "title": "最核心缺口不是证据链接，而是真实 HTE 验证",
+      "severity": "critical",
+      "finding": "公开网页可以证明产品存在、价格锚点和功能卖点，但不能证明哪个 SKU x 模块对罗马尼亚用户产生增量购买。",
+      "evidence": "本报告所有 tau_hat 都是 planning prior；没有内部 randomized holdout。",
+      "evidence_grade": "sourced",
+      "implication": "预算建议可以用于第一轮计划，但不能被当成 validated causal ROI。",
+      "recommendation": "上线时按 SKU x 模块建立 holdout：至少保留地区、门店或受众层级对照组，用 DR learner / X learner 输出 Qini、decile calibration 和 policy value。",
+      "invest_stance": "fix"
+    }
+  ],
+  "portfolio": [
+    {
+      "sku": "HUAWEI Mate X7",
+      "tier": "flagship_phone",
+      "category": "phone",
+      "lifecycle": "new",
+      "verdict": "hold",
+      "revenue_potential": 0.62,
+      "margin_contribution": 0.9,
+      "strategic_importance": 0.85,
+      "channel_availability": 0.45,
+      "competitive_advantage": 0.66,
+      "inventory_readiness": 0.45,
+      "note": "折叠旗舰，公开价格锚点高；适合建立品牌高度，但没有内部折叠屏人群 HTE 前不建议大额放量。",
+      "fourP": {
+        "product": "折叠屏旗舰；主打设计、影像和高端尝鲜。",
+        "price": "保持旗舰锚点，避免用折扣破坏高端感。",
+        "place": "官网、旗舰零售、专家体验场景优先。",
+        "promotion": "PR review 和深度评测，不做大众买量。"
+      }
+    },
+    {
+      "sku": "HUAWEI Pura 80 Ultra",
+      "tier": "flagship_phone",
+      "category": "phone",
+      "lifecycle": "new",
+      "verdict": "grow",
+      "revenue_potential": 0.7,
+      "margin_contribution": 0.92,
+      "strategic_importance": 0.95,
+      "channel_availability": 0.62,
+      "competitive_advantage": 0.8,
+      "inventory_readiness": 0.55,
+      "note": "影像旗舰，适合作为高端声量 SKU；预算必须由 creator/PR 的人群增量来验证。",
+      "fourP": {
+        "product": "影像旗舰，作为品牌上限和技术故事。",
+        "price": "保留高价锚点，避免转化焦虑时直接降价。",
+        "place": "官网、授权零售、影像内容触点。",
+        "promotion": "摄影挑战、专家评测、样张内容，先验证再扩量。"
+      }
+    },
+    {
+      "sku": "HUAWEI Pura 80 Pro",
+      "tier": "flagship_phone",
+      "category": "phone",
+      "lifecycle": "new",
+      "verdict": "grow",
+      "revenue_potential": 0.76,
+      "margin_contribution": 0.82,
+      "strategic_importance": 0.9,
+      "channel_availability": 0.7,
+      "competitive_advantage": 0.76,
+      "inventory_readiness": 0.64,
+      "note": "比 Ultra 更可能成为旗舰转化主力；适合用 PR reviews + high-intent search 做受控放量。",
+      "fourP": {
+        "product": "旗舰主销款，承接 Pura 80 系列兴趣。",
+        "price": "以官方起价为锚，结合套装而非裸机折扣。",
+        "place": "官网、搜索、零售 PDP 重点承接。",
+        "promotion": "相机证明、用户场景和对照组投放。"
+      }
+    },
+    {
+      "sku": "HUAWEI nova 14 Pro",
+      "tier": "flagship_phone",
+      "category": "phone",
+      "lifecycle": "new",
+      "verdict": "grow",
+      "revenue_potential": 0.72,
+      "margin_contribution": 0.65,
+      "strategic_importance": 0.72,
+      "channel_availability": 0.7,
+      "competitive_advantage": 0.64,
+      "inventory_readiness": 0.62,
+      "note": "中高端价格层，适合作为手机量的转化试验 SKU，但必须避开与 Pura 的高端叙事冲突。",
+      "fourP": {
+        "product": "中高端拍照与设计款。",
+        "price": "维持中高端可及价格，避免压低 Pura。",
+        "place": "社媒、搜索、官网商店。",
+        "promotion": "年轻化内容和换机场景，控制预算上限。"
+      }
+    },
+    {
+      "sku": "HUAWEI Pura 70 Ultra",
+      "tier": "flagship_phone",
+      "category": "phone",
+      "lifecycle": "mature",
+      "verdict": "harvest",
+      "revenue_potential": 0.42,
+      "margin_contribution": 0.68,
+      "strategic_importance": 0.42,
+      "channel_availability": 0.58,
+      "competitive_advantage": 0.5,
+      "inventory_readiness": 0.55,
+      "note": "上一代旗舰应承担尾货和品牌证明，不应抢 Pura 80 投资预算。",
+      "fourP": {
+        "product": "上一代旗舰，保留为选择层。",
+        "price": "用库存策略管理，不进入新增预算池。",
+        "place": "自然流量和库存渠道。",
+        "promotion": "仅做清晰对比和被动承接。"
+      }
+    },
+    {
+      "sku": "HUAWEI WATCH Ultimate 2",
+      "tier": "wearable_health",
+      "category": "wearable",
+      "lifecycle": "new",
+      "verdict": "hold",
+      "revenue_potential": 0.45,
+      "margin_contribution": 0.86,
+      "strategic_importance": 0.72,
+      "channel_availability": 0.55,
+      "competitive_advantage": 0.78,
+      "inventory_readiness": 0.46,
+      "note": "户外旗舰，有品牌高度但盘子窄；作为 halo SKU，少量内容验证即可。",
+      "fourP": {
+        "product": "潜水、户外、eSIM 等高端能力。",
+        "price": "保持高端，避免广泛促销。",
+        "place": "官网、专业户外内容、旗舰店。",
+        "promotion": "专业场景评测，不做大盘转化预算。"
+      }
+    },
+    {
+      "sku": "HUAWEI WATCH GT 6 Pro",
+      "tier": "wearable_health",
+      "category": "wearable",
+      "lifecycle": "new",
+      "verdict": "grow",
+      "revenue_potential": 0.82,
+      "margin_contribution": 0.78,
+      "strategic_importance": 0.88,
+      "channel_availability": 0.78,
+      "competitive_advantage": 0.8,
+      "inventory_readiness": 0.72,
+      "note": "高端运动健康主力，公开卖点有长续航、户外和运动能力；应进入第一层预算。",
+      "fourP": {
+        "product": "运动健康旗舰主力。",
+        "price": "保留 premium，使用赠品/套装而非硬折扣。",
+        "place": "官网、零售、运动内容触点。",
+        "promotion": "骑行、健康监测、长续航内容，配 creator holdout。"
+      }
+    },
+    {
+      "sku": "HUAWEI WATCH GT 6",
+      "tier": "wearable_health",
+      "category": "wearable",
+      "lifecycle": "new",
+      "verdict": "grow",
+      "revenue_potential": 0.86,
+      "margin_contribution": 0.68,
+      "strategic_importance": 0.8,
+      "channel_availability": 0.82,
+      "competitive_advantage": 0.72,
+      "inventory_readiness": 0.74,
+      "note": "更大众的 GT 主力款，适合搜索和短视频放量。",
+      "fourP": {
+        "product": "长续航、多运动、日常佩戴主力。",
+        "price": "用清晰价差承接 Pro 下沉用户。",
+        "place": "搜索、零售、官网商店。",
+        "promotion": "长续航和运动数据证明，适合规模化测试。"
+      }
+    },
+    {
+      "sku": "HUAWEI WATCH 5",
+      "tier": "wearable_health",
+      "category": "wearable",
+      "lifecycle": "maintain",
+      "verdict": "hold",
+      "revenue_potential": 0.56,
+      "margin_contribution": 0.7,
+      "strategic_importance": 0.6,
+      "channel_availability": 0.64,
+      "competitive_advantage": 0.62,
+      "inventory_readiness": 0.58,
+      "note": "旗舰 smartwatch 层的支撑 SKU；不优先抢 GT 6 和 FIT 5 的增量预算。",
+      "fourP": {
+        "product": "高端智能表选择层。",
+        "price": "维持价格层级，避免与 GT 6 Pro 混淆。",
+        "place": "官网和自然搜索。",
+        "promotion": "作为对比和生态承接，不做主投。"
+      }
+    },
+    {
+      "sku": "HUAWEI WATCH FIT 5 Pro",
+      "tier": "wearable_health",
+      "category": "wearable",
+      "lifecycle": "new",
+      "verdict": "grow",
+      "revenue_potential": 0.92,
+      "margin_contribution": 0.62,
+      "strategic_importance": 0.82,
+      "channel_availability": 0.9,
+      "competitive_advantage": 0.76,
+      "inventory_readiness": 0.82,
+      "note": "最适合做第一轮规模化 HTE 的穿戴 SKU：场景清晰、价格摩擦低、内容适配短视频。",
+      "fourP": {
+        "product": "轻旗舰健康运动表。",
+        "price": "可用限时权益，不建议深折扣。",
+        "place": "短视频、官网、零售端架。",
+        "promotion": "生活方式 + 运动场景，大样本 holdout。"
+      }
+    },
+    {
+      "sku": "HUAWEI WATCH FIT 5",
+      "tier": "wearable_health",
+      "category": "wearable",
+      "lifecycle": "new",
+      "verdict": "grow",
+      "revenue_potential": 0.88,
+      "margin_contribution": 0.56,
+      "strategic_importance": 0.7,
+      "channel_availability": 0.9,
+      "competitive_advantage": 0.68,
+      "inventory_readiness": 0.8,
+      "note": "量款，适合作为 FIT 5 Pro 的下沉承接。",
+      "fourP": {
+        "product": "大众健康和运动表。",
+        "price": "清晰低于 Pro，做量不破 Pro。",
+        "place": "社媒、搜索、零售。",
+        "promotion": "入门健康习惯和礼品场景。"
+      }
+    },
+    {
+      "sku": "HUAWEI WATCH ULTIMATE DESIGN Spring Edition",
+      "tier": "wearable_health",
+      "category": "wearable",
+      "lifecycle": "limited",
+      "verdict": "hold",
+      "revenue_potential": 0.28,
+      "margin_contribution": 0.88,
+      "strategic_importance": 0.54,
+      "channel_availability": 0.36,
+      "competitive_advantage": 0.68,
+      "inventory_readiness": 0.32,
+      "note": "限量/设计向产品，适合品牌内容，不进入规模化 ROI 预算。",
+      "fourP": {
+        "product": "设计限量款。",
+        "price": "高端稀缺锚点。",
+        "place": "官网和精品内容。",
+        "promotion": "品牌故事，不做绩效买量。"
+      }
+    },
+    {
+      "sku": "HUAWEI WATCH GT Runner 2",
+      "tier": "wearable_health",
+      "category": "wearable",
+      "lifecycle": "new_or_pending",
+      "verdict": "hold",
+      "revenue_potential": 0.44,
+      "margin_contribution": 0.6,
+      "strategic_importance": 0.58,
+      "channel_availability": 0.4,
+      "competitive_advantage": 0.66,
+      "inventory_readiness": 0.36,
+      "note": "公开首页新产品区可见，但需要确认上架和库存；先保留在观察池。",
+      "fourP": {
+        "product": "跑步专业方向。",
+        "price": "等待上架信息确认。",
+        "place": "运动内容和官网。",
+        "promotion": "确认供给后再做跑步人群测试。"
+      }
+    },
+    {
+      "sku": "HUAWEI Band 11 Pro",
+      "tier": "wearable_health",
+      "category": "wearable",
+      "lifecycle": "new_or_pending",
+      "verdict": "hold",
+      "revenue_potential": 0.58,
+      "margin_contribution": 0.38,
+      "strategic_importance": 0.46,
+      "channel_availability": 0.5,
+      "competitive_advantage": 0.52,
+      "inventory_readiness": 0.44,
+      "note": "可能是入门量层，但需确认官方商店供给和售价。",
+      "fourP": {
+        "product": "入门健康手环。",
+        "price": "用作低门槛引流，不牺牲 FIT 5。",
+        "place": "零售和官网自然流量。",
+        "promotion": "入门健康习惯，不做主预算。"
+      }
+    },
+    {
+      "sku": "HUAWEI WATCH GT 5 Pro",
+      "tier": "wearable_health",
+      "category": "wearable",
+      "lifecycle": "mature",
+      "verdict": "harvest",
+      "revenue_potential": 0.4,
+      "margin_contribution": 0.62,
+      "strategic_importance": 0.36,
+      "channel_availability": 0.62,
+      "competitive_advantage": 0.48,
+      "inventory_readiness": 0.58,
+      "note": "上一代高端 GT，公开页仍可见；预算应让位 GT 6 Pro。",
+      "fourP": {
+        "product": "上一代 Pro 表款。",
+        "price": "清库存和自然承接。",
+        "place": "自然搜索/零售尾货。",
+        "promotion": "不新增大预算。"
+      }
+    },
+    {
+      "sku": "HUAWEI WATCH GT 5",
+      "tier": "wearable_health",
+      "category": "wearable",
+      "lifecycle": "mature",
+      "verdict": "harvest",
+      "revenue_potential": 0.42,
+      "margin_contribution": 0.52,
+      "strategic_importance": 0.34,
+      "channel_availability": 0.62,
+      "competitive_advantage": 0.44,
+      "inventory_readiness": 0.56,
+      "note": "上一代 GT 量款，不应抢 GT 6 搜索和内容预算。",
+      "fourP": {
+        "product": "成熟期表款。",
+        "price": "尾货策略。",
+        "place": "自然流量和零售承接。",
+        "promotion": "仅保留对比页和低成本承接。"
+      }
+    },
+    {
+      "sku": "HUAWEI WATCH FIT 4",
+      "tier": "wearable_health",
+      "category": "wearable",
+      "lifecycle": "mature",
+      "verdict": "harvest",
+      "revenue_potential": 0.38,
+      "margin_contribution": 0.44,
+      "strategic_importance": 0.32,
+      "channel_availability": 0.58,
+      "competitive_advantage": 0.42,
+      "inventory_readiness": 0.55,
+      "note": "成熟期 FIT，FIT 5 上线后应逐步退出主投。",
+      "fourP": {
+        "product": "上一代 FIT。",
+        "price": "保留作为价位承接。",
+        "place": "尾货和自然流量。",
+        "promotion": "不再新增内容预算。"
+      }
+    },
+    {
+      "sku": "HUAWEI MateBook D 16 2024",
+      "tier": "productivity",
+      "category": "laptop",
+      "lifecycle": "main",
+      "verdict": "grow",
+      "revenue_potential": 0.72,
+      "margin_contribution": 0.74,
+      "strategic_importance": 0.7,
+      "channel_availability": 0.68,
+      "competitive_advantage": 0.62,
+      "inventory_readiness": 0.64,
+      "note": "16 英寸生产力主力，公开页有大屏、轻薄、Intel、高续航和 Wi-Fi 卖点；适合高意图 search。",
+      "fourP": {
+        "product": "大屏轻薄办公主力。",
+        "price": "以官方商店价格为锚，优先套装而非裸降。",
+        "place": "搜索、学生优惠、零售 media。",
+        "promotion": "办公/学习效率场景，和 MatePad 做协同叙事。"
+      }
+    },
+    {
+      "sku": "HUAWEI MateBook D 14 2024",
+      "tier": "productivity",
+      "category": "laptop",
+      "lifecycle": "main",
+      "verdict": "hold",
+      "revenue_potential": 0.56,
+      "margin_contribution": 0.62,
+      "strategic_importance": 0.56,
+      "channel_availability": 0.58,
+      "competitive_advantage": 0.52,
+      "inventory_readiness": 0.56,
+      "note": "14 英寸便携层，保留承接，不抢 D 16 的主投。",
+      "fourP": {
+        "product": "便携办公款。",
+        "price": "与 D 16 保持清晰价差。",
+        "place": "官网和搜索承接。",
+        "promotion": "便携和学生场景，低预算。"
+      }
+    },
+    {
+      "sku": "HUAWEI MatePad 12 X 2025",
+      "tier": "productivity",
+      "category": "tablet",
+      "lifecycle": "new",
+      "verdict": "grow",
+      "revenue_potential": 0.8,
+      "margin_contribution": 0.72,
+      "strategic_importance": 0.82,
+      "channel_availability": 0.72,
+      "competitive_advantage": 0.76,
+      "inventory_readiness": 0.68,
+      "note": "大屏和 PaperMatte 场景清晰，是平板投资核心 SKU。",
+      "fourP": {
+        "product": "生产力和创作平板主力。",
+        "price": "用笔键配件建立方案价值。",
+        "place": "retail media、官网、学生触点。",
+        "promotion": "学习、笔记、创作、护眼场景。"
+      }
+    },
+    {
+      "sku": "HUAWEI MatePad 11.5 2025",
+      "tier": "productivity",
+      "category": "tablet",
+      "lifecycle": "new",
+      "verdict": "grow",
+      "revenue_potential": 0.82,
+      "margin_contribution": 0.58,
+      "strategic_importance": 0.68,
+      "channel_availability": 0.76,
+      "competitive_advantage": 0.66,
+      "inventory_readiness": 0.72,
+      "note": "更大众的 PaperMatte/学习平板，适合 PDP content 和学生场景。",
+      "fourP": {
+        "product": "学习和娱乐平板。",
+        "price": "承接 12 X 下沉需求。",
+        "place": "官网、搜索、学生优惠。",
+        "promotion": "PaperMatte、续航、笔记和视频场景。"
+      }
+    },
+    {
+      "sku": "HUAWEI MatePad 11.5",
+      "tier": "productivity",
+      "category": "tablet",
+      "lifecycle": "maintain",
+      "verdict": "hold",
+      "revenue_potential": 0.5,
+      "margin_contribution": 0.5,
+      "strategic_importance": 0.44,
+      "channel_availability": 0.58,
+      "competitive_advantage": 0.46,
+      "inventory_readiness": 0.58,
+      "note": "基础 11.5 层，保留承接，避免和 2025 款混淆。",
+      "fourP": {
+        "product": "基础学习平板。",
+        "price": "明确旧款/新款价差。",
+        "place": "自然流量和零售承接。",
+        "promotion": "低成本承接，不主投。"
+      }
+    },
+    {
+      "sku": "HUAWEI MatePad Pro 12.2-inch",
+      "tier": "productivity",
+      "category": "tablet",
+      "lifecycle": "main",
+      "verdict": "hold",
+      "revenue_potential": 0.52,
+      "margin_contribution": 0.78,
+      "strategic_importance": 0.66,
+      "channel_availability": 0.5,
+      "competitive_advantage": 0.72,
+      "inventory_readiness": 0.48,
+      "note": "Pro 层强调屏幕和创作，但市场盘更窄；做高端承接。",
+      "fourP": {
+        "product": "高端 OLED/PaperMatte 创作平板。",
+        "price": "保持 Pro 价格锚。",
+        "place": "官网和高意图搜索。",
+        "promotion": "创作和屏幕专业内容，小样本验证。"
+      }
+    },
+    {
+      "sku": "HUAWEI MatePad Pro 13.2-inch 2025",
+      "tier": "productivity",
+      "category": "tablet",
+      "lifecycle": "new",
+      "verdict": "hold",
+      "revenue_potential": 0.54,
+      "margin_contribution": 0.82,
+      "strategic_importance": 0.74,
+      "channel_availability": 0.48,
+      "competitive_advantage": 0.78,
+      "inventory_readiness": 0.46,
+      "note": "超大屏 Pro 旗舰，作为品牌和创作高度，暂不抢 12 X 的规模预算。",
+      "fourP": {
+        "product": "大屏创作旗舰。",
+        "price": "保持高端锚点。",
+        "place": "官网、高端内容创作场景。",
+        "promotion": "创作者评测和展示，不做广泛转化。"
+      }
+    },
+    {
+      "sku": "HUAWEI MatePad 11.5 S",
+      "tier": "productivity",
+      "category": "tablet",
+      "lifecycle": "maintain",
+      "verdict": "harvest",
+      "revenue_potential": 0.34,
+      "margin_contribution": 0.46,
+      "strategic_importance": 0.32,
+      "channel_availability": 0.42,
+      "competitive_advantage": 0.42,
+      "inventory_readiness": 0.4,
+      "note": "公开首页新产品区可见，但在 2025 款已出现后不应进入主投。",
+      "fourP": {
+        "product": "上一代/旁支平板。",
+        "price": "库存承接。",
+        "place": "自然流量。",
+        "promotion": "不新增大预算。"
+      }
+    },
+    {
+      "sku": "HUAWEI MatePad SE 11",
+      "tier": "productivity",
+      "category": "tablet",
+      "lifecycle": "entry",
+      "verdict": "hold",
+      "revenue_potential": 0.52,
+      "margin_contribution": 0.34,
+      "strategic_importance": 0.38,
+      "channel_availability": 0.58,
+      "competitive_advantage": 0.36,
+      "inventory_readiness": 0.52,
+      "note": "入门平板，适合价格承接和家庭场景，不做核心投资。",
+      "fourP": {
+        "product": "入门娱乐/家庭平板。",
+        "price": "守住入门价位。",
+        "place": "零售和自然搜索。",
+        "promotion": "家庭娱乐和儿童学习，低预算。"
+      }
+    },
+    {
+      "sku": "HUAWEI FreeBuds 7i",
+      "tier": "audio",
+      "category": "audio",
+      "lifecycle": "new",
+      "verdict": "hold",
+      "revenue_potential": 0.66,
+      "margin_contribution": 0.44,
+      "strategic_importance": 0.48,
+      "channel_availability": 0.7,
+      "competitive_advantage": 0.48,
+      "inventory_readiness": 0.6,
+      "note": "音频新款之一，但公开功能锚点不如 Pro 5 / FreeClip 2 清晰，先做承接。",
+      "fourP": {
+        "product": "大众 TWS。",
+        "price": "入门/中端承接。",
+        "place": "官网和零售自然流量。",
+        "promotion": "低成本承接，不抢 Pro 5。"
+      }
+    },
+    {
+      "sku": "HUAWEI FreeBuds Pro 5",
+      "tier": "audio",
+      "category": "audio",
+      "lifecycle": "new",
+      "verdict": "grow",
+      "revenue_potential": 0.8,
+      "margin_contribution": 0.56,
+      "strategic_importance": 0.66,
+      "channel_availability": 0.78,
+      "competitive_advantage": 0.7,
+      "inventory_readiness": 0.72,
+      "note": "ANC 与音质故事明确，是音频主投 SKU。",
+      "fourP": {
+        "product": "高端降噪 TWS。",
+        "price": "高端音频价位，避免与 7i 混乱。",
+        "place": "retail media、搜索、官网。",
+        "promotion": "ANC、通话、音质证明，配合短链路测试。"
+      }
+    },
+    {
+      "sku": "HUAWEI FreeBuds Pro 4",
+      "tier": "audio",
+      "category": "audio",
+      "lifecycle": "mature",
+      "verdict": "harvest",
+      "revenue_potential": 0.36,
+      "margin_contribution": 0.46,
+      "strategic_importance": 0.3,
+      "channel_availability": 0.55,
+      "competitive_advantage": 0.38,
+      "inventory_readiness": 0.52,
+      "note": "上一代 Pro，预算让位 Pro 5。",
+      "fourP": {
+        "product": "上一代高端音频。",
+        "price": "库存承接。",
+        "place": "自然流量和尾货。",
+        "promotion": "不新增主预算。"
+      }
+    },
+    {
+      "sku": "HUAWEI FreeArc",
+      "tier": "audio",
+      "category": "audio",
+      "lifecycle": "new",
+      "verdict": "hold",
+      "revenue_potential": 0.5,
+      "margin_contribution": 0.48,
+      "strategic_importance": 0.52,
+      "channel_availability": 0.5,
+      "competitive_advantage": 0.58,
+      "inventory_readiness": 0.44,
+      "note": "开放/运动形态可做差异化，但需确认罗马尼亚本地需求。",
+      "fourP": {
+        "product": "开放式/运动音频。",
+        "price": "保持差异化价位。",
+        "place": "运动内容和官网。",
+        "promotion": "舒适佩戴和运动安全，小样本验证。"
+      }
+    },
+    {
+      "sku": "HUAWEI FreeBuds 6",
+      "tier": "audio",
+      "category": "audio",
+      "lifecycle": "main",
+      "verdict": "hold",
+      "revenue_potential": 0.62,
+      "margin_contribution": 0.48,
+      "strategic_importance": 0.48,
+      "channel_availability": 0.68,
+      "competitive_advantage": 0.5,
+      "inventory_readiness": 0.6,
+      "note": "通话清晰卖点可作为承接，但优先级低于 Pro 5 和 FreeClip 2。",
+      "fourP": {
+        "product": "通话和日常 TWS。",
+        "price": "中端承接。",
+        "place": "搜索和零售。",
+        "promotion": "通勤/通话场景，低预算测试。"
+      }
+    },
+    {
+      "sku": "HUAWEI FreeClip 2",
+      "tier": "audio",
+      "category": "audio",
+      "lifecycle": "new",
+      "verdict": "grow",
+      "revenue_potential": 0.72,
+      "margin_contribution": 0.54,
+      "strategic_importance": 0.68,
+      "channel_availability": 0.7,
+      "competitive_advantage": 0.74,
+      "inventory_readiness": 0.66,
+      "note": "开放式舒适佩戴故事清晰，适合创作者内容和人群细分。",
+      "fourP": {
+        "product": "开放式舒适佩戴音频。",
+        "price": "用差异化而不是低价竞争。",
+        "place": "creator、社媒、官网。",
+        "promotion": "舒适、清晰通话、全天佩戴。"
+      }
+    },
+    {
+      "sku": "HUAWEI WiFi Mesh X3 Pro",
+      "tier": "home_network",
+      "category": "router",
+      "lifecycle": "new",
+      "verdict": "grow",
+      "revenue_potential": 0.56,
+      "margin_contribution": 0.58,
+      "strategic_importance": 0.5,
+      "channel_availability": 0.58,
+      "competitive_advantage": 0.62,
+      "inventory_readiness": 0.56,
+      "note": "家庭覆盖/高速 Wi-Fi 问题解决 SKU，小额高意图预算即可。",
+      "fourP": {
+        "product": "家庭 Mesh Wi-Fi 升级。",
+        "price": "以官方起价为锚。",
+        "place": "搜索、电子零售、家庭网络场景。",
+        "promotion": "覆盖、速度、安装便利，匹配高意图搜索。"
+      }
+    },
+    {
+      "sku": "HUAWEI 4G CPE 5",
+      "tier": "home_network",
+      "category": "router",
+      "lifecycle": "main",
+      "verdict": "grow",
+      "revenue_potential": 0.5,
+      "margin_contribution": 0.48,
+      "strategic_importance": 0.46,
+      "channel_availability": 0.56,
+      "competitive_advantage": 0.56,
+      "inventory_readiness": 0.54,
+      "note": "4G 家宽替代/租房/备份联网场景清楚，适合搜索和零售解释。",
+      "fourP": {
+        "product": "4G CPE 家庭联网。",
+        "price": "官方起价作为清晰门槛。",
+        "place": "搜索、零售、可能的运营商场景。",
+        "promotion": "SIM、安装、覆盖和远程办公场景。"
+      }
+    },
+    {
+      "sku": "HUAWEI Consumer Ecosystem (AppGallery/HMS)",
+      "tier": "ecosystem",
+      "category": "service",
+      "lifecycle": "platform",
+      "verdict": "hold",
+      "revenue_potential": 0.48,
+      "margin_contribution": 0.52,
+      "strategic_importance": 0.88,
+      "channel_availability": 0.62,
+      "competitive_advantage": 0.44,
+      "inventory_readiness": 0.7,
+      "note": "不是硬件 SKU，但会影响手机和平板转化；预算应服务于疑虑消除和跨设备生态，而非独立卖点。",
+      "fourP": {
+        "product": "AppGallery / Mobile Services 生态支撑。",
+        "price": "不作为独立收入项。",
+        "place": "手机和平板 PDP、FAQ、门店解释。",
+        "promotion": "兼容性解释、迁移教程和购买前疑虑消除。"
+      }
+    }
+  ],
+  "numbers": {
+    "phone_families_found": {
+      "label": "公开检索到的手机产品/系列数",
+      "provenance": "assumed",
+      "value": 5,
+      "basis": "Manual dedupe from official Huawei Romania phones and offer pages on 2026-07-06."
+    },
+    "wearable_families_found": {
+      "label": "公开检索到的穿戴产品/系列数",
+      "provenance": "assumed",
+      "value": 12,
+      "basis": "Manual dedupe from official Huawei Romania home, wearables and product pages on 2026-07-06."
+    },
+    "pc_families_found": {
+      "label": "公开检索到的 PC 产品/系列数",
+      "provenance": "assumed",
+      "value": 2,
+      "basis": "Manual dedupe from official Huawei Romania laptop pages on 2026-07-06."
+    },
+    "tablet_families_found": {
+      "label": "公开检索到的平板产品/系列数",
+      "provenance": "assumed",
+      "value": 7,
+      "basis": "Manual dedupe from official Huawei Romania tablet pages on 2026-07-06."
+    },
+    "audio_families_found": {
+      "label": "公开检索到的音频产品/系列数",
+      "provenance": "assumed",
+      "value": 6,
+      "basis": "Manual dedupe from official Huawei Romania audio offer and home pages on 2026-07-06."
+    },
+    "router_families_found": {
+      "label": "公开检索到的路由产品/系列数",
+      "provenance": "assumed",
+      "value": 2,
+      "basis": "Manual dedupe from official Huawei Romania routers page on 2026-07-06."
+    },
+    "service_families_found": {
+      "label": "公开检索到的消费者服务/生态入口数",
+      "provenance": "assumed",
+      "value": 1,
+      "basis": "Huawei Romania support navigation lists HUAWEI Mobile Services / AppGallery as a consumer ecosystem entry."
+    },
+    "public_product_rows_total": {
+      "label": "本报告组合行数",
+      "provenance": "derived",
+      "formula": "phone_families_found + wearable_families_found + pc_families_found + tablet_families_found + audio_families_found + router_families_found + service_families_found",
+      "inputs": [
+        "phone_families_found",
+        "wearable_families_found",
+        "pc_families_found",
+        "tablet_families_found",
+        "audio_families_found",
+        "router_families_found",
+        "service_families_found"
+      ]
+    },
+    "mate_x7_price_ron": {
+      "label": "Mate X7 官方公开价格锚点",
+      "provenance": "sourced",
+      "value": 9999,
+      "unit": "RON",
+      "source_label": "HUAWEI Romania offer/telefoane",
+      "source_url": "https://consumer.huawei.com/ro/offer/telefoane/",
+      "accessed": "2026-07-06"
+    },
+    "pura_80_ultra_price_ron": {
+      "label": "Pura 80 Ultra 官方公开价格锚点",
+      "provenance": "sourced",
+      "value": 7999,
+      "unit": "RON",
+      "source_label": "HUAWEI Romania offer/telefoane",
+      "source_url": "https://consumer.huawei.com/ro/offer/telefoane/",
+      "accessed": "2026-07-06"
+    },
+    "pura_80_pro_price_ron": {
+      "label": "Pura 80 Pro 官方公开价格锚点",
+      "provenance": "sourced",
+      "value": 5999,
+      "unit": "RON",
+      "source_label": "HUAWEI Romania offer/telefoane",
+      "source_url": "https://consumer.huawei.com/ro/offer/telefoane/",
+      "accessed": "2026-07-06"
+    },
+    "nova_14_pro_price_ron": {
+      "label": "nova 14 Pro 官方公开价格锚点",
+      "provenance": "sourced",
+      "value": 3499,
+      "unit": "RON",
+      "source_label": "HUAWEI Romania offer/telefoane",
+      "source_url": "https://consumer.huawei.com/ro/offer/telefoane/",
+      "accessed": "2026-07-06"
+    },
+    "watch_gt6_pro_from_price_ron": {
+      "label": "WATCH GT 6 Pro 起价",
+      "provenance": "sourced",
+      "value": 1599,
+      "unit": "RON",
+      "source_label": "HUAWEI Romania wearables",
+      "source_url": "https://consumer.huawei.com/ro/wearables/",
+      "accessed": "2026-07-06"
+    },
+    "matebook_d16_price_ron": {
+      "label": "MateBook D 16 2024 官方商店价格锚点",
+      "provenance": "sourced",
+      "value": 3699,
+      "unit": "RON",
+      "source_label": "HUAWEI MateBook D 16 2024 buy page",
+      "source_url": "https://consumer.huawei.com/ro/laptops/matebook-d-16-2024/buy/",
+      "accessed": "2026-07-06"
+    },
+    "wifi_mesh_x3_pro_from_price_ron": {
+      "label": "WiFi Mesh X3 Pro 起价",
+      "provenance": "sourced",
+      "value": 799,
+      "unit": "RON",
+      "source_label": "HUAWEI Romania routers",
+      "source_url": "https://consumer.huawei.com/ro/routers/",
+      "accessed": "2026-07-06"
+    },
+    "cpe5_from_price_ron": {
+      "label": "4G CPE 5 起价",
+      "provenance": "sourced",
+      "value": 599,
+      "unit": "RON",
+      "source_label": "HUAWEI Romania routers",
+      "source_url": "https://consumer.huawei.com/ro/routers/",
+      "accessed": "2026-07-06"
+    },
+    "romania_sellout_by_sku_90d": {
+      "label": "罗马尼亚 90 天 SKU sell-out",
+      "provenance": "missing",
+      "needed_from": "Huawei Romania official store / retail / e-commerce transaction export",
+      "cost_to_get": "Internal export, 0.5-1 day",
+      "blocks": [
+        "real revenue sizing",
+        "validated budget ceiling"
+      ]
+    },
+    "sku_margin_by_channel": {
+      "label": "SKU x channel gross margin",
+      "provenance": "missing",
+      "needed_from": "Finance margin file by SKU and channel",
+      "cost_to_get": "Internal export, 0.5 day",
+      "blocks": [
+        "profit-accurate ROI",
+        "channel budget cap"
+      ]
+    },
+    "randomized_hte_holdout": {
+      "label": "SKU x module randomized holdout",
+      "provenance": "missing",
+      "needed_from": "Geo, store, audience or customer-level randomized test design",
+      "cost_to_get": "2-4 weeks pilot",
+      "blocks": [
+        "validated HTE",
+        "Qini / AUUC",
+        "decile calibration",
+        "policy value"
+      ]
+    },
+    "inventory_by_sku": {
+      "label": "SKU stock and replenishment readiness",
+      "provenance": "missing",
+      "needed_from": "Local supply chain inventory by SKU",
+      "cost_to_get": "Internal export, 2 hours",
+      "blocks": [
+        "flight size",
+        "avoid funding out-of-stock SKUs"
+      ]
+    }
+  },
+  "kpi_strip": [
+    "public_product_rows_total",
+    "phone_families_found",
+    "wearable_families_found",
+    "randomized_hte_holdout"
+  ],
+  "facts": [
+    {
+      "fact": "HUAWEI Romania consumer site lists consumer categories including phones, wearables, laptops, tablets, audio and smart-home/router devices; the homepage highlights Pura 80, nova 14 Pro, WATCH GT/FIT/Ultimate, MateBook, MatePad, FreeBuds and WiFi products.",
+      "source_label": "HUAWEI Romania consumer home",
+      "source_url": "https://consumer.huawei.com/ro/",
+      "accessed": "2026-07-06"
+    },
+    {
+      "fact": "The official phone offer page exposes public price anchors for Mate X7, nova 14 Pro, Pura 80 Ultra and Pura 80 Pro.",
+      "source_label": "HUAWEI Romania offer/telefoane",
+      "source_url": "https://consumer.huawei.com/ro/offer/telefoane/",
+      "accessed": "2026-07-06"
+    },
+    {
+      "fact": "The wearables pages expose WATCH FIT 5 Pro, WATCH FIT 5, WATCH GT 6 / GT 6 Pro and older GT/FIT layers, with GT 6 Pro positioned around advanced outdoor sport and long battery life.",
+      "source_label": "HUAWEI Romania wearables and WATCH GT 6 Pro pages",
+      "source_url": "https://consumer.huawei.com/ro/wearables/",
+      "accessed": "2026-07-06"
+    },
+    {
+      "fact": "The tablet pages expose MatePad 12 X, MatePad 11.5 2025, MatePad Pro 12.2 / 13.2 and PaperMatte / productivity propositions.",
+      "source_label": "HUAWEI Romania tablets",
+      "source_url": "https://consumer.huawei.com/ro/tablets/",
+      "accessed": "2026-07-06"
+    },
+    {
+      "fact": "The laptop pages expose MateBook D 16 2024 and MateBook D 14 2024, with D 16 emphasizing a 16-inch 16:10 display, portability, Intel processors and connectivity.",
+      "source_label": "HUAWEI MateBook D 16 2024",
+      "source_url": "https://consumer.huawei.com/ro/laptops/matebook-d-16-2024/",
+      "accessed": "2026-07-06"
+    },
+    {
+      "fact": "The audio offer page highlights FreeBuds Pro 5, FreeClip 2 and FreeBuds 6 around ANC, clear calls and comfort use cases.",
+      "source_label": "HUAWEI Romania audio offer",
+      "source_url": "https://consumer.huawei.com/ro/offer/audio/",
+      "accessed": "2026-07-06"
+    },
+    {
+      "fact": "The router page exposes WiFi Mesh X3 Pro and 4G CPE 5 public price anchors; the 4G CPE 5 specs page lists Wi-Fi 6 and SIM-based CPE characteristics.",
+      "source_label": "HUAWEI Romania routers and 4G CPE 5 specs",
+      "source_url": "https://consumer.huawei.com/ro/routers/",
+      "accessed": "2026-07-06"
+    }
+  ],
+  "investment_plan": {
+    "currency": "RON",
+    "planning_period": "2026-Q3 first 8 weeks",
+    "total_budget": 800000,
+    "required_mroi": 1.35,
+    "budget_step": 10000,
+    "modules": [
+      {
+        "id": "category_brand",
+        "label": "品类/生态教育"
+      },
+      {
+        "id": "paid_social_video",
+        "label": "付费短视频"
+      },
+      {
+        "id": "creator_review",
+        "label": "达人/评测种草"
+      },
+      {
+        "id": "search",
+        "label": "高意图搜索"
+      },
+      {
+        "id": "retail_media",
+        "label": "零售媒体（站内推广）"
+      },
+      {
+        "id": "pdp_content",
+        "label": "PDP/决策内容"
+      },
+      {
+        "id": "retail_activation",
+        "label": "零售终端活动"
+      },
+      {
+        "id": "pr_reviews",
+        "label": "公关/专业评测"
+      },
+      {
+        "id": "measurement",
+        "label": "HTE 测量建设"
+      }
+    ],
+    "cells": [
+      {
+        "id": "watch_fit5pro_paid_social",
+        "sku": "HUAWEI WATCH FIT 5 Pro",
+        "module": "paid_social_video",
+        "channel": "Meta / TikTok short video",
+        "tau_hat": 0.018,
+        "tau_source": "expert_assumption",
+        "tau_basis": "Planning prior from public product fit: lower price friction, broad wellness audience, short-video-friendly value proposition. Must be replaced by local holdout.",
+        "reachable_population": 220000,
+        "unit_margin": 150,
+        "max_spend": 90000,
+        "saturation_k": 2.5e-05,
+        "readiness": 0.9,
+        "owner": "穿戴增长负责人",
+        "flight": "2026-Q3 第1–8周",
+        "kpi": "WATCH FIT 5 Pro 增量销量",
+        "measurement": "付费社媒分组人群 holdout 对照",
+        "stop_rule": "边际投产比连续两个预算档低于 1.35x，即停止追加。",
+        "why": "最适合放量的格子：人群宽、故事简单、触达量够大，能跑出一条干净的响应曲线。"
+      },
+      {
+        "id": "watch_gt6pro_creator",
+        "sku": "HUAWEI WATCH GT 6 Pro",
+        "module": "creator_review",
+        "channel": "Sport / tech creator reviews",
+        "tau_hat": 0.014,
+        "tau_source": "expert_assumption",
+        "tau_basis": "Planning prior from premium sport-health proposition: creator proof is expected to matter more than generic reach.",
+        "reachable_population": 90000,
+        "unit_margin": 360,
+        "max_spend": 70000,
+        "saturation_k": 3.2e-05,
+        "readiness": 0.86,
+        "owner": "达人合作负责人",
+        "flight": "2026-Q3 第1–6周",
+        "kpi": "WATCH GT 6 Pro 增量销量",
+        "measurement": "达人触达组 vs 匹配 holdout 组对比",
+        "stop_rule": "第4周评测流量涨了但下单转化没改善，即停止。",
+        "why": "毛利更高、户外/健康卖点清晰，值得一个高端达人格子。"
+      },
+      {
+        "id": "watch_gt6_search",
+        "sku": "HUAWEI WATCH GT 6",
+        "module": "search",
+        "channel": "Google Search / Shopping intent",
+        "tau_hat": 0.012,
+        "tau_source": "expert_assumption",
+        "tau_basis": "Planning prior: mainstream GT 6 demand should convert through high-intent smartwatch and battery-life searches.",
+        "reachable_population": 110000,
+        "unit_margin": 260,
+        "max_spend": 60000,
+        "saturation_k": 3e-05,
+        "readiness": 0.88,
+        "owner": "搜索增长负责人",
+        "flight": "2026-Q3 第1–8周",
+        "kpi": "WATCH GT 6 付费搜索增量销量",
+        "measurement": "分地域或分 campaign holdout 对照",
+        "stop_rule": "边际投产比下界低于 1.35x 即封顶，不再加钱。",
+        "why": "大众款穿戴应承接 FIT 5 Pro 批钱之后溢出的高意图需求。"
+      },
+      {
+        "id": "matepad12x_retail_media",
+        "sku": "HUAWEI MatePad 12 X 2025",
+        "module": "retail_media",
+        "channel": "Retail media / official store placements",
+        "tau_hat": 0.013,
+        "tau_source": "expert_assumption",
+        "tau_basis": "Planning prior: PaperMatte, 12-inch screen and accessories make the SKU explainable in retail and ecommerce decision surfaces.",
+        "reachable_population": 85000,
+        "unit_margin": 430,
+        "max_spend": 80000,
+        "saturation_k": 2.6e-05,
+        "readiness": 0.82,
+        "owner": "平板零售负责人",
+        "flight": "2026-Q3 第2–8周",
+        "kpi": "MatePad 12 X 增量销量",
+        "measurement": "按市场/店群做零售陈列 holdout 对照",
+        "stop_rule": "第一个投放检查点后看不到连带率或转化提升，即停止。",
+        "why": "平板里最值得投的：生产力故事扎实，毛利也够付零售媒体的钱。"
+      },
+      {
+        "id": "matepad115_pdp",
+        "sku": "HUAWEI MatePad 11.5 2025",
+        "module": "pdp_content",
+        "channel": "PDP / comparison content",
+        "tau_hat": 0.009,
+        "tau_source": "expert_assumption",
+        "tau_basis": "Planning prior: a clearer PaperMatte and student-use PDP should reduce purchase anxiety for mainstream tablet buyers.",
+        "reachable_population": 120000,
+        "unit_margin": 240,
+        "max_spend": 40000,
+        "saturation_k": 3.5e-05,
+        "readiness": 0.85,
+        "owner": "官网内容负责人",
+        "flight": "2026-Q3 第1–4周",
+        "kpi": "PDP 转化率 + MatePad 11.5 增量销量",
+        "measurement": "PDP A/B 测试（按流量来源分层护栏）",
+        "stop_rule": "PDP 转化提升没过预先登记的门槛之前，不放大媒体投放。",
+        "why": "便宜的内容杠杆，为大众平板 SKU 的后续付费流量铺路。"
+      },
+      {
+        "id": "matebook_d16_search",
+        "sku": "HUAWEI MateBook D 16 2024",
+        "module": "search",
+        "channel": "Google Search / student and office laptop intent",
+        "tau_hat": 0.01,
+        "tau_source": "expert_assumption",
+        "tau_basis": "Planning prior: high-intent laptop search can convert if the 16-inch productivity story is explicit.",
+        "reachable_population": 70000,
+        "unit_margin": 520,
+        "max_spend": 60000,
+        "saturation_k": 2.8e-05,
+        "readiness": 0.78,
+        "owner": "PC 增长负责人",
+        "flight": "2026-Q3 第1–8周",
+        "kpi": "MateBook D 16 增量销量",
+        "measurement": "搜索 campaign 拆分 holdout 对照",
+        "stop_rule": "边际投产比跌破 1.35x 或学生优惠库存吃紧，即停止。",
+        "why": "PC 有明确的高意图入口和不错的单台毛利，但规模不如穿戴。"
+      },
+      {
+        "id": "freebudspro5_retail_media",
+        "sku": "HUAWEI FreeBuds Pro 5",
+        "module": "retail_media",
+        "channel": "Retail media / audio category placements",
+        "tau_hat": 0.018,
+        "tau_source": "expert_assumption",
+        "tau_basis": "Planning prior: ANC and premium audio proof points should convert inside retail media where comparison is active.",
+        "reachable_population": 140000,
+        "unit_margin": 140,
+        "max_spend": 65000,
+        "saturation_k": 3.3e-05,
+        "readiness": 0.84,
+        "owner": "音频零售负责人",
+        "flight": "2026-Q3 第1–8周",
+        "kpi": "FreeBuds Pro 5 增量销量",
+        "measurement": "零售媒体增量读数 + 可行处加 holdout",
+        "stop_rule": "边际投产比低于 1.35x、或开始蚕食低毛利音频 SKU，即停止。",
+        "why": "音频转化频次高、信号快，能给整个组合的 ROI 曲线当稳定器。"
+      },
+      {
+        "id": "freeclip2_creator",
+        "sku": "HUAWEI FreeClip 2",
+        "module": "creator_review",
+        "channel": "Lifestyle / commute creator content",
+        "tau_hat": 0.014,
+        "tau_source": "expert_assumption",
+        "tau_basis": "Planning prior: open-ear comfort is differentiated but needs creator demonstration to be understood.",
+        "reachable_population": 100000,
+        "unit_margin": 160,
+        "max_spend": 50000,
+        "saturation_k": 3e-05,
+        "readiness": 0.8,
+        "owner": "音频达人合作负责人",
+        "flight": "2026-Q3 第2–7周",
+        "kpi": "FreeClip 2 增量销量",
+        "measurement": "达人受众 holdout 对照",
+        "stop_rule": "达人内容带来的流量转化率不高于音频品类基线，即停止。",
+        "why": "形态特殊需要演示种草；投放按实测响应封顶。"
+      },
+      {
+        "id": "wifi_mesh_retail_activation",
+        "sku": "HUAWEI WiFi Mesh X3 Pro",
+        "module": "retail_activation",
+        "channel": "Electronics retail / home-network demo",
+        "tau_hat": 0.012,
+        "tau_source": "expert_assumption",
+        "tau_basis": "Planning prior: home Wi-Fi upgrades are problem-led and should respond to clear retail explanation.",
+        "reachable_population": 60000,
+        "unit_margin": 220,
+        "max_spend": 45000,
+        "saturation_k": 3e-05,
+        "readiness": 0.72,
+        "owner": "路由零售负责人",
+        "flight": "2026-Q3 第3–8周",
+        "kpi": "WiFi Mesh X3 Pro 增量销量",
+        "measurement": "店群 holdout 对照",
+        "stop_rule": "头两个周末体验店没有跑赢对照店，即停止。",
+        "why": "盘子小但有利润的高意图问题解决型 SKU。"
+      },
+      {
+        "id": "cpe5_search",
+        "sku": "HUAWEI 4G CPE 5",
+        "module": "search",
+        "channel": "Search for 4G router / home internet backup",
+        "tau_hat": 0.01,
+        "tau_source": "expert_assumption",
+        "tau_basis": "Planning prior: CPE demand is high-intent and should be captured through problem-solution search.",
+        "reachable_population": 50000,
+        "unit_margin": 170,
+        "max_spend": 35000,
+        "saturation_k": 3.2e-05,
+        "readiness": 0.72,
+        "owner": "路由搜索负责人",
+        "flight": "2026-Q3 第3–8周",
+        "kpi": "4G CPE 5 增量销量",
+        "measurement": "搜索 campaign 拆分 holdout 对照",
+        "stop_rule": "边际投产比低于达标线、或库存跟不上需求，即停止。",
+        "why": "有用的附加利润池，但不适合做大范围认知投放。"
+      },
+      {
+        "id": "pura80pro_pr_reviews",
+        "sku": "HUAWEI Pura 80 Pro",
+        "module": "pr_reviews",
+        "channel": "Expert reviews / camera proof",
+        "tau_hat": 0.007,
+        "tau_source": "expert_assumption",
+        "tau_basis": "Planning prior: high-ticket phones need proof content; conversion uplift is narrower than wearable/audio.",
+        "reachable_population": 60000,
+        "unit_margin": 900,
+        "max_spend": 70000,
+        "saturation_k": 2.2e-05,
+        "readiness": 0.76,
+        "owner": "手机公关负责人",
+        "flight": "2026-Q3 第1–8周",
+        "kpi": "Pura 80 Pro 增量销量",
+        "measurement": "评测触达组 vs holdout 组对比",
+        "stop_rule": "高意图流量涨了但下单增量没涨，即停止。",
+        "why": "旗舰格子有利润，但应该先见证据再放量，不是先放量再找证据。"
+      },
+      {
+        "id": "pura80ultra_creator",
+        "sku": "HUAWEI Pura 80 Ultra",
+        "module": "creator_review",
+        "channel": "Photography creator proof",
+        "tau_hat": 0.006,
+        "tau_source": "expert_assumption",
+        "tau_basis": "Planning prior: Ultra has high margin and strong camera story, but audience is smaller.",
+        "reachable_population": 35000,
+        "unit_margin": 1500,
+        "max_spend": 55000,
+        "saturation_k": 2.4e-05,
+        "readiness": 0.7,
+        "owner": "旗舰手机负责人",
+        "flight": "2026-Q3 第2–8周",
+        "kpi": "Pura 80 Ultra 增量销量",
+        "measurement": "摄影达人内容 holdout 对照",
+        "stop_rule": "单台高客单增量的获客成本超过毛利安全线，即停止。",
+        "why": "毛利高撑得起投放，但人群窄，必须封顶。"
+      },
+      {
+        "id": "nova14pro_paid_social",
+        "sku": "HUAWEI nova 14 Pro",
+        "module": "paid_social_video",
+        "channel": "Paid social video / young audience",
+        "tau_hat": 0.009,
+        "tau_source": "expert_assumption",
+        "tau_basis": "Planning prior: nova 14 Pro has a lower price point than Pura and can test younger social audiences.",
+        "reachable_population": 95000,
+        "unit_margin": 500,
+        "max_spend": 50000,
+        "saturation_k": 2.6e-05,
+        "readiness": 0.72,
+        "owner": "手机增长负责人",
+        "flight": "2026-Q3 第2–8周",
+        "kpi": "nova 14 Pro 增量销量",
+        "measurement": "社媒分组人群 holdout 对照",
+        "stop_rule": "社媒互动涨了但没带来下单提升，即停止。",
+        "why": "手机走量试投，额度应压在穿戴和平板之下。"
+      },
+      {
+        "id": "ecosystem_category_brand",
+        "sku": "HUAWEI Consumer Ecosystem (AppGallery/HMS)",
+        "module": "category_brand",
+        "channel": "Ecosystem education / buyer confidence",
+        "tau_hat": 0.004,
+        "tau_source": "expert_assumption",
+        "tau_basis": "Planning prior: ecosystem education may reduce phone/tablet purchase anxiety, but conversion attribution is indirect.",
+        "reachable_population": 350000,
+        "unit_margin": 90,
+        "max_spend": 60000,
+        "saturation_k": 1.8e-05,
+        "readiness": 0.7,
+        "owner": "品类市场负责人",
+        "flight": "2026-Q3 第1–8周",
+        "kpi": "跨品类助攻购买增量",
+        "measurement": "市场级或人群级品牌教育 holdout 对照",
+        "stop_rule": "第一个投放检查点后助攻转化没动静，即停止。",
+        "why": "品类层内容能消解 AppGallery/HMS 顾虑，但归因较弱，必须封顶。"
+      },
+      {
+        "id": "matex7_hte_missing",
+        "sku": "HUAWEI Mate X7",
+        "module": "creator_review",
+        "channel": "Foldable specialist reviews",
+        "tau_source": "missing",
+        "needed_from": "Randomized holdout for foldable-phone audiences in Romania before any scale spend.",
+        "reachable_population": 22000,
+        "unit_margin": 1800,
+        "max_spend": 40000,
+        "saturation_k": 2.5e-05,
+        "readiness": 0.55,
+        "owner": "旗舰手机负责人",
+        "flight": "冻结——折叠屏 HTE 实测前不排期",
+        "kpi": "Mate X7 折叠屏增量销量",
+        "measurement": "折叠屏兴趣人群 holdout 对照",
+        "stop_rule": "tau_hat 实测出来之前保持冻结。",
+        "why": "高客单折叠屏可能有利润，但公开数据估不出增量提升。"
+      },
+      {
+        "id": "portfolio_hte_measurement_missing",
+        "sku": "HUAWEI Consumer Ecosystem (AppGallery/HMS)",
+        "module": "measurement",
+        "channel": "SKU x module HTE holdout design",
+        "tau_source": "missing",
+        "needed_from": "Pre-registered holdout design, treatment assignment, exposure logs, transactions, and margin by SKU.",
+        "reachable_population": 350000,
+        "unit_margin": 1,
+        "max_spend": 30000,
+        "saturation_k": 1e-05,
+        "readiness": 0.4,
+        "owner": "测量/分析负责人",
+        "flight": "须在 Q3 放量前完成设计",
+        "kpi": "AUUC、校准误差、策略价值",
+        "measurement": "随机 holdout 上跑 DR/X learner",
+        "stop_rule": "Qini AUUC 与校准两道门槛没过之前，任何格子不得标记为已验证。",
+        "why": "这道门把报告从规划先验变成验证过的 HTE——是下一轮的钥匙。"
+      }
+    ],
+    "hte_validation": {
+      "status": "missing",
+      "method": "公开网页调研拿不到随机分组、holdout 结果和 SKU 级毛利——本报告所有 tau_hat 均为规划先验，必须用本地 holdout 实测替换",
+      "holdout_n": 0,
+      "min_auuc": 0.15,
+      "max_calibration_mae": 0.02,
+      "validation_refs": [],
+      "qini_curve": [],
+      "decile_calibration": [],
+      "tau_distribution": [
+        {
+          "bucket": "<=0",
+          "share": 0
+        },
+        {
+          "bucket": "0-1%",
+          "share": 0.3333
+        },
+        {
+          "bucket": "1-3%",
+          "share": 0.6667
+        },
+        {
+          "bucket": ">3%",
+          "share": 0
+        }
+      ],
+      "min_interval_coverage": 0.85
+    },
+    "required_mroi_by_confidence": {
+      "validated": 1.35,
+      "mmm_calibrated": 1.5,
+      "assumption_grade": 1.8
+    }
+  },
+  "mmm": {
+    "mode": "provided_summary",
+    "channel_contribution": [
+      {
+        "channel": "规划先验 · 零售媒体",
+        "contribution": 210000
+      },
+      {
+        "channel": "规划先验 · 搜索",
+        "contribution": 180000
+      },
+      {
+        "channel": "规划先验 · 付费短视频",
+        "contribution": 160000
+      },
+      {
+        "channel": "规划先验 · 达人/评测",
+        "contribution": 140000
+      },
+      {
+        "channel": "规划先验 · 品类品牌",
+        "contribution": 90000
+      }
+    ],
+    "posterior_roas": [
+      {
+        "channel": "零售媒体（先验）",
+        "mean": 2.4,
+        "lo": 1.5,
+        "hi": 3.2
+      },
+      {
+        "channel": "搜索（先验）",
+        "mean": 2.1,
+        "lo": 1.4,
+        "hi": 2.8
+      },
+      {
+        "channel": "付费短视频（先验）",
+        "mean": 1.7,
+        "lo": 0.9,
+        "hi": 2.4
+      },
+      {
+        "channel": "达人/评测（先验）",
+        "mean": 1.8,
+        "lo": 1.0,
+        "hi": 2.6
+      },
+      {
+        "channel": "品类品牌（先验）",
+        "mean": 1.2,
+        "lo": 0.5,
+        "hi": 2.0
+      }
+    ],
+    "adstock_curves": [
+      {
+        "channel": "零售媒体（先验）",
+        "points": [
+          {
+            "spend": 0,
+            "response": 0
+          },
+          {
+            "spend": 50000,
+            "response": 0.5
+          },
+          {
+            "spend": 100000,
+            "response": 0.74
+          },
+          {
+            "spend": 150000,
+            "response": 0.86
+          }
+        ]
+      },
+      {
+        "channel": "付费短视频（先验）",
+        "points": [
+          {
+            "spend": 0,
+            "response": 0
+          },
+          {
+            "spend": 50000,
+            "response": 0.42
+          },
+          {
+            "spend": 100000,
+            "response": 0.68
+          },
+          {
+            "spend": 150000,
+            "response": 0.82
+          }
+        ]
+      },
+      {
+        "channel": "品类品牌（先验）",
+        "points": [
+          {
+            "spend": 0,
+            "response": 0
+          },
+          {
+            "spend": 50000,
+            "response": 0.25
+          },
+          {
+            "spend": 100000,
+            "response": 0.43
+          },
+          {
+            "spend": 150000,
+            "response": 0.56
+          }
+        ]
+      }
+    ],
+    "saturation_curves": [
+      {
+        "channel": "穿戴·付费短视频（先验）",
+        "points": [
+          {
+            "spend": 0,
+            "response": 0
+          },
+          {
+            "spend": 50000,
+            "response": 0.58
+          },
+          {
+            "spend": 100000,
+            "response": 0.78
+          },
+          {
+            "spend": 150000,
+            "response": 0.88
+          }
+        ]
+      },
+      {
+        "channel": "音频·零售媒体（先验）",
+        "points": [
+          {
+            "spend": 0,
+            "response": 0
+          },
+          {
+            "spend": 50000,
+            "response": 0.62
+          },
+          {
+            "spend": 100000,
+            "response": 0.8
+          },
+          {
+            "spend": 150000,
+            "response": 0.88
+          }
+        ]
+      },
+      {
+        "channel": "手机旗舰实证（先验）",
+        "points": [
+          {
+            "spend": 0,
+            "response": 0
+          },
+          {
+            "spend": 50000,
+            "response": 0.36
+          },
+          {
+            "spend": 100000,
+            "response": 0.56
+          },
+          {
+            "spend": 150000,
+            "response": 0.66
+          }
+        ]
+      }
+    ],
+    "optimized_channel_budget": [
+      {
+        "channel": "付费短视频（先验）",
+        "budget": 140000
+      },
+      {
+        "channel": "搜索（先验）",
+        "budget": 140000
+      },
+      {
+        "channel": "零售媒体（先验）",
+        "budget": 140000
+      },
+      {
+        "channel": "达人/评测（先验）",
+        "budget": 170000
+      },
+      {
+        "channel": "公关/专业评测（先验）",
+        "budget": 70000
+      },
+      {
+        "channel": "PDP 内容（先验）",
+        "budget": 40000
+      },
+      {
+        "channel": "零售终端活动（先验）",
+        "budget": 40000
+      },
+      {
+        "channel": "品类品牌（先验）",
+        "budget": 30000
+      }
+    ],
+    "lift_calibration": []
+  },
+  "labels": {
+    "cat_matrix_heading": "0 - 组合结论与 4P 动作",
+    "cat_diag_heading": "1 - 组合诊断",
+    "cat_tier_heading": "2 - 价格层 x 人群 x 竞争地图",
+    "cat_sku_heading": "3 - SKU 明细与 4P",
+    "cat_handoff_heading": "4 - 进入 HTE 深挖的 SKU",
+    "cat_th_sku": "SKU / 产品",
+    "cat_th_verdict": "结论",
+    "cat_th_product": "Product",
+    "cat_th_price": "Price",
+    "cat_th_place": "Place",
+    "cat_th_promotion": "Promotion",
+    "cat_th_tier": "价格层",
+    "cat_th_trend": "趋势",
+    "cat_th_audience": "人群",
+    "cat_th_force": "购买力",
+    "cat_th_yours": "HUAWEI 产品",
+    "cat_th_competitors": "主要竞争参照",
+    "cat_evidence_label": "证据",
+    "cat_implication_label": "不处理的代价",
+    "verdict_grow": "增长 / 投资",
+    "verdict_hold": "保持 / 验证",
+    "verdict_harvest": "收割",
+    "verdict_exit": "退出 / 替代",
+    "sev_critical": "关键",
+    "sev_major": "重要",
+    "sev_watch": "观察",
+    "footer_note": "本地案例：公开资料 + planning prior。不可视为 HUAWEI 内部数据或 validated HTE；禁止同步 GitHub。"
+  }
+}

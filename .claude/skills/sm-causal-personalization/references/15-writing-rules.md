@@ -129,6 +129,65 @@ the utilization").
 
 ---
 
+## Rule 4b — Professional Vocabulary That Earns Its Place (the keep-list)
+
+Rule 4 is the ban list. This is its other half: **professional vocabulary is
+welcome when it names a method, metric, model, or decision.** The failure mode
+is not "used a business term"; it is "piled terms without a decision". Do not
+strip a report of the words an operator actually uses.
+
+**Keep** (these help someone execute, measure, choose, or reject an action):
+
+> STP, 4P, 5C, AARRR, JTBD, GTM, CRM, RFM, CAC/LTV, mental availability,
+> physical availability, category entry point, message house, uplift, CATE,
+> HTE, holdout, geo test, MMM, incrementality, response curve, adstock,
+> saturation, next-best-treatment, choice architecture, default effect.
+
+**Cut or translate** (empty business language — say the concrete thing):
+
+| Instead of | Say |
+|------------|-----|
+| Empower the team | What the person can now do that they couldn't |
+| Closed loop | Who records what, and who changes which decision |
+| Precision reach / 千人千面 | The segment, the treatment, and the channel |
+| Data-driven growth | Which data prevents which wrong decision |
+| Growth flywheel | The behavior that creates the next behavior |
+| Ecosystem synergy | The products, channels, and the shared task |
+| AI-native | The specific step AI performs |
+
+**The one-line test**: *a term stays if it helps someone execute, measure,
+choose, or reject an action.* If it does none of those, it is decoration — cut
+it. English acronyms used to hide weak thinking fail this test the hardest.
+
+---
+
+## Rule 4c — Operating Vocabulary: Business Language Must Point to a Decision
+
+Operating language (the register a sales or marketing operator actually speaks)
+is welcome **when it points to real work, not decorative seriousness**. Every
+operating term must land on **who owns it / what metric it moves / what data
+source proves it** — otherwise it is a slogan with no owner. Keep the plain,
+concrete terms; skip the theatrical ones nobody says out loud.
+
+| Operating term | Must resolve to |
+|----------------|-----------------|
+| 端到端 / end-to-end | Map the user steps; give each an owner, a metric, and a data source |
+| 打法 / campaign | Phases, goal, owner, and decision cadence |
+| 一线洞察 / frontline insight | Raw quotes from sales, service, retail, social — tagged trigger / barrier / competitor / price objection / proof need |
+| 经营指标 / metric-driven | Name the metric **and** the decision it triggers |
+| 场景化 / scenario-led | The situation, the user task, the product behavior |
+
+> **Bad**: "构建端到端营销闭环 (build an end-to-end marketing loop)."
+>
+> **Good**: "画出 看广告 → 进商详 → 咨询 → 下单 → 复购 五步；每一步派一个
+> 负责人、一个指标、一个数据源。"
+
+Failure modes: a slogan with no owner; saying "以客户为中心 / customer-centric"
+without customer evidence; saying "闭环 / closed loop" when no one actually
+changes a decision.
+
+---
+
 ## Rule 5 — Terminology Consistency and Honest-State Vocabulary
 
 Use these terms consistently; do not substitute with approximations:

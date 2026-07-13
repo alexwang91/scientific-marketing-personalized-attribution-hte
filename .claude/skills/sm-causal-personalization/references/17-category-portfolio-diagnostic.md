@@ -95,8 +95,11 @@ room, not that the room is proven. Only the SKU pipeline's holdout / geo test
 
 1. **Bucket the SKUs by purchase decision, not by category label.** A mobile
    hotspot and a home router are not the same competitive field; mixing them
-   confuses the competitor set. Cluster price tiers from observed price points
-   (Hypothesis-grade) and let the operator confirm or redraw them.
+   confuses the competitor set. This is the ref 18 product read applied to a
+   whole line-up: let the product's encoded use case (occasion, environment,
+   performance claim) draw the bucket, not the shelf category name. Cluster
+   price tiers from observed price points (Hypothesis-grade) and let the
+   operator confirm or redraw them.
 2. **Scan the public shelf** (ref 00b discipline): list prices and promo
    frequency, review counts and rating trends, competitor SKUs and prices, PDP /
    site / localization presence, voice-of-customer force signals. Tag everything
@@ -125,6 +128,11 @@ in the `numbers` registry under the provenance contract. Worked example:
 
 ## Optional: Investment Plan (SKU × Marketing-Module Budget)
 
+Randomized HTE cells must name `validation_ref`, and the matching
+`investment_plan.hte_validation` entry must pass Qini/AUUC and decile
+calibration gates before the dashboard calls that cell `validated`. A
+measurement-gate string alone is not enough.
+
 Adding `investment_plan` to the same config turns the diagnostic into a budget
 decision: how much to spend, on which SKU, through which marketing lever, this
 cycle — the SKU-level tier of the three-tier λ* rule in ref 06. It renders
@@ -150,6 +158,15 @@ suggestion — a malformed plan fails the build):
   (`validated` / `mmm_calibrated` / `assumption_grade` / `blocked`) is derived
   from that plus `measurement_gate` and `readiness` — setting a `confidence`
   field directly on a cell is a build error.
+- **Evidence-tier ROI floors** (optional): `required_mroi_by_confidence`
+  maps a confidence badge to its own minimum marginal return — e.g.
+  `{"validated": 1.3, "assumption_grade": 1.7}` — so unvalidated cells must
+  clear a higher bar before they out-compete validated ones for budget.
+- **Interval-coverage gate** (optional): `hte_validation.min_interval_coverage`
+  adds a third validation gate — a model's tau intervals must empirically
+  cover reality on holdout (per-ref `interval_coverage`, or computed from
+  `decile_calibration` rows carrying `tau_lo`/`tau_hi`) before its cells can
+  wear the "validated" badge.
 - **A `tau_source: "missing"` cell carries no `tau_hat`** (that would be a
   guess dressed as data) and must name `needed_from` — it renders in ch1's
   "never funded this round" list, not silently dropped.

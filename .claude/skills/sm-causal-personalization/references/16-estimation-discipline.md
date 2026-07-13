@@ -128,6 +128,28 @@ into a priced work plan.
 
 ---
 
+## The Identification Gate (before any incremental claim)
+
+No ATE / uplift / incremental number enters a report without answering, in
+one or two sentences: what is the confounding story, what identification
+strategy handles it (randomization, adjustment set, geo split, holdout), and
+is the effect identifiable at all from the data at hand? Non-identifiable →
+the claim is *abstained from*, mechanically: the verdict stays undetermined,
+tau_source stays `missing`, and the schema enforces the paper trail —
+`randomized_hte` requires a `validation_ref`, `modeled_hte` requires an
+`identification` note, `expert_assumption` requires a `tau_basis`
+(`investment_schema.py` fails the build otherwise).
+
+Why mechanical rather than judgment: CausalDS (arXiv 2607.08093) benchmarked
+frontier LLM agents on exactly this workflow and found the two weakest axes
+are (a) abstaining on non-identifiable estimands (56-75% even for frontier
+models) and (b) interval calibration — nominal 95% ATE intervals covered only
+20-71% empirically. Both are therefore build-time checks in this repo, not
+things the analyst (human or model) is trusted to remember: the abstention
+contract above, and the interval-coverage gate in `hte_core.py`
+(`min_interval_coverage`) that refuses the "validated" badge to any model
+whose own uncertainty intervals fail to cover reality on holdout.
+
 ## Failure Modes
 
 | Failure | Smell | Fix |

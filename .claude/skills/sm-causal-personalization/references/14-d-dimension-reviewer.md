@@ -81,6 +81,13 @@ For each mechanism + path, identify the reachable proxy:
 - Behavioral retargeting (cart abandon, product page visit)
 - Retail category position (smartwatch category visitor on Alza)
 
+A proxy that names *who* but not *how many* is half a dimension. When the
+dimension survives this gate and needs a pool size, a reachable estimate, and a
+platform match-quality read, hand it to ref 18 (audience card): it sizes the
+proxy in four layers with an A/B/C/D grade and states what leaks in through the
+platform control. This reviewer decides *is the cut real*; ref 18 decides *how
+big and how do I reach it*.
+
 **Step 4: Measurability check**
 
 Is the incremental effect of targeting this proxy testable?
@@ -135,6 +142,18 @@ passes the Reviewer with a verdict of "Retain" or "Retain (test)".
 | Drives a decision change | Yes / Maybe / No |
 
 Score 0/1 per condition. Threshold: ≥ 3.
+
+**Criterion 5b — post-treatment / collider check (hard cap, not a score):**
+does the proxy condition on behaviour that happens *after* (or because of)
+exposure — site visits, cart adds, retargeting pools — or on a collider of
+treatment and outcome? If yes, mark the dimension
+`post_treatment_check: "fail"` in the config: the report stamps a ⚠ on its
+row and caps its heatmap grade at T (Test) — a dimension selected by its own
+outcome can never be a primary investment target, because the "lift" observed
+there is self-selection, not causation. This is the classic mechanism behind
+inflated retargeting ROAS. (Benchmarked in CausalDS, arXiv 2607.08093:
+collider / forbidden-control recognition is a distinct Rung-2 skill that
+agents frequently miss — hence a mechanical check, not a judgment call.)
 
 ---
 

@@ -1,0 +1,1286 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HUAWEI Romania Consumer Portfolio — Romania Category Diagnostic</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  /* ── Design system · nexu-io/open-design (Linear palette) ─────────────────
+     Palette: dark graphite ink, warm neutral surfaces, muted performance orange.
+     Layout: fixed 210px sidebar TOC + fluid content column.
+  ────────────────────────────────────────────────────────────────────────── */
+  :root{
+    --bg:#f0f2f5;
+    --panel:#ffffff;
+    --surface:#f6f7fb;
+    --ink:#0f172a;
+    --ink-2:#334155;
+    --muted:#64748b;
+    --muted-2:#94a3b8;
+    --line:#e2e8f0;
+    --line-strong:#cbd5e1;
+    --accent:#4f46e5;
+    --accent-light:#eef2ff;
+    --ok:#dcfce7;--ok-ink:#166534;
+    --warn:#fef9c3;--warn-ink:#854d0e;
+    --bad:#fee2e2;--bad-ink:#991b1b;
+    --neutral:#f1f5f9;--neutral-ink:#475569;
+    --radius:8px;
+    --sidebar-w:220px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    font-size:14.5px;line-height:1.65;-webkit-font-smoothing:antialiased;
+    font-feature-settings:'cv01','ss03'}
+
+  /* ── Two-column layout: sidebar + content ── */
+  .page-layout{display:grid;grid-template-columns:var(--sidebar-w) 1fr;
+    max-width:1200px;margin:0 auto;min-height:100vh}
+  .content-col{min-width:0}
+  main{padding:32px 32px 72px;max-width:960px}
+  footer{padding:20px 32px 48px;color:var(--muted);font-size:12px;
+    border-top:1px solid var(--line);max-width:960px}
+
+  /* ── Sidebar TOC ── */
+  .sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;
+    background:var(--panel);border-right:1px solid var(--line);
+    padding:24px 0 32px;display:flex;flex-direction:column}
+  .toc-logo{padding:0 18px 16px;font-size:11px;font-weight:800;
+    letter-spacing:.04em;color:var(--ink);border-bottom:1px solid var(--line);
+    margin-bottom:6px}
+  .toc-logo span{color:var(--accent)}
+  .toc-group-label{padding:12px 18px 4px;font-size:9.5px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.1em;color:var(--muted-2)}
+  .toc-chapter{display:block;padding:12px 18px 4px;font-size:11px;font-weight:800;
+    color:var(--ink);text-decoration:none;line-height:1.35;letter-spacing:.01em}
+  .toc-chapter:hover{color:var(--accent)}
+  .toc-link{display:block;padding:5px 18px 5px 16px;font-size:12px;
+    color:var(--muted);text-decoration:none;line-height:1.4;
+    border-left:2px solid transparent;transition:color .12s,border-color .12s,background .12s;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .toc-link:hover{color:var(--ink);background:rgba(0,0,0,.03)}
+  .toc-link.active{color:var(--accent);border-left-color:var(--accent);
+    background:var(--accent-light);font-weight:600}
+
+  /* ── Typography ── */
+  h1{margin:0 0 8px;font-size:24px;font-weight:800;line-height:1.2;
+    letter-spacing:-.025em;color:var(--ink)}
+  h2{margin:36px 0 14px;font-size:17px;font-weight:700;letter-spacing:-.01em;
+    color:var(--ink);display:flex;align-items:center;gap:9px}
+  h2::before{content:'';display:inline-block;width:3px;height:18px;
+    background:var(--accent);border-radius:2px;flex-shrink:0}
+  h2+*{margin-top:0}
+  h3{margin:18px 0 8px;font-size:10.5px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--accent)}
+  p{margin:0 0 11px}
+  strong{font-weight:600}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* ── Narrative intro (section connective paragraph) ── */
+  .section-intro{font-size:13.5px;color:var(--ink-2);line-height:1.75;
+    margin:0 0 18px;padding:13px 16px;background:var(--surface);
+    border-radius:6px;border-left:3px solid var(--line-strong)}
+
+  /* ── Chapter banner: the question this chapter answers + one-line answer ── */
+  .chapter-head{margin:34px 0 10px;padding:18px 22px;border-radius:10px;
+    background:linear-gradient(135deg,var(--accent) 0%,#3730a3 100%);color:#fff;
+    scroll-margin-top:12px}
+  .chapter-head:first-child{margin-top:0}
+  .ch-num{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+    opacity:.75;margin-bottom:4px}
+  .ch-question{font-size:20px;font-weight:800;letter-spacing:-.015em;line-height:1.3}
+  .ch-answer{margin-top:10px;font-size:13.5px;line-height:1.6;
+    background:rgba(255,255,255,.14);border-radius:7px;padding:9px 12px}
+  .ch-answer span{font-weight:800;opacity:.8;margin-right:6px}
+  .hm-code{display:block;font-size:9px;font-weight:400;opacity:.55;margin-top:1px}
+  .card-ownerline{font-size:12px;color:var(--ink-2);background:var(--surface);
+    border:1px solid var(--line);border-radius:6px;padding:6px 10px;margin:2px 0 8px}
+
+  /* ── Section card ── */
+  section{background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:26px 30px;margin:14px 0;
+    box-shadow:0 1px 3px rgba(0,0,0,.04)}
+
+  /* ── KPI stat strip ── */
+  .kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));
+    gap:10px;margin:0 0 20px}
+  .kpi{background:var(--surface);border:1px solid var(--line);border-radius:8px;
+    padding:18px 20px;position:relative;overflow:hidden}
+  .kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+    background:var(--accent)}
+  .kpi-num{font-size:26px;font-weight:800;letter-spacing:-.04em;
+    line-height:1;color:var(--ink);margin-bottom:6px}
+  .kpi-num .kpi-unit{font-size:13px;font-weight:600;color:var(--muted);margin-left:2px}
+  .kpi-label{font-size:10.5px;color:var(--muted);text-transform:uppercase;
+    letter-spacing:.06em;font-weight:600}
+  .kpi.inv-kpi-good::after{background:#16a34a}
+  .kpi.inv-kpi-warn::after{background:#d97706}
+  .kpi.inv-kpi-bad::after{background:#dc2626}
+
+  /* ── Investment dashboard: frontier / matrix ── */
+  .inv-frontier-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:12px 0}
+  @media(max-width:760px){.inv-frontier-grid{grid-template-columns:1fr}}
+  .inv-panel{background:var(--surface);border:1px solid var(--line);
+    border-radius:8px;padding:12px 14px}
+  .inv-panel-title{font-size:11.5px;font-weight:700;color:var(--ink-2);margin-bottom:6px}
+  .inv-svg{width:100%;height:auto;display:block}
+  .inv-svg-empty{color:var(--muted);font-size:12px;padding:20px 0;text-align:center}
+  .inv-conf-dot{display:inline-block;width:7px;height:7px;border-radius:50%;
+    margin-left:4px;vertical-align:middle}
+
+  /* ── CAC bar chart ── */
+  .cac-chart{margin:0 0 20px;background:var(--surface);border:1px solid var(--line);
+    border-radius:8px;padding:20px 22px 14px}
+  .cac-chart-title{font-size:10.5px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--accent);margin-bottom:18px}
+  .cac-row{display:grid;grid-template-columns:140px 1fr;gap:12px;
+    align-items:center;margin:10px 0}
+  .cac-name{font-size:12px;font-weight:600;text-align:right;line-height:1.3;
+    color:var(--ink-2)}
+  .cac-track{position:relative;height:26px;background:#e9eaec;border-radius:5px}
+  .cac-bar{position:absolute;height:100%;border-radius:5px;top:0;
+    display:flex;align-items:center;padding:0 7px;
+    font-size:10px;font-weight:700;color:#fff;white-space:nowrap;min-width:2px}
+  .cac-bar.viable{background:#16a34a}
+  .cac-bar.undetermined{background:#d97706}
+  .cac-bar.not-viable{background:#dc2626}
+  .cac-bar.role-only{background:#9ca3af}
+  .cac-ceiling{position:absolute;top:-7px;bottom:-7px;width:2px;
+    background:var(--ink);z-index:6;border-radius:1px}
+  .cac-ceiling-flag{position:absolute;top:-22px;transform:translateX(-50%);
+    background:var(--ink);color:#fff;font-size:9.5px;font-weight:700;
+    padding:2px 6px;border-radius:4px;white-space:nowrap;z-index:7}
+  .cac-axis{display:grid;grid-template-columns:140px 1fr;gap:12px;margin-top:6px}
+  .cac-axis-labels{display:flex;justify-content:space-between;
+    font-size:10px;color:var(--muted);font-weight:600}
+  .cac-legend{margin-top:10px;font-size:11px;color:var(--muted);
+    display:flex;gap:12px;flex-wrap:wrap}
+  .cac-legend span{display:inline-flex;align-items:center;gap:5px}
+  .cac-legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+
+  /* ── Sensitivity priority cards ── */
+  .sens-chart{margin:0 0 20px}
+  .sens-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+    gap:9px;margin-top:10px}
+  .sens-card{background:var(--surface);border:1px solid var(--line);
+    border-radius:7px;padding:13px 15px;display:flex;gap:11px;align-items:flex-start}
+  .sens-badge{width:28px;height:28px;border-radius:50%;display:flex;
+    align-items:center;justify-content:center;font-size:11px;font-weight:800;
+    color:#fff;flex-shrink:0;margin-top:1px}
+  .sens-badge.p1{background:var(--accent)}
+  .sens-badge.p2{background:#d97706}
+  .sens-badge.p3{background:var(--ink-2)}
+  .sens-badge.pN{background:var(--muted)}
+  .sens-change{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px;line-height:1.4}
+  .sens-effect{font-size:11px;color:var(--muted);line-height:1.45}
+
+  /* ── Dimension score chart ── */
+  .dim-chart{margin:0 0 18px}
+  .dim-chart-row{display:grid;grid-template-columns:155px 1fr 34px;
+    gap:9px;align-items:center;margin:4px 0}
+  .dim-label-cell{font-size:11px;font-weight:600;color:var(--ink-2);
+    text-overflow:ellipsis;overflow:hidden;white-space:nowrap;text-align:right}
+  .dim-bar-track{background:#e5e7eb;border-radius:3px;height:12px}
+  .dim-bar{height:100%;border-radius:3px}
+  .dim-score-lbl{font-size:10px;font-weight:700;color:var(--muted);text-align:right}
+
+  /* ── Price comparison chart ── */
+  .price-chart{margin:0 0 20px;background:var(--surface);border:1px solid var(--line);
+    border-radius:8px;padding:20px 22px}
+  .price-chart-title{font-size:10.5px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--accent);margin-bottom:18px}
+  .price-axis-wrap{position:relative;padding:34px 0 30px;margin:0 8px}
+  .price-axis-line{height:3px;background:#dde1e7;border-radius:2px;position:relative}
+  .price-dot{position:absolute;transform:translateX(-50%) translateY(-50%);
+    top:50%;width:14px;height:14px;border-radius:50%;border:2.5px solid #fff;
+    box-shadow:0 1px 5px rgba(0,0,0,.18);z-index:2}
+  .price-dot.ours{background:var(--accent);width:20px;height:20px}
+  .price-dot.comp{background:var(--ink-2)}
+  .price-top-label{position:absolute;transform:translateX(-50%);
+    bottom:calc(100% + 12px);font-size:11px;font-weight:700;
+    white-space:nowrap;color:var(--ink)}
+  .price-top-label.ours{color:var(--accent)}
+  .price-bot-label{position:absolute;transform:translateX(-50%);
+    top:calc(100% + 12px);font-size:9.5px;color:var(--muted);white-space:nowrap}
+  .price-axis-ends{display:flex;justify-content:space-between;
+    font-size:10px;color:var(--muted);font-weight:600;margin-top:4px}
+
+  /* ── Budget allocation bar ── */
+  .budget-chart{margin:0 0 20px}
+  .budget-bar-row{display:flex;height:32px;border-radius:7px;overflow:hidden;
+    gap:2px;margin:10px 0}
+  .budget-seg{display:flex;align-items:center;padding:0 9px;
+    font-size:10px;font-weight:700;color:#fff;white-space:nowrap;
+    overflow:hidden;min-width:20px}
+  .budget-legend{font-size:11px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
+  .budget-legend span{display:inline-flex;align-items:center;gap:5px}
+  .budget-legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+
+  /* ── Channel verdict strip ── */
+  .cv-strip{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+  .cv-badge{display:inline-flex;align-items:center;gap:7px;
+    padding:8px 12px;border-radius:7px;border:1px solid var(--line);
+    background:var(--surface);font-size:12px}
+  .cv-badge-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .cv-name{font-weight:700;color:var(--ink);font-size:12px}
+  .cv-task{color:var(--muted);font-size:11px}
+
+  /* ── Challenge traffic lights ── */
+  .ch-visual{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+    gap:8px;margin:0 0 18px}
+  .ch-card{background:var(--surface);border:1px solid var(--line);
+    border-radius:7px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start}
+  .ch-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-top:3px}
+  .ch-dot.resolved{background:#16a34a}
+  .ch-dot.open{background:#d97706}
+  .ch-dot.open-blocking{background:#dc2626}
+  .ch-title{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px;line-height:1.35}
+  .ch-target{font-size:11px;color:var(--muted)}
+
+  /* ── Maturity ladder ── */
+  .maturity-ladder{display:flex;gap:2px;margin:0 0 18px;border-radius:7px;
+    overflow:hidden;border:1px solid var(--line)}
+  .ml-step{flex:1;padding:12px 14px;background:var(--surface);
+    font-size:11px;line-height:1.4;text-align:center;position:relative}
+  .ml-step.active{background:var(--accent);color:#fff}
+  .ml-step.done{background:var(--ok);color:var(--ok-ink)}
+  .ml-step-label{font-weight:700;font-size:12px;display:block;margin-bottom:2px}
+  .ml-step-desc{font-size:10.5px;opacity:.8}
+
+  /* ── Signature: verdict band ── */
+  .memo{border:none;padding:0;box-shadow:none;background:transparent}
+  .memo-verdict-band{background:#1a202c;color:#fff;
+    border-radius:10px 10px 0 0;padding:32px 30px 26px}
+  .verdict-label{font-size:10px;font-weight:700;letter-spacing:.12em;
+    text-transform:uppercase;opacity:.45;margin-bottom:8px}
+  .verdict{display:inline-block;padding:7px 22px;border-radius:6px;
+    font-weight:800;font-size:20px;letter-spacing:.03em}
+  .verdict-go{background:var(--ok);color:var(--ok-ink)}
+  .verdict-no-go{background:var(--bad);color:var(--bad-ink)}
+  .verdict-conditional{background:var(--accent);color:#fff}
+  .memo-body{background:var(--panel);border:1px solid var(--line);
+    border-top:none;border-radius:0 0 10px 10px;padding:26px 30px}
+  .memo-thesis{font-size:14.5px;line-height:1.75;margin:0 0 20px;color:var(--ink)}
+  .memo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
+  .memo-grid>div{border:1px solid var(--line);border-radius:7px;
+    padding:15px 17px;background:var(--surface)}
+  .memo-grid h3{margin:0 0 9px}
+  .memo-grid ul{margin:0;padding-left:17px}
+  .memo-grid li{margin:5px 0;font-size:13.5px;line-height:1.55}
+  .mk-legend{font-size:11px;color:var(--muted);margin:14px 0 0;
+    padding-top:11px;border-top:1px solid var(--line)}
+
+  /* ── Derivation chains ── */
+  .derivation{font-family:ui-monospace,"JetBrains Mono",Consolas,monospace;
+    font-size:11.5px;background:var(--surface);border:1px solid var(--line);
+    border-left:3px solid var(--accent);border-radius:0 7px 7px 0;
+    padding:11px 15px;margin:10px 0;line-height:1.8}
+  .deriv-name{font-weight:700;font-size:12.5px;margin-bottom:4px;color:var(--ink)}
+  .deriv-line{padding-left:11px;color:#4b5563}
+  .deriv-result{padding-left:11px;margin-top:4px;font-weight:700;color:var(--ink)}
+  .deriv-note{margin-top:7px;color:var(--muted);
+    font-family:'Inter',sans-serif;font-size:11.5px;
+    padding-top:6px;border-top:1px dashed var(--line)}
+  .prov-note{color:var(--muted);font-size:10.5px}
+
+  /* ── Provenance markers ── */
+  sup.mk{font-size:9px;font-weight:700;padding:1px 3px;margin-left:1px;border-radius:2px}
+  .mk-sourced{color:#065f46;background:#d1fae5}
+  .mk-assumed{color:#78350f;background:#fef3c7}
+  .mk-derived{color:#1e40af;background:#dbeafe}
+  .mk-missing{color:#991b1b;background:#fee2e2}
+  .missing-val{color:#9ca3af;border-bottom:1px dashed #d1d5db}
+
+  /* ── Pills ── */
+  .pill{display:inline-block;padding:2px 8px;border-radius:999px;
+    font-size:10.5px;font-weight:700;white-space:nowrap}
+  .pill-viable{background:var(--ok);color:var(--ok-ink)}
+  .pill-not-viable{background:var(--bad);color:var(--bad-ink)}
+  .pill-undetermined{background:var(--warn);color:var(--warn-ink)}
+  .pill-role-only{background:var(--neutral);color:var(--neutral-ink)}
+  .pill-resolved{background:var(--ok);color:var(--ok-ink)}
+  .pill-open{background:var(--warn);color:var(--warn-ink)}
+  .pill-open-blocking{background:var(--bad);color:var(--bad-ink)}
+  .blocked-stamp{display:inline-block;border:2px solid var(--bad-ink);
+    color:var(--bad-ink);padding:2px 8px;border-radius:4px;
+    font-weight:700;font-size:10.5px;transform:rotate(-1.5deg);margin-left:7px}
+
+  /* ── Depth banner (quick / deep modes) ── */
+  .depth-banner{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;
+    background:var(--accent-light);color:var(--accent);
+    border:1px solid var(--accent);border-radius:7px;
+    padding:9px 13px;margin:0 0 16px;font-size:11.5px;line-height:1.5}
+  .depth-banner b{font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+  .depth-banner span{color:var(--muted)}
+
+  /* ── Assumption → validation ledger (deep mode) ── */
+  .ledger-rank{font-weight:800;color:var(--muted);text-align:center;width:30px}
+  .ledger td .pill{margin:0}
+
+  /* ── Category portfolio: severity, verdict, findings ── */
+  .sev{display:inline-block;padding:2px 8px;border-radius:999px;
+    font-size:10px;font-weight:800;white-space:nowrap;text-transform:uppercase;letter-spacing:.03em}
+  .sev-critical{background:var(--bad);color:var(--bad-ink)}
+  .sev-major{background:var(--warn);color:var(--warn-ink)}
+  .sev-watch{background:var(--neutral);color:var(--neutral-ink)}
+  .verdict{display:inline-block;padding:2px 9px;border-radius:6px;
+    font-size:11px;font-weight:800;white-space:nowrap}
+  .verdict-grow{background:var(--ok);color:var(--ok-ink)}
+  .verdict-hold{background:var(--neutral);color:var(--neutral-ink)}
+  .verdict-harvest{background:var(--warn);color:var(--warn-ink)}
+  .verdict-exit{background:var(--bad);color:var(--bad-ink)}
+  .finding{border:1px solid var(--line);border-left:4px solid var(--line-strong);
+    border-radius:7px;padding:11px 14px;margin:10px 0;background:var(--panel)}
+  .finding.sv-critical{border-left-color:var(--bad-ink)}
+  .finding.sv-major{border-left-color:var(--warn-ink)}
+  .finding.sv-watch{border-left-color:var(--neutral-ink)}
+  .finding-head{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:6px}
+  .finding-title{font-weight:700;font-size:13px;color:var(--ink)}
+  .finding-meta{font-size:11.5px;color:var(--muted);margin:4px 0;line-height:1.6}
+  .finding-rec{font-size:12.5px;margin-top:7px;padding-top:7px;border-top:1px dashed var(--line);color:var(--ink)}
+  .lens-tag{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.04em;
+    padding:1px 6px;border-radius:4px;background:var(--accent-light);color:var(--accent)}
+  table.fourp th:first-child,table.fourp td:first-child{position:sticky;left:0;background:var(--surface)}
+
+  /* ── Tables ── */
+  .table-wrap{overflow-x:auto;border:1px solid var(--line);
+    border-radius:7px;background:#fff;margin:10px 0}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{background:var(--surface);font-weight:700;font-size:10px;text-transform:uppercase;
+    letter-spacing:.06em;color:var(--muted);padding:9px 13px;
+    border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  td{padding:10px 13px;border-bottom:1px solid var(--line);
+    vertical-align:top;text-align:left;font-size:12.5px}
+  tr:last-child td{border-bottom:0}
+  tr:nth-child(even) td{background:#fafafa}
+
+  /* ── Cards ── */
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+    gap:12px;margin-top:12px}
+  .card{border:1px solid var(--line);border-radius:7px;
+    padding:15px 17px;background:var(--surface);border-top:2px solid var(--line)}
+  .card.blocked{border-top-color:var(--bad-ink);background:#fff8f8}
+  .card h3{margin:0 0 9px;font-size:13.5px;font-weight:700;line-height:1.35}
+  .card dl{margin:0;font-size:12.5px}
+  .card dt{color:var(--muted);font-size:9.5px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.06em;margin-top:9px}
+  .card dd{margin:3px 0 0;line-height:1.5}
+
+  /* ── Callout ── */
+  .callout{border-left:3px solid var(--accent);border-radius:0 7px 7px 0;
+    padding:13px 17px;margin:12px 0;background:var(--accent-light);
+    font-size:13px;line-height:1.65}
+
+  /* ── Heatmap ── */
+  .heatmap{display:grid;gap:2px;background:var(--line);
+    border:1px solid var(--line);border-radius:7px;
+    overflow:hidden;font-size:11px;margin:12px 0;overflow-x:auto}
+  .hm-header{background:#1f2937;color:#fff;font-weight:700;
+    padding:7px 6px;text-align:center;font-size:9px;
+    text-transform:uppercase;letter-spacing:.03em;line-height:1.3;
+    word-break:break-all;min-width:36px}
+  .hm-label{background:#f9fafb;font-weight:600;padding:8px 10px;
+    font-size:11px;color:var(--ink);white-space:nowrap}
+  .hm-cell{padding:7px 4px;text-align:center;font-weight:800;
+    font-size:10.5px;letter-spacing:.03em;min-width:36px}
+  .hm-high{background:#4338ca;color:#fff}
+  .hm-test{background:#1e3a8a;color:#fff}
+  .hm-small{background:#e0e7ff;color:#3730a3}
+  .hm-none{background:#f9fafb;color:#d1d5db}
+  .hm-avoid{background:#991b1b;color:#fff}
+
+  /* ── Score dots ── */
+  .score-bar{display:inline-flex;gap:2px;vertical-align:middle}
+  .score-dot{width:7px;height:7px;border-radius:50%}
+  .score-dot.pass{background:var(--accent)}.score-dot.fail{background:#e5e7eb}
+
+  /* ── KOL card ── */
+  .kol-card{border:1px solid var(--line);border-radius:7px;
+    padding:15px 17px;background:var(--surface);margin:9px 0;
+    border-left:3px solid var(--accent)}
+
+  /* ── Checklist ── */
+  .checklist{list-style:none;padding:0;margin:0}
+  .checklist li{display:flex;gap:11px;padding:8px 0;
+    border-bottom:1px solid var(--line);font-size:13px;align-items:flex-start}
+  .checklist li:last-child{border-bottom:0}
+  .chk-pending{color:var(--warn-ink);font-weight:800;min-width:18px;margin-top:1px}
+  .chk-done{color:var(--ok-ink);font-weight:800;min-width:18px;margin-top:1px}
+  .chk-blocked{color:var(--bad-ink);font-weight:800;min-width:18px;margin-top:1px}
+
+  /* ── Evidence tags ── */
+  .tag{display:inline-block;padding:2px 7px;border-radius:999px;
+    font-size:10.5px;font-weight:700;white-space:nowrap}
+  .tag.evidence{background:var(--ok);color:var(--ok-ink)}
+  .tag.assumption{background:var(--warn);color:var(--warn-ink)}
+  .tag.hypothesis{background:#dbeafe;color:#1e40af}
+  .tag.needs-test{background:var(--bad);color:var(--bad-ink)}
+
+  @media(max-width:760px){
+    .page-layout{grid-template-columns:1fr}
+    .sidebar{display:none}
+    .memo-grid,.cards,.sens-grid,.ch-visual,.cv-strip{grid-template-columns:1fr}
+    .dim-chart-row{grid-template-columns:90px 1fr 30px}
+    .maturity-ladder{flex-direction:column}
+  }
+  @media print{body{background:#fff;font-size:12px}
+    .sidebar{display:none}
+    .page-layout{grid-template-columns:1fr}
+    section{break-inside:avoid;box-shadow:none}
+    .memo-verdict-band{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    a{color:var(--ink)}}
+  /* ── Decision horizon strip ── */
+  .hz-bar{display:flex;height:28px;border-radius:6px;overflow:hidden;margin:14px 0;gap:1px}
+  .hz-seg{display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:700;color:#fff;overflow:hidden;
+    white-space:nowrap;padding:0 8px;min-width:40px}
+
+  /* ── H-main opportunity bars ── */
+  .hm-bars{margin:14px 0}
+  .hm-bar-row{display:grid;grid-template-columns:150px 1fr auto;
+    gap:8px;align-items:center;margin:5px 0}
+  .hm-bar-label{font-size:11.5px;font-weight:600;color:var(--ink-2);text-align:right;line-height:1.3}
+  .hm-bar-track{height:18px;background:var(--surface);border-radius:4px;
+    border:1px solid var(--line);overflow:hidden}
+  .hm-bar-fill{height:100%;background:var(--accent);border-radius:4px;opacity:.8}
+  .hm-bar-card{font-size:10px;color:var(--muted);font-weight:600;white-space:nowrap}
+
+  /* ── Vertical timeline ── */
+  .timeline{position:relative;margin:16px 0 8px;padding-left:20px}
+  .timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;
+    width:2px;background:var(--line-strong);border-radius:1px}
+  .tl-item{position:relative;margin-bottom:14px}
+  .tl-item::before{content:'';position:absolute;left:-13px;top:5px;
+    width:10px;height:10px;border-radius:50%;background:var(--accent);
+    border:2px solid var(--panel)}
+  .tl-name{font-size:12.5px;font-weight:700;color:var(--ink);line-height:1.35}
+  .tl-date{font-size:10.5px;color:var(--muted);margin-top:2px}
+  .tl-desc{font-size:12px;color:var(--ink-2);margin-top:3px;line-height:1.5}
+
+  /* ── Suppression rule cards ── */
+  .supp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:10px;margin:12px 0}
+  .supp-card{background:var(--surface);border:1px solid var(--line);
+    border-radius:7px;padding:13px 14px;border-left:3px solid var(--bad-ink)}
+  .supp-dim{font-size:9.5px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.07em;color:var(--muted);margin-bottom:4px}
+  .supp-rule{font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.4;margin-bottom:4px}
+  .supp-reason{font-size:11.5px;color:var(--muted);line-height:1.45}
+
+  /* ── Provenance donut ── */
+  .prov-donut-wrap{display:flex;align-items:center;gap:24px;margin:14px 0}
+  .prov-donut{width:100px;height:100px;border-radius:50%;flex-shrink:0}
+  .prov-legend{display:flex;flex-direction:column;gap:7px}
+  .prov-leg-item{display:flex;align-items:center;gap:8px;font-size:12.5px}
+  .prov-leg-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+  .prov-leg-count{font-weight:700;color:var(--ink);margin-left:auto;padding-left:14px}
+
+  /* ── Checklist progress ── */
+  .chk-summary{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));
+    gap:8px;margin:12px 0}
+  .chk-stat{background:var(--surface);border:1px solid var(--line);border-radius:7px;
+    padding:11px 13px;text-align:center}
+  .chk-stat-num{font-size:22px;font-weight:800;letter-spacing:-.03em}
+  .chk-stat-label{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-top:3px}
+  .chk-progress-bar{height:7px;background:var(--surface);border-radius:4px;
+    border:1px solid var(--line);overflow:hidden;margin:6px 0 16px}
+  .chk-progress-fill{height:100%;background:var(--ok-ink);border-radius:4px}
+
+  /* ── KOL tier cards ── */
+  .kol-tiers{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+    gap:10px;margin:14px 0}
+  .kol-tier-card{border:1px solid var(--line);border-radius:7px;
+    padding:12px 14px;background:var(--surface);text-align:center}
+  .kol-tier-label{font-size:9.5px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--accent);margin-bottom:6px}
+  .kol-tier-name{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px;line-height:1.3}
+  .kol-tier-meta{font-size:11px;color:var(--muted);line-height:1.5}
+
+  /* ── Budget phase diagram ── */
+  .budget-phases{display:flex;flex-direction:column;gap:4px;margin:14px 0}
+  .bp-phase{display:grid;grid-template-columns:20px 1fr;gap:10px;align-items:start}
+  .bp-line{display:flex;flex-direction:column;align-items:center}
+  .bp-dot{width:12px;height:12px;border-radius:50%;background:var(--accent);
+    border:2px solid var(--panel);flex-shrink:0;margin-top:3px}
+  .bp-connector{width:2px;flex:1;background:var(--line-strong);margin:2px 0;min-height:14px}
+  .bp-body{background:var(--surface);border:1px solid var(--line);
+    border-radius:6px;padding:9px 12px;margin-bottom:2px}
+  .bp-name{font-size:12.5px;font-weight:700;color:var(--ink)}
+  .bp-cond{font-size:11px;color:var(--muted);margin-top:3px}
+  .bp-amt{font-size:11px;font-weight:700;color:var(--accent);margin-top:3px}
+
+  /* ── ECharts interactive figure ── */
+  .echart-wrap{background:var(--surface);border:1px solid var(--line);
+    border-radius:8px;padding:16px 18px 14px;margin:16px 0}
+  .echart-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
+    margin-bottom:4px}
+  .echart-title{font-size:13px;font-weight:700;color:var(--ink);
+    letter-spacing:-.01em;line-height:1.4}
+  .echart-badge{font-size:9px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.07em;padding:2px 7px;border-radius:4px;white-space:nowrap;
+    background:var(--accent-light);color:var(--accent)}
+  .echart-badge.illustrative{background:var(--warn);color:var(--warn-ink)}
+  .echart-sub{font-size:11.5px;color:var(--muted);margin:0 0 8px;line-height:1.5}
+  .echart{width:100%;height:330px}
+  @media(max-width:560px){.echart{height:300px}}
+  .echart-rebuttal{font-size:11px;color:var(--ink-2);line-height:1.55;
+    margin-top:8px;padding:8px 11px;background:var(--panel);
+    border-left:3px solid var(--warn-ink);border-radius:4px}
+  .echart-rebuttal strong{color:var(--warn-ink)}
+  .echart-fallback{display:flex;align-items:center;justify-content:center;
+    min-height:300px;color:var(--muted);font-size:12px;text-align:center;
+    padding:0 20px;line-height:1.6}
+
+  /* ── TL;DR summary page (s0) ── */
+  .tldr{background:var(--panel);border:1px solid var(--line-strong);
+    border-radius:12px;padding:24px 28px 26px;margin:14px 0 20px;
+    box-shadow:0 2px 10px rgba(0,0,0,.06)}
+  .tldr-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .tldr-kicker{font-size:10px;font-weight:800;text-transform:uppercase;
+    letter-spacing:.13em;color:var(--muted)}
+  .tldr-meta{font-size:11.5px;color:var(--muted);margin-left:auto}
+  .tldr-why{font-size:15.5px;line-height:1.6;color:var(--ink);
+    margin:0 0 18px;font-weight:600;letter-spacing:-.01em}
+  .tldr-why .tldr-why-lab{display:block;font-size:10px;font-weight:800;
+    text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:5px}
+  .tldr-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+  @media(max-width:640px){.tldr-cols{grid-template-columns:1fr}}
+  .tldr-col{border-radius:10px;padding:15px 17px}
+  .tldr-col.do{background:var(--ok)}
+  .tldr-col.dont{background:var(--bad)}
+  .tldr-col h4{margin:0 0 9px;font-size:12px;font-weight:800;
+    display:flex;align-items:center;gap:7px;letter-spacing:.01em}
+  .tldr-col.do h4{color:var(--ok-ink)}
+  .tldr-col.dont h4{color:var(--bad-ink)}
+  .tldr-col ul{margin:0;padding:0;list-style:none}
+  .tldr-col li{position:relative;padding:4px 0 4px 20px;font-size:13px;
+    line-height:1.5;color:var(--ink)}
+  .tldr-col li::before{position:absolute;left:0;top:4px;font-weight:800}
+  .tldr-col.do li::before{content:'✓';color:var(--ok-ink)}
+  .tldr-col.dont li::before{content:'✗';color:var(--bad-ink)}
+  .tldr-col li.empty{color:var(--muted);padding-left:0}
+  .tldr-col li.empty::before{content:''}
+  .tldr-roi{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:10px;padding:14px 18px}
+  .tldr-roi-lab{font-size:10px;font-weight:800;text-transform:uppercase;
+    letter-spacing:.1em;color:var(--muted);flex-shrink:0}
+  .tldr-roi-val{font-size:14px;font-weight:600;color:var(--ink);line-height:1.5}
+
+</style>
+</head>
+<body>
+<div class="page-layout">
+<aside class="sidebar">
+  <div class="toc-logo">HUAWEI Romania Consu<br><span>Romania</span></div>
+  <div class="toc-group-label">五个问题</div>
+  <a class="toc-chapter" href="#ch1">这钱到底花不花？</a>
+<a class="toc-link" href="#c0" id="toc-c0">0 - 组合结论与 4P 动作</a>
+<a class="toc-link" href="#inv1" id="toc-inv1">预算花在哪</a>
+<a class="toc-chapter" href="#ch2">为什么？账是怎么算出来的？</a>
+<a class="toc-link" href="#c1" id="toc-c1">1 - 组合诊断</a>
+<a class="toc-link" href="#inv2" id="toc-inv2">钱越花越多，账怎么变（预算曲线）</a>
+<a class="toc-chapter" href="#ch3">对谁打、在哪打、说什么？</a>
+<a class="toc-link" href="#c2" id="toc-c2">2 - 价格层 x 人群 x 竞争地图</a>
+<a class="toc-link" href="#c3" id="toc-c3">3 - SKU 明细与 4P</a>
+<a class="toc-link" href="#inv3" id="toc-inv3">钱落在哪：SKU × 打法模块</a>
+<a class="toc-chapter" href="#ch4">谁去做、什么时候、花多少钱——怎么算赢？</a>
+<a class="toc-link" href="#c4" id="toc-c4">4 - 进入 HTE 深挖的 SKU</a>
+<a class="toc-link" href="#inv4" id="toc-inv4">落地任务卡（这轮批到钱的动作）</a>
+<a class="toc-chapter" href="#ch5">凭什么信这份报告？哪里可能翻车？</a>
+<a class="toc-link" href="#s16" id="toc-s16">证据与缺口</a>
+<a class="toc-link" href="#inv-hte" id="toc-inv-hte">HTE 验证核心（tau 数字凭什么信）</a>
+<a class="toc-link" href="#inv-mmm" id="toc-inv-mmm">宏观渠道校准（MMM）</a>
+<a class="toc-link" href="#inv5" id="toc-inv5">这轮所有候选格子的证据等级（不管这轮批没批钱）</a>
+
+</aside>
+<div class="content-col">
+<main>
+<div class="chapter-head" id="ch1">
+  <div class="ch-num">1 · 拍板</div>
+  <div class="ch-question">这钱到底花不花？</div>
+  <div class="ch-answer"><span>一句话回答</span> 共 35 个 SKU：14 个加大投入、15 个维持、6 个收割、0 个退出。 投资：投 700,000 RON，换 13,005 件增量销量、3,521,731 RON 增量毛利（ROI 5.03x）；2 个格子这轮没批钱。</div>
+</div><section id="c0">
+  <h2>0 - 组合结论与 4P 动作</h2>
+  <p class="section-intro">One screen: every SKU's verdict and its one-line move on each P. The findings that justify each row are in §1 — read down only where you disagree with a verdict.</p>
+  <div class="table-wrap"><table class="fourp">
+    <thead><tr>
+      <th>SKU / 产品</th>
+      <th>结论</th>
+      <th>Product</th>
+      <th>Price</th>
+      <th>Place</th>
+      <th>Promotion</th>
+    </tr></thead>
+    <tbody><tr><td><strong>HUAWEI Mate X7</strong></td><td><span class="verdict verdict-hold">保持 / 验证</span></td><td>折叠屏旗舰；主打设计、影像和高端尝鲜。</td><td>保持旗舰锚点，避免用折扣破坏高端感。</td><td>官网、旗舰零售、专家体验场景优先。</td><td>PR review 和深度评测，不做大众买量。</td></tr><tr><td><strong>HUAWEI Pura 80 Ultra</strong></td><td><span class="verdict verdict-grow">增长 / 投资</span></td><td>影像旗舰，作为品牌上限和技术故事。</td><td>保留高价锚点，避免转化焦虑时直接降价。</td><td>官网、授权零售、影像内容触点。</td><td>摄影挑战、专家评测、样张内容，先验证再扩量。</td></tr><tr><td><strong>HUAWEI Pura 80 Pro</strong></td><td><span class="verdict verdict-grow">增长 / 投资</span></td><td>旗舰主销款，承接 Pura 80 系列兴趣。</td><td>以官方起价为锚，结合套装而非裸机折扣。</td><td>官网、搜索、零售 PDP 重点承接。</td><td>相机证明、用户场景和对照组投放。</td></tr><tr><td><strong>HUAWEI nova 14 Pro</strong></td><td><span class="verdict verdict-grow">增长 / 投资</span></td><td>中高端拍照与设计款。</td><td>维持中高端可及价格，避免压低 Pura。</td><td>社媒、搜索、官网商店。</td><td>年轻化内容和换机场景，控制预算上限。</td></tr><tr><td><strong>HUAWEI Pura 70 Ultra</strong></td><td><span class="verdict verdict-harvest">收割</span></td><td>上一代旗舰，保留为选择层。</td><td>用库存策略管理，不进入新增预算池。</td><td>自然流量和库存渠道。</td><td>仅做清晰对比和被动承接。</td></tr><tr><td><strong>HUAWEI WATCH Ultimate 2</strong></td><td><span class="verdict verdict-hold">保持 / 验证</span></td><td>潜水、户外、eSIM 等高端能力。</td><td>保持高端，避免广泛促销。</td><td>官网、专业户外内容、旗舰店。</td><td>专业场景评测，不做大盘转化预算。</td></tr><tr><td><strong>HUAWEI WATCH GT 6 Pro</strong></td><td><span class="verdict verdict-grow">增长 / 投资</span></td><td>运动健康旗舰主力。</td><td>保留 premium，使用赠品/套装而非硬折扣。</td><td>官网、零售、运动内容触点。</td><td>骑行、健康监测、长续航内容，配 creator holdout。</td></tr><tr><td><strong>HUAWEI WATCH GT 6</strong></td><td><span class="verdict verdict-grow">增长 / 投资</span></td><td>长续航、多运动、日常佩戴主力。</td><td>用清晰价差承接 Pro 下沉用户。</td><td>搜索、零售、官网商店。</td><td>长续航和运动数据证明，适合规模化测试。</td></tr><tr><td><strong>HUAWEI WATCH 5</strong></td><td><span class="verdict verdict-hold">保持 / 验证</span></td><td>高端智能表选择层。</td><td>维持价格层级，避免与 GT 6 Pro 混淆。</td><td>官网和自然搜索。</td><td>作为对比和生态承接，不做主投。</td></tr><tr><td><strong>HUAWEI WATCH FIT 5 Pro</strong></td><td><span class="verdict verdict-grow">增长 / 投资</span></td><td>轻旗舰健康运动表。</td><td>可用限时权益，不建议深折扣。</td><td>短视频、官网、零售端架。</td><td>生活方式 + 运动场景，大样本 holdout。</td></tr><tr><td><strong>HUAWEI WATCH FIT 5</strong></td><td><span class="verdict verdict-grow">增长 / 投资</span></td><td>大众健康和运动表。</td><td>清晰低于 Pro，做量不破 Pro。</td><td>社媒、搜索、零售。</td><td>入门健康习惯和礼品场景。</td></tr><tr><td><strong>HUAWEI WATCH ULTIMATE DESIGN Spring Edition</strong></td><td><span class="verdict verdict-hold">保持 / 验证</span></td><td>设计限量款。</td><td>高端稀缺锚点。</td><td>官网和精品内容。</td><td>品牌故事，不做绩效买量。</td></tr><tr><td><strong>HUAWEI WATCH GT Runner 2</strong></td><td><span class="verdict verdict-hold">保持 / 验证</span></td><td>跑步专业方向。</td><td>等待上架信息确认。</td><td>运动内容和官网。</td><td>确认供给后再做跑步人群测试。</td></tr><tr><td><strong>HUAWEI Band 11 Pro</strong></td><td><span class="verdict verdict-hold">保持 / 验证</span></td><td>入门健康手环。</td><td>用作低门槛引流，不牺牲 FIT 5。</td><td>零售和官网自然流量。</td><td>入门健康习惯，不做主预算。</td></tr><tr><td><strong>HUAWEI WATCH GT 5 Pro</strong></td><td><span class="verdict verdict-harvest">收割</span></td><td>上一代 Pro 表款。</td><td>清库存和自然承接。</td><td>自然搜索/零售尾货。</td><td>不新增大预算。</td></tr><tr><td><strong>HUAWEI WATCH GT 5</strong></td><td><span class="verdict verdict-harvest">收割</span></td><td>成熟期表款。</td><td>尾货策略。</td><td>自然流量和零售承接。</td><td>仅保留对比页和低成本承接。</td></tr><tr><td><strong>HUAWEI WATCH FIT 4</strong></td><td><span class="verdict verdict-harvest">收割</span></td><td>上一代 FIT。</td><td>保留作为价位承接。</td><td>尾货和自然流量。</td><td>不再新增内容预算。</td></tr><tr><td><strong>HUAWEI MateBook D 16 2024</strong></td><td><span class="verdict verdict-grow">增长 / 投资</span></td><td>大屏轻薄办公主力。</td><td>以官方商店价格为锚，优先套装而非裸降。</td><td>搜索、学生优惠、零售 media。</td><td>办公/学习效率场景，和 MatePad 做协同叙事。</td></tr><tr><td><strong>HUAWEI MateBook D 14 2024</strong></td><td><span class="verdict verdict-hold">保持 / 验证</span></td><td>便携办公款。</td><td>与 D 16 保持清晰价差。</td><td>官网和搜索承接。</td><td>便携和学生场景，低预算。</td></tr><tr><td><strong>HUAWEI MatePad 12 X 2025</strong></td><td><span class="verdict verdict-grow">增长 / 投资</span></td><td>生产力和创作平板主力。</td><td>用笔键配件建立方案价值。</td><td>retail media、官网、学生触点。</td><td>学习、笔记、创作、护眼场景。</td></tr><tr><td><strong>HUAWEI MatePad 11.5 2025</strong></td><td><span class="verdict verdict-grow">增长 / 投资</span></td><td>学习和娱乐平板。</td><td>承接 12 X 下沉需求。</td><td>官网、搜索、学生优惠。</td><td>PaperMatte、续航、笔记和视频场景。</td></tr><tr><td><strong>HUAWEI MatePad 11.5</strong></td><td><span class="verdict verdict-hold">保持 / 验证</span></td><td>基础学习平板。</td><td>明确旧款/新款价差。</td><td>自然流量和零售承接。</td><td>低成本承接，不主投。</td></tr><tr><td><strong>HUAWEI MatePad Pro 12.2-inch</strong></td><td><span class="verdict verdict-hold">保持 / 验证</span></td><td>高端 OLED/PaperMatte 创作平板。</td><td>保持 Pro 价格锚。</td><td>官网和高意图搜索。</td><td>创作和屏幕专业内容，小样本验证。</td></tr><tr><td><strong>HUAWEI MatePad Pro 13.2-inch 2025</strong></td><td><span class="verdict verdict-hold">保持 / 验证</span></td><td>大屏创作旗舰。</td><td>保持高端锚点。</td><td>官网、高端内容创作场景。</td><td>创作者评测和展示，不做广泛转化。</td></tr><tr><td><strong>HUAWEI MatePad 11.5 S</strong></td><td><span class="verdict verdict-harvest">收割</span></td><td>上一代/旁支平板。</td><td>库存承接。</td><td>自然流量。</td><td>不新增大预算。</td></tr><tr><td><strong>HUAWEI MatePad SE 11</strong></td><td><span class="verdict verdict-hold">保持 / 验证</span></td><td>入门娱乐/家庭平板。</td><td>守住入门价位。</td><td>零售和自然搜索。</td><td>家庭娱乐和儿童学习，低预算。</td></tr><tr><td><strong>HUAWEI FreeBuds 7i</strong></td><td><span class="verdict verdict-hold">保持 / 验证</span></td><td>大众 TWS。</td><td>入门/中端承接。</td><td>官网和零售自然流量。</td><td>低成本承接，不抢 Pro 5。</td></tr><tr><td><strong>HUAWEI FreeBuds Pro 5</strong></td><td><span class="verdict verdict-grow">增长 / 投资</span></td><td>高端降噪 TWS。</td><td>高端音频价位，避免与 7i 混乱。</td><td>retail media、搜索、官网。</td><td>ANC、通话、音质证明，配合短链路测试。</td></tr><tr><td><strong>HUAWEI FreeBuds Pro 4</strong></td><td><span class="verdict verdict-harvest">收割</span></td><td>上一代高端音频。</td><td>库存承接。</td><td>自然流量和尾货。</td><td>不新增主预算。</td></tr><tr><td><strong>HUAWEI FreeArc</strong></td><td><span class="verdict verdict-hold">保持 / 验证</span></td><td>开放式/运动音频。</td><td>保持差异化价位。</td><td>运动内容和官网。</td><td>舒适佩戴和运动安全，小样本验证。</td></tr><tr><td><strong>HUAWEI FreeBuds 6</strong></td><td><span class="verdict verdict-hold">保持 / 验证</span></td><td>通话和日常 TWS。</td><td>中端承接。</td><td>搜索和零售。</td><td>通勤/通话场景，低预算测试。</td></tr><tr><td><strong>HUAWEI FreeClip 2</strong></td><td><span class="verdict verdict-grow">增长 / 投资</span></td><td>开放式舒适佩戴音频。</td><td>用差异化而不是低价竞争。</td><td>creator、社媒、官网。</td><td>舒适、清晰通话、全天佩戴。</td></tr><tr><td><strong>HUAWEI WiFi Mesh X3 Pro</strong></td><td><span class="verdict verdict-grow">增长 / 投资</span></td><td>家庭 Mesh Wi-Fi 升级。</td><td>以官方起价为锚。</td><td>搜索、电子零售、家庭网络场景。</td><td>覆盖、速度、安装便利，匹配高意图搜索。</td></tr><tr><td><strong>HUAWEI 4G CPE 5</strong></td><td><span class="verdict verdict-grow">增长 / 投资</span></td><td>4G CPE 家庭联网。</td><td>官方起价作为清晰门槛。</td><td>搜索、零售、可能的运营商场景。</td><td>SIM、安装、覆盖和远程办公场景。</td></tr><tr><td><strong>HUAWEI Consumer Ecosystem (AppGallery/HMS)</strong></td><td><span class="verdict verdict-hold">保持 / 验证</span></td><td>AppGallery / Mobile Services 生态支撑。</td><td>不作为独立收入项。</td><td>手机和平板 PDP、FAQ、门店解释。</td><td>兼容性解释、迁移教程和购买前疑虑消除。</td></tr></tbody></table></div>
+</section><section id="inv1">
+  <h2>预算花在哪</h2>
+  <div class="kpi-strip"><div class="kpi inv-kpi-neutral"><div class="kpi-num">700,000<span class="kpi-unit">RON</span></div><div class="kpi-label">建议投入</div></div><div class="kpi inv-kpi-neutral"><div class="kpi-num">13,005<span class="kpi-unit"></span></div><div class="kpi-label">增量销量</div></div><div class="kpi inv-kpi-neutral"><div class="kpi-num">3,521,731<span class="kpi-unit">RON</span></div><div class="kpi-label">增量毛利</div></div><div class="kpi inv-kpi-good"><div class="kpi-num">2,821,731<span class="kpi-unit">RON</span></div><div class="kpi-label">净利润</div></div><div class="kpi inv-kpi-good"><div class="kpi-num">5.03<span class="kpi-unit">x</span></div><div class="kpi-label">投产比 (ROI)</div></div><div class="kpi inv-kpi-neutral"><div class="kpi-num">1.82<span class="kpi-unit">x</span></div><div class="kpi-label">止投线 (λ*)</div></div></div>
+  <h3>这轮没批钱的</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>SKU</th><th>打法模块</th><th>为何冻结</th></tr></thead>
+    <tbody><tr><td><strong>HUAWEI Mate X7</strong></td><td>creator_review</td><td>证据不够（tau_source 缺失或测量条件未就绪）</td></tr><tr><td><strong>HUAWEI Consumer Ecosystem (AppGallery/HMS)</strong></td><td>measurement</td><td>证据不够（tau_source 缺失或测量条件未就绪）</td></tr></tbody></table></div>
+</section><div class="chapter-head" id="ch2">
+  <div class="ch-num">2 · 这笔账</div>
+  <div class="ch-question">为什么？账是怎么算出来的？</div>
+  <div class="ch-answer"><span>一句话回答</span> 7 条诊断发现——3 条严重、3 条重要、1 条观察（严重度已按证据等级封顶）。 上面这笔钱是按边际回报从高到低排出来的，花到 1.82x 这道这轮最低达标线为止——具体曲线见下方。</div>
+</div><section id="c1">
+  <h2>1 - 组合诊断</h2>
+  <p class="section-intro">The sharp part. Each finding names what is broken, the evidence behind it, and what it costs — then points to the 4P move that fixes it. Severity is capped by evidence grade: a claim on thin evidence is downgraded to Watch and routed to the test queue, never dressed up as a settled conclusion.</p>
+  <div class="finding sv-critical">
+  <div class="finding-head"><span class="sev sev-critical">关键</span>
+    <span class="lens-tag">L1</span>
+    <span class="finding-title">公开产品组合已经不是单一手机生意，而是 6 个消费电子战场</span></div>
+  <div>HUAWEI Romania 官方消费页同时覆盖手机、穿戴、PC、平板、音频和路由；如果预算仍按单 SKU 或单品类思路分配，会把真正能放量的穿戴、平板、音频层低估。</div>
+  <div class="finding-meta"><strong>证据:</strong> 官方首页、支持页和品类页均列出这些消费者品类。 · sourced</div>
+  <div class="finding-meta"><strong>不处理的代价:</strong> 预算会被旗舰手机的声量吸走，但增量销量可能来自更高频、更低摩擦的穿戴、音频和平板。</div>
+  <div class="finding-rec"><strong>→ </strong>先做 portfolio budget，再做单 SKU deep dive；本轮把主预算放在穿戴、平板、音频，手机承担旗舰心智和高毛利验证。</div>
+</div><div class="finding sv-critical">
+  <div class="finding-head"><span class="sev sev-critical">关键</span>
+    <span class="lens-tag">L2</span>
+    <span class="finding-title">穿戴是本轮最像“可规模化投放”的核心引擎</span></div>
+  <div>官网和搜索结果能看到 WATCH FIT、WATCH GT、WATCH Ultimate、Band 等多个层级，覆盖入门、运动、旗舰和户外场景，SKU 密度和用户场景都比其他品类更完整。</div>
+  <div class="finding-meta"><strong>证据:</strong> 官方首页、wearables 页和 WATCH GT 6 / GT 6 Pro 页面。 · sourced</div>
+  <div class="finding-meta"><strong>不处理的代价:</strong> 穿戴可以承接短视频种草、搜索转化和零售体验，最适合拿来跑第一轮 HTE 投资曲线。</div>
+  <div class="finding-rec"><strong>→ </strong>把 WATCH FIT 5 Pro、WATCH GT 6 Pro、WATCH GT 6 作为 A 组投资 SKU，按人群和内容模块拆分预算。</div>
+</div><div class="finding sv-critical">
+  <div class="finding-head"><span class="sev sev-critical">关键</span>
+    <span class="lens-tag">L7</span>
+    <span class="finding-title">最核心缺口不是证据链接，而是真实 HTE 验证</span></div>
+  <div>公开网页可以证明产品存在、价格锚点和功能卖点，但不能证明哪个 SKU x 模块对罗马尼亚用户产生增量购买。</div>
+  <div class="finding-meta"><strong>证据:</strong> 本报告所有 tau_hat 都是 planning prior；没有内部 randomized holdout。 · sourced</div>
+  <div class="finding-meta"><strong>不处理的代价:</strong> 预算建议可以用于第一轮计划，但不能被当成 validated causal ROI。</div>
+  <div class="finding-rec"><strong>→ </strong>上线时按 SKU x 模块建立 holdout：至少保留地区、门店或受众层级对照组，用 DR learner / X learner 输出 Qini、decile calibration 和 policy value。</div>
+</div><div class="finding sv-major">
+  <div class="finding-head"><span class="sev sev-major">重要</span>
+    <span class="lens-tag">L3</span>
+    <span class="finding-title">手机高客单，但不能把大众转化假设写得太满</span></div>
+  <div>Pura 80、Mate X7、nova 14 Pro 给了旗舰和中高端声量，但官网同时提示 AppGallery 应用兼容需要用户自行确认，说明手机转化必须以细分人群和验证为前提。</div>
+  <div class="finding-meta"><strong>证据:</strong> 官方 phones 页、offer/telefoane 页和 AppGallery 说明。 · sourced</div>
+  <div class="finding-meta"><strong>不处理的代价:</strong> 大额手机预算若没有 holdout，很容易把自然旗舰兴趣误认为媒体增量。</div>
+  <div class="finding-rec"><strong>→ </strong>Pura 80 Pro / Ultra 用 PR reviews 和 creator review 做高意图验证；Mate X7 暂不大规模放量，先补折叠屏人群 HTE。</div>
+</div><div class="finding sv-major">
+  <div class="finding-head"><span class="sev sev-major">重要</span>
+    <span class="lens-tag">L4</span>
+    <span class="finding-title">平板与 PC 应作为生产力方案，而不是孤立硬件卖点</span></div>
+  <div>MatePad 12 X / 11.5、MateBook D 16 / D 14 的公开卖点集中在屏幕、续航、PaperMatte、笔键配件和办公协同，适合做学生、轻办公和内容创作者方案。</div>
+  <div class="finding-meta"><strong>证据:</strong> 官方 tablets、MatePad 12 X、MatePad 11.5、MateBook D 16、MateBook D 14 页面。 · sourced</div>
+  <div class="finding-meta"><strong>不处理的代价:</strong> 如果只投规格流量，用户很难理解为什么该选 HUAWEI；如果投方案，客单和套装利润更容易打开。</div>
+  <div class="finding-rec"><strong>→ </strong>把 MatePad 12 X 和 MateBook D 16 放进第二投资层，投 retail media + search + PDP content，配合学生/办公场景。</div>
+</div><div class="finding sv-major">
+  <div class="finding-head"><span class="sev sev-major">重要</span>
+    <span class="lens-tag">L5</span>
+    <span class="finding-title">音频适合做 ROI 稳定器，不适合做无边界品牌预算</span></div>
+  <div>FreeBuds Pro 5、FreeClip 2、FreeBuds 6 等公开页面强调 ANC、清晰通话、舒适佩戴和开放式场景，适合短链路转化和跨品类 bundle。</div>
+  <div class="finding-meta"><strong>证据:</strong> 官方 audio offer 页面。 · sourced</div>
+  <div class="finding-meta"><strong>不处理的代价:</strong> 音频能提供频繁、可测的转化信号；但竞争拥挤，边际 ROI 会随投放迅速下滑。</div>
+  <div class="finding-rec"><strong>→ </strong>FreeBuds Pro 5 与 FreeClip 2 进入本轮预算池，使用 search / retail media / creator review，达到 ROI 阈值即停。</div>
+</div><div class="finding sv-watch">
+  <div class="finding-head"><span class="sev sev-watch">观察</span>
+    <span class="lens-tag">L6</span>
+    <span class="finding-title">路由器是高意图小盘，不该和手机穿戴抢大预算</span></div>
+  <div>官方 router 页能看到 WiFi Mesh X3 Pro 和 4G CPE 5，并有明确起价；这类产品更像问题解决型购买，而非广泛兴趣型购买。</div>
+  <div class="finding-meta"><strong>证据:</strong> 官方 routers 页和 4G CPE 5 specs 页。 · sourced</div>
+  <div class="finding-meta"><strong>不处理的代价:</strong> 泛投会浪费；但 search、零售解释和 telco 场景可能有稳定利润。</div>
+  <div class="finding-rec"><strong>→ </strong>给 WiFi Mesh X3 Pro / 4G CPE 5 小额高意图预算，作为 portfolio 的补充利润池。</div>
+</div>
+</section><section id="inv2">
+  <h2>钱越花越多，账怎么变（预算曲线）</h2>
+  <div class="inv-frontier-grid">
+    <div class="inv-panel">
+      <div class="inv-panel-title">投入越多，累计毛利怎么涨</div>
+      <svg class="inv-svg" viewBox="0 0 520 190" role="img">
+  <line x1="50" y1="12" x2="50" y2="166" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="50" y1="166" x2="506" y2="166" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="50" y1="166.0" x2="506" y2="166.0" stroke="#cbd5e1" stroke-width="1"/>
+  <line x1="443.3" y1="12" x2="443.3" y2="166" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polyline points="50.0,160.5 55.7,155.3 61.4,150.8 67.1,146.5 72.8,142.3 78.5,138.2 84.2,134.5 89.9,130.8 95.6,127.0 101.3,123.5 107.0,120.2 112.7,117.0 118.4,113.8 124.1,110.7 129.8,107.7 135.5,104.9 141.2,102.1 146.9,99.4 152.6,96.6 158.3,93.9 164.0,91.3 169.7,88.8 175.4,86.4 181.1,84.0 186.8,81.7 192.5,79.5 198.2,77.4 203.9,75.2 209.6,73.1 215.3,71.1 221.0,69.1 226.7,67.1 232.4,65.1 238.1,63.2 243.8,61.4 249.5,59.7 255.2,58.0 260.9,56.3 266.6,54.7 272.3,53.1 278.0,51.5 283.7,50.0 289.4,48.4 295.1,46.9 300.8,45.5 306.5,44.0 312.2,42.6 317.9,41.3 323.6,40.0 329.3,38.8 335.0,37.5 340.7,36.3 346.4,35.1 352.1,34.0 357.8,32.8 363.5,31.7 369.2,30.6 374.9,29.6 380.6,28.6 386.3,27.6 392.0,26.6 397.7,25.6 403.4,24.7 409.1,23.7 414.8,22.8 420.5,22.0 426.2,21.1 431.9,20.3 437.6,19.5 443.3,18.7 449.0,18.0 454.7,17.3 460.4,16.5 466.1,15.8 471.8,15.1 477.5,14.4 483.2,13.8 488.9,13.3 494.6,12.8 500.3,12.4 506.0,12.0" fill="none" stroke="#4f46e5" stroke-width="2.2"/>
+  <circle cx="50.0" cy="160.5" r="2.6" fill="#4f46e5"/><circle cx="55.7" cy="155.3" r="2.6" fill="#4f46e5"/><circle cx="61.4" cy="150.8" r="2.6" fill="#4f46e5"/><circle cx="67.1" cy="146.5" r="2.6" fill="#4f46e5"/><circle cx="72.8" cy="142.3" r="2.6" fill="#4f46e5"/><circle cx="78.5" cy="138.2" r="2.6" fill="#4f46e5"/><circle cx="84.2" cy="134.5" r="2.6" fill="#4f46e5"/><circle cx="89.9" cy="130.8" r="2.6" fill="#4f46e5"/><circle cx="95.6" cy="127.0" r="2.6" fill="#4f46e5"/><circle cx="101.3" cy="123.5" r="2.6" fill="#4f46e5"/><circle cx="107.0" cy="120.2" r="2.6" fill="#4f46e5"/><circle cx="112.7" cy="117.0" r="2.6" fill="#4f46e5"/><circle cx="118.4" cy="113.8" r="2.6" fill="#4f46e5"/><circle cx="124.1" cy="110.7" r="2.6" fill="#4f46e5"/><circle cx="129.8" cy="107.7" r="2.6" fill="#4f46e5"/><circle cx="135.5" cy="104.9" r="2.6" fill="#4f46e5"/><circle cx="141.2" cy="102.1" r="2.6" fill="#4f46e5"/><circle cx="146.9" cy="99.4" r="2.6" fill="#4f46e5"/><circle cx="152.6" cy="96.6" r="2.6" fill="#4f46e5"/><circle cx="158.3" cy="93.9" r="2.6" fill="#4f46e5"/><circle cx="164.0" cy="91.3" r="2.6" fill="#4f46e5"/><circle cx="169.7" cy="88.8" r="2.6" fill="#4f46e5"/><circle cx="175.4" cy="86.4" r="2.6" fill="#4f46e5"/><circle cx="181.1" cy="84.0" r="2.6" fill="#4f46e5"/><circle cx="186.8" cy="81.7" r="2.6" fill="#4f46e5"/><circle cx="192.5" cy="79.5" r="2.6" fill="#4f46e5"/><circle cx="198.2" cy="77.4" r="2.6" fill="#4f46e5"/><circle cx="203.9" cy="75.2" r="2.6" fill="#4f46e5"/><circle cx="209.6" cy="73.1" r="2.6" fill="#4f46e5"/><circle cx="215.3" cy="71.1" r="2.6" fill="#4f46e5"/><circle cx="221.0" cy="69.1" r="2.6" fill="#4f46e5"/><circle cx="226.7" cy="67.1" r="2.6" fill="#4f46e5"/><circle cx="232.4" cy="65.1" r="2.6" fill="#4f46e5"/><circle cx="238.1" cy="63.2" r="2.6" fill="#4f46e5"/><circle cx="243.8" cy="61.4" r="2.6" fill="#4f46e5"/><circle cx="249.5" cy="59.7" r="2.6" fill="#4f46e5"/><circle cx="255.2" cy="58.0" r="2.6" fill="#4f46e5"/><circle cx="260.9" cy="56.3" r="2.6" fill="#4f46e5"/><circle cx="266.6" cy="54.7" r="2.6" fill="#4f46e5"/><circle cx="272.3" cy="53.1" r="2.6" fill="#4f46e5"/><circle cx="278.0" cy="51.5" r="2.6" fill="#4f46e5"/><circle cx="283.7" cy="50.0" r="2.6" fill="#4f46e5"/><circle cx="289.4" cy="48.4" r="2.6" fill="#4f46e5"/><circle cx="295.1" cy="46.9" r="2.6" fill="#4f46e5"/><circle cx="300.8" cy="45.5" r="2.6" fill="#4f46e5"/><circle cx="306.5" cy="44.0" r="2.6" fill="#4f46e5"/><circle cx="312.2" cy="42.6" r="2.6" fill="#4f46e5"/><circle cx="317.9" cy="41.3" r="2.6" fill="#4f46e5"/><circle cx="323.6" cy="40.0" r="2.6" fill="#4f46e5"/><circle cx="329.3" cy="38.8" r="2.6" fill="#4f46e5"/><circle cx="335.0" cy="37.5" r="2.6" fill="#4f46e5"/><circle cx="340.7" cy="36.3" r="2.6" fill="#4f46e5"/><circle cx="346.4" cy="35.1" r="2.6" fill="#4f46e5"/><circle cx="352.1" cy="34.0" r="2.6" fill="#4f46e5"/><circle cx="357.8" cy="32.8" r="2.6" fill="#4f46e5"/><circle cx="363.5" cy="31.7" r="2.6" fill="#4f46e5"/><circle cx="369.2" cy="30.6" r="2.6" fill="#4f46e5"/><circle cx="374.9" cy="29.6" r="2.6" fill="#4f46e5"/><circle cx="380.6" cy="28.6" r="2.6" fill="#4f46e5"/><circle cx="386.3" cy="27.6" r="2.6" fill="#4f46e5"/><circle cx="392.0" cy="26.6" r="2.6" fill="#4f46e5"/><circle cx="397.7" cy="25.6" r="2.6" fill="#4f46e5"/><circle cx="403.4" cy="24.7" r="2.6" fill="#4f46e5"/><circle cx="409.1" cy="23.7" r="2.6" fill="#4f46e5"/><circle cx="414.8" cy="22.8" r="2.6" fill="#4f46e5"/><circle cx="420.5" cy="22.0" r="2.6" fill="#4f46e5"/><circle cx="426.2" cy="21.1" r="2.6" fill="#4f46e5"/><circle cx="431.9" cy="20.3" r="2.6" fill="#4f46e5"/><circle cx="437.6" cy="19.5" r="2.6" fill="#4f46e5"/><circle cx="443.3" cy="18.7" r="2.6" fill="#4f46e5"/><circle cx="449.0" cy="18.0" r="2.6" fill="#4f46e5"/><circle cx="454.7" cy="17.3" r="2.6" fill="#4f46e5"/><circle cx="460.4" cy="16.5" r="2.6" fill="#4f46e5"/><circle cx="466.1" cy="15.8" r="2.6" fill="#4f46e5"/><circle cx="471.8" cy="15.1" r="2.6" fill="#4f46e5"/><circle cx="477.5" cy="14.4" r="2.6" fill="#4f46e5"/><circle cx="483.2" cy="13.8" r="2.6" fill="#4f46e5"/><circle cx="488.9" cy="13.3" r="2.6" fill="#4f46e5"/><circle cx="494.6" cy="12.8" r="2.6" fill="#4f46e5"/><circle cx="500.3" cy="12.4" r="2.6" fill="#4f46e5"/><circle cx="506.0" cy="12.0" r="2.6" fill="#4f46e5"/>
+  <text x="50" y="184" font-size="9" fill="#64748b">10,000</text>
+  <text x="506" y="184" font-size="9" fill="#64748b" text-anchor="end">810,000</text>
+</svg>
+    </div>
+    <div class="inv-panel">
+      <div class="inv-panel-title">边际投产比——每多花一份钱，值不值</div>
+      <svg class="inv-svg" viewBox="0 0 520 190" role="img">
+  <line x1="50" y1="12" x2="50" y2="166" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="50" y1="166" x2="506" y2="166" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="50" y1="166.0" x2="506" y2="166.0" stroke="#cbd5e1" stroke-width="1"/>
+  <line x1="443.3" y1="12" x2="443.3" y2="166" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polyline points="50.0,12.0 55.7,20.4 61.4,38.5 67.1,46.1 72.8,49.8 78.5,51.3 84.2,60.3 89.9,61.7 95.6,61.8 101.3,67.7 107.0,72.6 112.7,76.3 118.4,77.5 124.1,78.5 129.8,82.4 135.5,87.2 141.2,87.3 146.9,88.8 152.6,89.2 158.3,90.2 164.0,93.3 169.7,95.8 175.4,97.8 181.1,98.0 186.8,102.8 192.5,104.0 198.2,105.9 203.9,106.5 209.6,107.6 215.3,108.8 221.0,109.3 226.7,109.7 232.4,110.3 238.1,113.4 243.8,115.6 249.5,117.3 255.2,117.9 260.9,120.8 266.6,120.9 272.3,121.0 278.0,121.4 283.7,121.9 289.4,122.8 295.1,123.6 300.8,125.5 306.5,125.5 312.2,127.7 317.9,128.7 323.6,129.7 329.3,130.4 335.0,131.3 340.7,131.6 346.4,132.0 352.1,134.6 357.8,134.6 363.5,135.0 369.2,135.8 374.9,136.6 380.6,136.9 386.3,138.3 392.0,138.7 397.7,139.2 403.4,139.2 409.1,139.6 414.8,140.3 420.5,141.7 426.2,142.6 431.9,142.7 437.6,143.7 443.3,144.7 449.0,145.2 454.7,145.3 460.4,145.5 466.1,145.7 471.8,146.2 477.5,146.4 483.2,149.0 488.9,151.6 494.6,151.8 500.3,154.2 506.0,156.1" fill="none" stroke="#0891b2" stroke-width="2.2"/>
+  <circle cx="50.0" cy="12.0" r="2.6" fill="#0891b2"/><circle cx="55.7" cy="20.4" r="2.6" fill="#0891b2"/><circle cx="61.4" cy="38.5" r="2.6" fill="#0891b2"/><circle cx="67.1" cy="46.1" r="2.6" fill="#0891b2"/><circle cx="72.8" cy="49.8" r="2.6" fill="#0891b2"/><circle cx="78.5" cy="51.3" r="2.6" fill="#0891b2"/><circle cx="84.2" cy="60.3" r="2.6" fill="#0891b2"/><circle cx="89.9" cy="61.7" r="2.6" fill="#0891b2"/><circle cx="95.6" cy="61.8" r="2.6" fill="#0891b2"/><circle cx="101.3" cy="67.7" r="2.6" fill="#0891b2"/><circle cx="107.0" cy="72.6" r="2.6" fill="#0891b2"/><circle cx="112.7" cy="76.3" r="2.6" fill="#0891b2"/><circle cx="118.4" cy="77.5" r="2.6" fill="#0891b2"/><circle cx="124.1" cy="78.5" r="2.6" fill="#0891b2"/><circle cx="129.8" cy="82.4" r="2.6" fill="#0891b2"/><circle cx="135.5" cy="87.2" r="2.6" fill="#0891b2"/><circle cx="141.2" cy="87.3" r="2.6" fill="#0891b2"/><circle cx="146.9" cy="88.8" r="2.6" fill="#0891b2"/><circle cx="152.6" cy="89.2" r="2.6" fill="#0891b2"/><circle cx="158.3" cy="90.2" r="2.6" fill="#0891b2"/><circle cx="164.0" cy="93.3" r="2.6" fill="#0891b2"/><circle cx="169.7" cy="95.8" r="2.6" fill="#0891b2"/><circle cx="175.4" cy="97.8" r="2.6" fill="#0891b2"/><circle cx="181.1" cy="98.0" r="2.6" fill="#0891b2"/><circle cx="186.8" cy="102.8" r="2.6" fill="#0891b2"/><circle cx="192.5" cy="104.0" r="2.6" fill="#0891b2"/><circle cx="198.2" cy="105.9" r="2.6" fill="#0891b2"/><circle cx="203.9" cy="106.5" r="2.6" fill="#0891b2"/><circle cx="209.6" cy="107.6" r="2.6" fill="#0891b2"/><circle cx="215.3" cy="108.8" r="2.6" fill="#0891b2"/><circle cx="221.0" cy="109.3" r="2.6" fill="#0891b2"/><circle cx="226.7" cy="109.7" r="2.6" fill="#0891b2"/><circle cx="232.4" cy="110.3" r="2.6" fill="#0891b2"/><circle cx="238.1" cy="113.4" r="2.6" fill="#0891b2"/><circle cx="243.8" cy="115.6" r="2.6" fill="#0891b2"/><circle cx="249.5" cy="117.3" r="2.6" fill="#0891b2"/><circle cx="255.2" cy="117.9" r="2.6" fill="#0891b2"/><circle cx="260.9" cy="120.8" r="2.6" fill="#0891b2"/><circle cx="266.6" cy="120.9" r="2.6" fill="#0891b2"/><circle cx="272.3" cy="121.0" r="2.6" fill="#0891b2"/><circle cx="278.0" cy="121.4" r="2.6" fill="#0891b2"/><circle cx="283.7" cy="121.9" r="2.6" fill="#0891b2"/><circle cx="289.4" cy="122.8" r="2.6" fill="#0891b2"/><circle cx="295.1" cy="123.6" r="2.6" fill="#0891b2"/><circle cx="300.8" cy="125.5" r="2.6" fill="#0891b2"/><circle cx="306.5" cy="125.5" r="2.6" fill="#0891b2"/><circle cx="312.2" cy="127.7" r="2.6" fill="#0891b2"/><circle cx="317.9" cy="128.7" r="2.6" fill="#0891b2"/><circle cx="323.6" cy="129.7" r="2.6" fill="#0891b2"/><circle cx="329.3" cy="130.4" r="2.6" fill="#0891b2"/><circle cx="335.0" cy="131.3" r="2.6" fill="#0891b2"/><circle cx="340.7" cy="131.6" r="2.6" fill="#0891b2"/><circle cx="346.4" cy="132.0" r="2.6" fill="#0891b2"/><circle cx="352.1" cy="134.6" r="2.6" fill="#0891b2"/><circle cx="357.8" cy="134.6" r="2.6" fill="#0891b2"/><circle cx="363.5" cy="135.0" r="2.6" fill="#0891b2"/><circle cx="369.2" cy="135.8" r="2.6" fill="#0891b2"/><circle cx="374.9" cy="136.6" r="2.6" fill="#0891b2"/><circle cx="380.6" cy="136.9" r="2.6" fill="#0891b2"/><circle cx="386.3" cy="138.3" r="2.6" fill="#0891b2"/><circle cx="392.0" cy="138.7" r="2.6" fill="#0891b2"/><circle cx="397.7" cy="139.2" r="2.6" fill="#0891b2"/><circle cx="403.4" cy="139.2" r="2.6" fill="#0891b2"/><circle cx="409.1" cy="139.6" r="2.6" fill="#0891b2"/><circle cx="414.8" cy="140.3" r="2.6" fill="#0891b2"/><circle cx="420.5" cy="141.7" r="2.6" fill="#0891b2"/><circle cx="426.2" cy="142.6" r="2.6" fill="#0891b2"/><circle cx="431.9" cy="142.7" r="2.6" fill="#0891b2"/><circle cx="437.6" cy="143.7" r="2.6" fill="#0891b2"/><circle cx="443.3" cy="144.7" r="2.6" fill="#0891b2"/><circle cx="449.0" cy="145.2" r="2.6" fill="#0891b2"/><circle cx="454.7" cy="145.3" r="2.6" fill="#0891b2"/><circle cx="460.4" cy="145.5" r="2.6" fill="#0891b2"/><circle cx="466.1" cy="145.7" r="2.6" fill="#0891b2"/><circle cx="471.8" cy="146.2" r="2.6" fill="#0891b2"/><circle cx="477.5" cy="146.4" r="2.6" fill="#0891b2"/><circle cx="483.2" cy="149.0" r="2.6" fill="#0891b2"/><circle cx="488.9" cy="151.6" r="2.6" fill="#0891b2"/><circle cx="494.6" cy="151.8" r="2.6" fill="#0891b2"/><circle cx="500.3" cy="154.2" r="2.6" fill="#0891b2"/><circle cx="506.0" cy="156.1" r="2.6" fill="#0891b2"/>
+  <text x="50" y="184" font-size="9" fill="#64748b">10,000</text>
+  <text x="506" y="184" font-size="9" fill="#64748b" text-anchor="end">810,000</text>
+</svg>
+    </div>
+  </div>
+  <p style="font-size:12px;color:var(--ink-2);margin-top:8px;font-weight:600">看图：沿右图从左往右看，虚线是边际 ROI 跌破达标线的位置；就算预算还有富余，过了这条线也不再批钱。</p>
+</section><div class="chapter-head" id="ch3">
+  <div class="ch-num">3 · 打法</div>
+  <div class="ch-question">对谁打、在哪打、说什么？</div>
+  <div class="ch-answer"><span>一句话回答</span> 覆盖 5 个价格带、35 个 SKU 的定位与竞对地图。 具体到打法上，这轮有 14 个 SKU × 打法模块的组合拿到了预算——具体分布见下方矩阵。</div>
+</div><section id="c2">
+  <h2>2 - 价格层 x 人群 x 竞争地图</h2>
+  <p class="section-intro">Where the money is, who is there, and who you are up against. Tiers are clustered from observed price points (Hypothesis-grade) and meant to be confirmed or redrawn by the operator. The force column is the lever most likely to move that tier's buyer.</p>
+  <div class="table-wrap"><table>
+    <thead><tr>
+      <th>价格层</th>
+      <th>趋势</th>
+      <th>人群</th>
+      <th>购买力</th>
+      <th>HUAWEI 产品</th>
+      <th>主要竞争参照</th>
+    </tr></thead>
+    <tbody><tr><td><strong>旗舰手机 / 3,499-9,999 RON</strong></td><td>高客单但转化窄：更适合相机、折叠屏、旗舰用户细分，而不是大众转化买量。</td><td>高端摄影、折叠屏尝鲜、既有 HUAWEI 用户、重视设计和影像的人群。</td><td>Pull + Trust：产品力必须先被证明，再用评测和门店体验降低疑虑。</td><td>HUAWEI Mate X7, HUAWEI Pura 80 Ultra, HUAWEI Pura 80 Pro, HUAWEI nova 14 Pro, HUAWEI Pura 70 Ultra</td><td>Samsung Galaxy S / Z series, Apple iPhone Pro, Xiaomi flagship phones</td></tr><tr><td><strong>穿戴健康 / 主力增长层</strong></td><td>组合最厚，价格带宽，功能故事清晰；应作为本轮投资主引擎。</td><td>运动、健康监测、长续航 smartwatch、礼品购买者。</td><td>Habit + Proof：用真实运动场景和健康功能证明日常佩戴价值。</td><td>HUAWEI WATCH FIT 5 Pro, HUAWEI WATCH FIT 5, HUAWEI WATCH GT 6 Pro, HUAWEI WATCH GT 6, HUAWEI WATCH Ultimate 2, HUAWEI Band 11 Pro</td><td>Apple Watch, Samsung Galaxy Watch, Garmin / Fitbit</td></tr><tr><td><strong>PC + 平板 / 生产力与学生层</strong></td><td>适合用套装、学生优惠和内容生产场景承接，而不是只靠硬件参数。</td><td>学生、轻办公、内容创作者、跨设备协同用户。</td><td>Anxiety + Utility：解决买错设备、屏幕舒适、笔键配件价值的顾虑。</td><td>HUAWEI MateBook D 16 2024, HUAWEI MateBook D 14 2024, HUAWEI MatePad 12 X 2025, HUAWEI MatePad 11.5 2025, HUAWEI MatePad Pro 13.2-inch 2025</td><td>Lenovo / ASUS / HP, Samsung Galaxy Tab, Apple iPad / MacBook</td></tr><tr><td><strong>音频 / 高频转化层</strong></td><td>SKU 多、购买频次高、竞争拥挤；应用短链路 ROI 约束，而不是大预算品牌打法。</td><td>通勤、通话降噪、开放式佩戴、轻运动用户。</td><td>Proof + Occasion：用通话、降噪、舒适佩戴的场景打动。</td><td>HUAWEI FreeBuds 7i, HUAWEI FreeBuds Pro 5, HUAWEI FreeBuds Pro 4, HUAWEI FreeArc, HUAWEI FreeBuds 6, HUAWEI FreeClip 2</td><td>Apple AirPods, Samsung Buds, Sony / JBL / Xiaomi audio</td></tr><tr><td><strong>家庭网络 / 低 SKU 高意图层</strong></td><td>公开页能看到少数清晰产品，适合高意图搜索和零售解释，不适合大范围泛投。</td><td>家庭 Wi-Fi 升级、远程办公、4G 家宽替代、租房用户。</td><td>Problem-solution：先命中网速、覆盖、安装和 SIM 使用问题。</td><td>HUAWEI WiFi Mesh X3 Pro, HUAWEI 4G CPE 5</td><td>TP-Link / ASUS routers, Operator CPE bundles, Xiaomi router ecosystem</td></tr></tbody></table></div>
+</section><section id="c3">
+  <h2>3 - SKU 明细与 4P</h2>
+  <p class="section-intro">Each SKU in a few lines: the short diagnosis behind its verdict and its move on each P. Deep analysis is deliberately not here — it is earned in §4 by a Grow verdict.</p>
+  <div class="cards"><div class="card">
+  <h3>HUAWEI Mate X7 &nbsp;<span class="verdict verdict-hold">保持 / 验证</span></h3>
+  <p>折叠旗舰，公开价格锚点高；适合建立品牌高度，但没有内部折叠屏人群 HTE 前不建议大额放量。</p>
+  <dl>
+    <dt>Product</dt><dd>折叠屏旗舰；主打设计、影像和高端尝鲜。</dd>
+    <dt>Price</dt><dd>保持旗舰锚点，避免用折扣破坏高端感。</dd>
+    <dt>Place</dt><dd>官网、旗舰零售、专家体验场景优先。</dd>
+    <dt>Promotion</dt><dd>PR review 和深度评测，不做大众买量。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI Pura 80 Ultra &nbsp;<span class="verdict verdict-grow">增长 / 投资</span></h3>
+  <p>影像旗舰，适合作为高端声量 SKU；预算必须由 creator/PR 的人群增量来验证。</p>
+  <dl>
+    <dt>Product</dt><dd>影像旗舰，作为品牌上限和技术故事。</dd>
+    <dt>Price</dt><dd>保留高价锚点，避免转化焦虑时直接降价。</dd>
+    <dt>Place</dt><dd>官网、授权零售、影像内容触点。</dd>
+    <dt>Promotion</dt><dd>摄影挑战、专家评测、样张内容，先验证再扩量。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI Pura 80 Pro &nbsp;<span class="verdict verdict-grow">增长 / 投资</span></h3>
+  <p>比 Ultra 更可能成为旗舰转化主力；适合用 PR reviews + high-intent search 做受控放量。</p>
+  <dl>
+    <dt>Product</dt><dd>旗舰主销款，承接 Pura 80 系列兴趣。</dd>
+    <dt>Price</dt><dd>以官方起价为锚，结合套装而非裸机折扣。</dd>
+    <dt>Place</dt><dd>官网、搜索、零售 PDP 重点承接。</dd>
+    <dt>Promotion</dt><dd>相机证明、用户场景和对照组投放。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI nova 14 Pro &nbsp;<span class="verdict verdict-grow">增长 / 投资</span></h3>
+  <p>中高端价格层，适合作为手机量的转化试验 SKU，但必须避开与 Pura 的高端叙事冲突。</p>
+  <dl>
+    <dt>Product</dt><dd>中高端拍照与设计款。</dd>
+    <dt>Price</dt><dd>维持中高端可及价格，避免压低 Pura。</dd>
+    <dt>Place</dt><dd>社媒、搜索、官网商店。</dd>
+    <dt>Promotion</dt><dd>年轻化内容和换机场景，控制预算上限。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI Pura 70 Ultra &nbsp;<span class="verdict verdict-harvest">收割</span></h3>
+  <p>上一代旗舰应承担尾货和品牌证明，不应抢 Pura 80 投资预算。</p>
+  <dl>
+    <dt>Product</dt><dd>上一代旗舰，保留为选择层。</dd>
+    <dt>Price</dt><dd>用库存策略管理，不进入新增预算池。</dd>
+    <dt>Place</dt><dd>自然流量和库存渠道。</dd>
+    <dt>Promotion</dt><dd>仅做清晰对比和被动承接。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI WATCH Ultimate 2 &nbsp;<span class="verdict verdict-hold">保持 / 验证</span></h3>
+  <p>户外旗舰，有品牌高度但盘子窄；作为 halo SKU，少量内容验证即可。</p>
+  <dl>
+    <dt>Product</dt><dd>潜水、户外、eSIM 等高端能力。</dd>
+    <dt>Price</dt><dd>保持高端，避免广泛促销。</dd>
+    <dt>Place</dt><dd>官网、专业户外内容、旗舰店。</dd>
+    <dt>Promotion</dt><dd>专业场景评测，不做大盘转化预算。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI WATCH GT 6 Pro &nbsp;<span class="verdict verdict-grow">增长 / 投资</span></h3>
+  <p>高端运动健康主力，公开卖点有长续航、户外和运动能力；应进入第一层预算。</p>
+  <dl>
+    <dt>Product</dt><dd>运动健康旗舰主力。</dd>
+    <dt>Price</dt><dd>保留 premium，使用赠品/套装而非硬折扣。</dd>
+    <dt>Place</dt><dd>官网、零售、运动内容触点。</dd>
+    <dt>Promotion</dt><dd>骑行、健康监测、长续航内容，配 creator holdout。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI WATCH GT 6 &nbsp;<span class="verdict verdict-grow">增长 / 投资</span></h3>
+  <p>更大众的 GT 主力款，适合搜索和短视频放量。</p>
+  <dl>
+    <dt>Product</dt><dd>长续航、多运动、日常佩戴主力。</dd>
+    <dt>Price</dt><dd>用清晰价差承接 Pro 下沉用户。</dd>
+    <dt>Place</dt><dd>搜索、零售、官网商店。</dd>
+    <dt>Promotion</dt><dd>长续航和运动数据证明，适合规模化测试。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI WATCH 5 &nbsp;<span class="verdict verdict-hold">保持 / 验证</span></h3>
+  <p>旗舰 smartwatch 层的支撑 SKU；不优先抢 GT 6 和 FIT 5 的增量预算。</p>
+  <dl>
+    <dt>Product</dt><dd>高端智能表选择层。</dd>
+    <dt>Price</dt><dd>维持价格层级，避免与 GT 6 Pro 混淆。</dd>
+    <dt>Place</dt><dd>官网和自然搜索。</dd>
+    <dt>Promotion</dt><dd>作为对比和生态承接，不做主投。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI WATCH FIT 5 Pro &nbsp;<span class="verdict verdict-grow">增长 / 投资</span></h3>
+  <p>最适合做第一轮规模化 HTE 的穿戴 SKU：场景清晰、价格摩擦低、内容适配短视频。</p>
+  <dl>
+    <dt>Product</dt><dd>轻旗舰健康运动表。</dd>
+    <dt>Price</dt><dd>可用限时权益，不建议深折扣。</dd>
+    <dt>Place</dt><dd>短视频、官网、零售端架。</dd>
+    <dt>Promotion</dt><dd>生活方式 + 运动场景，大样本 holdout。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI WATCH FIT 5 &nbsp;<span class="verdict verdict-grow">增长 / 投资</span></h3>
+  <p>量款，适合作为 FIT 5 Pro 的下沉承接。</p>
+  <dl>
+    <dt>Product</dt><dd>大众健康和运动表。</dd>
+    <dt>Price</dt><dd>清晰低于 Pro，做量不破 Pro。</dd>
+    <dt>Place</dt><dd>社媒、搜索、零售。</dd>
+    <dt>Promotion</dt><dd>入门健康习惯和礼品场景。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI WATCH ULTIMATE DESIGN Spring Edition &nbsp;<span class="verdict verdict-hold">保持 / 验证</span></h3>
+  <p>限量/设计向产品，适合品牌内容，不进入规模化 ROI 预算。</p>
+  <dl>
+    <dt>Product</dt><dd>设计限量款。</dd>
+    <dt>Price</dt><dd>高端稀缺锚点。</dd>
+    <dt>Place</dt><dd>官网和精品内容。</dd>
+    <dt>Promotion</dt><dd>品牌故事，不做绩效买量。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI WATCH GT Runner 2 &nbsp;<span class="verdict verdict-hold">保持 / 验证</span></h3>
+  <p>公开首页新产品区可见，但需要确认上架和库存；先保留在观察池。</p>
+  <dl>
+    <dt>Product</dt><dd>跑步专业方向。</dd>
+    <dt>Price</dt><dd>等待上架信息确认。</dd>
+    <dt>Place</dt><dd>运动内容和官网。</dd>
+    <dt>Promotion</dt><dd>确认供给后再做跑步人群测试。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI Band 11 Pro &nbsp;<span class="verdict verdict-hold">保持 / 验证</span></h3>
+  <p>可能是入门量层，但需确认官方商店供给和售价。</p>
+  <dl>
+    <dt>Product</dt><dd>入门健康手环。</dd>
+    <dt>Price</dt><dd>用作低门槛引流，不牺牲 FIT 5。</dd>
+    <dt>Place</dt><dd>零售和官网自然流量。</dd>
+    <dt>Promotion</dt><dd>入门健康习惯，不做主预算。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI WATCH GT 5 Pro &nbsp;<span class="verdict verdict-harvest">收割</span></h3>
+  <p>上一代高端 GT，公开页仍可见；预算应让位 GT 6 Pro。</p>
+  <dl>
+    <dt>Product</dt><dd>上一代 Pro 表款。</dd>
+    <dt>Price</dt><dd>清库存和自然承接。</dd>
+    <dt>Place</dt><dd>自然搜索/零售尾货。</dd>
+    <dt>Promotion</dt><dd>不新增大预算。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI WATCH GT 5 &nbsp;<span class="verdict verdict-harvest">收割</span></h3>
+  <p>上一代 GT 量款，不应抢 GT 6 搜索和内容预算。</p>
+  <dl>
+    <dt>Product</dt><dd>成熟期表款。</dd>
+    <dt>Price</dt><dd>尾货策略。</dd>
+    <dt>Place</dt><dd>自然流量和零售承接。</dd>
+    <dt>Promotion</dt><dd>仅保留对比页和低成本承接。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI WATCH FIT 4 &nbsp;<span class="verdict verdict-harvest">收割</span></h3>
+  <p>成熟期 FIT，FIT 5 上线后应逐步退出主投。</p>
+  <dl>
+    <dt>Product</dt><dd>上一代 FIT。</dd>
+    <dt>Price</dt><dd>保留作为价位承接。</dd>
+    <dt>Place</dt><dd>尾货和自然流量。</dd>
+    <dt>Promotion</dt><dd>不再新增内容预算。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI MateBook D 16 2024 &nbsp;<span class="verdict verdict-grow">增长 / 投资</span></h3>
+  <p>16 英寸生产力主力，公开页有大屏、轻薄、Intel、高续航和 Wi-Fi 卖点；适合高意图 search。</p>
+  <dl>
+    <dt>Product</dt><dd>大屏轻薄办公主力。</dd>
+    <dt>Price</dt><dd>以官方商店价格为锚，优先套装而非裸降。</dd>
+    <dt>Place</dt><dd>搜索、学生优惠、零售 media。</dd>
+    <dt>Promotion</dt><dd>办公/学习效率场景，和 MatePad 做协同叙事。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI MateBook D 14 2024 &nbsp;<span class="verdict verdict-hold">保持 / 验证</span></h3>
+  <p>14 英寸便携层，保留承接，不抢 D 16 的主投。</p>
+  <dl>
+    <dt>Product</dt><dd>便携办公款。</dd>
+    <dt>Price</dt><dd>与 D 16 保持清晰价差。</dd>
+    <dt>Place</dt><dd>官网和搜索承接。</dd>
+    <dt>Promotion</dt><dd>便携和学生场景，低预算。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI MatePad 12 X 2025 &nbsp;<span class="verdict verdict-grow">增长 / 投资</span></h3>
+  <p>大屏和 PaperMatte 场景清晰，是平板投资核心 SKU。</p>
+  <dl>
+    <dt>Product</dt><dd>生产力和创作平板主力。</dd>
+    <dt>Price</dt><dd>用笔键配件建立方案价值。</dd>
+    <dt>Place</dt><dd>retail media、官网、学生触点。</dd>
+    <dt>Promotion</dt><dd>学习、笔记、创作、护眼场景。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI MatePad 11.5 2025 &nbsp;<span class="verdict verdict-grow">增长 / 投资</span></h3>
+  <p>更大众的 PaperMatte/学习平板，适合 PDP content 和学生场景。</p>
+  <dl>
+    <dt>Product</dt><dd>学习和娱乐平板。</dd>
+    <dt>Price</dt><dd>承接 12 X 下沉需求。</dd>
+    <dt>Place</dt><dd>官网、搜索、学生优惠。</dd>
+    <dt>Promotion</dt><dd>PaperMatte、续航、笔记和视频场景。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI MatePad 11.5 &nbsp;<span class="verdict verdict-hold">保持 / 验证</span></h3>
+  <p>基础 11.5 层，保留承接，避免和 2025 款混淆。</p>
+  <dl>
+    <dt>Product</dt><dd>基础学习平板。</dd>
+    <dt>Price</dt><dd>明确旧款/新款价差。</dd>
+    <dt>Place</dt><dd>自然流量和零售承接。</dd>
+    <dt>Promotion</dt><dd>低成本承接，不主投。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI MatePad Pro 12.2-inch &nbsp;<span class="verdict verdict-hold">保持 / 验证</span></h3>
+  <p>Pro 层强调屏幕和创作，但市场盘更窄；做高端承接。</p>
+  <dl>
+    <dt>Product</dt><dd>高端 OLED/PaperMatte 创作平板。</dd>
+    <dt>Price</dt><dd>保持 Pro 价格锚。</dd>
+    <dt>Place</dt><dd>官网和高意图搜索。</dd>
+    <dt>Promotion</dt><dd>创作和屏幕专业内容，小样本验证。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI MatePad Pro 13.2-inch 2025 &nbsp;<span class="verdict verdict-hold">保持 / 验证</span></h3>
+  <p>超大屏 Pro 旗舰，作为品牌和创作高度，暂不抢 12 X 的规模预算。</p>
+  <dl>
+    <dt>Product</dt><dd>大屏创作旗舰。</dd>
+    <dt>Price</dt><dd>保持高端锚点。</dd>
+    <dt>Place</dt><dd>官网、高端内容创作场景。</dd>
+    <dt>Promotion</dt><dd>创作者评测和展示，不做广泛转化。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI MatePad 11.5 S &nbsp;<span class="verdict verdict-harvest">收割</span></h3>
+  <p>公开首页新产品区可见，但在 2025 款已出现后不应进入主投。</p>
+  <dl>
+    <dt>Product</dt><dd>上一代/旁支平板。</dd>
+    <dt>Price</dt><dd>库存承接。</dd>
+    <dt>Place</dt><dd>自然流量。</dd>
+    <dt>Promotion</dt><dd>不新增大预算。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI MatePad SE 11 &nbsp;<span class="verdict verdict-hold">保持 / 验证</span></h3>
+  <p>入门平板，适合价格承接和家庭场景，不做核心投资。</p>
+  <dl>
+    <dt>Product</dt><dd>入门娱乐/家庭平板。</dd>
+    <dt>Price</dt><dd>守住入门价位。</dd>
+    <dt>Place</dt><dd>零售和自然搜索。</dd>
+    <dt>Promotion</dt><dd>家庭娱乐和儿童学习，低预算。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI FreeBuds 7i &nbsp;<span class="verdict verdict-hold">保持 / 验证</span></h3>
+  <p>音频新款之一，但公开功能锚点不如 Pro 5 / FreeClip 2 清晰，先做承接。</p>
+  <dl>
+    <dt>Product</dt><dd>大众 TWS。</dd>
+    <dt>Price</dt><dd>入门/中端承接。</dd>
+    <dt>Place</dt><dd>官网和零售自然流量。</dd>
+    <dt>Promotion</dt><dd>低成本承接，不抢 Pro 5。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI FreeBuds Pro 5 &nbsp;<span class="verdict verdict-grow">增长 / 投资</span></h3>
+  <p>ANC 与音质故事明确，是音频主投 SKU。</p>
+  <dl>
+    <dt>Product</dt><dd>高端降噪 TWS。</dd>
+    <dt>Price</dt><dd>高端音频价位，避免与 7i 混乱。</dd>
+    <dt>Place</dt><dd>retail media、搜索、官网。</dd>
+    <dt>Promotion</dt><dd>ANC、通话、音质证明，配合短链路测试。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI FreeBuds Pro 4 &nbsp;<span class="verdict verdict-harvest">收割</span></h3>
+  <p>上一代 Pro，预算让位 Pro 5。</p>
+  <dl>
+    <dt>Product</dt><dd>上一代高端音频。</dd>
+    <dt>Price</dt><dd>库存承接。</dd>
+    <dt>Place</dt><dd>自然流量和尾货。</dd>
+    <dt>Promotion</dt><dd>不新增主预算。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI FreeArc &nbsp;<span class="verdict verdict-hold">保持 / 验证</span></h3>
+  <p>开放/运动形态可做差异化，但需确认罗马尼亚本地需求。</p>
+  <dl>
+    <dt>Product</dt><dd>开放式/运动音频。</dd>
+    <dt>Price</dt><dd>保持差异化价位。</dd>
+    <dt>Place</dt><dd>运动内容和官网。</dd>
+    <dt>Promotion</dt><dd>舒适佩戴和运动安全，小样本验证。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI FreeBuds 6 &nbsp;<span class="verdict verdict-hold">保持 / 验证</span></h3>
+  <p>通话清晰卖点可作为承接，但优先级低于 Pro 5 和 FreeClip 2。</p>
+  <dl>
+    <dt>Product</dt><dd>通话和日常 TWS。</dd>
+    <dt>Price</dt><dd>中端承接。</dd>
+    <dt>Place</dt><dd>搜索和零售。</dd>
+    <dt>Promotion</dt><dd>通勤/通话场景，低预算测试。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI FreeClip 2 &nbsp;<span class="verdict verdict-grow">增长 / 投资</span></h3>
+  <p>开放式舒适佩戴故事清晰，适合创作者内容和人群细分。</p>
+  <dl>
+    <dt>Product</dt><dd>开放式舒适佩戴音频。</dd>
+    <dt>Price</dt><dd>用差异化而不是低价竞争。</dd>
+    <dt>Place</dt><dd>creator、社媒、官网。</dd>
+    <dt>Promotion</dt><dd>舒适、清晰通话、全天佩戴。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI WiFi Mesh X3 Pro &nbsp;<span class="verdict verdict-grow">增长 / 投资</span></h3>
+  <p>家庭覆盖/高速 Wi-Fi 问题解决 SKU，小额高意图预算即可。</p>
+  <dl>
+    <dt>Product</dt><dd>家庭 Mesh Wi-Fi 升级。</dd>
+    <dt>Price</dt><dd>以官方起价为锚。</dd>
+    <dt>Place</dt><dd>搜索、电子零售、家庭网络场景。</dd>
+    <dt>Promotion</dt><dd>覆盖、速度、安装便利，匹配高意图搜索。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI 4G CPE 5 &nbsp;<span class="verdict verdict-grow">增长 / 投资</span></h3>
+  <p>4G 家宽替代/租房/备份联网场景清楚，适合搜索和零售解释。</p>
+  <dl>
+    <dt>Product</dt><dd>4G CPE 家庭联网。</dd>
+    <dt>Price</dt><dd>官方起价作为清晰门槛。</dd>
+    <dt>Place</dt><dd>搜索、零售、可能的运营商场景。</dd>
+    <dt>Promotion</dt><dd>SIM、安装、覆盖和远程办公场景。</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI Consumer Ecosystem (AppGallery/HMS) &nbsp;<span class="verdict verdict-hold">保持 / 验证</span></h3>
+  <p>不是硬件 SKU，但会影响手机和平板转化；预算应服务于疑虑消除和跨设备生态，而非独立卖点。</p>
+  <dl>
+    <dt>Product</dt><dd>AppGallery / Mobile Services 生态支撑。</dd>
+    <dt>Price</dt><dd>不作为独立收入项。</dd>
+    <dt>Place</dt><dd>手机和平板 PDP、FAQ、门店解释。</dd>
+    <dt>Promotion</dt><dd>兼容性解释、迁移教程和购买前疑虑消除。</dd>
+  </dl></div></div>
+</section><section id="inv3">
+  <h2>钱落在哪：SKU × 打法模块</h2>
+  <div class="heatmap" style="grid-template-columns:1fr repeat(8, 1fr);margin:12px 0">
+    <div class="hm-header">SKU</div><div class="hm-header">paid_social_video</div><div class="hm-header">creator_review</div><div class="hm-header">retail_media</div><div class="hm-header">pr_reviews</div><div class="hm-header">search</div><div class="hm-header">pdp_content</div><div class="hm-header">retail_activation</div><div class="hm-header">category_brand</div><div class="hm-label">HUAWEI WATCH FIT 5 Pro</div><div class="hm-cell" style="background:rgba(79,70,229,0.90);color:#1e1b3a" title="assumption_grade">80,000<span class="inv-conf-dot" style="background:#d97706"></span></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-label">HUAWEI WATCH GT 6 Pro</div><div class="hm-cell hm-none"></div><div class="hm-cell" style="background:rgba(79,70,229,0.81);color:#1e1b3a" title="assumption_grade">70,000<span class="inv-conf-dot" style="background:#d97706"></span></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-label">HUAWEI MatePad 12 X 2025</div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell" style="background:rgba(79,70,229,0.81);color:#1e1b3a" title="assumption_grade">70,000<span class="inv-conf-dot" style="background:#d97706"></span></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-label">HUAWEI Pura 80 Pro</div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell" style="background:rgba(79,70,229,0.81);color:#1e1b3a" title="assumption_grade">70,000<span class="inv-conf-dot" style="background:#d97706"></span></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-label">HUAWEI FreeBuds Pro 5</div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell" style="background:rgba(79,70,229,0.72);color:#1e1b3a" title="assumption_grade">60,000<span class="inv-conf-dot" style="background:#d97706"></span></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-label">HUAWEI WATCH GT 6</div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell" style="background:rgba(79,70,229,0.72);color:#1e1b3a" title="assumption_grade">60,000<span class="inv-conf-dot" style="background:#d97706"></span></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-label">HUAWEI MateBook D 16 2024</div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell" style="background:rgba(79,70,229,0.72);color:#1e1b3a" title="assumption_grade">60,000<span class="inv-conf-dot" style="background:#d97706"></span></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-label">HUAWEI nova 14 Pro</div><div class="hm-cell" style="background:rgba(79,70,229,0.63);color:#1e1b3a" title="assumption_grade">50,000<span class="inv-conf-dot" style="background:#d97706"></span></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-label">HUAWEI Pura 80 Ultra</div><div class="hm-cell hm-none"></div><div class="hm-cell" style="background:rgba(79,70,229,0.63);color:#1e1b3a" title="assumption_grade">50,000<span class="inv-conf-dot" style="background:#d97706"></span></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-label">HUAWEI MatePad 11.5 2025</div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell" style="background:rgba(79,70,229,0.54);color:#1e1b3a" title="assumption_grade">40,000<span class="inv-conf-dot" style="background:#d97706"></span></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-label">HUAWEI FreeClip 2</div><div class="hm-cell hm-none"></div><div class="hm-cell" style="background:rgba(79,70,229,0.54);color:#1e1b3a" title="assumption_grade">40,000<span class="inv-conf-dot" style="background:#d97706"></span></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-label">HUAWEI WiFi Mesh X3 Pro</div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell" style="background:rgba(79,70,229,0.45);color:#1e1b3a" title="assumption_grade">30,000<span class="inv-conf-dot" style="background:#d97706"></span></div><div class="hm-cell hm-none"></div><div class="hm-label">HUAWEI 4G CPE 5</div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell" style="background:rgba(79,70,229,0.27);color:#1e1b3a" title="assumption_grade">10,000<span class="inv-conf-dot" style="background:#d97706"></span></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-label">HUAWEI Consumer Ecosystem (AppGallery/HMS)</div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell hm-none"></div><div class="hm-cell" style="background:rgba(79,70,229,0.27);color:#1e1b3a" title="assumption_grade">10,000<span class="inv-conf-dot" style="background:#d97706"></span></div>
+  </div>
+  <p style="font-size:12px;color:var(--ink-2);margin-top:8px;font-weight:600">看图：格子越深＝花的钱越多；圆点颜色＝证据等级——绿＝验证过、蓝＝MMM 校准、黄＝假设级。</p>
+  <p style="font-size:11px;color:var(--muted)">RON</p>
+</section><div class="chapter-head" id="ch4">
+  <div class="ch-num">4 · 执行</div>
+  <div class="ch-question">谁去做、什么时候、花多少钱——怎么算赢？</div>
+  <div class="ch-answer"><span>一句话回答</span> 14 个 SKU 判定加大投入（HUAWEI Pura 80 Ultra、HUAWEI Pura 80 Pro、HUAWEI nova 14 Pro）——确认后送入单品分析流程。 这轮共批出 14 个 SKU × 打法模块的落地动作（见下方任务卡）；另有 2 个格子还需要更多证据才能批钱。</div>
+</div><section id="c4">
+  <h2>4 - 进入 HTE 深挖的 SKU</h2>
+  <p class="section-intro">A Grow verdict is a Hypothesis: it says there is profit room worth a closer look, not that the room is proven. Confirm the list, then run each SKU through the single-SKU pipeline (ref 13 → HTE / experiment design). Only a holdout / geo test turns “looks like room” into Sourced incremental upside.</p>
+  <p>SKUs that earned a Grow verdict — confirm, then send to the SKU pipeline:</p>
+  <ul><li><strong>HUAWEI Pura 80 Ultra</strong></li><li><strong>HUAWEI Pura 80 Pro</strong></li><li><strong>HUAWEI nova 14 Pro</strong></li><li><strong>HUAWEI WATCH GT 6 Pro</strong></li><li><strong>HUAWEI WATCH GT 6</strong></li><li><strong>HUAWEI WATCH FIT 5 Pro</strong></li><li><strong>HUAWEI WATCH FIT 5</strong></li><li><strong>HUAWEI MateBook D 16 2024</strong></li><li><strong>HUAWEI MatePad 12 X 2025</strong></li><li><strong>HUAWEI MatePad 11.5 2025</strong></li><li><strong>HUAWEI FreeBuds Pro 5</strong></li><li><strong>HUAWEI FreeClip 2</strong></li><li><strong>HUAWEI WiFi Mesh X3 Pro</strong></li><li><strong>HUAWEI 4G CPE 5</strong></li></ul>
+</section><section id="inv4">
+  <h2>落地任务卡（这轮批到钱的动作）</h2>
+  <div class="cards"><div class="card">
+  <h3>HUAWEI WATCH FIT 5 Pro &nbsp;·&nbsp; paid_social_video</h3>
+  <dl>
+    <dt>负责人</dt><dd>穿戴增长负责人</dd>
+    <dt>投入</dt><dd>80,000 RON</dd>
+    <dt>投产比</dt><dd>6.42x</dd>
+    <dt>怎么测</dt><dd>付费社媒分组人群 holdout 对照</dd>
+    <dt>止损线</dt><dd>边际投产比连续两个预算档低于 1.35x，即停止追加。</dd>
+    <dt>证据等级</dt><dd>假设级（最佳猜测，还没测）</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI WATCH GT 6 Pro &nbsp;·&nbsp; creator_review</h3>
+  <dl>
+    <dt>负责人</dt><dd>达人合作负责人</dd>
+    <dt>投入</dt><dd>70,000 RON</dd>
+    <dt>投产比</dt><dd>5.79x</dd>
+    <dt>怎么测</dt><dd>达人触达组 vs 匹配 holdout 组对比</dd>
+    <dt>止损线</dt><dd>第4周评测流量涨了但下单转化没改善，即停止。</dd>
+    <dt>证据等级</dt><dd>假设级（最佳猜测，还没测）</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI MatePad 12 X 2025 &nbsp;·&nbsp; retail_media</h3>
+  <dl>
+    <dt>负责人</dt><dd>平板零售负责人</dd>
+    <dt>投入</dt><dd>70,000 RON</dd>
+    <dt>投产比</dt><dd>5.69x</dd>
+    <dt>怎么测</dt><dd>按市场/店群做零售陈列 holdout 对照</dd>
+    <dt>止损线</dt><dd>第一个投放检查点后看不到连带率或转化提升，即停止。</dd>
+    <dt>证据等级</dt><dd>假设级（最佳猜测，还没测）</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI Pura 80 Pro &nbsp;·&nbsp; pr_reviews</h3>
+  <dl>
+    <dt>负责人</dt><dd>手机公关负责人</dd>
+    <dt>投入</dt><dd>70,000 RON</dd>
+    <dt>投产比</dt><dd>4.24x</dd>
+    <dt>怎么测</dt><dd>评测触达组 vs holdout 组对比</dd>
+    <dt>止损线</dt><dd>高意图流量涨了但下单增量没涨，即停止。</dd>
+    <dt>证据等级</dt><dd>假设级（最佳猜测，还没测）</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI FreeBuds Pro 5 &nbsp;·&nbsp; retail_media</h3>
+  <dl>
+    <dt>负责人</dt><dd>音频零售负责人</dd>
+    <dt>投入</dt><dd>60,000 RON</dd>
+    <dt>投产比</dt><dd>5.07x</dd>
+    <dt>怎么测</dt><dd>零售媒体增量读数 + 可行处加 holdout</dd>
+    <dt>止损线</dt><dd>边际投产比低于 1.35x、或开始蚕食低毛利音频 SKU，即停止。</dd>
+    <dt>证据等级</dt><dd>假设级（最佳猜测，还没测）</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI WATCH GT 6 &nbsp;·&nbsp; search</h3>
+  <dl>
+    <dt>负责人</dt><dd>搜索增长负责人</dd>
+    <dt>投入</dt><dd>60,000 RON</dd>
+    <dt>投产比</dt><dd>4.77x</dd>
+    <dt>怎么测</dt><dd>分地域或分 campaign holdout 对照</dd>
+    <dt>止损线</dt><dd>边际投产比下界低于 1.35x 即封顶，不再加钱。</dd>
+    <dt>证据等级</dt><dd>假设级（最佳猜测，还没测）</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI MateBook D 16 2024 &nbsp;·&nbsp; search</h3>
+  <dl>
+    <dt>负责人</dt><dd>PC 增长负责人</dd>
+    <dt>投入</dt><dd>60,000 RON</dd>
+    <dt>投产比</dt><dd>4.94x</dd>
+    <dt>怎么测</dt><dd>搜索 campaign 拆分 holdout 对照</dd>
+    <dt>止损线</dt><dd>边际投产比跌破 1.35x 或学生优惠库存吃紧，即停止。</dd>
+    <dt>证据等级</dt><dd>假设级（最佳猜测，还没测）</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI nova 14 Pro &nbsp;·&nbsp; paid_social_video</h3>
+  <dl>
+    <dt>负责人</dt><dd>手机增长负责人</dd>
+    <dt>投入</dt><dd>50,000 RON</dd>
+    <dt>投产比</dt><dd>6.22x</dd>
+    <dt>怎么测</dt><dd>社媒分组人群 holdout 对照</dd>
+    <dt>止损线</dt><dd>社媒互动涨了但没带来下单提升，即停止。</dd>
+    <dt>证据等级</dt><dd>假设级（最佳猜测，还没测）</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI Pura 80 Ultra &nbsp;·&nbsp; creator_review</h3>
+  <dl>
+    <dt>负责人</dt><dd>旗舰手机负责人</dd>
+    <dt>投入</dt><dd>50,000 RON</dd>
+    <dt>投产比</dt><dd>4.40x</dd>
+    <dt>怎么测</dt><dd>摄影达人内容 holdout 对照</dd>
+    <dt>止损线</dt><dd>单台高客单增量的获客成本超过毛利安全线，即停止。</dd>
+    <dt>证据等级</dt><dd>假设级（最佳猜测，还没测）</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI MatePad 11.5 2025 &nbsp;·&nbsp; pdp_content</h3>
+  <dl>
+    <dt>负责人</dt><dd>官网内容负责人</dd>
+    <dt>投入</dt><dd>40,000 RON</dd>
+    <dt>投产比</dt><dd>4.88x</dd>
+    <dt>怎么测</dt><dd>PDP A/B 测试（按流量来源分层护栏）</dd>
+    <dt>止损线</dt><dd>PDP 转化提升没过预先登记的门槛之前，不放大媒体投放。</dd>
+    <dt>证据等级</dt><dd>假设级（最佳猜测，还没测）</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI FreeClip 2 &nbsp;·&nbsp; creator_review</h3>
+  <dl>
+    <dt>负责人</dt><dd>音频达人合作负责人</dd>
+    <dt>投入</dt><dd>40,000 RON</dd>
+    <dt>投产比</dt><dd>3.91x</dd>
+    <dt>怎么测</dt><dd>达人受众 holdout 对照</dd>
+    <dt>止损线</dt><dd>达人内容带来的流量转化率不高于音频品类基线，即停止。</dd>
+    <dt>证据等级</dt><dd>假设级（最佳猜测，还没测）</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI WiFi Mesh X3 Pro &nbsp;·&nbsp; retail_activation</h3>
+  <dl>
+    <dt>负责人</dt><dd>路由零售负责人</dd>
+    <dt>投入</dt><dd>30,000 RON</dd>
+    <dt>投产比</dt><dd>3.13x</dd>
+    <dt>怎么测</dt><dd>店群 holdout 对照</dd>
+    <dt>止损线</dt><dd>头两个周末体验店没有跑赢对照店，即停止。</dd>
+    <dt>证据等级</dt><dd>假设级（最佳猜测，还没测）</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI 4G CPE 5 &nbsp;·&nbsp; search</h3>
+  <dl>
+    <dt>负责人</dt><dd>路由搜索负责人</dd>
+    <dt>投入</dt><dd>10,000 RON</dd>
+    <dt>投产比</dt><dd>2.33x</dd>
+    <dt>怎么测</dt><dd>搜索 campaign 拆分 holdout 对照</dd>
+    <dt>止损线</dt><dd>边际投产比低于达标线、或库存跟不上需求，即停止。</dd>
+    <dt>证据等级</dt><dd>假设级（最佳猜测，还没测）</dd>
+  </dl></div><div class="card">
+  <h3>HUAWEI Consumer Ecosystem (AppGallery/HMS) &nbsp;·&nbsp; category_brand</h3>
+  <dl>
+    <dt>负责人</dt><dd>品类市场负责人</dd>
+    <dt>投入</dt><dd>10,000 RON</dd>
+    <dt>投产比</dt><dd>2.08x</dd>
+    <dt>怎么测</dt><dd>市场级或人群级品牌教育 holdout 对照</dd>
+    <dt>止损线</dt><dd>第一个投放检查点后助攻转化没动静，即停止。</dd>
+    <dt>证据等级</dt><dd>假设级（最佳猜测，还没测）</dd>
+  </dl></div></div>
+</section><div class="chapter-head" id="ch5">
+  <div class="ch-num">5 · 证据与风险</div>
+  <div class="ch-question">凭什么信这份报告？哪里可能翻车？</div>
+  <div class="ch-answer"><span>一句话回答</span> 8 个数查证过（带链接）、7 个是假设（依据写明）、4 个还没拿到——最薄弱的点：本地案例包：基于 2026-07-06 能公开检索到的 HUAWEI Romania 消费者官网、官方商店、品类页和规格页，建立一版 SKU 组合诊断与 HTE 投资规划。公开网页不能替代内部 sell-out、库存、毛利和随机实验，所以本报告把预算建议拆成两层：可立即执行的 planning-prior 投放，以及必须补齐的 HTE holdout 验证。 拿到钱的部分里，0 个格子有验证过的试验撑腰、0 个靠 MMM 校准、14 个还是假设级。已提供宏观校准——渠道级贡献见下。</div>
+</div><section id="s16">
+  <h2>16 · 证据与缺口</h2>
+  <p class="section-intro">这是报告中每个数字的审计追踪记录。所有数值均为以下四种之一：已溯源（附链接）、已假设（明确陈述依据）、已推导（展示公式与输入）或缺失（占位符——无数值被发明）。</p>
+  <div class="prov-donut-wrap"><div class="prov-donut" style="background:conic-gradient(#166534 0.0deg 144.0deg,#854d0e 144.0deg 270.0deg,#1e40af 270.0deg 288.0deg,#991b1b 288.0deg 360.0deg)"></div><div class="prov-legend"><div class="prov-leg-item"><div class="prov-leg-dot" style="background:#166534"></div><span>Sourced</span><span class="prov-leg-count">8</span></div><div class="prov-leg-item"><div class="prov-leg-dot" style="background:#854d0e"></div><span>Assumed</span><span class="prov-leg-count">7</span></div><div class="prov-leg-item"><div class="prov-leg-dot" style="background:#1e40af"></div><span>Derived</span><span class="prov-leg-count">1</span></div><div class="prov-leg-item"><div class="prov-leg-dot" style="background:#991b1b"></div><span>Missing</span><span class="prov-leg-count">4</span></div></div></div>
+  <h3>已溯源事实</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>事实</th><th>来源</th><th>访问日期</th></tr></thead>
+    <tbody><tr><td>HUAWEI Romania consumer site lists consumer categories including phones, wearables, laptops, tablets, audio and smart-home/router devices; the homepage highlights Pura 80, nova 14 Pro, WATCH GT/FIT/Ultimate, MateBook, MatePad, FreeBuds and WiFi products.</td><td><a href='https://consumer.huawei.com/ro/'>HUAWEI Romania consumer home</a></td><td>2026-07-06</td></tr><tr><td>The official phone offer page exposes public price anchors for Mate X7, nova 14 Pro, Pura 80 Ultra and Pura 80 Pro.</td><td><a href='https://consumer.huawei.com/ro/offer/telefoane/'>HUAWEI Romania offer/telefoane</a></td><td>2026-07-06</td></tr><tr><td>The wearables pages expose WATCH FIT 5 Pro, WATCH FIT 5, WATCH GT 6 / GT 6 Pro and older GT/FIT layers, with GT 6 Pro positioned around advanced outdoor sport and long battery life.</td><td><a href='https://consumer.huawei.com/ro/wearables/'>HUAWEI Romania wearables and WATCH GT 6 Pro pages</a></td><td>2026-07-06</td></tr><tr><td>The tablet pages expose MatePad 12 X, MatePad 11.5 2025, MatePad Pro 12.2 / 13.2 and PaperMatte / productivity propositions.</td><td><a href='https://consumer.huawei.com/ro/tablets/'>HUAWEI Romania tablets</a></td><td>2026-07-06</td></tr><tr><td>The laptop pages expose MateBook D 16 2024 and MateBook D 14 2024, with D 16 emphasizing a 16-inch 16:10 display, portability, Intel processors and connectivity.</td><td><a href='https://consumer.huawei.com/ro/laptops/matebook-d-16-2024/'>HUAWEI MateBook D 16 2024</a></td><td>2026-07-06</td></tr><tr><td>The audio offer page highlights FreeBuds Pro 5, FreeClip 2 and FreeBuds 6 around ANC, clear calls and comfort use cases.</td><td><a href='https://consumer.huawei.com/ro/offer/audio/'>HUAWEI Romania audio offer</a></td><td>2026-07-06</td></tr><tr><td>The router page exposes WiFi Mesh X3 Pro and 4G CPE 5 public price anchors; the 4G CPE 5 specs page lists Wi-Fi 6 and SIM-based CPE characteristics.</td><td><a href='https://consumer.huawei.com/ro/routers/'>HUAWEI Romania routers and 4G CPE 5 specs</a></td><td>2026-07-06</td></tr></tbody></table></div>
+  <h3>假设登记表</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>假设</th><th>值</th><th>依据</th></tr></thead>
+    <tbody><tr><td>公开检索到的手机产品/系列数</td><td>5</td><td>Manual dedupe from official Huawei Romania phones and offer pages on 2026-07-06.</td></tr><tr><td>公开检索到的穿戴产品/系列数</td><td>12</td><td>Manual dedupe from official Huawei Romania home, wearables and product pages on 2026-07-06.</td></tr><tr><td>公开检索到的 PC 产品/系列数</td><td>2</td><td>Manual dedupe from official Huawei Romania laptop pages on 2026-07-06.</td></tr><tr><td>公开检索到的平板产品/系列数</td><td>7</td><td>Manual dedupe from official Huawei Romania tablet pages on 2026-07-06.</td></tr><tr><td>公开检索到的音频产品/系列数</td><td>6</td><td>Manual dedupe from official Huawei Romania audio offer and home pages on 2026-07-06.</td></tr><tr><td>公开检索到的路由产品/系列数</td><td>2</td><td>Manual dedupe from official Huawei Romania routers page on 2026-07-06.</td></tr><tr><td>公开检索到的消费者服务/生态入口数</td><td>1</td><td>Huawei Romania support navigation lists HUAWEI Mobile Services / AppGallery as a consumer ecosystem entry.</td></tr></tbody></table></div>
+  <h3>缺失账本 — 按敏感性排序，这就是工作计划</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>内容</th><th>从何获取</th><th>成本</th><th>阻塞</th></tr></thead>
+    <tbody><tr><td>罗马尼亚 90 天 SKU sell-out</td><td>Huawei Romania official store / retail / e-commerce transaction export</td><td>Internal export, 0.5-1 day</td><td>real revenue sizing, validated budget ceiling</td></tr><tr><td>SKU x channel gross margin</td><td>Finance margin file by SKU and channel</td><td>Internal export, 0.5 day</td><td>profit-accurate ROI, channel budget cap</td></tr><tr><td>SKU x module randomized holdout</td><td>Geo, store, audience or customer-level randomized test design</td><td>2-4 weeks pilot</td><td>validated HTE, Qini / AUUC, decile calibration, policy value</td></tr><tr><td>SKU stock and replenishment readiness</td><td>Local supply chain inventory by SKU</td><td>Internal export, 2 hours</td><td>flight size, avoid funding out-of-stock SKUs</td></tr></tbody></table></div>
+</section><section id="inv-hte">
+  <h2>HTE 验证核心（tau 数字凭什么信）</h2>
+  <p class="callout">验证方式：公开网页调研拿不到随机分组、holdout 结果和 SKU 级毛利——本报告所有 tau_hat 均为规划先验，必须用本地 holdout 实测替换·holdout 样本量：0。只有 validation_ref 把配置的每道门槛全过了才配叫'验证过'：AUUC（排序质量）、校准误差（幅度诚实）、区间覆盖率（不确定性诚实——模型给的区间普遍过度自信，必须在 holdout 上自证覆盖率）。</p>
+  
+  <div class="table-wrap"><table>
+    <thead><tr><th>验证记录</th><th>模型</th><th>Qini / AUUC</th><th>校准误差 (MAE)</th><th>区间覆盖率</th><th>过门槛？</th></tr></thead>
+    <tbody></tbody></table></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>十分位</th><th>预测 tau</th><th>实测提升</th><th>偏差</th></tr></thead>
+    <tbody></tbody></table></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>tau 区间</th><th>人群占比</th></tr></thead>
+    <tbody><tr><td>&lt;=0</td><td>0%</td></tr><tr><td>0-1%</td><td>33%</td></tr><tr><td>1-3%</td><td>67%</td></tr><tr><td>&gt;3%</td><td>0%</td></tr></tbody></table></div>
+</section><section id="inv-mmm">
+  <h2>宏观渠道校准（MMM）</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>渠道</th><th>渠道贡献</th></tr></thead>
+    <tbody><tr><td>规划先验 · 零售媒体</td><td>210,000</td></tr><tr><td>规划先验 · 搜索</td><td>180,000</td></tr><tr><td>规划先验 · 付费短视频</td><td>160,000</td></tr><tr><td>规划先验 · 达人/评测</td><td>140,000</td></tr><tr><td>规划先验 · 品类品牌</td><td>90,000</td></tr></tbody></table></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>渠道</th><th>后验 ROAS</th><th>90% 区间</th></tr></thead>
+    <tbody><tr><td>零售媒体（先验）</td><td>2.40</td><td>1.50-3.20</td></tr><tr><td>搜索（先验）</td><td>2.10</td><td>1.40-2.80</td></tr><tr><td>达人/评测（先验）</td><td>1.80</td><td>1.00-2.60</td></tr><tr><td>付费短视频（先验）</td><td>1.70</td><td>0.90-2.40</td></tr><tr><td>品类品牌（先验）</td><td>1.20</td><td>0.50-2.00</td></tr></tbody></table></div>
+  <div class="inv-frontier-grid"><div class="inv-panel"><div class="inv-panel-title">广告残留 / 响应曲线 · 零售媒体（先验）</div>
+<svg class="inv-svg" viewBox="0 0 520 190" role="img">
+  <line x1="50" y1="12" x2="50" y2="166" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="50" y1="166" x2="506" y2="166" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="50" y1="166.0" x2="506" y2="166.0" stroke="#cbd5e1" stroke-width="1"/>
+  
+  <polyline points="50.0,166.0 202.0,76.5 354.0,33.5 506.0,12.0" fill="none" stroke="#0891b2" stroke-width="2.2"/>
+  <circle cx="50.0" cy="166.0" r="2.6" fill="#0891b2"/><circle cx="202.0" cy="76.5" r="2.6" fill="#0891b2"/><circle cx="354.0" cy="33.5" r="2.6" fill="#0891b2"/><circle cx="506.0" cy="12.0" r="2.6" fill="#0891b2"/>
+  <text x="50" y="184" font-size="9" fill="#64748b">0</text>
+  <text x="506" y="184" font-size="9" fill="#64748b" text-anchor="end">150,000</text>
+</svg></div><div class="inv-panel"><div class="inv-panel-title">广告残留 / 响应曲线 · 付费短视频（先验）</div>
+<svg class="inv-svg" viewBox="0 0 520 190" role="img">
+  <line x1="50" y1="12" x2="50" y2="166" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="50" y1="166" x2="506" y2="166" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="50" y1="166.0" x2="506" y2="166.0" stroke="#cbd5e1" stroke-width="1"/>
+  
+  <polyline points="50.0,166.0 202.0,87.1 354.0,38.3 506.0,12.0" fill="none" stroke="#0891b2" stroke-width="2.2"/>
+  <circle cx="50.0" cy="166.0" r="2.6" fill="#0891b2"/><circle cx="202.0" cy="87.1" r="2.6" fill="#0891b2"/><circle cx="354.0" cy="38.3" r="2.6" fill="#0891b2"/><circle cx="506.0" cy="12.0" r="2.6" fill="#0891b2"/>
+  <text x="50" y="184" font-size="9" fill="#64748b">0</text>
+  <text x="506" y="184" font-size="9" fill="#64748b" text-anchor="end">150,000</text>
+</svg></div><div class="inv-panel"><div class="inv-panel-title">饱和曲线 · 穿戴·付费短视频（先验）</div>
+<svg class="inv-svg" viewBox="0 0 520 190" role="img">
+  <line x1="50" y1="12" x2="50" y2="166" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="50" y1="166" x2="506" y2="166" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="50" y1="166.0" x2="506" y2="166.0" stroke="#cbd5e1" stroke-width="1"/>
+  
+  <polyline points="50.0,166.0 202.0,64.5 354.0,29.5 506.0,12.0" fill="none" stroke="#4f46e5" stroke-width="2.2"/>
+  <circle cx="50.0" cy="166.0" r="2.6" fill="#4f46e5"/><circle cx="202.0" cy="64.5" r="2.6" fill="#4f46e5"/><circle cx="354.0" cy="29.5" r="2.6" fill="#4f46e5"/><circle cx="506.0" cy="12.0" r="2.6" fill="#4f46e5"/>
+  <text x="50" y="184" font-size="9" fill="#64748b">0</text>
+  <text x="506" y="184" font-size="9" fill="#64748b" text-anchor="end">150,000</text>
+</svg></div><div class="inv-panel"><div class="inv-panel-title">饱和曲线 · 音频·零售媒体（先验）</div>
+<svg class="inv-svg" viewBox="0 0 520 190" role="img">
+  <line x1="50" y1="12" x2="50" y2="166" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="50" y1="166" x2="506" y2="166" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="50" y1="166.0" x2="506" y2="166.0" stroke="#cbd5e1" stroke-width="1"/>
+  
+  <polyline points="50.0,166.0 202.0,57.5 354.0,26.0 506.0,12.0" fill="none" stroke="#4f46e5" stroke-width="2.2"/>
+  <circle cx="50.0" cy="166.0" r="2.6" fill="#4f46e5"/><circle cx="202.0" cy="57.5" r="2.6" fill="#4f46e5"/><circle cx="354.0" cy="26.0" r="2.6" fill="#4f46e5"/><circle cx="506.0" cy="12.0" r="2.6" fill="#4f46e5"/>
+  <text x="50" y="184" font-size="9" fill="#64748b">0</text>
+  <text x="506" y="184" font-size="9" fill="#64748b" text-anchor="end">150,000</text>
+</svg></div></div>
+</section><section id="inv5">
+  <h2>这轮所有候选格子的证据等级（不管这轮批没批钱）</h2>
+  <div class="chk-summary"><div class="chk-stat"><div class="chk-stat-num" style="color:#16a34a">0</div><div class="chk-stat-label">验证过（随机试验 + 有测量条件）</div></div><div class="chk-stat"><div class="chk-stat-num" style="color:#2563eb">0</div><div class="chk-stat-label">MMM 校准（宏观模型先验）</div></div><div class="chk-stat"><div class="chk-stat-num" style="color:#d97706">14</div><div class="chk-stat-label">假设级（最佳猜测，还没测）</div></div><div class="chk-stat"><div class="chk-stat-num" style="color:#9ca3af">2</div><div class="chk-stat-label">冻结（没批钱）</div></div></div>
+  <h3>宏观渠道校准（MMM）</h3>
+  <p class="callout">已提供宏观校准——渠道级贡献见下。</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>渠道</th><th>后验 ROAS</th><th>90% 区间</th></tr></thead>
+    <tbody><tr><td>零售媒体（先验）</td><td>2.40</td><td>1.50-3.20</td></tr><tr><td>搜索（先验）</td><td>2.10</td><td>1.40-2.80</td></tr><tr><td>付费短视频（先验）</td><td>1.70</td><td>0.90-2.40</td></tr><tr><td>达人/评测（先验）</td><td>1.80</td><td>1.00-2.60</td></tr><tr><td>品类品牌（先验）</td><td>1.20</td><td>0.50-2.00</td></tr></tbody></table></div>
+  <p style="font-size:12px;color:var(--muted)">没有提供 holdout 验证（Qini/AUUC）——上面的 ROI 数字不能当作因果已证实，只是模型的最佳估计，还没有拿随机 holdout 测过。</p>
+</section>
+</main>
+<footer>
+  2026-07-06 &nbsp;·&nbsp;
+  本地案例：公开资料 + planning prior。不可视为 HUAWEI 内部数据或 validated HTE；禁止同步 GitHub。 &nbsp;·&nbsp;
+  <a href="https://github.com/alexwang91/scientific-marketing-personalized-attribution-hte">方法论</a>
+</footer>
+</div>
+</div>
+<script>
+(function(){
+  var links = document.querySelectorAll(".toc-link");
+  var secs = document.querySelectorAll("section[id]");
+  if(!secs.length) return;
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(a){
+          a.classList.toggle("active", a.getAttribute("href")==="#"+e.target.id);
+        });
+      }
+    });
+  }, {threshold:0.15, rootMargin:"-8% 0px -75% 0px"});
+  secs.forEach(function(s){ obs.observe(s); });
+})();
+</script>
+
+</body>
+</html>

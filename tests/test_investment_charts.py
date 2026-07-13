@@ -78,7 +78,7 @@ def test_budget_matrix_preserves_first_seen_axis_order():
 
 
 def test_confidence_strip_counts_by_computed_badge():
-    cells = [{"tau_source": "randomized_hte", "measurement_gate": "g"},
+    cells = [{"tau_source": "randomized_hte", "measurement_gate": "g", "_hte_validated": True},
              {"tau_source": "expert_assumption"}, {"tau_source": "missing"}]
     spec = charts.confidence_strip_spec(cells)
     assert spec["validated"] == 1
@@ -87,11 +87,52 @@ def test_confidence_strip_counts_by_computed_badge():
     assert spec["mmm_calibrated"] == 0
 
 
-def test_deferred_mmm_chart_stubs_all_return_status_deferred():
-    assert charts.mmm_contribution_spec([]) == {"status": "deferred"}
-    assert charts.adstock_saturation_spec([]) == {"status": "deferred"}
-    assert charts.posterior_roas_spec([]) == {"status": "deferred"}
-    assert charts.lift_calibration_spec([]) == {"status": "deferred"}
+def test_hte_chart_specs_are_real_dashboard_inputs():
+    qini = charts.hte_qini_spec([
+        {"targeted_pct": 0, "cumulative_lift_pct": 0},
+        {"targeted_pct": 50, "cumulative_lift_pct": 74},
+        {"targeted_pct": 100, "cumulative_lift_pct": 100},
+    ], auuc=0.24)
+    assert qini["status"] == "available"
+    assert qini["points"] == [(0, 0), (50, 74), (100, 100)]
+    assert qini["random_baseline"] == [(0, 0), (100, 100)]
+    assert qini["auuc"] == 0.24
+
+    deciles = charts.hte_decile_calibration_spec([
+        {"decile": 1, "predicted_tau": 0.04, "observed_lift": 0.038},
+        {"decile": 2, "predicted_tau": 0.03, "observed_lift": 0.028},
+    ])
+    assert deciles["rows"][0]["gap"] == 0.002
+
+    distribution = charts.hte_tau_distribution_spec([
+        {"bucket": "0-1%", "share": 0.4},
+        {"bucket": "1-3%", "share": 0.6},
+    ])
+    assert distribution["bins"][1]["share"] == 0.6
+
+
+def test_mmm_chart_specs_render_from_provided_summary_not_deferred():
+    contribution = charts.mmm_contribution_spec([
+        {"channel": "Search", "contribution": 1200},
+        {"channel": "Retail media", "contribution": 2400},
+    ])
+    assert contribution["status"] == "available"
+    assert contribution["bars"][0]["channel"] == "Retail media"
+
+    adstock = charts.adstock_saturation_spec([
+        {"channel": "Search", "points": [{"spend": 0, "response": 0}, {"spend": 1000, "response": 0.7}]}
+    ])
+    assert adstock["panels"][0]["points"] == [(0, 0), (1000, 0.7)]
+
+    roas = charts.posterior_roas_spec([
+        {"channel": "Search", "mean": 2.1, "lo": 1.4, "hi": 3.0}
+    ])
+    assert roas["intervals"][0]["mean"] == 2.1
+
+    lift = charts.lift_calibration_spec([
+        {"channel": "Search", "predicted": 0.05, "observed": 0.047}
+    ])
+    assert lift["points"][0] == (0.05, 0.047)
 
 
 if __name__ == "__main__":

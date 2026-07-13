@@ -151,6 +151,35 @@ def test_local_channel_map_renders_channel_screen_rows():
     assert "Best-case benchmark CAC already exceeds ceiling" in s4_chunk
 
 
+def test_post_treatment_failed_dimension_is_stamped_and_capped_in_heatmap():
+    # criterion 5b (ref 14): a dimension whose proxy conditions on
+    # post-treatment behaviour gets a warning stamp on its table row, and its
+    # H cells in the heatmap render capped to T — selection is not causation.
+    cfg = copy.deepcopy(rpt.DEMO_CONFIG)
+    cfg["dimensions"] = [
+        {"id": "D1", "name": "Past visitors", "mechanism": "retargeting pool",
+         "proxy": "visited PDP after ad exposure", "entry_score": "3/5",
+         "verdict": "Retain", "resolution_status": "open",
+         "post_treatment_check": "fail",
+         "post_treatment_note": "pool membership is caused by exposure"},
+        {"id": "D2", "name": "Region", "mechanism": "pre-treatment geo",
+         "proxy": "shipping region", "entry_score": "4/5",
+         "verdict": "Retain", "resolution_status": "open"},
+    ]
+    cfg["heatmap"] = {
+        "channels": ["Search"],
+        "dimensions": ["D1", "D2"],
+        "scores": {"Search": {"D1": "H", "D2": "H"}},
+    }
+    html = rpt.generate_html(cfg)
+    assert "post-treatment proxy risk" in html
+    # D1's H is capped to T (rendered with the warning glyph); D2's H survives
+    hm = html[html.index('id="s6"'):]
+    assert hm.count("hm-high") >= 1          # D2 still primary
+    assert "⚠" in hm                          # D1 capped with marker
+    assert "capped at Test" in hm or "selection, not causation" in hm
+
+
 def test_report_has_five_chapter_banners_with_answers():
     html = rpt.generate_html(copy.deepcopy(rpt.DEMO_CONFIG))
     assert html.count('class="chapter-head"') == 5

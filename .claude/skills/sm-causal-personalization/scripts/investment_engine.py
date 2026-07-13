@@ -94,7 +94,7 @@ def confidence_badge(cell: dict) -> str:
     (investment_schema.py rejects a 'confidence' field in the config).
 
     - blocked:          tau_source == "missing", or readiness below the floor
-    - validated:        randomized_hte + a measurement_gate is in place
+    - validated:        randomized_hte + measurement_gate + HTE validation gate
     - mmm_calibrated:   mmm_calibrated_prior
     - assumption_grade: everything else (modeled_hte or randomized_hte
                         without a gate, or expert_assumption)
@@ -103,7 +103,7 @@ def confidence_badge(cell: dict) -> str:
     readiness = cell.get("readiness", 1.0)
     if tau_source == "missing" or readiness is None or readiness < MIN_READINESS:
         return "blocked"
-    if tau_source == "randomized_hte" and cell.get("measurement_gate"):
+    if tau_source == "randomized_hte" and cell.get("measurement_gate") and cell.get("_hte_validated"):
         return "validated"
     if tau_source == "mmm_calibrated_prior":
         return "mmm_calibrated"
@@ -130,18 +130,31 @@ def filter_investable_cells(cells: list[dict],
 
 
 def optimize_investment(cells: list[dict], total_budget: float, budget_step: float,
-                        required_mroi: float) -> dict:
-    """Fund steps in descending marginal-ROI order; stop at the first step
-    that falls below required_mroi or would exceed the budget (same prefix
-    rule as policy_budget.allocate's cumsum-based cutoff — not skip-ahead).
-    lambda_star = marginal ROI of the last funded step, 0.0 if none funded."""
+                        required_mroi: float,
+                        required_mroi_by_confidence: dict | None = None) -> dict:
+    """Fund steps in descending marginal-ROI order until the budget runs out
+    (same prefix rule as policy_budget.allocate's cumsum-based cutoff).
+
+    The ROI floor is an eligibility test per step, and it may differ by the
+    step's evidence tier: required_mroi_by_confidence maps a confidence badge
+    to its own floor (fallback: the flat required_mroi). Charging
+    assumption-grade cells a higher floor is the risk premium for systematic
+    overconfidence in unvalidated estimates — CausalDS (arXiv 2607.08093)
+    measured every frontier model's nominal 95% intervals covering only
+    20-71% empirically, so an unvalidated tau_hat should be presumed
+    optimistic, not neutral. A step below its own tier's floor is skipped
+    (a cheaper step of a better-evidenced tier may still qualify); the
+    budget cutoff still ends the prefix.
+
+    lambda_star = lowest marginal ROI actually funded, 0.0 if none."""
+    floors = required_mroi_by_confidence or {}
     steps = sorted(expand_budget_steps(cells, budget_step), key=lambda s: -s["marginal_roi"])
 
     funded_steps: list[dict] = []
     spend_used = 0.0
     for step in steps:
-        if step["marginal_roi"] < required_mroi:
-            break
+        if step["marginal_roi"] < floors.get(step["confidence"], required_mroi):
+            continue
         if spend_used + step["step_spend"] > total_budget:
             break
         funded_steps.append(step)
