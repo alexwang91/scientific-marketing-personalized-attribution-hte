@@ -3322,6 +3322,7 @@ def _load_by_path(name: str):
 
 
 InvestmentConfigError = _load_by_path("investment_schema").InvestmentConfigError
+AudienceConfigError = _load_by_path("audience_schema").AudienceConfigError
 
 
 def _load_dashboard_modules():
@@ -3461,6 +3462,8 @@ def main():
                 print(f"LINT WARNING — {w}", file=sys.stderr)
             if cfg.get("investment_plan"):
                 _load_by_path("investment_schema").validate_or_raise(cfg)
+            if cfg.get("audience_cards") is not None:
+                _load_by_path("audience_schema").validate_or_raise(cfg)
             print("Config valid: provenance contract satisfied.", file=sys.stderr)
             return
         if args.format == "dashboard":
@@ -3477,6 +3480,9 @@ def main():
         print(f"BUILD FAILED — {e}", file=sys.stderr)
         sys.exit(2)
     except InvestmentConfigError as e:
+        print(f"BUILD FAILED — {e}", file=sys.stderr)
+        sys.exit(2)
+    except AudienceConfigError as e:
         print(f"BUILD FAILED — {e}", file=sys.stderr)
         sys.exit(2)
 
