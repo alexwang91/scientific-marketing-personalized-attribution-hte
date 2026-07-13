@@ -163,30 +163,28 @@ it. English acronyms used to hide weak thinking fail this test the hardest.
 
 ## Rule 4c — Operating Vocabulary: Business Language Must Point to a Decision
 
-Operating language (the Huawei / frontline register a sales operator actually
-speaks) is welcome **when it points to operating discipline, not decorative
-seriousness**. Every operating term must land on **who owns it / what metric it
-moves / what data source proves it** — otherwise it is battle language for work
-with no owner.
+Operating language (the register a sales or marketing operator actually speaks)
+is welcome **when it points to real work, not decorative seriousness**. Every
+operating term must land on **who owns it / what metric it moves / what data
+source proves it** — otherwise it is a slogan with no owner. Keep the plain,
+concrete terms; skip the theatrical ones nobody says out loud.
 
 | Operating term | Must resolve to |
 |----------------|-----------------|
-| 端到端 / end-to-end | Map the user steps; assign each an owner, a metric, and a data source |
-| 打法 / campaign / battle map | Phases, goal, owner, and decision cadence |
-| 一线 / frontline insight | Raw quotes from sales, service, retail, social — tagged trigger / barrier / competitor / price objection / proof need |
+| 端到端 / end-to-end | Map the user steps; give each an owner, a metric, and a data source |
+| 打法 / campaign | Phases, goal, owner, and decision cadence |
+| 一线洞察 / frontline insight | Raw quotes from sales, service, retail, social — tagged trigger / barrier / competitor / price objection / proof need |
 | 经营指标 / metric-driven | Name the metric **and** the decision it triggers |
 | 场景化 / scenario-led | The situation, the user task, the product behavior |
-| 铁三角 / iron triangle | Account, solution, delivery — and the decision each owns |
-| 让听得见炮声的人做判断 | Who at the front has the data and the authority to call it |
 
 > **Bad**: "构建端到端营销闭环 (build an end-to-end marketing loop)."
 >
 > **Good**: "画出 看广告 → 进商详 → 咨询 → 下单 → 复购 五步；每一步派一个
 > 负责人、一个指标、一个数据源。"
 
-Failure modes: using battle language for work with no owner; saying
-"以客户为中心 / customer-centric" without customer evidence; saying "闭环 /
-closed loop" when no one actually changes a decision.
+Failure modes: a slogan with no owner; saying "以客户为中心 / customer-centric"
+without customer evidence; saying "闭环 / closed loop" when no one actually
+changes a decision.
 
 ---
 
