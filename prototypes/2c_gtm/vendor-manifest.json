@@ -1,0 +1,43 @@
+{
+  "integration_repository": "alexwang91/scientific-marketing-personalized-attribution-hte",
+  "integration_base_commit": "0668fd7759c98065241dd0553a0ea0e7076060b8",
+  "sources": [
+    {
+      "repository": "alexwang91/Synthetic-population-and-Silicon-sampling",
+      "commit": "8bcdffb384eea783aa42dbc226b56d8072cf7904",
+      "unchanged_files": [
+        {
+          "path": "skills/country-pack-builder/scripts/sample_persona_skeletons.py",
+          "sha256": "5cf5f06fa9c64d2f2277d0e048bf6ab4fb156e9c73458dc99017ac7386f79bfd",
+          "git_blob_sha": "d80395569582d4159398c0f7eb0d969b8df75f0d"
+        },
+        {
+          "path": "skills/weighted-persona-pricing/scripts/generate_channel_plan.py",
+          "sha256": "13464482a8df5300a9eeecc761c5b2098832f39b2436724b66dd9ea367f28509",
+          "git_blob_sha": "9250981082b3d5c0bb7fbd3749a0d29d1eeca6fd"
+        },
+        {
+          "path": "skills/weighted-persona-pricing/scripts/run_channel_simulation.py",
+          "sha256": "1d0b1aa308e3f5a08693ef9e44926e26910c4f96bc02fc6b75723d8db2bf818e",
+          "git_blob_sha": "088fc5987ab0155194bea27cd844561ee9d6e8e6"
+        }
+      ]
+    },
+    {
+      "repository": "alexwang91/audience-activation-spec",
+      "commit": "90e8f0aafe32cf60f48df80e425b70572c2cb391",
+      "unchanged_files": [
+        {
+          "path": "schemas/activation-plan.schema.json",
+          "sha256": "44e18a00ec9b19a86994015ba281e7a9c156b4fbbdd16dd88fbe8b820a9d513a",
+          "git_blob_sha": "7557752d5504a675cc0a2f3613c2caab3764a49d"
+        },
+        {
+          "path": "schemas/research-signal.schema.json",
+          "sha256": "66629286685b0636943190cc62a48266be5caa075808953e904197cbc5d1a9b3",
+          "git_blob_sha": "256323484b07bd87afe47d2d88ae331ed6a4f751"
+        }
+      ]
+    }
+  ]
+}

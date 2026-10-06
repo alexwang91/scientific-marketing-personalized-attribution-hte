@@ -223,3 +223,17 @@ Pre-rendered HTML of each config lives in [`examples/rendered/`](.claude/skills/
 
 [Apache License 2.0](LICENSE) © 2026 alexwang91.
 *Free to use, modify, and distribute with attribution and the included patent grant.*
+
+
+## 2C GTM competition prototype
+
+An offline consumer-electronics prototype connects weighted synthetic audiences, evidence-aware activation, 4P operating actions, inventory/returns/margin gates, and the existing profit-budget frontier. All data are fictional.
+
+[Quickstart and demo](prototypes/2c_gtm/README.md) · [Input contract](prototypes/2c_gtm/DATA_CONTRACT.md) · [Architecture](prototypes/2c_gtm/ARCHITECTURE.md) · [Reproducible case](prototypes/2c_gtm/CASE_STUDY.md)
+
+```bash
+python prototypes/2c_gtm/server.py
+# http://127.0.0.1:8765
+python -m unittest discover -s prototypes/2c_gtm -p 'test_gtm.py' -v
+```
+

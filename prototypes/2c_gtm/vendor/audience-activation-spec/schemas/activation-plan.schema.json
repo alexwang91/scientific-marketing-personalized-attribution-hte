@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/alexwang91/audience-activation-spec/schemas/activation-plan.schema.json",
+  "title": "Activation Plan",
+  "description": "Minimal evidence-aware activation plan schema aligned with the 9-section Audience Activation Spec output.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "activation_brief",
+    "market_and_channel_assumptions",
+    "mainstream_reach_channel_map",
+    "research_signal_to_platform_mapping",
+    "channel_execution_specs",
+    "experiment_matrix",
+    "measurement_and_instrumentation",
+    "prioritized_launch_plan",
+    "quality_checks"
+  ],
+  "properties": {
+    "activation_brief": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["country", "audience", "activation_thesis", "evidence_handling"],
+      "properties": {
+        "country": {"type": "string", "minLength": 1},
+        "audience": {"type": "string", "minLength": 1},
+        "business_goal": {"type": "string"},
+        "funnel_stage": {"type": "string"},
+        "activation_thesis": {"type": "string", "minLength": 1},
+        "evidence_handling": {"type": "string", "minLength": 1}
+      }
+    },
+    "market_and_channel_assumptions": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/assumption"},
+      "minItems": 1
+    },
+    "mainstream_reach_channel_map": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/channel_map_row"},
+      "minItems": 1
+    },
+    "research_signal_to_platform_mapping": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/research_mapping_row"},
+      "minItems": 1
+    },
+    "channel_execution_specs": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/channel_execution_spec"},
+      "minItems": 1
+    },
+    "experiment_matrix": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/experiment_row"},
+      "minItems": 1
+    },
+    "measurement_and_instrumentation": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "prioritized_launch_plan": {
+      "type": "array",
+      "items": {"type": "object", "additionalProperties": true},
+      "minItems": 1
+    },
+    "quality_checks": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "minItems": 1
+    }
+  },
+  "$defs": {
+    "assumption": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["assumption", "working_view", "confidence", "validation_needed"],
+      "properties": {
+        "assumption": {"type": "string", "minLength": 1},
+        "working_view": {"type": "string", "minLength": 1},
+        "confidence": {"type": "string", "minLength": 1},
+        "validation_needed": {"type": "string", "minLength": 1}
+      }
+    },
+    "channel_map_row": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["channel", "role_in_funnel", "why_it_fits_this_audience", "reach_mechanism", "execution_priority"],
+      "properties": {
+        "channel": {"type": "string", "minLength": 1},
+        "role_in_funnel": {"type": "string", "minLength": 1},
+        "why_it_fits_this_audience": {"type": "string", "minLength": 1},
+        "reach_mechanism": {"type": "string", "minLength": 1},
+        "execution_priority": {"type": "string", "minLength": 1}
+      }
+    },
+    "research_mapping_row": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["research_signal", "evidence_label", "consumer_meaning", "platform_proxy", "channels_where_usable", "required_validation", "caveats"],
+      "properties": {
+        "research_signal": {"type": "string", "minLength": 1},
+        "evidence_label": {
+          "type": "string",
+          "enum": ["descriptive_segment_lift", "preference_heterogeneity", "behavioral_lift", "causal_hte", "uplift_targeting_label", "working_hypothesis"]
+        },
+        "consumer_meaning": {"type": "string", "minLength": 1},
+        "platform_proxy": {"type": "string", "minLength": 1},
+        "channels_where_usable": {"type": "string", "minLength": 1},
+        "required_validation": {"type": "string", "minLength": 1},
+        "caveats": {"type": "string", "minLength": 1}
+      }
+    },
+    "channel_execution_spec": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["channel", "role", "objective", "setup", "measurement", "validation_test"],
+      "properties": {
+        "channel": {"type": "string", "minLength": 1},
+        "role": {"type": "string", "minLength": 1},
+        "objective": {"type": "string", "minLength": 1},
+        "setup": {"type": "object", "additionalProperties": true},
+        "measurement": {"type": "object", "additionalProperties": true},
+        "evidence_basis": {"type": "object", "additionalProperties": true},
+        "validation_test": {"type": "string", "minLength": 1}
+      }
+    },
+    "experiment_row": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["test_cell", "channel", "audience_proxy", "creative_angle", "kpi", "success_threshold", "next_action"],
+      "properties": {
+        "test_cell": {"type": "string", "minLength": 1},
+        "channel": {"type": "string", "minLength": 1},
+        "audience_proxy": {"type": "string", "minLength": 1},
+        "creative_angle": {"type": "string", "minLength": 1},
+        "kpi": {"type": "string", "minLength": 1},
+        "success_threshold": {"type": "string", "minLength": 1},
+        "next_action": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

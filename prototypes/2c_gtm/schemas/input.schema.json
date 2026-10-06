@@ -1,0 +1,347 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "fictional",
+    "period_days",
+    "planning_budget_eur",
+    "rows",
+    "population_cells",
+    "experiments"
+  ],
+  "properties": {
+    "contract_version": {
+      "enum": [
+        "1.0"
+      ],
+      "type": "string"
+    },
+    "fictional": {
+      "enum": [
+        true
+      ],
+      "type": "boolean"
+    },
+    "period_days": {
+      "enum": [
+        7
+      ],
+      "type": "integer"
+    },
+    "planning_budget_eur": {
+      "type": "number",
+      "minimum": 0
+    },
+    "rows": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/row"
+      }
+    },
+    "population_cells": {
+      "type": "object"
+    },
+    "experiments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "row_id",
+          "scenario",
+          "media_channel",
+          "available_on",
+          "source",
+          "treatment_n",
+          "control_n",
+          "treatment_conversions",
+          "control_conversions"
+        ],
+        "properties": {
+          "row_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "scenario": {
+            "type": "string",
+            "minLength": 1,
+            "enum": [
+              "sport",
+              "commute",
+              "gift"
+            ]
+          },
+          "media_channel": {
+            "type": "string",
+            "minLength": 1
+          },
+          "available_on": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "enum": [
+              "simulated_randomized_fixture"
+            ]
+          },
+          "treatment_n": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "control_n": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "treatment_conversions": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "control_conversions": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "country",
+        "sku",
+        "channel",
+        "period",
+        "currency",
+        "category",
+        "provenance",
+        "scenario",
+        "price_eur",
+        "cost_eur",
+        "return_handling_eur",
+        "marketing_spend_eur",
+        "opening_stock_units",
+        "sell_in_units",
+        "sell_out_units",
+        "returns_units",
+        "closing_stock_units",
+        "inbound_units",
+        "inbound_due_days",
+        "lead_time_days",
+        "channel_fee_pct",
+        "discount_pct",
+        "content_readiness",
+        "traffic_index",
+        "seasonality_index",
+        "listed"
+      ],
+      "properties": {
+        "country": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sku": {
+          "type": "string",
+          "minLength": 1
+        },
+        "channel": {
+          "type": "string",
+          "minLength": 1,
+          "enum": [
+            "online",
+            "retail"
+          ]
+        },
+        "period": {
+          "type": "string",
+          "minLength": 1
+        },
+        "currency": {
+          "type": "string",
+          "minLength": 1,
+          "enum": [
+            "EUR"
+          ]
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "type": "string",
+          "minLength": 1,
+          "enum": [
+            "fictional_fixture"
+          ]
+        },
+        "scenario": {
+          "type": "string",
+          "minLength": 1,
+          "enum": [
+            "sport",
+            "commute",
+            "gift"
+          ]
+        },
+        "price_eur": {
+          "type": "number",
+          "minimum": 0.01
+        },
+        "cost_eur": {
+          "type": "number",
+          "minimum": 0
+        },
+        "return_handling_eur": {
+          "type": "number",
+          "minimum": 0
+        },
+        "marketing_spend_eur": {
+          "type": "number",
+          "minimum": 0
+        },
+        "opening_stock_units": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sell_in_units": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sell_out_units": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "returns_units": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "closing_stock_units": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "inbound_units": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "inbound_due_days": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "lead_time_days": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "channel_fee_pct": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "discount_pct": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "content_readiness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "traffic_index": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "seasonality_index": {
+          "type": "number",
+          "minimum": 0.01
+        },
+        "listed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "population": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "cell_id",
+          "population_weight",
+          "hard",
+          "calibration_trace"
+        ],
+        "properties": {
+          "cell_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "population_weight": {
+            "type": "number",
+            "minimum": 0.01
+          },
+          "hard": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "scenario",
+              "traits"
+            ],
+            "properties": {
+              "scenario": {
+                "type": "string",
+                "enum": [
+                  "sport",
+                  "commute",
+                  "gift"
+                ]
+              },
+              "traits": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "digital",
+                  "intent",
+                  "price",
+                  "premium"
+                ],
+                "properties": {
+                  "digital": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "intent": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "price": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "premium": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  }
+                }
+              }
+            }
+          },
+          "calibration_trace": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,182 @@
+[
+  {
+    "row_id": "HU|NOVA-W1|online|2026-09-28",
+    "period": "2026-10-05",
+    "sell_out_units": 59,
+    "returns_units": 2,
+    "closing_stock_units": 107,
+    "marketing_spend_eur": 400,
+    "label": "simulated_future_not_observed",
+    "randomized": false
+  },
+  {
+    "row_id": "HU|NOVA-W1|retail|2026-09-28",
+    "period": "2026-10-05",
+    "sell_out_units": 51,
+    "returns_units": 2,
+    "closing_stock_units": 139,
+    "marketing_spend_eur": 400,
+    "label": "simulated_future_not_observed",
+    "randomized": false
+  },
+  {
+    "row_id": "HU|NOVA-B1|online|2026-09-28",
+    "period": "2026-10-05",
+    "sell_out_units": 62,
+    "returns_units": 2,
+    "closing_stock_units": 185,
+    "marketing_spend_eur": 400,
+    "label": "simulated_future_not_observed",
+    "randomized": false
+  },
+  {
+    "row_id": "HU|NOVA-B1|retail|2026-09-28",
+    "period": "2026-10-05",
+    "sell_out_units": 54,
+    "returns_units": 2,
+    "closing_stock_units": 217,
+    "marketing_spend_eur": 400,
+    "label": "simulated_future_not_observed",
+    "randomized": false
+  },
+  {
+    "row_id": "HU|NOVA-T1|online|2026-09-28",
+    "period": "2026-10-05",
+    "sell_out_units": 65,
+    "returns_units": 2,
+    "closing_stock_units": 263,
+    "marketing_spend_eur": 400,
+    "label": "simulated_future_not_observed",
+    "randomized": false
+  },
+  {
+    "row_id": "HU|NOVA-T1|retail|2026-09-28",
+    "period": "2026-10-05",
+    "sell_out_units": 57,
+    "returns_units": 2,
+    "closing_stock_units": 295,
+    "marketing_spend_eur": 400,
+    "label": "simulated_future_not_observed",
+    "randomized": false
+  },
+  {
+    "row_id": "RO|NOVA-W1|online|2026-09-28",
+    "period": "2026-10-05",
+    "sell_out_units": 64,
+    "returns_units": 2,
+    "closing_stock_units": 42,
+    "marketing_spend_eur": 400,
+    "label": "simulated_future_not_observed",
+    "randomized": false
+  },
+  {
+    "row_id": "RO|NOVA-W1|retail|2026-09-28",
+    "period": "2026-10-05",
+    "sell_out_units": 56,
+    "returns_units": 2,
+    "closing_stock_units": 74,
+    "marketing_spend_eur": 400,
+    "label": "simulated_future_not_observed",
+    "randomized": false
+  },
+  {
+    "row_id": "RO|NOVA-B1|online|2026-09-28",
+    "period": "2026-10-05",
+    "sell_out_units": 67,
+    "returns_units": 2,
+    "closing_stock_units": 120,
+    "marketing_spend_eur": 400,
+    "label": "simulated_future_not_observed",
+    "randomized": false
+  },
+  {
+    "row_id": "RO|NOVA-B1|retail|2026-09-28",
+    "period": "2026-10-05",
+    "sell_out_units": 59,
+    "returns_units": 2,
+    "closing_stock_units": 1037,
+    "marketing_spend_eur": 400,
+    "label": "simulated_future_not_observed",
+    "randomized": false
+  },
+  {
+    "row_id": "RO|NOVA-T1|online|2026-09-28",
+    "period": "2026-10-05",
+    "sell_out_units": 70,
+    "returns_units": 8,
+    "closing_stock_units": 198,
+    "marketing_spend_eur": 400,
+    "label": "simulated_future_not_observed",
+    "randomized": false
+  },
+  {
+    "row_id": "RO|NOVA-T1|retail|2026-09-28",
+    "period": "2026-10-05",
+    "sell_out_units": 62,
+    "returns_units": 8,
+    "closing_stock_units": 230,
+    "marketing_spend_eur": 400,
+    "label": "simulated_future_not_observed",
+    "randomized": false
+  },
+  {
+    "row_id": "GR|NOVA-W1|online|2026-09-28",
+    "period": "2026-10-05",
+    "sell_out_units": 69,
+    "returns_units": 2,
+    "closing_stock_units": 0,
+    "marketing_spend_eur": 400,
+    "label": "simulated_future_not_observed",
+    "randomized": false
+  },
+  {
+    "row_id": "GR|NOVA-W1|retail|2026-09-28",
+    "period": "2026-10-05",
+    "sell_out_units": 61,
+    "returns_units": 2,
+    "closing_stock_units": 89,
+    "marketing_spend_eur": 400,
+    "label": "simulated_future_not_observed",
+    "randomized": false
+  },
+  {
+    "row_id": "GR|NOVA-B1|online|2026-09-28",
+    "period": "2026-10-05",
+    "sell_out_units": 72,
+    "returns_units": 2,
+    "closing_stock_units": 135,
+    "marketing_spend_eur": 400,
+    "label": "simulated_future_not_observed",
+    "randomized": false
+  },
+  {
+    "row_id": "GR|NOVA-B1|retail|2026-09-28",
+    "period": "2026-10-05",
+    "sell_out_units": 64,
+    "returns_units": 2,
+    "closing_stock_units": 167,
+    "marketing_spend_eur": 400,
+    "label": "simulated_future_not_observed",
+    "randomized": false
+  },
+  {
+    "row_id": "GR|NOVA-T1|online|2026-09-28",
+    "period": "2026-10-05",
+    "sell_out_units": 75,
+    "returns_units": 2,
+    "closing_stock_units": 213,
+    "marketing_spend_eur": 400,
+    "label": "simulated_future_not_observed",
+    "randomized": false
+  },
+  {
+    "row_id": "GR|NOVA-T1|retail|2026-09-28",
+    "period": "2026-10-05",
+    "sell_out_units": 67,
+    "returns_units": 2,
+    "closing_stock_units": 245,
+    "marketing_spend_eur": 400,
+    "label": "simulated_future_not_observed",
+    "randomized": false
+  }
+]

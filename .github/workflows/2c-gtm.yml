@@ -1,0 +1,28 @@
+name: 2C GTM prototype
+on:
+  pull_request:
+    paths:
+      - 'prototypes/2c_gtm/**'
+      - '.claude/skills/sm-causal-personalization/scripts/investment_*.py'
+      - 'skills/audience-activation/**'
+      - '.github/workflows/2c-gtm.yml'
+  push:
+    paths:
+      - 'prototypes/2c_gtm/**'
+      - '.claude/skills/sm-causal-personalization/scripts/investment_*.py'
+      - 'skills/audience-activation/**'
+      - '.github/workflows/2c-gtm.yml'
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: python -m unittest discover -s prototypes/2c_gtm -p 'test_gtm.py' -v
+      - run: node prototypes/2c_gtm/test_dashboard.cjs
+      - run: python prototypes/2c_gtm/server.py --export /tmp/2c-gtm-demo
